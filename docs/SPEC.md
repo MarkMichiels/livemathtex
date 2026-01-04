@@ -112,7 +112,7 @@ Livemathtex is a **core engine**. These features belong in separate projects:
 | Feature | Why Separate | Could Be Built As |
 |---------|--------------|-------------------|
 | **PDF export** | Existing tools excel | Use Pandoc on output |
-| **GUI interface** | Different user need | `mathcad-gui` repo using Livemathtex |
+| **GUI interface** | Different user need | `livemathtex-desktop` repo |
 | **VS Code extension** | Editor-specific | `livemathtex-vscode` repo |
 | **Web playground** | Different deployment | `livemathtex-web` repo |
 | **Plotting/graphs** | Many excellent libs | Integrate Matplotlib in wrapper |

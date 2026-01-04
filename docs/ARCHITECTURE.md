@@ -335,7 +335,7 @@ SAFE_FUNCTIONS = {
 **Separate projects (build on top of Livemathtex):**
 - VS Code Extension (`livemathtex-vscode`)
 - Web Playground (`livemathtex-web`)
-- GUI with PDF export (`mathcad-gui`)
+- GUI with PDF export (`livemathtex-desktop`)
 
 ---
 
