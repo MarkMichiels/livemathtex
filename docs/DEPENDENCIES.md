@@ -134,62 +134,6 @@ print(distance.to('km'))
 
 ---
 
-### 4. Expression Parsing: `lark`
-
-**Purpose:** Build parser for Livemathtex syntax (`:=`, `=`, `=>`).
-
-**Repository:** [lark-parser/lark](https://github.com/lark-parser/lark)
-
-**Installation:**
-```bash
-pip install lark
-```
-
-**Example Grammar:**
-```python
-from lark import Lark
-
-grammar = r"""
-    start: statement+
-
-    statement: definition | evaluation | expression
-
-    definition: VARIABLE ":=" expression
-    evaluation: expression "=" "?"?
-
-    expression: term ((ADD | SUB) term)*
-    term: factor ((MUL | DIV) factor)*
-    factor: atom ("^" factor)?
-    atom: NUMBER unit? | VARIABLE | function | "(" expression ")"
-
-    function: FUNC_NAME "(" expression ("," expression)* ")"
-    unit: UNIT_NAME ("/" UNIT_NAME)? ("^" NUMBER)?
-
-    ADD: "+"
-    SUB: "-"
-    MUL: "*" | "·" | "\\cdot"
-    DIV: "/" | "÷"
-
-    VARIABLE: /[a-zA-Z_][a-zA-Z0-9_]*/
-    NUMBER: /\d+\.?\d*/
-    UNIT_NAME: /[a-zA-Z]+/
-    FUNC_NAME: /sin|cos|tan|log|sqrt|exp/
-
-    %import common.WS
-    %ignore WS
-"""
-
-parser = Lark(grammar, start='start')
-```
-
-**Why Lark:**
-- EBNF grammar (readable)
-- Generates AST automatically
-- Fast (Earley or LALR)
-- Good error messages
-
----
-
 ### 5. Math Block Detection
 
 **Purpose:** Find `$...$` and `$$...$$` blocks in Markdown.
@@ -251,7 +195,6 @@ pip install ruff               # Linting
 sympy>=1.12
 pint>=0.23
 latex2sympy2>=1.9
-lark>=1.1
 numpy>=1.24
 
 # CLI
@@ -313,16 +256,14 @@ dev = [
 
 **Choice:** `pint` - industry standard, most units.
 
-### Parser Libraries
+### Why No Dedicated Parser (lark, pyparsing, etc.)
 
-| Library | Pros | Cons |
-|---------|------|------|
-| `lark` | EBNF, clear, fast | Learning curve |
-| `pyparsing` | Pythonic | Slower |
-| `ply` | Classic lex/yacc | Verbose |
-| `parsimonious` | PEG grammar | Less features |
+**We don't need a custom grammar parser because:**
+- `latex2sympy2` handles LaTeX parsing → SymPy
+- Operator detection (`:=`, `=`, `=>`) is simple string/regex
+- Math block detection (`$...$`) is regex-based
 
-**Choice:** `lark` - best balance of power and clarity.
+**Keep it simple:** regex + latex2sympy2 is sufficient.
 
 ---
 
@@ -330,7 +271,4 @@ dev = [
 
 - [SymPy Documentation](https://docs.sympy.org/)
 - [Pint Documentation](https://pint.readthedocs.io/)
-- [Lark Documentation](https://lark-parser.readthedocs.io/)
 - [latex2sympy2 GitHub](https://github.com/augustt198/latex2sympy)
-- [Matplotlib Documentation](https://matplotlib.org/stable/)
-- [Pandoc User Guide](https://pandoc.org/MANUAL.html)

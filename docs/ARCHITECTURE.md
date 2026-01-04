@@ -211,7 +211,7 @@ system = "SI"  # or "imperial"
 
 | Component | Library |
 |-----------|---------|
-| Parser | `lark` or `pyparsing` |
+| Operators | `regex` (`:=`, `=`, `=>` detection) |
 | Units | `pint` |
 | Numeric | `numpy`, `scipy` |
 | Symbolic | `sympy` |
@@ -343,5 +343,4 @@ SAFE_FUNCTIONS = {
 
 - [Pint Documentation](https://pint.readthedocs.io/)
 - [SymPy Documentation](https://docs.sympy.org/)
-- [Lark Parser](https://lark-parser.readthedocs.io/)
 - [latex2sympy2](https://github.com/augustt198/latex2sympy)
