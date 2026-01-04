@@ -7,14 +7,8 @@ Livemathtex follows a modular pipeline architecture:
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │   Parser    │───▶│   Engine    │───▶│  Renderer   │───▶│   Output    │
-│  (Frontend) │    │(Interpreter)│    │ (Compiler)  │    │  (MD/PDF)   │
+│  (Frontend) │    │(Interpreter)│    │ (Compiler)  │    │    (MD)     │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
-                          │
-                          ▼
-                   ┌─────────────┐
-                   │    Plot     │
-                   │   Module    │
-                   └─────────────┘
 ```
 
 ---
@@ -27,10 +21,10 @@ Livemathtex follows a modular pipeline architecture:
 
 #### Detection Strategy
 
-- Scan for `:=`, `=`, `=?` patterns
+- Scan for `:=`, `=`, `=>` patterns
 - Recognize `livemathtex` code fences
 - Distinguish static LaTeX (`$...$`) from calculable expressions
-- `=?` is unambiguous signal for evaluation
+- Trailing `=` signals evaluation request
 
 #### Grammar Elements
 
@@ -128,12 +122,7 @@ Output:
 $d = v \cdot t = 200\ \text{km}$
 ```
 
-#### LaTeX/PDF Output Mode
-
-- Wrap expressions in `align*` environments
-- Use `\coloneqq` for `:=` definitions
-- Include generated plots as `\includegraphics`
-- Professional typography
+**Note:** PDF/HTML export is out of scope. Use `pandoc output.md -o output.pdf` on the result.
 
 #### Error Display
 
@@ -153,39 +142,7 @@ Renders with visual emphasis (boxed, bold, or icon).
 
 ---
 
-### 4. Plot Module
-
-**Responsibility:** Generate graphs from function definitions.
-
-#### Input Syntax
-
-```markdown
-```plot
-title: "Parabola"
-y = x^2 - 4x + 5
-x = -2..6
-grid: true
-```
-```
-
-#### Implementation
-
-- Use matplotlib/plotly for rendering
-- Sample function at N points
-- Respect units for axis labels
-- Output PNG/SVG embedded in document
-
-#### Features
-
-- 2D line plots
-- Multiple series
-- Automatic scaling
-- Legend support
-- Future: 3D plots, bar charts
-
----
-
-### 5. CLI Interface
+### 4. CLI Interface
 
 **Responsibility:** Orchestrate pipeline, handle file I/O, watch mode.
 
@@ -195,7 +152,7 @@ grid: true
 livemathtex <input> [options]
 
 Options:
-  -o, --output FILE    Output file (md, pdf, html, tex)
+  -o, --output FILE    Output Markdown file
   -w, --watch          Watch mode, rebuild on change
   --digits N           Significant figures (default: 4)
   --scientific         Force scientific notation
@@ -203,6 +160,9 @@ Options:
   --timeout N          Max seconds per expression
   -v, --verbose        Verbose output
   -q, --quiet          Only show errors
+
+# For PDF: use external tools on the output
+pandoc output.md -o output.pdf
 ```
 
 #### Watch Mode
@@ -224,10 +184,8 @@ Options:
 | Units | `pint` |
 | Numeric | `numpy`, `scipy` |
 | Symbolic | `sympy` |
-| Plotting | `matplotlib` |
 | LaTeX parsing | `latex2sympy2` |
 | Markdown | `markdown-it-py` or `mistune` |
-| PDF | `pandoc` (external) or `weasyprint` |
 
 **Pros:** Rich ecosystem, rapid development, SymPy for CAS
 **Cons:** Distribution (requires Python), slightly slower
@@ -240,7 +198,6 @@ Options:
 | Units | `uom` or custom |
 | Numeric | `nalgebra` |
 | Symbolic | Limited (SymEngine FFI) |
-| Plotting | `plotters` |
 | WASM | Native support |
 
 **Pros:** Fast, single binary, WASM for web demo
@@ -276,12 +233,7 @@ livemathtex/
 │       │   └── cas.py       # SymPy integration
 │       ├── render/
 │       │   ├── __init__.py
-│       │   ├── markdown.py  # MD output
-│       │   ├── latex.py     # LaTeX output
-│       │   └── html.py      # HTML output
-│       ├── plot/
-│       │   ├── __init__.py
-│       │   └── plotter.py   # Graph generation
+│       │   └── markdown.py  # MD output (only output format)
 │       └── utils/
 │           ├── __init__.py
 │           └── errors.py    # Error types
@@ -358,14 +310,16 @@ SAFE_FUNCTIONS = {
 
 ## Future Extensions
 
-1. **VS Code Extension** - Live preview pane
-2. **Web Playground** - WASM-compiled demo
-3. **Jupyter Kernel** - Use in notebooks
-4. **Import/Include** - Reference other documents
-5. **Tables with Calculations** - Spreadsheet-like tables
-6. **Conditional Logic** - If/else in expressions
-7. **Iteration** - Loops and summations
-8. **Custom Themes** - Output styling options
+**In scope (this repo):**
+1. **Import/Include** - Reference other documents
+2. **Tables with Calculations** - Spreadsheet-like tables
+3. **Conditional Logic** - If/else in expressions
+4. **Iteration** - Loops and summations
+
+**Separate projects (build on top of Livemathtex):**
+- VS Code Extension (`livemathtex-vscode`)
+- Web Playground (`livemathtex-web`)
+- GUI with PDF export (`mathcad-gui`)
 
 ---
 

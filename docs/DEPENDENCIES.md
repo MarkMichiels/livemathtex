@@ -134,46 +134,7 @@ print(distance.to('km'))
 
 ---
 
-### 4. Plotting: `matplotlib`
-
-**Purpose:** Generate graphs and visualizations.
-
-**Installation:**
-```bash
-pip install matplotlib
-```
-
-**Example for Livemathtex:**
-```python
-import matplotlib.pyplot as plt
-import numpy as np
-
-def generate_plot(func, x_range, title="", xlabel="x", ylabel="y"):
-    x = np.linspace(x_range[0], x_range[1], 500)
-    y = func(x)
-
-    fig, ax = plt.subplots(figsize=(8, 5))
-    ax.plot(x, y, 'b-', linewidth=2)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
-    ax.grid(True, alpha=0.3)
-
-    # Save to file
-    fig.savefig('plot.png', dpi=150, bbox_inches='tight')
-    plt.close(fig)
-
-    return 'plot.png'
-```
-
-**Alternative: `plotly`**
-- Interactive plots
-- HTML output
-- Better for web deployment
-
----
-
-### 5. Expression Parsing: `lark`
+### 4. Expression Parsing: `lark`
 
 **Purpose:** Build parser for Livemathtex syntax (`:=`, `=`, `=>`).
 
@@ -229,7 +190,7 @@ parser = Lark(grammar, start='start')
 
 ---
 
-### 6. Markdown Processing: `markdown-it-py`
+### 5. Markdown Processing: `markdown-it-py`
 
 **Purpose:** Parse and render Markdown with extensions.
 
@@ -258,43 +219,19 @@ html = md.render("# Hello\n\n$x := 5$")
 
 ---
 
-### 7. PDF Generation
+## PDF Generation (Out of Scope)
 
-**Option A: Pandoc (External)**
-
-```bash
-pip install pypandoc
-```
-
-```python
-import pypandoc
-
-pypandoc.convert_file(
-    'output.md',
-    'pdf',
-    outputfile='output.pdf',
-    extra_args=['--pdf-engine=xelatex']
-)
-```
-
-**Requires:** pandoc + LaTeX installation
-
-**Option B: WeasyPrint (Pure Python)**
+PDF export is **intentionally out of scope** for Livemathtex. Use existing tools on the output:
 
 ```bash
-pip install weasyprint
+# Pandoc (recommended)
+pandoc output.md -o output.pdf
+
+# Or WeasyPrint for HTML-based
+weasyprint output.html output.pdf
 ```
 
-```python
-from weasyprint import HTML
-
-HTML('output.html').write_pdf('output.pdf')
-```
-
-**Pros:** No external dependencies
-**Cons:** CSS-based layout, less LaTeX-native
-
-**Recommendation:** Start with Pandoc for best LaTeX quality.
+This keeps Livemathtex focused on one thing: Markdown → Markdown with computed results.
 
 ---
 
@@ -320,13 +257,7 @@ latex2sympy2>=1.9
 lark>=1.1
 markdown-it-py>=3.0
 mdit-py-plugins>=0.4
-
-# Plotting
-matplotlib>=3.8
 numpy>=1.24
-
-# PDF (optional, requires external pandoc)
-pypandoc>=1.12
 
 # CLI
 click>=8.1
@@ -345,9 +276,6 @@ dev = [
     "black>=23.0",
     "mypy>=1.5",
     "ruff>=0.1",
-]
-pdf = [
-    "pypandoc>=1.12",
 ]
 ```
 

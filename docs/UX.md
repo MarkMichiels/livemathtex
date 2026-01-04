@@ -238,44 +238,6 @@ $1\ \text{lightyear} := 9.461 \times 10^{15}\ \text{m}$
 
 ---
 
-## Graphs and Plots
-
-### Basic Plot
-
-```markdown
-```plot
-y = x^2 - 4x + 5
-x = -2..6
-```
-```
-
-### With Options
-
-```markdown
-```plot
-title: "Projectile Motion"
-xlabel: "Time (s)"
-ylabel: "Height (m)"
-
-h = -0.5 * g * t^2 + v0 * t
-t = 0..10
-grid: true
-legend: true
-```
-```
-
-### Multiple Series
-
-```markdown
-```plot
-y1 = sin(x)
-y2 = cos(x)
-x = 0..2*pi
-```
-```
-
----
-
 ## CLI Usage Examples
 
 ### Basic Conversion
@@ -284,15 +246,15 @@ x = 0..2*pi
 # Markdown to Markdown with results
 livemathtex calculation.md -o calculation_out.md
 
-# Direct to PDF
-livemathtex calculation.md -o calculation.pdf
+# For PDF: use Pandoc on the output
+pandoc calculation_out.md -o calculation.pdf
 ```
 
 ### Watch Mode
 
 ```bash
 # Auto-rebuild on save
-livemathtex calculation.md -o calculation.pdf --watch
+livemathtex calculation.md --watch
 ```
 
 Terminal output:
@@ -313,7 +275,7 @@ livemathtex input.md --digits 6
 livemathtex input.md --scientific
 
 # Combine
-livemathtex input.md --digits 3 --scientific -o output.pdf
+livemathtex input.md --digits 3 --scientific -o output.md
 ```
 
 ---
@@ -401,10 +363,11 @@ $\text{Safe} = \delta_{max} < \delta_{allow} =>$
 ### Workflow
 
 1. Engineer writes `beam_design.md`
-2. Runs `livemathtex beam_design.md -o beam_design.pdf --watch`
-3. Opens PDF in viewer
+2. Runs `livemathtex beam_design.md --watch`
+3. Opens output in Markdown Preview (VS Code)
 4. Adjusts parameters, sees results immediately
-5. Shares PDF with team (or Git-commits the .md source)
+5. For sharing: `pandoc beam_design.md -o beam_design.pdf`
+6. Git-commits the .md source
 
 ---
 
@@ -436,11 +399,13 @@ $\text{Safe} = \delta_{max} < \delta_{allow} =>$
 - Searchable text
 - Works offline
 
-### Output Formats
+### Output Format
 
-- PDF for printing/sharing
-- HTML for web viewing
-- Markdown for further processing
+Livemathtex outputs **Markdown only**. For other formats, use external tools:
+
+- **PDF:** `pandoc output.md -o output.pdf`
+- **HTML:** `pandoc output.md -o output.html`
+- **Markdown:** Direct output, ready for any Markdown renderer
 
 ### Collaboration
 
@@ -459,5 +424,5 @@ The key UX principles:
 1. **Immediate feedback** - See results as you type
 2. **Familiar syntax** - Markdown + LaTeX, no new language
 3. **Clear errors** - Know exactly what went wrong
-4. **Flexible output** - PDF, HTML, or enhanced Markdown
+4. **Plain text output** - Enhanced Markdown, use Pandoc for PDF/HTML
 5. **Safe sharing** - Documents can't execute harmful code

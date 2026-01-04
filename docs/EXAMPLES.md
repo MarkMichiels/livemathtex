@@ -192,11 +192,11 @@ $r_{eff} = (1 + \frac{r}{n})^n - 1$
 
 ---
 
-## Example 6: With Graph
+## Example 6: Projectile Motion
 
 ### Input
 
-````markdown
+```markdown
 # Projectile Motion
 
 ## Parameters
@@ -220,17 +220,7 @@ $h_{max} = \frac{v_{0y}^2}{2g}$
 
 Range:
 $R = v_{0x} \cdot t_{flight} =>$
-
-## Trajectory
-
-```plot
-title: "Projectile Trajectory"
-xlabel: "Distance (m)"
-ylabel: "Height (m)"
-y = v_{0y}/v_{0x} * x - g/(2*v_{0x}^2) * x^2
-x = 0..R
 ```
-````
 
 ---
 

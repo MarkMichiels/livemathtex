@@ -398,17 +398,6 @@ F = m * g
 ```
 ````
 
-### Plot Block
-
-````markdown
-```plot
-title: "Sine Wave"
-y = sin(x)
-x = 0..2*pi
-grid: true
-```
-````
-
 ### Configuration Block
 
 ````markdown
@@ -454,17 +443,12 @@ $d = v \cdot t\ [\text{m}]$
 d = v · t = 200000 m
 ```
 
-### Function and Graph
+### Function Definition and Solving
 
 ```latex
 $f(x) := x^2 - 4x + 3$
 
 The roots are at $\text{solve}(f(x) = 0) =>$
-
-```plot
-y = x^2 - 4x + 3
-x = -1..5
-```
 ```
 
 ---
