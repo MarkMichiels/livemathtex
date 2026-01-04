@@ -29,24 +29,24 @@ But when an LLM generates a calculation, where do the numbers come from? You hav
 ```markdown
 $m := 5 \text{ kg}$
 $a := 9.81 \text{ m/s}^2$
-$F := m \cdot a =$
+$F == m \cdot a$
 ```
 
 > $m := 5 \text{ kg}$
 > $a := 9.81 \text{ m/s}^2$
-> $F := m \cdot a =$
+> $F == m \cdot a$
 
 **After `livemathtex process`:**
 
 ```markdown
 $m := 5 \text{ kg}$
 $a := 9.81 \text{ m/s}^2$
-$F := m \cdot a = 49.05 \text{ N}$
+$F == m \cdot a = 49.05 \text{ N}$
 ```
 
 > $m := 5 \text{ kg}$
 > $a := 9.81 \text{ m/s}^2$
-> $F := m \cdot a = 49.05 \text{ N}$
+> $F == m \cdot a = 49.05 \text{ N}$
 
 **The result is computed, not typed.** Change $m$ → $F$ updates. No disconnect.
 
@@ -77,8 +77,10 @@ Three operators. That's it.
 | Operator | Meaning | Example |
 |----------|---------|---------|
 | `:=` | Assign (define) | `$x := 42$` |
-| `=` | Evaluate (compute) | `$y = 1764$` |
-| `=>` | Symbolic (show derivation) | `$f'(x) => 2x + 2$` |
+| `==` | Evaluate (compute) | `$y == x^2$` → shows `= 1764` |
+| `=>` | Symbolic (derivation) | `$f'(x) =>$` → shows `= 2x + 2` |
+
+> ⚠️ **Why `==` not `=`?** Safety. You can't accidentally overwrite a variable by forgetting the `:` in `:=`.
 
 ### Assignment
 
@@ -92,7 +94,7 @@ $E := 200 \times 10^9 \text{ Pa}$
 
 ```latex
 $y := x^2$
-$y =$           → Livemathtex fills in: $y = 1764$
+$y ==$          → Livemathtex fills in: $y == x^2 = 1764$
 ```
 
 ### Symbolic (planned)
@@ -141,9 +143,9 @@ from livemathtex import process
 output = process("""
 $x := 5$
 $y := x^2$
-$y =$
+$y ==$
 """)
-# Returns: $x := 5$  $y := x^2$  $y = 25$
+# Returns: $x := 5$  $y := x^2$  $y == x^2 = 25$
 ```
 
 ### With AI assistants
@@ -207,9 +209,9 @@ See [ROADMAP.md](docs/ROADMAP.md) for full details.
 |----------|-------------|
 | [BACKGROUND.md](docs/BACKGROUND.md) | Research: what we tried and why we built this |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design |
-| [SYNTAX.md](docs/SYNTAX.md) | Complete syntax reference |
-| [EXAMPLES.md](docs/EXAMPLES.md) | Example calculations |
+| [USAGE.md](docs/USAGE.md) | Syntax, workflow, and examples |
 | [ROADMAP.md](docs/ROADMAP.md) | Development phases |
+| [DEPENDENCIES.md](docs/DEPENDENCIES.md) | Libraries and tools |
 
 ---
 

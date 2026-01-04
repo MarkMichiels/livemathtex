@@ -21,10 +21,10 @@ Livemathtex follows a modular pipeline architecture:
 
 #### Detection Strategy
 
-- Scan for `:=`, `=`, `=>` patterns
+- Scan for `:=`, `==`, `=>` patterns
+- Error on bare `=` (safety: prevents accidental overwrites)
 - Recognize `livemathtex` code fences
 - Distinguish static LaTeX (`$...$`) from calculable expressions
-- Trailing `=` signals evaluation request
 
 #### Grammar Elements
 
@@ -32,8 +32,8 @@ Livemathtex follows a modular pipeline architecture:
 |---------|---------|-------------|
 | Variables | `m_{rock}`, `α`, `x_1` | LaTeX subscript/superscript, Greek |
 | Assignment | `x := 5` | Definition, stored in symbol table |
-| Evaluation | `x =` | Compute and display numeric result |
-| Symbolic | `x =>` | Symbolic evaluation or highlight |
+| Evaluation | `x == expr` | Compute and display numeric result |
+| Symbolic | `f'(x) =>` | Symbolic evaluation (differentiation, etc.) |
 | Units | `9.81 m/s^2` | Recognized after numbers/variables |
 | Functions | `sin`, `cos`, `log`, `sqrt` | Built-in mathematical functions |
 | Matrices | `[[1,2];[3,4]]` | Row-separated by `;` |
@@ -114,12 +114,12 @@ Errors never crash the system. Each evaluation returns `Result<Value, Error>`:
 
 Input:
 ```markdown
-$d = v \cdot t$
+$d == v \cdot t$
 ```
 
 Output:
 ```markdown
-$d = v \cdot t = 200\ \text{km}$
+$d == v \cdot t = 200\ \text{km}$
 ```
 
 **Note:** PDF/HTML export is out of scope. Use `pandoc output.md -o output.pdf` on the result.
@@ -127,7 +127,8 @@ $d = v \cdot t = 200\ \text{km}$
 #### Error Display
 
 ```markdown
-$F = m \cdot a = \textcolor{red}{\text{Error: Undefined variable } m}$
+$F == m \cdot a$ → ⚠️ Error: Undefined variable 'm'
+$x = 5$ → ⚠️ Error: Invalid operator '='. Use ':=' or '=='
 ```
 
 #### Symbolic Results (`=>`)
@@ -211,7 +212,7 @@ system = "SI"  # or "imperial"
 
 | Component | Library |
 |-----------|---------|
-| Operators | `regex` (`:=`, `=`, `=>` detection) |
+| Operators | `regex` (`:=`, `==`, `=>` detection) |
 | Units | `pint` |
 | Numeric | `numpy`, `scipy` |
 | Symbolic | `sympy` |
@@ -261,8 +262,9 @@ livemathtex/
 ├── docs/
 │   ├── BACKGROUND.md
 │   ├── ARCHITECTURE.md
-│   ├── UX.md
-│   └── SYNTAX.md
+│   ├── USAGE.md
+│   ├── ROADMAP.md
+│   └── DEPENDENCIES.md
 └── examples/
     ├── basic.md
     ├── physics.md

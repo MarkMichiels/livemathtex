@@ -25,14 +25,15 @@ Phase 4: Ecosystem      ░░░░░░░░░░░░░░░░░░�
 
 - [ ] **1.1 Project Setup**
   - [x] Repository structure
-  - [x] Documentation (SPEC, ARCHITECTURE, UX)
+  - [x] Documentation (ARCHITECTURE, USAGE, ROADMAP)
   - [ ] pyproject.toml with dependencies
   - [ ] Basic test infrastructure
 
 - [ ] **1.2 Parser (Basic)**
   - [ ] Recognize `:=` definitions
-  - [ ] Recognize `=` evaluations
-  - [ ] Recognize `=>` symbolic/highlight
+  - [ ] Recognize `==` evaluations
+  - [ ] Recognize `=>` symbolic operations
+  - [ ] Error on bare `=` (safety feature)
   - [ ] Parse simple arithmetic expressions
   - [ ] Handle variable names (including Greek letters)
   - [ ] Skip non-calculation Markdown content
@@ -65,12 +66,12 @@ Phase 4: Ecosystem      ░░░░░░░░░░░░░░░░░░�
 # Input
 $x := 5$
 $y := 3$
-$z = x + y$
+$z == x + y$
 
 # Output
 $x := 5$
 $y := 3$
-$z = x + y = 8$
+$z == x + y = 8$
 ```
 
 ---
@@ -120,10 +121,10 @@ $z = x + y = 8$
 # Input
 $m := 5\ \text{kg}$
 $a := 9.81\ \text{m/s}^2$
-$F = m \cdot a$
+$F == m \cdot a$
 
 # Output
-$F = m \cdot a = 49.05\ \text{N}$
+$F == m \cdot a = 49.05\ \text{N}$
 ```
 
 ---
@@ -239,7 +240,7 @@ $f'(x) = 2x - 4$
 ## Priorities
 
 ### Must Have (MVP)
-- `:=`, `=` and `=>` syntax
+- `:=`, `==` and `=>` syntax
 - Variable definitions
 - Basic arithmetic
 - Error handling (from day one!)
@@ -280,6 +281,5 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to help with development.
 
 - [Background](./BACKGROUND.md)
 - [Architecture](./ARCHITECTURE.md)
-- [UX Design](./UX.md)
-- [Syntax Reference](./SYNTAX.md)
+- [Usage Reference](./USAGE.md)
 - [Dependencies](./DEPENDENCIES.md)
