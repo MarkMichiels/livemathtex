@@ -2,6 +2,22 @@
 
 This example demonstrates the basic livemathtex operators.
 
+## ❌ Common Mistakes (These Will Error)
+
+### Bare `=` instead of `:=` or `==`
+
+$x = 10
+\\ \color{red}{\text{
+    Error: Invalid operator '='. Use ':=' for definition or '==' for evaluation.}}$
+
+### Undefined variable
+
+$result := z + 5 ==
+\\ \color{red}{\text{
+    Error: Undefined variable(s): z}}$
+
+## ✅ Correct Usage
+
 ## Definitions (:=)
 
 Define some variables:
@@ -31,4 +47,4 @@ With simple definitions and evaluations, we can build up calculations step by st
 
 ---
 
-> *livemathtex: 2026-01-04 20:47:43 | 5 definitions, 4 evaluations | no errors | 0.05s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-04 21:05:19 | 6 definitions, 5 evaluations | 2 errors | 0.05s* <!-- livemathtex-meta -->

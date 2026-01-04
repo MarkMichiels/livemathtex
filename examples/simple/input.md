@@ -2,6 +2,18 @@
 
 This example demonstrates the basic livemathtex operators.
 
+## ❌ Common Mistakes (These Will Error)
+
+### Bare `=` instead of `:=` or `==`
+
+$x = 10$
+
+### Undefined variable
+
+$result := z + 5 ==$
+
+## ✅ Correct Usage
+
 ## Definitions (:=)
 
 Define some variables:

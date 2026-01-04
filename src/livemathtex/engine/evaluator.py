@@ -43,9 +43,9 @@ class Evaluator:
         """
         try:
             if calculation.operation == "ERROR":
-                # Return error with red color
+                # Return error on new line, formatted for markdown readability
                 err_msg = self._escape_latex_text(calculation.error_message or "Unknown error")
-                return f"{calculation.latex} \\\\ \\color{{red}}{{\\text{{⚠️ Error: {err_msg}}}}}"
+                return f"{calculation.latex}\n\\\\ \\color{{red}}{{\\text{{\n    Error: {err_msg}}}}}"
             elif calculation.operation == ":=":
                 return self._handle_assignment(calculation)
             elif calculation.operation == "==":
@@ -57,12 +57,9 @@ class Evaluator:
             else:
                 return ""
         except Exception as e:
-            # Escape the error message so it doesn't break LaTeX rendering
+            # Return error on new line, formatted for markdown readability
             err_msg = self._escape_latex_text(str(e))
-            # Use \\ for newline (in display math) or just append?
-            # In inline math $, \\ might not work well depending on renderer, but usually acceptable.
-            # We use \color{red} for visibility.
-            return f"{calculation.latex} \\\\ \\color{{red}}{{\\text{{Error: {err_msg}}}}}"
+            return f"{calculation.latex}\n\\\\ \\color{{red}}{{\\text{{\n    Error: {err_msg}}}}}"
 
     def _escape_latex_text(self, text: str) -> str:
         """Escape special LaTeX characters in text."""
@@ -156,6 +153,9 @@ class Evaluator:
 
         value = self._compute(lhs)
 
+        # Check for undefined variables (symbols that weren't substituted)
+        self._check_undefined_symbols(value, lhs)
+
         # Use unit_comment from parser
         value, suffix = self._apply_conversion(value, calc.unit_comment)
 
@@ -175,6 +175,10 @@ class Evaluator:
         rhs = rhs_part.strip()
 
         value = self._compute(rhs)
+
+        # Check for undefined variables (symbols that weren't substituted)
+        self._check_undefined_symbols(value, rhs)
+
         self.symbols.set(lhs, value, raw_latex=rhs)
 
         # Use unit_comment
@@ -184,6 +188,40 @@ class Evaluator:
         rhs_normalized = self._normalize_latex(rhs)
 
         return f"{lhs} := {rhs_normalized} == {result_latex}"
+
+    def _check_undefined_symbols(self, value: Any, original_latex: str) -> None:
+        """Check if the computed value contains undefined symbols."""
+        import sympy
+        import re
+        from sympy.physics import units as u
+
+        if not hasattr(value, 'free_symbols'):
+            return  # It's a pure number, no symbols
+
+        # Get symbols that are still in the expression (weren't substituted)
+        remaining_symbols = value.free_symbols
+
+        # Filter out known SI units (they're expected to remain)
+        undefined = []
+        for sym in remaining_symbols:
+            sym_name = str(sym)
+            # Clean \text{} wrapper
+            clean_name = re.sub(r'^\\(text|mathrm)\{([^}]+)\}$', r'\2', sym_name).strip()
+
+            # Check if it's a known unit
+            unit_mapping = {'kg', 'g', 'm', 's', 'N', 'J', 'W', 'Pa', 'Hz', 'V', 'A', 'K', 'mol'}
+            if clean_name in unit_mapping:
+                continue
+            if hasattr(u, clean_name):
+                unit_val = getattr(u, clean_name)
+                if isinstance(unit_val, (u.Unit, u.Quantity)):
+                    continue
+
+            # It's not a unit, so it's undefined
+            undefined.append(clean_name)
+
+        if undefined:
+            raise EvaluationError(f"Undefined variable(s): {', '.join(sorted(undefined))}")
 
     def _apply_conversion(self, value: Any, target_unit_latex: str):
         """

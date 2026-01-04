@@ -6,11 +6,17 @@ This example demonstrates SI units and variable naming.
 
 Using single-letter names that conflict with SI units:
 
-$m := 10 \cdot kg \\ \color{red}{\text{Error: Variable name 'm' conflicts with SI unit 'm'. Use a different name like 'm\_val' or 'my\_m'.}}$
+$m := 10 \cdot kg
+\\ \color{red}{\text{
+    Error: Variable name 'm' conflicts with SI unit 'm'. Use a different name like 'm\_val' or 'my\_m'.}}$
 
-$s := 5 \\ \color{red}{\text{Error: Variable name 's' conflicts with SI unit 's'. Use a different name like 's\_val' or 'my\_s'.}}$
+$s := 5
+\\ \color{red}{\text{
+    Error: Variable name 's' conflicts with SI unit 's'. Use a different name like 's\_val' or 'my\_s'.}}$
 
-$t := 10 \\ \color{red}{\text{Error: Variable name 't' conflicts with SI unit 't'. Use a different name like 't\_val' or 'my\_t'.}}$
+$t := 10
+\\ \color{red}{\text{
+    Error: Variable name 't' conflicts with SI unit 't'. Use a different name like 't\_val' or 'my\_t'.}}$
 
 ## ✅ Correct Approach: Use Subscripts or Descriptive Names
 
@@ -38,4 +44,4 @@ The ratio should be 2.5 (25 kg / 10 kg).
 
 ---
 
-> *livemathtex: 2026-01-04 20:47:36 | 10 definitions, 3 evaluations | 3 errors | 0.16s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-04 21:05:25 | 10 definitions, 3 evaluations | 3 errors | 0.16s* <!-- livemathtex-meta -->
