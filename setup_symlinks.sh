@@ -46,7 +46,7 @@ RULES_TO_LINK=(
 for rule in "${RULES_TO_LINK[@]}"; do
     SOURCE="$PROVIRON_DIR/.cursor/rules/$rule"
     TARGET="$SCRIPT_DIR/.cursor/rules/$rule"
-    
+
     if [ -f "$SOURCE" ]; then
         if [ -L "$TARGET" ]; then
             rm "$TARGET"
@@ -115,6 +115,44 @@ EOF
 fi
 
 # =============================================================================
+# tools/ and scripts/ - Development utilities (symlink from proviron)
+# =============================================================================
+echo ""
+echo "📁 Setting up tools/ and scripts/ (development utilities)..."
+
+# Symlink tools/
+if [ -d "$PROVIRON_DIR/tools" ]; then
+    if [ -L "$SCRIPT_DIR/tools" ]; then
+        rm "$SCRIPT_DIR/tools"
+    elif [ -d "$SCRIPT_DIR/tools" ]; then
+        echo "   ⚠️  Skipping tools/ (local directory exists)"
+    fi
+    
+    if [ ! -d "$SCRIPT_DIR/tools" ]; then
+        ln -s "$PROVIRON_DIR/tools" "$SCRIPT_DIR/tools"
+        echo "   ✅ tools/ → proviron"
+    fi
+else
+    echo "   ⚠️  tools/ not found in proviron"
+fi
+
+# Symlink scripts/
+if [ -d "$PROVIRON_DIR/scripts" ]; then
+    if [ -L "$SCRIPT_DIR/scripts" ]; then
+        rm "$SCRIPT_DIR/scripts"
+    elif [ -d "$SCRIPT_DIR/scripts" ]; then
+        echo "   ⚠️  Skipping scripts/ (local directory exists)"
+    fi
+    
+    if [ ! -d "$SCRIPT_DIR/scripts" ]; then
+        ln -s "$PROVIRON_DIR/scripts" "$SCRIPT_DIR/scripts"
+        echo "   ✅ scripts/ → proviron"
+    fi
+else
+    echo "   ⚠️  scripts/ not found in proviron"
+fi
+
+# =============================================================================
 # .crossnote/ - MPE preview styling (symlink from proviron)
 # =============================================================================
 echo ""
@@ -126,7 +164,7 @@ if [ -d "$PROVIRON_DIR/.crossnote" ]; then
     elif [ -d "$SCRIPT_DIR/.crossnote" ]; then
         echo "   ⚠️  Skipping .crossnote (local directory exists)"
     fi
-    
+
     if [ ! -d "$SCRIPT_DIR/.crossnote" ]; then
         ln -s "$PROVIRON_DIR/.crossnote" "$SCRIPT_DIR/.crossnote"
         echo "   ✅ .crossnote → proviron"
@@ -146,4 +184,3 @@ echo ""
 echo "To update symlinks after proviron changes:"
 echo "  ./setup_symlinks.sh"
 echo ""
-

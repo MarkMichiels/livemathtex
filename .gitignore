@@ -51,7 +51,13 @@ docs/_build/
 Thumbs.db
 
 # Symlinked directories (created by setup_symlinks.sh)
+# These provide proviron tools during development but are not needed for standalone use
 .crossnote
+/tools
+/scripts
+
+# Local history (VS Code)
+.history/
 
 # Symlinked rules from proviron (keep local rules only)
 .cursor/rules/general.mdc
