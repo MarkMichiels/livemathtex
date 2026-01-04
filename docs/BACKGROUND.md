@@ -288,6 +288,8 @@ The research showed many good tools, but none combined everything. Livemathtex f
 
 ## References
 
+- [PTC Mathcad](https://www.mathcad.com/)
+- [LibreOffice Calc](https://www.libreoffice.org/discover/calc/)
 - [Markdown Preview Enhanced](https://shd101wyy.github.io/markdown-preview-enhanced/)
 - [Jupytext](https://jupytext.readthedocs.io/)
 - [Quarto](https://quarto.org/)
