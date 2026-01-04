@@ -46,7 +46,7 @@ With Livemathtex, the calculation IS the documentation:
 $P_{LED} := 3273.6 \text{ kW}$
 $t := 8760 \text{ h}$
 $\eta := 0.90$
-$E_{year} = P_{LED} \cdot t \cdot \eta$
+$E_{year} := P_{LED} \cdot t \cdot \eta =$
 ```
 
 **You see (after processing):**
@@ -57,7 +57,7 @@ $t := 8760 \text{ h}$
 
 $\eta := 0.90$
 
-$E_{year} = P_{LED} \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
+$E_{year} := P_{LED} \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
 
 **No disconnect.** The numbers come directly from the formulas. Change a parameter → results update automatically. Everything stays consistent, traceable, and verifiable.
 
