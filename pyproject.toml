@@ -31,23 +31,23 @@ dependencies = [
     # Core math engine
     "sympy>=1.12",
     "latex2sympy2>=1.9.1",
-    
+
     # Units support
     "pint>=0.23",
-    
+
     # Parsing
     "lark>=1.1",
     "markdown-it-py>=3.0",
     "mdit-py-plugins>=0.4",
-    
+
     # Plotting
     "matplotlib>=3.8",
     "numpy>=1.24",
-    
+
     # CLI
     "click>=8.1",
     "rich>=13.0",
-    
+
     # Watch mode
     "watchdog>=3.0",
 ]

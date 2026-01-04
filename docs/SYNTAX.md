@@ -5,9 +5,8 @@
 | Syntax | Meaning | Example |
 |--------|---------|---------|
 | `:=` | Definition (assign) | `x := 5` |
-| `= ?` | Evaluation (compute) | `y = x + 1 = ?` |
-| `=` | Implicit evaluation | `y = x + 1` |
-| `=>` | Highlight result | `total = a + b =>` |
+| `=` | Evaluation (compute) | `y = x + 1` |
+| `=>` | Symbolic / highlight | `diff(x^2, x) =>` |
 | `#` | Comment | `# this is ignored` |
 
 ---
@@ -54,39 +53,43 @@ $\pi := 3.14159$  <!-- overrides built-in -->
 
 ## Evaluations
 
-### Explicit Evaluation (`= ?`)
-
-```latex
-$F = m \cdot a = ?$
-$E = \frac{1}{2} m v^2 = ?$
-```
-
-**Output:** Expression with computed result appended.
-
-### Implicit Evaluation (`=`)
+### Numeric Evaluation (`=`)
 
 ```latex
 $F = m \cdot a$
 $E = \frac{1}{2} m v^2$
 ```
 
-**Output:** Same as explicit, `?` is optional.
+**Output:** Expression with computed numeric result appended.
+
+### Symbolic Evaluation (`=>`)
+
+```latex
+$\frac{d}{dx}(x^2) =>$
+$\text{solve}(x^2 - 5x + 6 = 0) =>$
+```
+
+**Output:** Symbolic result (derivative, solution, simplification).
 
 ### Unit Conversion
 
 ```latex
 $v := 100\ \text{km/h}$
-$v = ?\ \text{m/s}$           <!-- Convert to m/s -->
-$v = ?\ \text{mph}$           <!-- Convert to mph -->
+$v_{\text{m/s}} = v\ [\text{m/s}]$    <!-- Convert to m/s -->
+$v_{\text{mph}} = v\ [\text{mph}]$    <!-- Convert to mph -->
 ```
 
-### Highlighted Result (`=>`)
+### Highlighted Result
+
+Use `=>` for important results you want to emphasize:
 
 ```latex
 $\text{Total Cost} = price \cdot quantity =>$
 ```
 
 **Output:** Result with visual emphasis (boxed, bold).
+
+Note: `=>` serves dual purpose: symbolic operations AND highlighting important numeric results.
 
 ---
 
@@ -307,27 +310,27 @@ $\text{solve}(A, b)$     <!-- solve Ax = b -->
 ### Differentiation
 
 ```latex
-$\frac{d}{dx}(x^2) = ?$
-$\text{diff}(x^3, x) = ?$
+$\frac{d}{dx}(x^2) =>$
+$\text{diff}(x^3, x) =>$
 ```
 
 ### Integration
 
 ```latex
-$\int x^2\, dx = ?$
-$\text{integrate}(x^2, x) = ?$
+$\int x^2\, dx =>$
+$\text{integrate}(x^2, x) =>$
 ```
 
 ### Equation Solving
 
 ```latex
-$\text{solve}(x^2 - 5x + 6 = 0, x) = ?$
+$\text{solve}(x^2 - 5x + 6 = 0, x) =>$
 ```
 
 ### Simplification
 
 ```latex
-$\text{simplify}(\sin^2(x) + \cos^2(x)) = ?$
+$\text{simplify}(\sin^2(x) + \cos^2(x)) =>$
 ```
 
 ---
@@ -358,17 +361,17 @@ comment block
 
 ```latex
 <!-- livemathtex: digits=4 -->
-$\pi = ?$  <!-- Shows 3.142 -->
+$\pi =$  <!-- Shows 3.142 -->
 
 <!-- livemathtex: digits=10 -->
-$\pi = ?$  <!-- Shows 3.141592654 -->
+$\pi =$  <!-- Shows 3.141592654 -->
 ```
 
 ### Scientific Notation
 
 ```latex
 <!-- livemathtex: scientific=true -->
-$1000000 = ?$  <!-- Shows 1.0 × 10⁶ -->
+$1000000 =$  <!-- Shows 1.0 × 10⁶ -->
 ```
 
 ### Unit System
@@ -391,7 +394,7 @@ m := 5 kg
 g := 9.81 m/s^2
 
 # Calculation
-F = m * g = ?
+F = m * g
 ```
 ````
 
@@ -430,7 +433,7 @@ $m := 10\ \text{kg}$
 $a := 2\ \text{m/s}^2$
 
 Calculate force:
-$F = m \cdot a = ?$
+$F = m \cdot a$
 ```
 
 **Output:**
@@ -443,7 +446,7 @@ F = m · a = 20 N
 ```latex
 $v := 100\ \text{km/h}$
 $t := 2\ \text{h}$
-$d = v \cdot t = ?\ \text{m}$
+$d = v \cdot t\ [\text{m}]$
 ```
 
 **Output:**
@@ -456,7 +459,7 @@ d = v · t = 200000 m
 ```latex
 $f(x) := x^2 - 4x + 3$
 
-The roots are at $\text{solve}(f(x) = 0) = ?$
+The roots are at $\text{solve}(f(x) = 0) =>$
 
 ```plot
 y = x^2 - 4x + 3
@@ -470,9 +473,9 @@ x = -1..5
 
 | Error | Cause | Example |
 |-------|-------|---------|
-| `Undefined variable` | Variable not defined | `$y = x = ?$` without `$x := ...$` |
+| `Undefined variable` | Variable not defined | `$y = x$` without `$x := ...$` |
 | `Unit mismatch` | Incompatible units | `$5\ \text{kg} + 3\ \text{m}$` |
-| `Division by zero` | Divide by zero | `$1/0 = ?$` |
+| `Division by zero` | Divide by zero | `$1/0$` |
 | `Invalid syntax` | Parse error | `$x := := 5$` |
 | `Circular dependency` | Self-reference | `$x := x + 1$` |
 | `Computation timeout` | Too complex | Very large matrix operations |

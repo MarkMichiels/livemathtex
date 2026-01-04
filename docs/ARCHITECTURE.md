@@ -38,7 +38,8 @@ Livemathtex follows a modular pipeline architecture:
 |---------|---------|-------------|
 | Variables | `m_{rock}`, `α`, `x_1` | LaTeX subscript/superscript, Greek |
 | Assignment | `x := 5` | Definition, stored in symbol table |
-| Evaluation | `x = ?` or `x =` | Compute and display result |
+| Evaluation | `x =` | Compute and display numeric result |
+| Symbolic | `x =>` | Symbolic evaluation or highlight |
 | Units | `9.81 m/s^2` | Recognized after numbers/variables |
 | Functions | `sin`, `cos`, `log`, `sqrt` | Built-in mathematical functions |
 | Matrices | `[[1,2];[3,4]]` | Row-separated by `;` |
@@ -119,7 +120,7 @@ Errors never crash the system. Each evaluation returns `Result<Value, Error>`:
 
 Input:
 ```markdown
-$d = v \cdot t = ?$
+$d = v \cdot t$
 ```
 
 Output:

@@ -35,15 +35,15 @@ Inspired by Mathcad's clear distinction:
 | Syntax | Meaning | Output |
 |--------|---------|--------|
 | `x := 5` | Definition (assignment) | Shows definition only |
-| `x = ?` | Evaluation (compute) | Shows computed result |
-| `x =` | Implicit evaluation | Shows computed result |
+| `x =` | Evaluation (compute) | Shows computed result |
+| `x =>` | Symbolic / highlight | Shows symbolic result or highlights |
 
 **Example:**
 
 ```markdown
 $v := 50\ \text{km/h}$           <!-- definition, no output -->
 $t := 4\ \text{h}$               <!-- definition, no output -->
-$d = v \cdot t = ?$              <!-- evaluation, shows: d = 200 km -->
+$d = v \cdot t$                  <!-- evaluation, shows: d = 200 km -->
 ```
 
 ### 3. Automatic Recalculation
@@ -56,7 +56,7 @@ Full support for physical units in calculations:
 
 - Variables can have units: `m := 5 kg`
 - Operations check dimensions and convert automatically
-- `F = m * a = ?` outputs result in Newton (N)
+- `F = m * a` outputs result in Newton (N)
 - Unit mismatch produces clear error messages
 - User-defined units: `1 mph := 1 mile/hour`
 
@@ -89,7 +89,7 @@ x = -2..6
 When errors occur, results show clear messages at the evaluation point:
 
 ```markdown
-$F = m \cdot a = ?$
+$F = m \cdot a$
 <!-- Output: F = ⚠️ Error: Undefined variable 'm' -->
 ```
 
@@ -120,7 +120,7 @@ Optional symbolic computation support:
 | Feature | Description |
 |---------|-------------|
 | **Live calculations** | Combine documentation and calculation in one file |
-| **`:=` vs `=`** | Clear separation between definition and evaluation |
+| **`:=` vs `=` vs `=>`** | Clear separation: definition / evaluation / symbolic |
 | **Auto-recalculation** | Automatic updates on changes |
 | **Units** | SI units, conversions, dimension analysis |
 | **Matrices** | Linear algebra operations |

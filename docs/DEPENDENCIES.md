@@ -175,7 +175,7 @@ def generate_plot(func, x_range, title="", xlabel="x", ylabel="y"):
 
 ### 5. Expression Parsing: `lark`
 
-**Purpose:** Build parser for Livemathtex syntax (`:=`, `= ?`).
+**Purpose:** Build parser for Livemathtex syntax (`:=`, `=`, `=>`).
 
 **Repository:** [lark-parser/lark](https://github.com/lark-parser/lark)
 

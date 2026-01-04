@@ -48,13 +48,13 @@ $price := 0.25 \text{ €/kWh}$
 
 $E_{year} := P_{LED} \cdot t_{year} \cdot \eta$
 
-$E_{year} = ?$
+$E_{year} =$
 
 ## Annual Cost
 
 $C_{year} := E_{year} \cdot price$
 
-$C_{year} = ?$
+$C_{year} =$
 ```
 
 ### Output (after processing)
@@ -96,12 +96,12 @@ $y := x^2 + 2x + 1$
 $\alpha := \frac{\pi}{4}$
 ```
 
-### Evaluation (`=` or `= ?`)
+### Evaluation (`=`)
 
 Request the calculated value. Livemathtex fills in the result.
 
 ```latex
-$y = ?$           → $y = 1849$
+$y =$             → $y = 1849$
 $\sin(\alpha) =$  → $\sin(\alpha) = 0.7071$
 ```
 
@@ -111,14 +111,14 @@ $\sin(\alpha) =$  → $\sin(\alpha) = 0.7071$
 $F := 100 \text{ N}$
 $d := 2 \text{ m}$
 $W := F \cdot d$
-$W = ?$           → $W = 200 \text{ J}$
+$W =$             → $W = 200 \text{ J}$
 ```
 
 ### Symbolic (planned)
 
 ```latex
 $f(x) := x^2 + 2x + 1$
-$f'(x) = ?$       → $f'(x) = 2x + 2$
+$f'(x) =>$        → $f'(x) = 2x + 2$
 ```
 
 ---
@@ -137,7 +137,7 @@ $f'(x) = ?$       → $f'(x) = 2x + 2$
  └─────────┘      └─────────┘      └─────────┘      └─────────┘
 
 Components:
-1. Parser     - Extract LaTeX math blocks, detect := and =
+1. Parser     - Extract LaTeX math blocks, detect :=, = and =>
 2. Translator - Convert LaTeX to SymPy expressions
 3. Engine     - SymPy for symbolic/numeric computation
 4. Renderer   - Insert results back into LaTeX
@@ -158,7 +158,8 @@ Components:
 
 - [ ] Parse Markdown for LaTeX math blocks (`$...$` and `$$...$$`)
 - [ ] Detect assignment operator `:=`
-- [ ] Detect evaluation operator `=` or `= ?`
+- [ ] Detect evaluation operator `=`
+- [ ] Detect symbolic/highlight operator `=>`
 - [ ] Variable storage and lookup
 - [ ] Basic arithmetic: `+ - * / ^`
 - [ ] Common functions: `sin cos tan log exp sqrt`
@@ -225,7 +226,7 @@ result.save("output.md")
 output = processor.process_string("""
 $x := 5$
 $y := x^2$
-$y = ?$
+$y =$
 """)
 print(output)
 # $x := 5$
@@ -281,7 +282,7 @@ $P := 10000 \text{ N}$                  (Point load at center)
 
 $\delta_{max} := \frac{P \cdot L^3}{48 \cdot E \cdot I}$
 
-$\delta_{max} = ?$
+$\delta_{max} =$
 ```
 
 ### Financial Model
@@ -295,7 +296,7 @@ $years := 10$
 
 $future\_value := principal \cdot (1 + rate)^{years}$
 
-$future\_value = ?$
+$future\_value =$
 ```
 
 ---

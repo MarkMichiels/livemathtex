@@ -29,7 +29,8 @@ Phase 4: Ecosystem      ░░░░░░░░░░░░░░░░░░�
 
 - [ ] **1.2 Parser (Basic)**
   - [ ] Recognize `:=` definitions
-  - [ ] Recognize `= ?` evaluations
+  - [ ] Recognize `=` evaluations
+  - [ ] Recognize `=>` symbolic/highlight
   - [ ] Parse simple arithmetic expressions
   - [ ] Handle variable names (including Greek letters)
   - [ ] Skip non-calculation Markdown content
@@ -55,7 +56,7 @@ Phase 4: Ecosystem      ░░░░░░░░░░░░░░░░░░�
 # Input
 $x := 5$
 $y := 3$
-$z = x + y = ?$
+$z = x + y$
 
 # Output
 $x := 5$
@@ -110,7 +111,7 @@ $z = x + y = 8$
 # Input
 $m := 5\ \text{kg}$
 $a := 9.81\ \text{m/s}^2$
-$F = m \cdot a = ?$
+$F = m \cdot a$
 
 # Output
 $F = m \cdot a = 49.05\ \text{N}$
@@ -163,7 +164,7 @@ $F = m \cdot a = 49.05\ \text{N}$
 ```markdown
 # Input
 $A := [[1, 2]; [3, 4]]$
-$\det(A) = ?$
+$\det(A) =$
 
 ```plot
 y = x^2 - 4x + 3
@@ -244,7 +245,7 @@ $\det(A) = -2$
 ## Priorities
 
 ### Must Have (MVP)
-- `:=` and `= ?` syntax
+- `:=`, `=` and `=>` syntax
 - Variable definitions
 - Basic arithmetic
 - CLI with file I/O
@@ -289,4 +290,3 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to help with development.
 - [UX Design](./UX.md)
 - [Syntax Reference](./SYNTAX.md)
 - [Dependencies](./DEPENDENCIES.md)
-

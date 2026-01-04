@@ -39,12 +39,12 @@ $F_{friction} := 0.3$
 
 **Output:** Shows the definition as-is (no computed value).
 
-### Evaluations (`=` or `= ?`)
+### Evaluations (`=`)
 
 Use `=` to compute and display results:
 
 ```markdown
-$F = m \cdot g = ?$
+$F = m \cdot g$
 ```
 
 **Output:** `$F = m \cdot g = 49.05\ \text{N}$`
@@ -64,7 +64,8 @@ $F =$
 ### Combined Definition and Evaluation
 
 ```markdown
-$E := m \cdot c^2 = ?$
+$E := m \cdot c^2$
+$E =$
 ```
 
 Defines `E` AND shows the computed value.
@@ -78,7 +79,7 @@ Defines `E` AND shows the computed value.
 | Pattern | Behavior |
 |---------|----------|
 | `x := 5` | Define only, no output value |
-| `x = ?` | Evaluate and show result |
+| `x =` | Evaluate and show result |
 | `x =` | Evaluate and show result |
 | `$E = mc^2$` | Static LaTeX, no evaluation |
 
@@ -90,7 +91,7 @@ If you just want to show a formula without evaluation, use standard LaTeX:
 Einstein's famous equation: $E = mc^2$
 ```
 
-No `:=` or `= ?` means Livemathtex leaves it untouched.
+No `:=` or `=` at the end means Livemathtex leaves it untouched.
 
 ---
 
@@ -101,7 +102,7 @@ No `:=` or `= ?` means Livemathtex leaves it untouched.
 Small calculations within text:
 
 ```markdown
-The time constant is $\tau = R \cdot C = ?$ for the given values.
+The time constant is $\tau = R \cdot C$ for the given values.
 ```
 
 ### Block
@@ -113,7 +114,7 @@ Multi-step calculations as separate paragraphs:
 
 1. $v_0 := 20\ \text{m/s}$
 2. $t := 5\ \text{s}$
-3. $d = v_0 \cdot t = ?$
+3. $d = v_0 \cdot t$
 
 The total distance traveled is shown in step 3.
 ```
@@ -188,11 +189,11 @@ Regular Markdown text between calculations serves as documentation:
 
 We first calculate the cross-sectional area:
 
-$A := \pi \cdot r^2 = ?$
+$A = \pi \cdot r^2$
 
 With this area, we can determine the stress:
 
-$\sigma = F / A = ?$
+$\sigma = F / A$
 ```
 
 ---
@@ -222,7 +223,7 @@ Request specific output units:
 
 ```markdown
 $v := 100\ \text{km/h}$
-$v = ?\ \text{m/s}$
+$v_{\text{si}} = v\ [\text{m/s}]$
 ```
 
 **Output:** `$v = 27.78\ \text{m/s}$`
@@ -343,7 +344,7 @@ scientific: false
 ### VS Code (Planned)
 
 - Live preview pane
-- Syntax highlighting for `:=` and `= ?`
+- Syntax highlighting for `:=`, `=` and `=>`
 - Error squiggles
 - Go-to-definition for variables
 - Hover for computed values
@@ -383,17 +384,17 @@ $I := 8.33 \times 10^{-5}\ \text{m}^4$  <!-- Moment of inertia -->
 
 For a simply supported beam with uniform load:
 
-$M_{max} = \frac{w \cdot L^2}{8} = ?$
+$M_{max} = \frac{w \cdot L^2}{8}$
 
 ## Maximum Deflection
 
-$\delta_{max} = \frac{5 \cdot w \cdot L^4}{384 \cdot E \cdot I} = ?\ \text{mm}$
+$\delta_{max} = \frac{5 \cdot w \cdot L^4}{384 \cdot E \cdot I}\ [\text{mm}]$
 
 ## Safety Check
 
 Allowable deflection is L/360:
 
-$\delta_{allow} := L / 360 = ?\ \text{mm}$
+$\delta_{allow} = L / 360\ [\text{mm}]$
 $\text{Safe} = \delta_{max} < \delta_{allow} =>$
 ```
 
