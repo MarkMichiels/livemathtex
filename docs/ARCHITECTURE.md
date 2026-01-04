@@ -155,6 +155,7 @@ livemathtex <input> [options]
 Options:
   -o, --output FILE    Output Markdown file
   -w, --watch          Watch mode, rebuild on change
+  --config FILE        Path to config file
   --digits N           Significant figures (default: 4)
   --scientific         Force scientific notation
   --no-symbolic        Disable CAS features
@@ -165,6 +166,35 @@ Options:
 # For PDF: use external tools on the output
 pandoc output.md -o output.pdf
 ```
+
+#### Configuration
+
+**Precedence (highest to lowest):**
+1. Command-line arguments
+2. Document directives (`<!-- livemathtex: digits=4 -->`)
+3. Local config (`.livemathtex.toml` in document directory)
+4. Project config (`pyproject.toml` `[tool.livemathtex]` section)
+5. User config (`~/.config/livemathtex/config.toml`)
+6. Defaults
+
+**Config file format (TOML):**
+
+```toml
+# .livemathtex.toml or pyproject.toml [tool.livemathtex]
+digits = 4
+scientific = false
+timeout = 5
+symbolic = true
+
+[units]
+system = "SI"  # or "imperial"
+```
+
+**Why TOML:**
+- Standard for Python tools (pyproject.toml, ruff, black, pytest)
+- Human-readable, easy to edit
+- Supports comments
+- Type-safe (numbers vs strings)
 
 #### Watch Mode
 
