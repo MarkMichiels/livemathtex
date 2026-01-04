@@ -41,12 +41,19 @@ Phase 4: Ecosystem      ░░░░░░░░░░░░░░░░░░�
   - [ ] Basic error handling (undefined variable, division by zero)
   - [ ] Evaluation order (top-down)
 
-- [ ] **1.4 Renderer (Basic)**
+- [ ] **1.4 Error Handling (from day one)**
+  - [ ] Undefined variable: clear message at evaluation point
+  - [ ] Division by zero, math errors
+  - [ ] Syntax errors with line numbers
+  - [ ] Console summary with all errors
+  - [ ] Errors never crash - always produce output
+
+- [ ] **1.5 Renderer (Basic)**
   - [ ] Output Markdown with results injected
   - [ ] Format numbers (configurable precision)
-  - [ ] Display errors inline
+  - [ ] Display errors inline (red/warning style)
 
-- [ ] **1.5 CLI (Basic)**
+- [ ] **1.6 CLI (Basic)**
   - [ ] `livemathtex input.md -o output.md`
   - [ ] Basic file I/O
 
@@ -178,40 +185,27 @@ $\det(A) = -2$
 
 ---
 
-## Phase 4: Ecosystem
+## Phase 4: Ecosystem (Optional)
 
-**Goal:** Editor integration, community tools.
+**Goal:** Editor integration for better UX.
 
-**Timeline:** Ongoing
+**Timeline:** If needed
 
 ### Deliverables
 
 - [ ] **4.1 VS Code Extension**
-  - [ ] Syntax highlighting
+  - [ ] Syntax highlighting for `:=`, `=`, `=>`
   - [ ] Live preview pane
   - [ ] Error diagnostics
   - [ ] Hover for computed values
-  - [ ] Go-to-definition for variables
 
-- [ ] **4.2 Web Playground**
-  - [ ] Browser-based demo
-  - [ ] Pyodide or WASM
+- [ ] **4.2 Web Playground** (optional, for demo)
+  - [ ] Browser-based demo via Pyodide
   - [ ] Share calculations via URL
 
-- [ ] **4.3 Additional Output Formats**
-  - [ ] HTML with KaTeX
-  - [ ] Pure LaTeX (.tex)
-  - [ ] Jupyter notebook export
-
-- [ ] **4.4 Import/Include**
+- [ ] **4.3 Import/Include** (future)
   - [ ] Include other documents
-  - [ ] Shared variable libraries
-  - [ ] Constants databases
-
-- [ ] **4.5 Tables with Calculations**
-  - [ ] Spreadsheet-like tables
-  - [ ] Cell references
-  - [ ] Column calculations
+  - [ ] Shared constants libraries
 
 ---
 

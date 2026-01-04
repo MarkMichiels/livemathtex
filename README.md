@@ -165,6 +165,11 @@ Components:
 - [ ] Common functions: `sin cos tan log exp sqrt`
 - [ ] Greek letters: `\alpha \beta \gamma` etc.
 - [ ] Number formatting (thousands separator, decimals)
+- [ ] **Error handling from day one:**
+  - [ ] Undefined variable errors (inline in output)
+  - [ ] Syntax errors with line numbers
+  - [ ] Division by zero, math errors
+  - [ ] Clear error messages in console
 - [ ] CLI: `livemathtex process input.md -o output.md`
 
 ### Phase 2: Scientific
@@ -180,9 +185,7 @@ Components:
 
 - [ ] VS Code extension (live preview)
 - [ ] Watch mode (auto-update on save)
-- [ ] PDF export (via Pandoc/WeasyPrint)
-- [ ] Jupyter kernel (alternative execution)
-- [ ] Web playground
+- [ ] Web playground (optional, for demo)
 
 ### Phase 4: Advanced
 
