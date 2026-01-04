@@ -18,7 +18,50 @@ This document captures the research and exploration that led to creating Livemat
 
 ## Tools Investigated
 
-### 1. Markdown Preview Enhanced (MPE) Code Chunks
+### 1. Mathcad / PTC Mathcad
+
+**What it is:** The original "live calculation document" software. Industry standard for engineering calculations.
+
+**What works:**
+- ✅ Beautiful mathematical notation
+- ✅ Live calculations — change input, outputs update
+- ✅ Units and dimensional analysis
+- ✅ Symbolic math support
+- ✅ Professional output for reports
+
+**What doesn't work:**
+- ❌ **Expensive** — PTC Mathcad Prime costs €1500+/year
+- ❌ **Binary/proprietary format** — not Git-friendly
+- ❌ **Windows only** — no Linux/Mac
+- ❌ **Closed ecosystem** — can't integrate with other tools
+- ❌ **Not AI-friendly** — LLMs can't read/write Mathcad files
+
+**Verdict:** The inspiration. Does everything right, except: cost, format, and ecosystem lock-in.
+
+---
+
+### 2. Excel / LibreOffice Calc / Google Sheets
+
+**What it is:** Spreadsheet software — the most common "calculation tool" in practice.
+
+**What works:**
+- ✅ Everyone knows how to use it
+- ✅ Live calculations (cell references update)
+- ✅ Free options available (LibreOffice, Google Sheets)
+- ✅ Collaboration features
+
+**What doesn't work:**
+- ❌ **No mathematical notation** — `=A1*B1` is not `$F = m \cdot a$`
+- ❌ **Binary format** (Excel) or cloud-only (Google Sheets)
+- ❌ **Not document-oriented** — calculations hidden in cells
+- ❌ **Poor for complex formulas** — nested IF statements become unreadable
+- ❌ **Not Git-friendly** — binary diffs are useless
+
+**Verdict:** Great for data, terrible for documented engineering calculations.
+
+---
+
+### 3. Markdown Preview Enhanced (MPE) Code Chunks
 
 **What it is:** VS Code extension that executes code blocks in Markdown preview.
 
@@ -51,7 +94,7 @@ print(y)
 
 ---
 
-### 2. Jupytext
+### 4. Jupytext
 
 **What it is:** Tool to sync Jupyter notebooks with plain text formats (Markdown, Python scripts).
 
@@ -77,7 +120,7 @@ jupytext --to markdown notebook.ipynb  # ipynb → MD
 
 ---
 
-### 3. Quarto
+### 5. Quarto
 
 **What it is:** Publishing system for scientific documents with executable code.
 
@@ -96,7 +139,7 @@ jupytext --to markdown notebook.ipynb  # ipynb → MD
 
 ---
 
-### 4. Latex Sympy Calculator (VS Code Extension)
+### 6. Latex Sympy Calculator (VS Code Extension)
 
 **What it is:** VS Code extension by OrangeX4 that evaluates LaTeX expressions.
 
@@ -121,7 +164,7 @@ jupytext --to markdown notebook.ipynb  # ipynb → MD
 
 ---
 
-### 5. Typst
+### 7. Typst
 
 **What it is:** Modern typesetting system, Markdown-inspired.
 
@@ -140,7 +183,7 @@ jupytext --to markdown notebook.ipynb  # ipynb → MD
 
 ---
 
-### 6. SMath Studio
+### 8. SMath Studio
 
 **What it is:** Free Mathcad alternative.
 
@@ -159,7 +202,7 @@ jupytext --to markdown notebook.ipynb  # ipynb → MD
 
 ---
 
-### 7. Qalc (VS Code Extension)
+### 9. Qalc (VS Code Extension)
 
 **What it is:** VS Code extension integrating Qalculate! engine.
 
@@ -252,4 +295,3 @@ The research showed many good tools, but none combined everything. Livemathtex f
 - [Typst](https://typst.app/)
 - [SMath Studio](https://smath.com/)
 - [Qalculate!](https://qalculate.github.io/)
-
