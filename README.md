@@ -300,6 +300,20 @@ $future\_value = ?$
 
 ---
 
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [SPEC.md](docs/SPEC.md) | Full specification and requirements |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical architecture and design |
+| [UX.md](docs/UX.md) | User experience and workflow |
+| [SYNTAX.md](docs/SYNTAX.md) | Complete syntax reference |
+| [DEPENDENCIES.md](docs/DEPENDENCIES.md) | Libraries and technology choices |
+| [ROADMAP.md](docs/ROADMAP.md) | Development phases and milestones |
+| [EXAMPLES.md](docs/EXAMPLES.md) | Example documents |
+
+---
+
 ## Contributing
 
 Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

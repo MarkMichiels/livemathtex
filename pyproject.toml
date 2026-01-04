@@ -28,10 +28,28 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    # Core math engine
     "sympy>=1.12",
     "latex2sympy2>=1.9.1",
-    "click>=8.0",
+    
+    # Units support
+    "pint>=0.23",
+    
+    # Parsing
+    "lark>=1.1",
+    "markdown-it-py>=3.0",
+    "mdit-py-plugins>=0.4",
+    
+    # Plotting
+    "matplotlib>=3.8",
+    "numpy>=1.24",
+    
+    # CLI
+    "click>=8.1",
     "rich>=13.0",
+    
+    # Watch mode
+    "watchdog>=3.0",
 ]
 
 [project.optional-dependencies]
@@ -41,10 +59,15 @@ dev = [
     "black>=23.0",
     "ruff>=0.1.0",
     "mypy>=1.0",
+    "isort>=5.12",
 ]
 docs = [
     "mkdocs>=1.5",
     "mkdocs-material>=9.0",
+]
+pdf = [
+    "pypandoc>=1.12",
+    "weasyprint>=60.0",
 ]
 
 [project.scripts]
