@@ -2,11 +2,24 @@
 
 This example demonstrates the basic livemathtex operators.
 
+## Display-Only Formulas
+
+Pure LaTeX without operators passes through unchanged (no error):
+
+$E = mc^2$
+
+$F = ma$
+
 ## ❌ Common Mistakes (These Will Error)
 
-### Bare `=` instead of `:=` or `==`
+### Bare `=` in a calculation block
 
-$x = 10$
+When a block contains operators, bare `=` triggers an error:
+
+$$
+x := 5
+y = x + 3
+$$
 
 ### Undefined variable
 
@@ -39,4 +52,7 @@ $total ==$
 
 ## Summary
 
-With simple definitions and evaluations, we can build up calculations step by step.
+- **Pure display** (`$E = mc^2$`): Passes through, no processing
+- **Definition** (`:=`): Assigns value to variable
+- **Evaluation** (`==`): Computes and shows result
+- **Error**: Bare `=` only errors when block has operators

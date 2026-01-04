@@ -22,7 +22,8 @@ Output:  $v == 27.78\ \text{m/s}$ <!-- [m/s] -->
 **Notes:**
 - Results are **overwritten** on re-run (old values replaced with new)
 - Default output: SI units
-- `=` produces an error (safety: prevents accidental overwrites)
+- Pure display formulas (no operators) pass through unchanged: `$E = mc^2$`
+- Bare `=` only errors in blocks that contain `:=`, `==`, or `=>`
 
 ---
 
@@ -77,7 +78,7 @@ $F := m \cdot g ==$
 
 **Output:** `$F := m \cdot g == 49.05\ \text{N}$`
 
-> **Note:** Using `=` instead of `:=` or `==` will produce an error, preventing accidental overwrites.
+> **Note:** Using `=` instead of `:=` or `==` in a block with operators will produce an error, preventing accidental overwrites. Pure display formulas like `$E = mc^2$` (no operators) pass through unchanged.
 
 ### Symbolic (`=>`)
 
@@ -385,9 +386,12 @@ pandoc calculation_out.md -o calculation.pdf
 Errors appear inline:
 
 ```latex
-$y == x + 1$ → ⚠️ Error: Undefined variable 'x'
-$z = 5$ → ⚠️ Error: Invalid operator '='. Use ':=' or '=='
+$y == x + 1$ → Error: Undefined variable 'x'
 ```
+
+**Note about bare `=`:**
+- Pure display: `$E = mc^2$` → passes through unchanged (no operators in block)
+- In calculation block: `$$ x := 5 \n y = x + 3 $$` → Error on the `y = ...` line
 
 Console also reports errors with line numbers.
 
@@ -501,26 +505,32 @@ $\int f(x)\, dx =>$
 
 ### Example 6: Error Handling
 
-**Input:**
+**Pure display passes through (no operators in block):**
 ```markdown
-$y = x + 1$              <!-- ERROR: use := not = -->
+$E = mc^2$               <!-- Pure display - no error -->
+```
 
-$m := 5\ \text{kg}$
-$L := 10\ \text{m}$
-$wrong := m + L ==$      <!-- unit mismatch -->
+**Errors in calculation blocks:**
+```markdown
+$$
+x := 5
+y = x + 3                <!-- ERROR: bare = in block with operators -->
+$$
 
-$result := \frac{1}{0} ==$  <!-- division by zero -->
+$result := z + 5 ==$     <!-- ERROR: undefined variable -->
 
 $a := 5$
 $b := 3$
-$c := a + b ==$          <!-- works -->
+$c := a + b ==$          <!-- works: 8 -->
 ```
 
 **Output:**
 ```markdown
-$y = x + 1$ → ⚠️ Error: Invalid operator '='. Use ':=' for definition or '==' for evaluation.
-$wrong := m + L$ → ⚠️ Error: Cannot add kg + m
-$result := \frac{1}{0}$ → ⚠️ Error: Division by zero
+$E = mc^2$               <!-- unchanged -->
+$$x := 5
+y = x + 3
+Error: Invalid operator '='. Use ':=' or '=='$$
+$result := z + 5 == Error: Undefined variable 'z'$
 $c := a + b == 8$
 ```
 

@@ -51,4 +51,4 @@ The ratio should be 2.5 (25 kg / 10 kg).
 
 ---
 
-> *livemathtex: 2026-01-04 21:17:52 | 12 definitions, 6 evaluations | 3 errors | 0.19s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-04 23:13:31 | 12 definitions, 6 evaluations | 3 errors | 0.19s* <!-- livemathtex-meta -->

@@ -90,20 +90,31 @@ class Lexer:
         """
         Analyze a MathBlock to find specific calculation requests.
         Handles multiline blocks by treating each line as a potential separate calculation.
+
+        If block contains NO livemathtex operators (:=, ==, =>), it's treated as
+        pure display LaTeX and passed through unchanged (no error for bare '=').
         """
         content = math_block.inner_content
         lines = content.split('\n')
         calculations = []
+
+        # First pass: check if block has ANY livemathtex operators
+        has_operators = bool(re.search(r':=|==|=>', content))
+
+        if not has_operators:
+            # Pure display LaTeX - no calculations, pass through unchanged
+            return []
 
         for line in lines:
             line = line.strip()
             if not line:
                 continue
 
-            # SAFETY CHECK: Bare '=' is an error (prevents accidental overwrites)
+            # SAFETY CHECK: Bare '=' is an error ONLY in blocks with operators
+            # (prevents accidental overwrites when user meant := or ==)
             # Check for '=' that is NOT part of ':=', '==', or '=>'
             if re.search(r'(?<!:)(?<!>)(?<!=)=(?!=)', line):
-                # Found a bare '=' - create an error calculation
+                # Found a bare '=' in a calculation block - create an error
                 calculations.append(
                     Calculation(
                         latex=line,

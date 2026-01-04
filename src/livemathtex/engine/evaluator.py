@@ -61,6 +61,40 @@ class Evaluator:
             err_msg = self._escape_latex_text(str(e))
             return f"{calculation.latex}\n\\\\ \\color{{red}}{{\\text{{\n    Error: {err_msg}}}}}"
 
+    def _normalize_symbol_name(self, name: str) -> str:
+        """
+        Normalize a LaTeX symbol name to match what our _compute() produces.
+
+        Converts:
+          - \\Delta_h -> Delta_h
+          - \\Delta T_h -> Delta_T_h (Greek + space + symbol becomes combined)
+          - \\theta_1 -> theta_1
+          - \\dot{m}_h -> dot{m}_h (keeps structure but removes leading backslash)
+          - T_{h,in} -> T_{h,in} (unchanged, already compatible)
+        """
+        if not name:
+            return name
+
+        import re
+
+        # Handle Greek letter + space + symbol pattern: \Delta T_h -> Delta_T_h
+        greek_space_pattern = r'^\\(Delta|Theta|Omega|Sigma|Pi|alpha|beta|gamma|delta|theta|omega|sigma|pi|phi|psi|lambda|mu|nu|epsilon|rho|tau)\s+([a-zA-Z](?:_\{?[a-zA-Z0-9,]+\}?)?)$'
+        match = re.match(greek_space_pattern, name)
+        if match:
+            greek = match.group(1)
+            following = match.group(2)
+            return f"{greek}_{following}"
+
+        # Common Greek letters that latex2sympy converts
+        # Pattern: \Greek -> Greek (strip backslash, keep name)
+        greek_pattern = r'^\\([a-zA-Z]+)'
+        match = re.match(greek_pattern, name)
+        if match:
+            # \Delta_h -> Delta_h
+            return name[1:]  # Just remove the leading backslash
+
+        return name
+
     def _escape_latex_text(self, text: str) -> str:
         """Escape special LaTeX characters in text."""
         # Special chars: \ { } $ & # ^ _ % ~
@@ -98,7 +132,11 @@ class Evaluator:
              lhs = None # Should not happen
 
         # Execute logic (setting symbols)
-        target = calc.target
+        # Keep original target for display, normalize for storage
+        original_target = calc.target
+        # NORMALIZE target name: convert LaTeX Greek letters to plain text
+        # e.g., \Delta_h -> Delta_h, \theta_1 -> theta_1
+        target = self._normalize_symbol_name(calc.target)
         import re
 
         # VALIDATION: Check if variable name conflicts with a unit
@@ -128,18 +166,14 @@ class Evaluator:
             func_obj = sympy.Lambda(arg_sym, expr)
             self.symbols.set(func_name, func_obj, raw_latex=rhs_raw)
 
-            # For functions, normalization might be tricky if arguments are involved.
-            # But converting expr back to latex usually works.
-            # BUT: self._compute evaluated numbers. e.g. f(x) := x + 10/2 -> x + 5.
-            # User wants "Formatted Input", not "Evaluated Input" maybe?
-            # If I stick to _normalize_latex(rhs_raw), it uses pure parsing without eval.
-
-            assignment_latex = f"{func_name}({arg_name}) := {self._normalize_latex(rhs_raw)}"
+            # Use original target for display (preserves \Delta etc.)
+            assignment_latex = f"{original_target} := {self._normalize_latex(rhs_raw)}"
 
         elif target:
             value = self._compute(rhs_raw)
             self.symbols.set(target, value, raw_latex=rhs_raw)
-            assignment_latex = f"{target} := {self._normalize_latex(rhs_raw)}"
+            # Use original LaTeX form for display, normalized form for storage
+            assignment_latex = f"{original_target} := {self._normalize_latex(rhs_raw)}"
 
         else:
             return content
@@ -170,7 +204,7 @@ class Evaluator:
     def _handle_assignment_evaluation(self, calc: Calculation) -> str:
         content = calc.latex
         part1, part2 = content.split(":=", 1)
-        lhs = part1.strip()
+        lhs = part1.strip()  # Original LaTeX form for display
         rhs_part, result_part = part2.split("==", 1)
         rhs = rhs_part.strip()
 
@@ -179,7 +213,9 @@ class Evaluator:
         # Check for undefined variables (symbols that weren't substituted)
         self._check_undefined_symbols(value, rhs)
 
-        self.symbols.set(lhs, value, raw_latex=rhs)
+        # Store with normalized name (e.g., \Delta T_h -> Delta_T_h)
+        normalized_lhs = self._normalize_symbol_name(lhs)
+        self.symbols.set(normalized_lhs, value, raw_latex=rhs)
 
         # Use unit_comment
         value, suffix = self._apply_conversion(value, calc.unit_comment)
@@ -291,6 +327,20 @@ class Evaluator:
 
         modified_latex = expression_latex
 
+        # Pre-process: Convert Greek letter + following symbol patterns to single symbols
+        # This handles cases like "\Delta T_h" which latex2sympy would split into Delta * T_h
+        # We convert to a form like "\text{Delta_T_h}" that's treated as one symbol
+        greek_space_pattern = r'\\(Delta|Theta|Omega|Sigma|Pi|alpha|beta|gamma|delta|theta|omega|sigma|pi|phi|psi|lambda|mu|nu|epsilon|rho|tau)\s+([a-zA-Z](?:_\{?[a-zA-Z0-9,]+\}?)?)'
+
+        def greek_replacement(m):
+            greek = m.group(1)
+            following = m.group(2)
+            # Create a combined symbol name that we'll track
+            combined = f"{greek}_{following}"
+            return f'\\text{{{combined}}}'
+
+        modified_latex = re.sub(greek_space_pattern, greek_replacement, modified_latex)
+
         # Pre-process: Protect SI units from being split
         for unit in sorted(self.SI_UNITS, key=len, reverse=True):
             if len(unit) > 1 and f'\\text{{{unit}}}' not in modified_latex:
@@ -333,8 +383,12 @@ class Evaluator:
                 subs_dict[sym] = local_overrides[clean_name]
                 continue
 
-            # 1. Check in Symbol Table
+            # 1. Check in Symbol Table (try multiple name formats)
+            # latex2sympy converts \Delta_h -> Delta_h, so we need to match
             known = self.symbols.get(clean_name)
+            if not known:
+                # Try with backslash prefix (for Greek letters stored as \Delta_h)
+                known = self.symbols.get('\\' + clean_name)
             if known:
                 subs_dict[sym] = known.value
                 continue
@@ -414,6 +468,17 @@ class Evaluator:
         try:
             modified = latex_str
 
+            # Pre-process: Convert Greek letter + following symbol patterns to single symbols
+            greek_space_pattern = r'\\(Delta|Theta|Omega|Sigma|Pi|alpha|beta|gamma|delta|theta|omega|sigma|pi|phi|psi|lambda|mu|nu|epsilon|rho|tau)\s+([a-zA-Z](?:_\{?[a-zA-Z0-9,]+\}?)?)'
+
+            def greek_replacement(m):
+                greek = m.group(1)
+                following = m.group(2)
+                combined = f"{greek}_{following}"
+                return f'\\text{{{combined}}}'
+
+            modified = re.sub(greek_space_pattern, greek_replacement, modified)
+
             # Pre-process: Protect SI units from being split
             for unit in sorted(self.SI_UNITS, key=len, reverse=True):
                 if len(unit) > 1 and f'\\text{{{unit}}}' not in modified:
@@ -440,6 +505,17 @@ class Evaluator:
 
     def _format_result(self, value: Any) -> str:
         """Format the result for output (simplify, evalf numericals)."""
+
+        # If value has no free symbols but contains functions (like log), evaluate numerically
+        if hasattr(value, 'free_symbols') and len(value.free_symbols) == 0:
+            if hasattr(value, 'evalf'):
+                try:
+                    numeric_val = value.evalf()
+                    # Only use evalf if it returns a number
+                    if hasattr(numeric_val, 'is_number') and numeric_val.is_number:
+                        value = numeric_val
+                except:
+                    pass
 
         if hasattr(value, 'as_coeff_Mul'):
             coeff, rest = value.as_coeff_Mul()
