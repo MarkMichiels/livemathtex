@@ -9,8 +9,9 @@
 | Syntax | Meaning | Example |
 |--------|---------|---------|
 | `:=` | Definition (assign) | `$x := 5$` |
-| `==` | Evaluation (compute) | `$y == x + 1$` |
-| `=>` | Symbolic operation | `$\frac{d}{dx}(x^2) =>$` |
+| `==$` | Evaluation (show value) | `$x ==$` → shows value of x |
+| `:= ... ==` | Define + evaluate | `$y := x + 1 ==$` → defines y AND shows result |
+| `=>` | Symbolic operation | `$f'(x) =>$` |
 | `#` | Comment | `# this is ignored` |
 
 > ⚠️ **Why `==` instead of `=`?** Safety. With `=` you could accidentally overwrite a variable by forgetting the `:` in `:=`. Using `==` makes evaluation explicit and intentional.
@@ -49,15 +50,26 @@ $f(x) := x^2 + 2x + 1$
 
 ### Evaluation (`==`)
 
-Computes and displays the numeric result.
+Shows the computed value of a defined variable.
 
 ```latex
-$F == m \cdot g$
+$m := 5\ \text{kg}$
+$g := 9.81\ \text{m/s}^2$
+$F := m \cdot g$
+$F ==$
 ```
 
-**Output:** `$F == m \cdot g = 49.05\ \text{N}$`
+**Output:** `$F == 49.05\ \text{N}$`
 
-> **Note:** Using `=` instead of `==` will produce an error, preventing accidental overwrites.
+**Or combined (define + evaluate in one line):**
+
+```latex
+$F := m \cdot g ==$
+```
+
+**Output:** `$F := m \cdot g == 49.05\ \text{N}$`
+
+> **Note:** Using `=` instead of `:=` or `==` will produce an error, preventing accidental overwrites.
 
 ### Symbolic (`=>`)
 
@@ -166,10 +178,10 @@ Request specific output units with brackets:
 
 ```latex
 $v := 100\ \text{km/h}$
-$v_{\text{si}} == v\ [\text{m/s}]$
+$v_{\text{si}} := v\ [\text{m/s}] ==$
 ```
 
-**Output:** `$v_{\text{si}} == v = 27.78\ \text{m/s}$`
+**Output:** `$v_{\text{si}} := v == 27.78\ \text{m/s}$`
 
 ### Custom Units
 
@@ -372,16 +384,16 @@ $g := 9.81\ \text{m/s}^2$
 $h := 100\ \text{m}$
 
 Time to fall:
-$t == \sqrt{\frac{2h}{g}}$
+$t := \sqrt{\frac{2h}{g}} ==$
 
 Final velocity:
-$v == g \cdot t$
+$v := g \cdot t ==$
 ```
 
 **Output:**
 ```markdown
-$t == \sqrt{\frac{2h}{g}} = 4.515\ \text{s}$
-$v == g \cdot t = 44.29\ \text{m/s}$
+$t := \sqrt{\frac{2h}{g}} == 4.515\ \text{s}$
+$v := g \cdot t == 44.29\ \text{m/s}$
 ```
 
 ---
@@ -399,16 +411,16 @@ $b := 0.2\ \text{m}$
 $h := 0.4\ \text{m}$
 
 ## Section Properties
-$I == \frac{b \cdot h^3}{12}$
+$I := \frac{b \cdot h^3}{12} ==$
 
 ## Loading
 $w := 20\ \text{kN/m}$
 
 ## Maximum Bending Moment
-$M_{max} == \frac{w \cdot L^2}{8}$
+$M_{max} := \frac{w \cdot L^2}{8} ==$
 
 ## Maximum Deflection
-$\delta_{max} == \frac{5 \cdot w \cdot L^4}{384 \cdot E \cdot I}\ [\text{mm}]$
+$\delta_{max} := \frac{5 \cdot w \cdot L^4}{384 \cdot E \cdot I}\ [\text{mm}] ==$
 ```
 
 ---
@@ -422,13 +434,13 @@ $C := 100\ \text{µF}$
 $V_s := 12\ \text{V}$
 
 Time constant:
-$\tau == R \cdot C$
+$\tau := R \cdot C ==$
 
 Charging voltage at $t := 0.5\ \text{s}$:
-$V_C == V_s \cdot (1 - e^{-t/\tau})$
+$V_C := V_s \cdot (1 - e^{-t/\tau}) ==$
 
 Energy stored:
-$E == \frac{1}{2} C V_s^2$
+$E := \frac{1}{2} C V_s^2 ==$
 ```
 
 ---
@@ -442,10 +454,10 @@ Solve: $3x + 2y = 7$ and $x - y = 1$
 $A := [[3, 2]; [1, -1]]$
 $b := [7, 1]$
 
-$x == A^{-1} \cdot b$
+$x := A^{-1} \cdot b ==$
 
-Verification: $A \cdot x ==$
-Determinant: $\det(A) ==$
+Verification: $check := A \cdot x ==$
+Determinant: $det := \det(A) ==$
 ```
 
 ---
@@ -472,25 +484,25 @@ $\int f(x)\, dx =>$
 
 **Input:**
 ```markdown
-$y = x + 1$              <!-- ERROR: use == not = -->
+$y = x + 1$              <!-- ERROR: use := not = -->
 
 $m := 5\ \text{kg}$
 $L := 10\ \text{m}$
-$wrong == m + L$         <!-- unit mismatch -->
+$wrong := m + L ==$      <!-- unit mismatch -->
 
-$result == \frac{1}{0}$  <!-- division by zero -->
+$result := \frac{1}{0} ==$  <!-- division by zero -->
 
 $a := 5$
 $b := 3$
-$c == a + b$             <!-- works -->
+$c := a + b ==$          <!-- works -->
 ```
 
 **Output:**
 ```markdown
 $y = x + 1$ → ⚠️ Error: Invalid operator '='. Use ':=' for definition or '==' for evaluation.
-$wrong == m + L$ → ⚠️ Error: Cannot add kg + m
-$result == \frac{1}{0}$ → ⚠️ Error: Division by zero
-$c == a + b = 8$
+$wrong := m + L$ → ⚠️ Error: Cannot add kg + m
+$result := \frac{1}{0}$ → ⚠️ Error: Division by zero
+$c := a + b == 8$
 ```
 
 ---

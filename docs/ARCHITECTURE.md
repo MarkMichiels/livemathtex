@@ -32,7 +32,8 @@ Livemathtex follows a modular pipeline architecture:
 |---------|---------|-------------|
 | Variables | `m_{rock}`, `α`, `x_1` | LaTeX subscript/superscript, Greek |
 | Assignment | `x := 5` | Definition, stored in symbol table |
-| Evaluation | `x == expr` | Compute and display numeric result |
+| Evaluation | `x ==` | Show value of defined variable |
+| Combined | `y := x + 1 ==` | Define AND show result |
 | Symbolic | `f'(x) =>` | Symbolic evaluation (differentiation, etc.) |
 | Units | `9.81 m/s^2` | Recognized after numbers/variables |
 | Functions | `sin`, `cos`, `log`, `sqrt` | Built-in mathematical functions |
@@ -114,12 +115,12 @@ Errors never crash the system. Each evaluation returns `Result<Value, Error>`:
 
 Input:
 ```markdown
-$d == v \cdot t$
+$d := v \cdot t ==$
 ```
 
 Output:
 ```markdown
-$d == v \cdot t = 200\ \text{km}$
+$d := v \cdot t == 200\ \text{km}$
 ```
 
 **Note:** PDF/HTML export is out of scope. Use `pandoc output.md -o output.pdf` on the result.
@@ -127,8 +128,9 @@ $d == v \cdot t = 200\ \text{km}$
 #### Error Display
 
 ```markdown
-$F == m \cdot a$ → ⚠️ Error: Undefined variable 'm'
-$x = 5$ → ⚠️ Error: Invalid operator '='. Use ':=' or '=='
+$F ==$                    → ⚠️ Error: Undefined variable 'F'
+$x = 5$                   → ⚠️ Error: Invalid operator '='. Use ':=' or '=='
+$wrong := m + L ==$       → ⚠️ Error: Cannot add kg + m (if units mismatch)
 ```
 
 #### Symbolic Results (`=>`)

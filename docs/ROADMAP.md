@@ -66,12 +66,12 @@ Phase 4: Ecosystem      ░░░░░░░░░░░░░░░░░░�
 # Input
 $x := 5$
 $y := 3$
-$z == x + y$
+$z := x + y ==$
 
 # Output
 $x := 5$
 $y := 3$
-$z == x + y = 8$
+$z := x + y == 8$
 ```
 
 ---
@@ -121,10 +121,10 @@ $z == x + y = 8$
 # Input
 $m := 5\ \text{kg}$
 $a := 9.81\ \text{m/s}^2$
-$F == m \cdot a$
+$F := m \cdot a ==$
 
 # Output
-$F == m \cdot a = 49.05\ \text{N}$
+$F := m \cdot a == 49.05\ \text{N}$
 ```
 
 ---

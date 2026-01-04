@@ -29,26 +29,36 @@ But when an LLM generates a calculation, where do the numbers come from? You hav
 ```markdown
 $m := 5 \text{ kg}$
 $a := 9.81 \text{ m/s}^2$
-$F == m \cdot a$
+$F := m \cdot a$
+$F ==$
 ```
-
-> $m := 5 \text{ kg}$
-> $a := 9.81 \text{ m/s}^2$
-> $F == m \cdot a$
+$m := 5 \text{ kg}$
+$a := 9.81 \text{ m/s}^2$
+$F := m \cdot a$
+$F ==$
 
 **After `livemathtex process`:**
 
 ```markdown
 $m := 5 \text{ kg}$
 $a := 9.81 \text{ m/s}^2$
-$F == m \cdot a = 49.05 \text{ N}$
+$F := m \cdot a$
+$F == 49.05 \text{ N}$
 ```
 
-> $m := 5 \text{ kg}$
-> $a := 9.81 \text{ m/s}^2$
-> $F == m \cdot a = 49.05 \text{ N}$
+$m := 5 \text{ kg}$
+$a := 9.81 \text{ m/s}^2$
+$F := m \cdot a$
+$F == 49.05 \text{ N}$
 
-**The result is computed, not typed.** Change $m$ → $F$ updates. No disconnect.
+**Or combined (define + evaluate in one line):**
+
+```markdown
+$F := m \cdot a ==$    →    $F := m \cdot a == 49.05 \text{ N}$
+```
+$F := m \cdot a ==$    →    $F := m \cdot a == 49.05 \text{ N}$
+
+**The result is computed, not typed.** Change `$m$` → `$F$` updates automatically.
 
 ---
 
@@ -76,9 +86,10 @@ Three operators. That's it.
 
 | Operator | Meaning | Example |
 |----------|---------|---------|
-| `:=` | Assign (define) | `$x := 42$` |
-| `==` | Evaluate (compute) | `$y == x^2$` → shows `= 1764` |
-| `=>` | Symbolic (derivation) | `$f'(x) =>$` → shows `= 2x + 2` |
+| `:=` | Define | `$x := 42$` |
+| `==$` | Evaluate | `$x ==$` → shows value |
+| `:= ... ==` | Define + evaluate | `$y := x^2 ==$` → defines AND shows |
+| `=>` | Symbolic | `$f'(x) =>$` → shows derivation |
 
 > ⚠️ **Why `==` not `=`?** Safety. You can't accidentally overwrite a variable by forgetting the `:` in `:=`.
 
@@ -94,7 +105,13 @@ $E := 200 \times 10^9 \text{ Pa}$
 
 ```latex
 $y := x^2$
-$y ==$          → Livemathtex fills in: $y == x^2 = 1764$
+$y ==$          → Livemathtex fills in: $y == 1764$
+```
+
+**Or combined:**
+
+```latex
+$y := x^2 ==$   → Livemathtex fills in: $y := x^2 == 1764$
 ```
 
 ### Symbolic (planned)
@@ -142,10 +159,9 @@ from livemathtex import process
 
 output = process("""
 $x := 5$
-$y := x^2$
-$y ==$
+$y := x^2 ==$
 """)
-# Returns: $x := 5$  $y := x^2$  $y == x^2 = 25$
+# Returns: $x := 5$  $y := x^2 == 25$
 ```
 
 ### With AI assistants
