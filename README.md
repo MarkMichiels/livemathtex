@@ -1,360 +1,101 @@
 # Livemathtex
 
-**Live LaTeX calculations in Markdown documents**
+**Live LaTeX calculations in Markdown — built for the AI era**
 
 | | |
 |---|---|
-| **Status** | 🚧 **Design phase** — Documentation complete, implementation not started |
+| **Status** | 🚧 Design phase — documentation complete, implementation not started |
 | **Version** | 0.0.0 (pre-alpha) |
 | **Built with** | AI assistance (Claude/Cursor) |
 
-A preprocessor that brings live calculations to Markdown files. Define variables with `:=` and evaluate expressions with `=` — all in beautiful LaTeX notation.
+---
+
+## The Core Idea
+
+You don't write LaTeX by hand anymore — **LLMs do**.
+
+But when an LLM generates a calculation, where do the numbers come from? You have to trust it, or run Python separately to verify. The formula and the result are disconnected.
+
+**Livemathtex connects them.** AI generates the LaTeX formulas, Livemathtex computes the results. Everything stays in one Markdown file — verifiable, traceable, Git-friendly.
 
 ---
 
-## Vision: Why Now?
+## Quick Example
 
-### The Problem with LLM-Generated Calculations
+**You (to LLM):** "Calculate force for 5 kg at 9.81 m/s²"
 
-Today when you ask an LLM to do calculations, you get:
+**LLM generates:**
 
-> *"A 5 kg object accelerates at 9.81 m/s². The force is **49.05 N**. Here's Python to verify..."*
-
-```python
-m = 5
-a = 9.81
-F = m * a  # You have to run this separately!
-```
-
-**The problem**: Where does `49.05` come from? You have to trust the LLM, or run the Python separately. The text and calculation are **disconnected**.
-
-**"But what about Jupyter?"** — Jupyter solves the disconnect, but:
-- `F = m * a` vs $F = m \cdot a$ — which would you put in a report?
-- Jupyter files are JSON — harder to diff, review, merge
-
-### The Livemathtex Solution
-
-Same calculation, mathematical notation, pure Markdown:
-
-**Input:**
 ```markdown
 $m := 5 \text{ kg}$
 $a := 9.81 \text{ m/s}^2$
 $F := m \cdot a =$
 ```
 
-**Input rendered:**
-
 > $m := 5 \text{ kg}$
->
 > $a := 9.81 \text{ m/s}^2$
->
 > $F := m \cdot a =$
 
----
+**After `livemathtex process`:**
 
-**Output (after `livemathtex process`):**
 ```markdown
 $m := 5 \text{ kg}$
 $a := 9.81 \text{ m/s}^2$
 $F := m \cdot a = 49.05 \text{ N}$
 ```
 
-**Output rendered:**
-
 > $m := 5 \text{ kg}$
->
 > $a := 9.81 \text{ m/s}^2$
->
 > $F := m \cdot a = 49.05 \text{ N}$
 
-**No disconnect.** Numbers come from formulas. Change $m$ → $F$ updates. Git-friendly, readable, verifiable.
-
-### Why This Fits the AI Era
-
-- **Markdown + Git** = AI-friendly, version-controlled documentation
-- **LaTeX math** = Universal notation AI understands and generates
-- **Live calculations** = Documents that stay consistent and verifiable
-- **Plain text** = Easy to diff, merge, review, and process with AI tools
-
-**The vision**: AI generates the formulas, Livemathtex computes the results. No more "trust but verify" — everything is in one place, traceable, and correct by construction.
+**The result is computed, not typed.** Change $m$ → $F$ updates. No disconnect.
 
 ---
 
-## The Problem
+## Why This Matters
 
-Engineers and scientists often need to:
-1. **Document calculations** with proper mathematical notation
-2. **Keep calculations live** — change an input, all outputs update
-3. **Version control** their work (Git-friendly plain text)
-4. **Export** to PDF for reports and publications
+| Traditional LLM output | With Livemathtex |
+|------------------------|------------------|
+| "The force is **49.05 N**" (trust me) | `$F = 49.05 \text{ N}$` (computed from formula) |
+| Separate Python to verify | Formula and result in one place |
+| Edit text → numbers become stale | Edit input → outputs auto-update |
+| Binary tools or JSON notebooks | Plain Markdown, Git-friendly |
 
-Current solutions fall short:
-
-| Tool | Math Notation | Live Calc | Git-friendly | Free |
-|------|---------------|-----------|--------------|------|
-| Mathcad | ✅ Excellent | ✅ Yes | ❌ Binary | ❌ $$$$ |
-| Excel | ❌ Poor | ✅ Yes | ❌ Binary | ❌ $ |
-| Jupyter | ⚠️ Code-style | ✅ Yes | ⚠️ JSON | ✅ Yes |
-| LaTeX | ✅ Excellent | ❌ No | ✅ Yes | ✅ Yes |
-| Markdown | ✅ Good (KaTeX) | ❌ No | ✅ Yes | ✅ Yes |
-
-**Livemathtex combines the best:** LaTeX notation + live calculations + plain Markdown.
-
----
-
-## The Solution
-
-Write calculations in natural mathematical notation:
-
-### Input (`calculation.md`)
-
-```markdown
-# Electricity Cost Calculation
-
-## Parameters
-
-$P_{LED} := 3273.6 \text{ kW}$
-$t_{year} := 8760 \text{ h}$
-$\eta := 0.90$
-$price := 0.25 \text{ €/kWh}$
-
-## Annual Energy Consumption
-
-$E_{year} := P_{LED} \cdot t_{year} \cdot \eta$
-
-$E_{year} =$
-
-## Annual Cost
-
-$C_{year} := E_{year} \cdot price$
-
-$C_{year} =$
-```
-
-### Output (after processing)
-
-```markdown
-# Electricity Cost Calculation
-
-## Parameters
-
-$P_{LED} := 3273.6 \text{ kW}$
-$t_{year} := 8760 \text{ h}$
-$\eta := 0.90$
-$price := 0.25 \text{ €/kWh}$
-
-## Annual Energy Consumption
-
-$E_{year} := P_{LED} \cdot t_{year} \cdot \eta$
-
-$E_{year} = 25{,}808{,}726.4 \text{ kWh}$
-
-## Annual Cost
-
-$C_{year} := E_{year} \cdot price$
-
-$C_{year} = 6{,}452{,}181.60 \text{ €}$
-```
+**Jupyter?** Great for code, but `F = m * a` isn't what you put in a report. LaTeX is the universal language for math — and LLMs already speak it fluently.
 
 ---
 
 ## Syntax
 
-### Assignment (`:=`)
+Three operators. That's it.
 
-Define a variable. No output is shown (like Mathcad's definition operator).
+| Operator | Meaning | Example |
+|----------|---------|---------|
+| `:=` | Assign (define) | `$x := 42$` |
+| `=` | Evaluate (compute) | `$y = 1764$` |
+| `=>` | Symbolic (show derivation) | `$f'(x) => 2x + 2$` |
+
+### Assignment
 
 ```latex
 $x := 42$
-$y := x^2 + 2x + 1$
 $\alpha := \frac{\pi}{4}$
+$E := 200 \times 10^9 \text{ Pa}$
 ```
 
-### Evaluation (`=`)
-
-Request the calculated value. Livemathtex fills in the result.
+### Evaluation
 
 ```latex
-$y =$             → $y = 1849$
-$\sin(\alpha) =$  → $\sin(\alpha) = 0.7071$
-```
-
-### Units (planned)
-
-```latex
-$F := 100 \text{ N}$
-$d := 2 \text{ m}$
-$W := F \cdot d$
-$W =$             → $W = 200 \text{ J}$
+$y := x^2$
+$y =$           → Livemathtex fills in: $y = 1764$
 ```
 
 ### Symbolic (planned)
 
 ```latex
 $f(x) := x^2 + 2x + 1$
-$f'(x) =>$        → $f'(x) = 2x + 2$
+$f'(x) =>$      → Livemathtex shows: $f'(x) = 2x + 2$
 ```
-
----
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Livemathtex Pipeline                       │
-└─────────────────────────────────────────────────────────────┘
-
-  input.md          Parser           Engine           output.md
- ┌─────────┐      ┌─────────┐      ┌─────────┐      ┌─────────┐
- │ LaTeX   │ ──── │ Extract │ ──── │ SymPy   │ ──── │ LaTeX   │
- │ + := =  │      │ AST     │      │ Evaluate│      │ + values│
- └─────────┘      └─────────┘      └─────────┘      └─────────┘
-
-Components:
-1. Parser     - Extract LaTeX math blocks, detect :=, = and =>
-2. Translator - Convert LaTeX to SymPy expressions
-3. Engine     - SymPy for symbolic/numeric computation
-4. Renderer   - Insert results back into LaTeX
-```
-
-### Core Dependencies
-
-- **Python 3.10+**
-- **SymPy** — Symbolic mathematics engine
-- **latex2sympy2** — LaTeX to SymPy parser
-- **regex** — Advanced pattern matching
-
----
-
-## Features
-
-### Phase 1: Core (MVP)
-
-- [ ] Parse Markdown for LaTeX math blocks (`$...$` and `$$...$$`)
-- [ ] Detect assignment operator `:=`
-- [ ] Detect evaluation operator `=`
-- [ ] Detect symbolic/highlight operator `=>`
-- [ ] Variable storage and lookup
-- [ ] Basic arithmetic: `+ - * / ^`
-- [ ] Common functions: `sin cos tan log exp sqrt`
-- [ ] Greek letters: `\alpha \beta \gamma` etc.
-- [ ] Number formatting (thousands separator, decimals)
-- [ ] **Error handling from day one:**
-  - [ ] Undefined variable errors (inline in output)
-  - [ ] Syntax errors with line numbers
-  - [ ] Division by zero, math errors
-  - [ ] Clear error messages in console
-- [ ] CLI: `livemathtex process input.md -o output.md`
-
-### Phase 2: Scientific
-
-- [ ] Units support (SI, imperial, custom)
-- [ ] Unit conversion
-- [ ] Dimensional analysis (catch unit errors)
-- [ ] Symbolic differentiation and integration
-- [ ] Matrix operations
-- [ ] Summation and product notation
-
-### Phase 3: Integration
-
-- [ ] VS Code extension (live preview)
-- [ ] Watch mode (auto-update on save)
-- [ ] Web playground (optional, for demo)
-
-### Phase 4: Advanced (future)
-
-- [ ] Tables with calculations
-- [ ] Conditional expressions
-- [ ] Iteration and solving
-- [ ] Custom function definitions
-- [ ] Import/include other files
-
----
-
-## Usage
-
-### CLI
-
-```bash
-# Process single file
-livemathtex process calculation.md
-
-# Output to specific file
-livemathtex process calculation.md -o result.md
-
-# Watch mode (auto-update on save)
-livemathtex watch calculation.md
-
-# For PDF: use existing tools on the output
-pandoc result.md -o result.pdf
-```
-
-### Python API
-
-```python
-from livemathtex import LivemathtexProcessor
-
-processor = LivemathtexProcessor()
-result = processor.process_file("calculation.md")
-result.save("output.md")
-
-# Or process string
-output = processor.process_string("""
-$x := 5$
-$y := x^2$
-$y =$
-""")
-print(output)
-# $x := 5$
-# $y := x^2$
-# $y = 25$
-```
-
----
-
-## What Livemathtex Does NOT Do
-
-**Focus is key.** Livemathtex is a **core engine** — one thing done well.
-
-| Out of Scope | Why | Alternative |
-|--------------|-----|-------------|
-| **PDF export** | Existing tools excel | Pandoc, WeasyPrint |
-| **Live editor** | VS Code + MPE exists | Markdown Preview Enhanced |
-| **GUI interface** | Separate project scope | Build on top of Livemathtex |
-| **Plotting** | Many good libraries | Matplotlib, Plotly |
-
-### The Repository Approach
-
-Livemathtex follows a **modular repository philosophy**:
-
-```
-livemathtex (this repo)     ← Core engine: Markdown → Markdown with results
-     │
-     ├── mathcad-gui (future repo)  ← GUI wrapper with PDF export
-     ├── livemathtex-vscode         ← VS Code extension
-     └── livemathtex-web            ← Web playground
-```
-
-**Anyone can build on top of Livemathtex** — a Mathcad-like GUI with PDF export, a web interface, or integration into other tools. These are separate projects that use Livemathtex as a dependency.
-
-**This repo's scope**: The calculation engine. Nothing more, nothing less.
-
----
-
-## Comparison with Alternatives
-
-| Feature | Livemathtex | Mathcad | SMath | Jupyter | Typst |
-|---------|-----------|---------|-------|---------|-------|
-| LaTeX notation | ✅ Native | ✅ Yes | ⚠️ Similar | ❌ Code | ⚠️ Own syntax |
-| Plain text source | ✅ Markdown | ❌ Binary | ❌ XML | ⚠️ JSON | ✅ Yes |
-| Git-friendly | ✅ Yes | ❌ No | ⚠️ Partial | ⚠️ Partial | ✅ Yes |
-| Free & open source | ✅ MIT | ❌ No | ✅ Yes | ✅ Yes | ✅ Yes |
-| Runs offline | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
-| Units support | 🔜 Planned | ✅ Yes | ✅ Yes | ⚠️ Libraries | ⚠️ Package |
-| Minimal scope | ✅ Focused | ❌ Full suite | ❌ Full suite | ❌ Full platform | ⚠️ Growing |
-
-**Note**: PDF export is intentionally out of scope — use Pandoc, WeasyPrint, or similar tools on the output Markdown.
 
 ---
 
@@ -372,40 +113,86 @@ pip install -e .
 
 ---
 
-## Examples
+## Usage
 
-### Engineering Calculation
+### CLI
 
-```markdown
-# Beam Deflection Calculator
+```bash
+# Process and update in place
+livemathtex process calculation.md
 
-## Inputs
+# Output to specific file
+livemathtex process calculation.md -o result.md
 
-$E := 200 \times 10^9 \text{ Pa}$      (Young's modulus, steel)
-$I := 8.33 \times 10^{-6} \text{ m}^4$  (Second moment of area)
-$L := 3 \text{ m}$                      (Beam length)
-$P := 10000 \text{ N}$                  (Point load at center)
-
-## Maximum Deflection (simply supported, center load)
-
-$\delta_{max} := \frac{P \cdot L^3}{48 \cdot E \cdot I}$
-
-$\delta_{max} =$
+# Watch mode (auto-update on save)
+livemathtex watch calculation.md
 ```
 
-### Financial Model
+### Python API
 
-```markdown
-# Investment Analysis
+```python
+from livemathtex import process
 
-$principal := 100000$
-$rate := 0.07$
-$years := 10$
-
-$future\_value := principal \cdot (1 + rate)^{years}$
-
-$future\_value =$
+output = process("""
+$x := 5$
+$y := x^2$
+$y =$
+""")
+# Returns: $x := 5$  $y := x^2$  $y = 25$
 ```
+
+### With AI assistants
+
+The typical workflow:
+
+1. **Ask LLM** to set up a calculation (it generates the LaTeX)
+2. **Run** `livemathtex process` to compute results
+3. **Iterate** — adjust values, re-run, results update
+
+You're not writing LaTeX by hand — you're reviewing and tweaking AI-generated formulas.
+
+---
+
+## Features
+
+### Done
+
+- [x] Project design and specification
+
+### Phase 1: Core (MVP)
+
+- [ ] Parse Markdown for LaTeX math blocks
+- [ ] Assignment (`:=`) and evaluation (`=`) operators
+- [ ] Variable storage and lookup
+- [ ] Basic arithmetic and common functions
+- [ ] Error handling (undefined variables, syntax errors)
+- [ ] CLI: `livemathtex process`
+
+### Phase 2: Scientific
+
+- [ ] Units (SI, imperial, custom)
+- [ ] Symbolic differentiation (`=>`)
+- [ ] Matrix operations
+
+### Phase 3: Integration
+
+- [ ] VS Code extension
+- [ ] Watch mode
+
+See [ROADMAP.md](docs/ROADMAP.md) for full details.
+
+---
+
+## What Livemathtex Does NOT Do
+
+| Out of Scope | Why | Use Instead |
+|--------------|-----|-------------|
+| PDF export | Pandoc excels at this | `pandoc output.md -o output.pdf` |
+| Live editor | VS Code + extensions exist | Markdown Preview Enhanced |
+| GUI | Separate project | Build on top of Livemathtex |
+| Plotting | Many libraries exist | Matplotlib, Plotly |
+
+**Philosophy:** Do one thing well. The calculation engine. Everything else can build on top.
 
 ---
 
@@ -413,27 +200,19 @@ $future\_value =$
 
 | Document | Description |
 |----------|-------------|
-| [SPEC.md](docs/SPEC.md) | Full specification and requirements |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical architecture and design |
-| [UX.md](docs/UX.md) | User experience and workflow |
+| [SPEC.md](docs/SPEC.md) | Full specification |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design |
 | [SYNTAX.md](docs/SYNTAX.md) | Complete syntax reference |
-| [DEPENDENCIES.md](docs/DEPENDENCIES.md) | Libraries and technology choices |
-| [ROADMAP.md](docs/ROADMAP.md) | Development phases and milestones |
-| [EXAMPLES.md](docs/EXAMPLES.md) | Example documents |
+| [EXAMPLES.md](docs/EXAMPLES.md) | Example calculations |
+| [ROADMAP.md](docs/ROADMAP.md) | Development phases |
 
 ---
 
 ## Contributing
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Development Setup
-
 ```bash
 git clone https://github.com/MarkMichiels/livemathtex.git
 cd livemathtex
-python -m venv venv
-source venv/bin/activate
 pip install -e ".[dev]"
 pytest
 ```
@@ -442,16 +221,8 @@ pytest
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
+MIT License — See [LICENSE](LICENSE)
 
 ---
 
-## Acknowledgments
-
-- **Mathcad** — The original inspiration for live document calculations
-- **SymPy** — The powerful symbolic mathematics library
-- **latex2sympy2** — LaTeX to SymPy parsing
-
----
-
-*"Write calculations like a mathematician, version them like a developer."*
+*"AI writes the math. Livemathtex computes the results."*
