@@ -32,62 +32,35 @@ result = power * hours * efficiency  # You have to run this separately!
 **The problem**: Where does that `25,808,726` come from? You have to trust the LLM, or run the Python separately to verify. The Markdown text and the calculation are **disconnected**.
 
 **"But what about Jupyter?"** — Yes, Jupyter solves the disconnect. But:
-- Code cells are **Python syntax**, not mathematical notation
 - `result = power * hours * efficiency` vs $E = P \cdot t \cdot \eta$
-- Which one would you put in a report? Which one is readable by non-programmers?
-- Jupyter files are JSON (`.ipynb`), not plain Markdown — harder to diff, review, merge
+- Which one would you put in a report?
+- Jupyter files are JSON — harder to diff, review, merge
 
 ### The Livemathtex Solution
 
-With Livemathtex, the calculation IS the documentation:
+Same calculation, but readable:
 
-**Input (`calculation.md`):**
+**Input:**
 ```markdown
-# Projectile Motion
-
-$v_0 := 25 \text{ m/s}$
-$\theta := 45°$
-$g := 9.81 \text{ m/s}^2$
-
-$h_{max} := \frac{v_0^2 \cdot \sin^2(\theta)}{2g} =$
+$P := 3273.6 \text{ kW}$
+$t := 8760 \text{ h}$
+$\eta := 0.90$
+$E := P \cdot t \cdot \eta =$
 ```
 
-**Input rendered:**
-
-> **Projectile Motion**
->
-> $v_0 := 25 \text{ m/s}$
->
-> $\theta := 45°$
->
-> $g := 9.81 \text{ m/s}^2$
->
-> $h_{max} := \frac{v_0^2 \cdot \sin^2(\theta)}{2g} =$ ← *waiting for result*
-
----
-
-**Output (`calculation.md` after `livemathtex process`):**
+**Output (after `livemathtex process`):**
 ```markdown
-# Projectile Motion
-
-$v_0 := 25 \text{ m/s}$
-$\theta := 45°$
-$g := 9.81 \text{ m/s}^2$
-
-$h_{max} := \frac{v_0^2 \cdot \sin^2(\theta)}{2g} = 15.94 \text{ m}$
+$P := 3273.6 \text{ kW}$
+$t := 8760 \text{ h}$
+$\eta := 0.90$
+$E := P \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
 ```
 
-**Output rendered:**
+**Rendered:**
 
-> **Projectile Motion**
+> $P := 3273.6 \text{ kW}$ · $t := 8760 \text{ h}$ · $\eta := 0.90$
 >
-> $v_0 := 25 \text{ m/s}$
->
-> $\theta := 45°$
->
-> $g := 9.81 \text{ m/s}^2$
->
-> $h_{max} := \frac{v_0^2 \cdot \sin^2(\theta)}{2g} = 15.94 \text{ m}$
+> $E := P \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
 
 **No disconnect.** The numbers come directly from the formulas. Change a parameter → results update automatically. Everything stays consistent, traceable, and verifiable.
 
