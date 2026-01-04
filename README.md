@@ -31,6 +31,12 @@ result = power * hours * efficiency  # You have to run this separately!
 
 **The problem**: Where does that `25,808,726` come from? You have to trust the LLM, or run the Python separately to verify. The Markdown text and the calculation are **disconnected**.
 
+**"But what about Jupyter?"** — Yes, Jupyter solves the disconnect. But:
+- Code cells are **Python syntax**, not mathematical notation
+- `result = power * hours * efficiency` vs $E = P \cdot t \cdot \eta$
+- Which one would you put in a report? Which one is readable by non-programmers?
+- Jupyter files are JSON (`.ipynb`), not plain Markdown — harder to diff, review, merge
+
 ### The Livemathtex Solution
 
 With Livemathtex, the calculation IS the documentation:
