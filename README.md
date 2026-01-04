@@ -81,44 +81,15 @@ Three operators. That's it.
 |----------|---------|-------|--------|
 | `:=` | Define | `$x := 42$` | `$x := 42$` (unchanged) |
 | `==` | Evaluate | `$x ==$` | `$x == 42$` (result filled in) |
-| `=>` | Symbolic | `$f'(x) =>$` | `$f'(x) => 2x$` |
+| `:= ==` | Define + evaluate | `$y := x^2 ==$` | `$y := x^2 == 1764$` |
+| `:=` | Define function | `$f(x) := x^2 + 2x$` | `$f(x) := x^2 + 2x$` |
+| `=>` | Symbolic | `$f'(x) =>$` | `$f'(x) => 2x + 2$` |
 
 **Notes:**
 - Results are **overwritten** on re-run
 - Unit support with SI default (see [USAGE.md](docs/USAGE.md) for details)
 
 > ⚠️ **Why `==` not `=`?** Safety. You can't accidentally overwrite a variable by forgetting the `:` in `:=`.
-
-### Assignment
-
-```latex
-$x := 42$
-$\alpha := \frac{\pi}{4}$
-$E := 200 \times 10^9 \text{ Pa}$
-```
-
-
-### Evaluation
-
-```latex
-$y := x^2$
-$y ==$          → Livemathtex fills in: $y == 1764$
-```
-
-**Or combined:**
-
-```latex
-$y := x^2 ==$   → Livemathtex fills in: $y := x^2 == 1764$
-```
-
-### Symbolic (planned)
-
-```latex
-$f(x) := x^2 + 2x + 1$
-$f'(x) =>$      → Livemathtex shows: $f'(x) = 2x + 2$
-```
-
----
 
 ## Installation
 
