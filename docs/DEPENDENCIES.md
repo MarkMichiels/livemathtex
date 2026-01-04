@@ -286,12 +286,7 @@ dev = [
 ### Platform Support
 - Linux: Full support
 - macOS: Full support
-- Windows: Full support (may need additional LaTeX setup for PDF)
-
-### External Requirements for PDF
-- **pandoc** (>= 2.0)
-- **LaTeX** (TeX Live, MiKTeX, or MacTeX)
-- Or use WeasyPrint for PDF without LaTeX
+- Windows: Full support
 
 ---
 
