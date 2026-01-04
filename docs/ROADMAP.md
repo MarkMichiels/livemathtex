@@ -1,6 +1,6 @@
 # LiveMathTeX - Development Roadmap
 
-> ⚠️ **Built with AI** — This project is developed using AI tools. Feedback welcome.
+> 💡 **Note:** This project is developed with the help of AI coding assistants. Feedback and contributions welcome!
 
 ## Overview
 

@@ -34,7 +34,7 @@ This document captures the research and exploration that led to creating LiveMat
 - ❌ **Binary/proprietary format** — not Git-friendly
 - ❌ **Windows only** — no Linux/Mac
 - ❌ **Closed ecosystem** — can't integrate with other tools
-- ❌ **Not AI-friendly** — LLMs can't read/write Mathcad files
+- ❌ **Binary format** — not readable or editable as plain text
 
 **Verdict:** The inspiration. Does everything right, except: cost, format, and ecosystem lock-in.
 
@@ -177,7 +177,7 @@ jupytext --to markdown notebook.ipynb  # ipynb → MD
 - ❌ Own syntax, not standard LaTeX
 - ❌ Not Markdown — separate ecosystem
 - ❌ Limited calculation support (needs packages)
-- ❌ LLMs less fluent in Typst than LaTeX
+- ❌ Less tooling available compared to LaTeX
 
 **Verdict:** Promising for documents, but not the Markdown+LaTeX combo we need.
 
@@ -258,18 +258,13 @@ Rather than forcing existing tools to do something they weren't designed for, we
 
 ---
 
-## The AI Era Insight
+## A Personal Note
 
-During this research, a key insight emerged:
+I'm not a professional programmer — I work with AI assistants to write code. During this research, I realized something:
 
-> **Humans don't write LaTeX by hand anymore — LLMs do.**
+Whether you write LaTeX formulas yourself or let an AI assistant generate them, you still need a way to **verify the calculations**. The formula might look correct, but does it compute correctly?
 
-This changes the value proposition:
-
-- **Old thinking:** "I need a tool to help me write LaTeX calculations"
-- **New thinking:** "LLMs write the LaTeX, I need a tool to make the results verifiable"
-
-LiveMathTeX bridges the disconnect between AI-generated formulas and computed results. The LLM generates `$F := m \cdot a ==$`, LiveMathTeX fills in `49.05 \text{ N}`.
+LiveMathTeX solves this: the formula `$F := m \cdot a ==$` gets computed to `49.05 \text{ N}`. You can see both the formula AND the result, always in sync.
 
 ---
 
@@ -278,9 +273,8 @@ LiveMathTeX bridges the disconnect between AI-generated formulas and computed re
 LiveMathTeX exists because:
 
 1. **LaTeX + Markdown + live calculations** didn't exist together
-2. **LLMs generate LaTeX fluently** — we leverage that
-3. **Focused tools beat complex platforms** — do one thing well
-4. **Plain text wins** — Git, AI, tooling all work better with text
+2. **Focused tools beat complex platforms** — do one thing well
+3. **Plain text wins** — Git, version control, and all modern tooling work better with text
 
 The research showed many good tools, but none combined everything. LiveMathTeX fills that specific gap.
 
