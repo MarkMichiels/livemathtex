@@ -59,6 +59,9 @@ Thumbs.db
 # Local history (VS Code)
 .history/
 
+# Agent workflow files (temporary)
+.agent/
+
 # Symlinked rules from proviron (keep local rules only)
 .cursor/rules/general.mdc
 .cursor/rules/general_coding.mdc

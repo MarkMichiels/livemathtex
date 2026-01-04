@@ -35,13 +35,7 @@ dependencies = [
     # Units support
     "pint>=0.23",
 
-    # Parsing
-    "lark>=1.1",
-    "markdown-it-py>=3.0",
-    "mdit-py-plugins>=0.4",
-
-    # Plotting
-    "matplotlib>=3.8",
+    # Numeric
     "numpy>=1.24",
 
     # CLI
@@ -64,10 +58,6 @@ dev = [
 docs = [
     "mkdocs>=1.5",
     "mkdocs-material>=9.0",
-]
-pdf = [
-    "pypandoc>=1.12",
-    "weasyprint>=60.0",
 ]
 
 [project.scripts]
