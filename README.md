@@ -259,18 +259,30 @@ print(output)
 
 ## What Livemathtex Does NOT Do
 
-**Focus is key.** Livemathtex does one thing well: process LaTeX calculations in Markdown.
+**Focus is key.** Livemathtex is a **core engine** — one thing done well.
 
-| Out of Scope | Why | Use Instead |
+| Out of Scope | Why | Alternative |
 |--------------|-----|-------------|
-| **PDF export** | Existing tools do this better | Pandoc, WeasyPrint, md2pdf |
-| **Live editor** | VS Code + MPE already exists | Markdown Preview Enhanced |
-| **Jupyter kernel** | Jupyter has SymPy already | Jupyter + SymPy |
-| **GUI interface** | We're CLI-first, text-first | SMath, Mathcad |
-| **Full CAS** | SymPy is the engine, we're the glue | SymPy directly |
-| **Plotting** | Many good libraries exist | Matplotlib, Plotly |
+| **PDF export** | Existing tools excel | Pandoc, WeasyPrint |
+| **Live editor** | VS Code + MPE exists | Markdown Preview Enhanced |
+| **GUI interface** | Separate project scope | Build on top of Livemathtex |
+| **Plotting** | Many good libraries | Matplotlib, Plotly |
 
-**Philosophy**: Build on existing tools, don't reinvent them.
+### The Repository Approach
+
+Livemathtex follows a **modular repository philosophy**:
+
+```
+livemathtex (this repo)     ← Core engine: Markdown → Markdown with results
+     │
+     ├── mathcad-gui (future repo)  ← GUI wrapper with PDF export
+     ├── livemathtex-vscode         ← VS Code extension
+     └── livemathtex-web            ← Web playground
+```
+
+**Anyone can build on top of Livemathtex** — a Mathcad-like GUI with PDF export, a web interface, or integration into other tools. These are separate projects that use Livemathtex as a dependency.
+
+**This repo's scope**: The calculation engine. Nothing more, nothing less.
 
 ---
 

@@ -105,20 +105,31 @@ Optional symbolic computation support:
 
 ---
 
-## Out of Scope
+## Out of Scope (for this repository)
 
-Livemathtex intentionally does NOT include:
+Livemathtex is a **core engine**. These features belong in separate projects:
 
-| Feature | Reason | Alternative |
-|---------|--------|-------------|
-| **PDF export** | Existing tools are excellent | Pandoc, WeasyPrint |
-| **HTML export** | Existing tools are excellent | Pandoc, any MD renderer |
-| **Live editor/GUI** | VS Code + MPE already exists | Use your favorite editor |
-| **Jupyter kernel** | Jupyter already has SymPy | Use Jupyter directly |
-| **Plotting/graphs** | Many excellent libraries exist | Matplotlib, Plotly, charts CLI |
-| **Full IDE** | We're a preprocessor, not an IDE | VS Code, Cursor |
+| Feature | Why Separate | Could Be Built As |
+|---------|--------------|-------------------|
+| **PDF export** | Existing tools excel | Use Pandoc on output |
+| **GUI interface** | Different user need | `mathcad-gui` repo using Livemathtex |
+| **VS Code extension** | Editor-specific | `livemathtex-vscode` repo |
+| **Web playground** | Different deployment | `livemathtex-web` repo |
+| **Plotting/graphs** | Many excellent libs | Integrate Matplotlib in wrapper |
 
-**Philosophy**: Do one thing well. Build on existing tools.
+### Repository Philosophy
+
+```
+livemathtex          ← THIS REPO: core engine (Markdown → Markdown)
+     │
+     └── Other repos can depend on livemathtex and add:
+         - GUI wrapper
+         - PDF export
+         - Editor integration
+         - Web interface
+```
+
+**This keeps the core focused and allows others to build on top.**
 
 ---
 
