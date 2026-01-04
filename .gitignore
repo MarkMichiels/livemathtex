@@ -50,3 +50,13 @@ docs/_build/
 .DS_Store
 Thumbs.db
 
+# Symlinked directories (created by setup_symlinks.sh)
+.crossnote
+
+# Symlinked rules from proviron (keep local rules only)
+.cursor/rules/general.mdc
+.cursor/rules/general_coding.mdc
+.cursor/rules/general_context.mdc
+.cursor/rules/general_credentials.mdc
+.cursor/rules/documentation.mdc
+.cursor/rules/python.mdc
