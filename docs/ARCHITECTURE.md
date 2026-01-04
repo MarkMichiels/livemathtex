@@ -216,7 +216,7 @@ system = "SI"  # or "imperial"
 | Numeric | `numpy`, `scipy` |
 | Symbolic | `sympy` |
 | LaTeX parsing | `latex2sympy2` |
-| Markdown | `markdown-it-py` or `mistune` |
+| Math detection | `regex` (built-in) |
 
 **Pros:** Rich ecosystem, rapid development, SymPy for CAS
 **Cons:** Distribution (requires Python), slightly slower

@@ -190,32 +190,29 @@ parser = Lark(grammar, start='start')
 
 ---
 
-### 5. Markdown Processing: `markdown-it-py`
+### 5. Math Block Detection
 
-**Purpose:** Parse and render Markdown with extensions.
+**Purpose:** Find `$...$` and `$$...$$` blocks in Markdown.
 
-**Installation:**
-```bash
-pip install markdown-it-py mdit-py-plugins
-```
+**Approach:** Simple regex-based detection (no full Markdown parser needed).
 
-**Example:**
 ```python
-from markdown_it import MarkdownIt
+import re
 
-md = MarkdownIt()
+# Find inline math: $...$
+INLINE_MATH = re.compile(r'(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)')
 
-# Parse to tokens
-tokens = md.parse("# Hello\n\n$x := 5$")
+# Find display math: $$...$$
+DISPLAY_MATH = re.compile(r'\$\$(.+?)\$\$', re.DOTALL)
 
-# Render to HTML
-html = md.render("# Hello\n\n$x := 5$")
+# Skip code blocks (don't process $ inside ```)
+CODE_BLOCK = re.compile(r'```.*?```', re.DOTALL)
 ```
 
-**Alternative: `mistune`**
-- Faster
-- More customizable
-- Less plugin ecosystem
+**Why no markdown-it-py:**
+- Overkill for our use case
+- We only need to find math blocks, not parse full Markdown
+- Simpler = fewer dependencies = easier maintenance
 
 ---
 
@@ -255,8 +252,6 @@ sympy>=1.12
 pint>=0.23
 latex2sympy2>=1.9
 lark>=1.1
-markdown-it-py>=3.0
-mdit-py-plugins>=0.4
 numpy>=1.24
 
 # CLI
