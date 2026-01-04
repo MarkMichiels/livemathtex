@@ -18,51 +18,45 @@ A preprocessor that brings live calculations to Markdown files. Define variables
 
 Today when you ask an LLM to do calculations, you get:
 
-> *"Here's the calculation: Power = 3273.6 kW, Hours = 8760 h, Efficiency = 90%.*
-> ***Result: 25,808,726 kWh per year***
-> *Here's the Python to verify..."*
+> *"A 5 kg object accelerates at 9.81 m/s². The force is **49.05 N**. Here's Python to verify..."*
 
 ```python
-power = 3273.6
-hours = 8760
-efficiency = 0.90
-result = power * hours * efficiency  # You have to run this separately!
+m = 5
+a = 9.81
+F = m * a  # You have to run this separately!
 ```
 
-**The problem**: Where does that `25,808,726` come from? You have to trust the LLM, or run the Python separately to verify. The Markdown text and the calculation are **disconnected**.
+**The problem**: Where does `49.05` come from? You have to trust the LLM, or run the Python separately. The text and calculation are **disconnected**.
 
-**"But what about Jupyter?"** — Yes, Jupyter solves the disconnect. But:
-- `result = power * hours * efficiency` vs $E = P \cdot t \cdot \eta$
-- Which one would you put in a report?
+**"But what about Jupyter?"** — Jupyter solves the disconnect, but:
+- `F = m * a` vs $F = m \cdot a$ — which would you put in a report?
 - Jupyter files are JSON — harder to diff, review, merge
 
 ### The Livemathtex Solution
 
-Same calculation, but readable:
+Same calculation, mathematical notation, pure Markdown:
 
 **Input:**
 ```markdown
-$P := 3273.6 \text{ kW}$
-$t := 8760 \text{ h}$
-$\eta := 0.90$
-$E := P \cdot t \cdot \eta =$
+$m := 5 \text{ kg}$
+$a := 9.81 \text{ m/s}^2$
+$F := m \cdot a =$
 ```
 
 **Output (after `livemathtex process`):**
 ```markdown
-$P := 3273.6 \text{ kW}$
-$t := 8760 \text{ h}$
-$\eta := 0.90$
-$E := P \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
+$m := 5 \text{ kg}$
+$a := 9.81 \text{ m/s}^2$
+$F := m \cdot a = 49.05 \text{ N}$
 ```
 
 **Rendered:**
 
-> $P := 3273.6 \text{ kW}$ · $t := 8760 \text{ h}$ · $\eta := 0.90$
+> $m := 5 \text{ kg}$ · $a := 9.81 \text{ m/s}^2$
 >
-> $E := P \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
+> $F := m \cdot a = 49.05 \text{ N}$
 
-**No disconnect.** The numbers come directly from the formulas. Change a parameter → results update automatically. Everything stays consistent, traceable, and verifiable.
+**No disconnect.** Numbers come from formulas. Change $m$ → $F$ updates. Git-friendly, readable, verifiable.
 
 ### Why This Fits the AI Era
 
