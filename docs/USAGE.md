@@ -6,15 +6,23 @@
 
 ## Quick Reference
 
-| Syntax | Meaning | Example |
-|--------|---------|---------|
-| `:=` | Definition (assign) | `$x := 5$` |
-| `==$` | Evaluation (show value) | `$x ==$` → shows value of x |
-| `:= ... ==` | Define + evaluate | `$y := x + 1 ==$` → defines y AND shows result |
-| `=>` | Symbolic operation | `$f'(x) =>$` |
-| `#` | Comment | `# this is ignored` |
+| Operator | Meaning | Input | Output |
+|----------|---------|-------|--------|
+| `:=` | Define | `$x := 42$` | `$x := 42$` (unchanged) |
+| `==` | Evaluate | `$x ==$` | `$x == 42$` (result filled in) |
+| `:= ==` | Define + evaluate | `$y := x^2 ==$` | `$y := x^2 == 1764$` |
+| `=>` | Symbolic | `$f'(x) =>$` | `$f'(x) => 2x$` |
 
-> ⚠️ **Why `==` instead of `=`?** Safety. With `=` you could accidentally overwrite a variable by forgetting the `:` in `:=`. Using `==` makes evaluation explicit and intentional.
+**Unit conversion** (using HTML comment, invisible in rendered output):
+```
+Input:   $v ==$ <!-- [m/s] -->
+Output:  $v == 27.78\ \text{m/s}$ <!-- [m/s] -->
+```
+
+**Notes:**
+- Results are **overwritten** on re-run (old values replaced with new)
+- Default output: SI units
+- `=` produces an error (safety: prevents accidental overwrites)
 
 ---
 
