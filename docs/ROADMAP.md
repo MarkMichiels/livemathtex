@@ -1,5 +1,7 @@
 # Livemathtex - Development Roadmap
 
+> ⚠️ **Built with AI** — This project is developed using AI tools. Feedback welcome.
+
 ## Overview
 
 This roadmap outlines the phased development of Livemathtex from MVP to full-featured release.
@@ -102,9 +104,9 @@ $z = x + y = 8$
 
 - [ ] **2.4 CLI Enhanced**
   - [ ] Watch mode (`--watch`)
-  - [ ] PDF output (via Pandoc)
   - [ ] Verbose/quiet modes
   - [ ] Precision flag (`--digits`)
+  - [ ] Documentation: explain how to use Pandoc for PDF
 
 - [ ] **2.5 Error Handling**
   - [ ] Comprehensive error types
@@ -128,7 +130,7 @@ $F = m \cdot a = 49.05\ \text{N}$
 
 ## Phase 3: Advanced Features
 
-**Goal:** Symbolic math, matrices, graphs.
+**Goal:** Symbolic math, matrices.
 
 **Timeline:** 4-6 weeks
 
@@ -140,27 +142,19 @@ $F = m \cdot a = 49.05\ \text{N}$
   - [ ] Inverse, determinant, transpose
   - [ ] Linear system solving
 
-- [ ] **3.2 Graphs**
-  - [ ] Plot code block syntax
-  - [ ] 2D line plots
-  - [ ] Multiple series
-  - [ ] Axis labels with units
-  - [ ] PNG/SVG output
-  - [ ] Embedded in Markdown/PDF
-
-- [ ] **3.3 Symbolic Math (Basic)**
+- [ ] **3.2 Symbolic Math (Basic)**
   - [ ] SymPy integration
   - [ ] Simplification
   - [ ] Solving equations
   - [ ] Differentiation
   - [ ] Integration
 
-- [ ] **3.4 Result Highlighting**
+- [ ] **3.3 Result Highlighting**
   - [ ] `=>` syntax for important results
   - [ ] Visual emphasis in output
   - [ ] Summary generation (optional)
 
-- [ ] **3.5 Performance**
+- [ ] **3.4 Performance**
   - [ ] Caching of parsed AST
   - [ ] Incremental recalculation
   - [ ] Timeout per expression
@@ -172,15 +166,12 @@ $F = m \cdot a = 49.05\ \text{N}$
 # Input
 $A := [[1, 2]; [3, 4]]$
 $\det(A) =$
-
-```plot
-y = x^2 - 4x + 3
-x = -1..5
-```
+$f(x) := x^2 - 4x + 3$
+$f'(x) =>$
 
 # Output
 $\det(A) = -2$
-[Generated plot image]
+$f'(x) = 2x - 4$
 ```
 
 ---
@@ -227,12 +218,21 @@ $\det(A) = -2$
 
 | Version | Phase | Key Features |
 |---------|-------|--------------|
-| 0.1.0 | 1 | Basic arithmetic, variables |
+| 0.1.0 | 1 | Basic arithmetic, variables, error handling |
 | 0.2.0 | 2 | Units, LaTeX parsing, watch mode |
-| 0.3.0 | 3 | Matrices, graphs |
-| 0.4.0 | 3 | Symbolic math |
-| 0.5.0 | 4 | VS Code extension |
-| 1.0.0 | 4 | Stable release |
+| 0.3.0 | 3 | Symbolic math, matrices |
+| 1.0.0 | - | Stable release |
+
+---
+
+## Out of Scope (intentionally)
+
+| Feature | Reason | Use Instead |
+|---------|--------|-------------|
+| PDF/HTML export | Existing tools excel | Pandoc, WeasyPrint |
+| Plotting/graphs | Many excellent libs | Matplotlib, charts CLI |
+| GUI editor | We're a preprocessor | VS Code + MPE |
+| Jupyter kernel | Jupyter has SymPy | Use Jupyter directly |
 
 ---
 
@@ -242,25 +242,24 @@ $\det(A) = -2$
 - `:=`, `=` and `=>` syntax
 - Variable definitions
 - Basic arithmetic
+- Error handling (from day one!)
 - CLI with file I/O
 
 ### Should Have (v0.2)
 - Unit support
 - LaTeX parsing
 - Watch mode
-- PDF output
 
 ### Nice to Have (v0.3+)
-- Graphs
 - Symbolic math
 - Matrices
-- Editor extensions
+- VS Code extension
 
-### Future
+### Future (maybe)
 - Tables with calculations
 - Conditional logic
 - Import/include
-- Web playground
+- Web playground (for demo only)
 
 ---
 

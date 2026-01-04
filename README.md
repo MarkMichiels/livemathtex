@@ -4,6 +4,25 @@
 
 A preprocessor that brings live calculations to Markdown files. Define variables with `:=` and evaluate expressions with `=` — all in beautiful LaTeX notation.
 
+> ⚠️ **Built with AI assistance** — This project is developed with AI tools (Claude/Cursor). We aim for quality but appreciate bug reports and contributions.
+
+---
+
+## Vision: Why Now?
+
+We're in a unique moment. AI and LLMs are transforming how we work with documents and calculations. **Context is king** — the more structured, version-controlled context you provide, the better AI can assist you.
+
+Livemathtex fits perfectly into this new paradigm:
+
+- **Markdown + Git** = AI-friendly, version-controlled documentation
+- **LaTeX math** = Universal notation AI understands and can generate
+- **Live calculations** = Documents that stay consistent when parameters change
+- **Plain text** = Easy to diff, merge, review, and process with AI tools
+
+**The vision**: Your calculations become part of your documentation. When you update a parameter, results update automatically. When AI reads your document, it understands both the math and the results. When you commit to Git, you have a complete audit trail.
+
+This isn't about replacing tools like Mathcad — it's about bringing calculation capabilities into the text-first, AI-augmented workflow that modern engineering demands.
+
 ---
 
 ## The Problem
@@ -187,14 +206,13 @@ Components:
 - [ ] Watch mode (auto-update on save)
 - [ ] Web playground (optional, for demo)
 
-### Phase 4: Advanced
+### Phase 4: Advanced (future)
 
 - [ ] Tables with calculations
 - [ ] Conditional expressions
 - [ ] Iteration and solving
 - [ ] Custom function definitions
 - [ ] Import/include other files
-- [ ] Charts/plots from calculated data
 
 ---
 
@@ -209,11 +227,11 @@ livemathtex process calculation.md
 # Output to specific file
 livemathtex process calculation.md -o result.md
 
-# Watch mode (auto-update)
+# Watch mode (auto-update on save)
 livemathtex watch calculation.md
 
-# Export to PDF
-livemathtex export calculation.md -o calculation.pdf
+# For PDF: use existing tools on the output
+pandoc result.md -o result.pdf
 ```
 
 ### Python API
@@ -239,6 +257,23 @@ print(output)
 
 ---
 
+## What Livemathtex Does NOT Do
+
+**Focus is key.** Livemathtex does one thing well: process LaTeX calculations in Markdown.
+
+| Out of Scope | Why | Use Instead |
+|--------------|-----|-------------|
+| **PDF export** | Existing tools do this better | Pandoc, WeasyPrint, md2pdf |
+| **Live editor** | VS Code + MPE already exists | Markdown Preview Enhanced |
+| **Jupyter kernel** | Jupyter has SymPy already | Jupyter + SymPy |
+| **GUI interface** | We're CLI-first, text-first | SMath, Mathcad |
+| **Full CAS** | SymPy is the engine, we're the glue | SymPy directly |
+| **Plotting** | Many good libraries exist | Matplotlib, Plotly |
+
+**Philosophy**: Build on existing tools, don't reinvent them.
+
+---
+
 ## Comparison with Alternatives
 
 | Feature | Livemathtex | Mathcad | SMath | Jupyter | Typst |
@@ -249,7 +284,9 @@ print(output)
 | Free & open source | ✅ MIT | ❌ No | ✅ Yes | ✅ Yes | ✅ Yes |
 | Runs offline | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
 | Units support | 🔜 Planned | ✅ Yes | ✅ Yes | ⚠️ Libraries | ⚠️ Package |
-| PDF export | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+| Minimal scope | ✅ Focused | ❌ Full suite | ❌ Full suite | ❌ Full platform | ⚠️ Growing |
+
+**Note**: PDF export is intentionally out of scope — use Pandoc, WeasyPrint, or similar tools on the output Markdown.
 
 ---
 

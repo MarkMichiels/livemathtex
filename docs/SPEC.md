@@ -2,11 +2,15 @@
 
 **Live math calculations in LaTeX notation**
 
+> ⚠️ **Built with AI** — This project is developed using AI tools. Feedback and contributions welcome.
+
 ---
 
 ## Introduction
 
-Livemathtex is a Markdown-driven tool for calculations – similar to PTC Mathcad – where calculations are performed in live mathematical notation within plain-text documents. The goal is to make documenting technical calculations as easy as writing Markdown, while automatically computing results.
+Livemathtex is a **Markdown preprocessor** for calculations – inspired by PTC Mathcad – where calculations are performed in live mathematical notation within plain-text documents. The goal is to make documenting technical calculations as easy as writing Markdown, while automatically computing results.
+
+**Scope**: Livemathtex transforms Markdown with LaTeX math into Markdown with computed results. PDF/HTML export is intentionally out of scope — use existing tools (Pandoc, WeasyPrint) on the output.
 
 ### Existing Tools Landscape
 
@@ -68,23 +72,7 @@ Support for linear algebra operations:
 - Operations: inverse, transpose, determinant, multiplication
 - System solving: `solve(A, b)`
 
-### 6. Graph Generation
-
-Built-in capability to generate graphs:
-
-```markdown
-```plot
-y = x^2 - 4x + 5
-x = -2..6
-```
-```
-
-- 2D plots (future: 3D)
-- Automatic axis labeling
-- Unit-aware axes
-- Embedded as images in output
-
-### 7. Inline Error Messages
+### 6. Inline Error Messages
 
 When errors occur, results show clear messages at the evaluation point:
 
@@ -95,7 +83,9 @@ $F = m \cdot a$
 
 Errors are visually marked (red text, warning icon) similar to Mathcad's red error boxes.
 
-### 8. Symbolic Manipulation (CAS)
+**Error handling is part of MVP** — never crash, always produce output with clear error messages.
+
+### 7. Symbolic Manipulation (CAS)
 
 Optional symbolic computation support:
 
@@ -106,12 +96,29 @@ Optional symbolic computation support:
 
 *Note: Symbolic functionality is secondary to numeric+units.*
 
-### 9. Extensibility & Open Source
+### 8. Extensibility & Open Source
 
 - Modular architecture
 - Plugin system for new functions/units
 - Sandboxed evaluation (no arbitrary code execution)
 - Safe to run untrusted documents
+
+---
+
+## Out of Scope
+
+Livemathtex intentionally does NOT include:
+
+| Feature | Reason | Alternative |
+|---------|--------|-------------|
+| **PDF export** | Existing tools are excellent | Pandoc, WeasyPrint |
+| **HTML export** | Existing tools are excellent | Pandoc, any MD renderer |
+| **Live editor/GUI** | VS Code + MPE already exists | Use your favorite editor |
+| **Jupyter kernel** | Jupyter already has SymPy | Use Jupyter directly |
+| **Plotting/graphs** | Many excellent libraries exist | Matplotlib, Plotly, charts CLI |
+| **Full IDE** | We're a preprocessor, not an IDE | VS Code, Cursor |
+
+**Philosophy**: Do one thing well. Build on existing tools.
 
 ---
 
@@ -124,10 +131,9 @@ Optional symbolic computation support:
 | **Auto-recalculation** | Automatic updates on changes |
 | **Units** | SI units, conversions, dimension analysis |
 | **Matrices** | Linear algebra operations |
-| **Graphs** | Embedded plots without external tools |
-| **Inline errors** | Clear feedback at error location |
+| **Inline errors** | Clear feedback at error location (MVP!) |
 | **Symbolic** | Optional CAS for algebra |
-| **CLI tooling** | `livemathtex input.md -o output.pdf` |
+| **CLI tooling** | `livemathtex process input.md -o output.md` |
 | **Safe** | Sandboxed execution, no security risks |
 
 ---
@@ -136,31 +142,35 @@ Optional symbolic computation support:
 
 ```bash
 # Basic conversion
-livemathtex input.md -o output.md
-
-# PDF output
-livemathtex input.md -o output.pdf
+livemathtex process input.md -o output.md
 
 # Watch mode (auto-rebuild on save)
-livemathtex input.md -o output.md --watch
+livemathtex watch input.md
 
 # Specify precision
-livemathtex input.md --digits 4
+livemathtex process input.md --digits 4
 
 # Scientific notation
-livemathtex input.md --scientific
+livemathtex process input.md --scientific
+
+# For PDF/HTML: use external tools on output
+pandoc output.md -o output.pdf
 ```
 
 ---
 
-## Output Formats
+## Output Format
 
 | Format | Description |
 |--------|-------------|
-| **Markdown** | Input with results injected, MathJax-ready |
-| **PDF** | Via LaTeX compilation |
-| **HTML** | Standalone with KaTeX/MathJax |
-| **LaTeX** | Pure .tex file |
+| **Markdown** | Input with results injected, MathJax/KaTeX-ready |
+
+**Note**: PDF, HTML, and LaTeX export are out of scope. Use established tools:
+- **PDF**: `pandoc output.md -o output.pdf` or WeasyPrint
+- **HTML**: `pandoc output.md -o output.html` or any Markdown renderer
+- **LaTeX**: `pandoc output.md -o output.tex`
+
+This keeps Livemathtex focused and maintainable.
 
 ---
 
