@@ -14,18 +14,22 @@ class SymbolTable:
     """
     def __init__(self):
         self._symbols: Dict[str, SymbolValue] = {}
-        
+
     def set(self, name: str, value: Any, unit=None, raw_latex=""):
         """Define a variable."""
         self._symbols[name] = SymbolValue(value=value, unit=unit, raw_latex=raw_latex)
-        
+
     def get(self, name: str) -> Optional[SymbolValue]:
         """Retrieve a variable."""
         return self._symbols.get(name)
-        
+
     def clear(self):
         """Reset the table."""
         self._symbols.clear()
-        
+
+    def all_names(self) -> list:
+        """Return all defined symbol names."""
+        return list(self._symbols.keys())
+
     def __contains__(self, name: str) -> bool:
         return name in self._symbols

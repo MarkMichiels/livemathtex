@@ -206,12 +206,24 @@ class Evaluator:
         return f"{lhs} => {result_latex}"
 
     def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None) -> Any:
+        import re
+
+        # Pre-process: Replace known multi-letter variable names with \text{} wrapper
+        # to prevent latex2sympy from splitting them into individual letters
+        modified_latex = expression_latex
+
+        # Get all known symbols sorted by length (longest first to avoid partial matches)
+        known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
+
+        for name in known_names:
+            if len(name) > 1:  # Only multi-letter names need protection
+                # Wrap in \text{} which latex2sympy treats as single symbol
+                # But only if not already wrapped
+                if f'\\text{{{name}}}' not in modified_latex:
+                    modified_latex = re.sub(rf'\b{re.escape(name)}\b', rf'\\text{{{name}}}', modified_latex)
+
         try:
-            # We don't strip \text{} anymore so that latex2sympy sees "\text{kg}"
-            # assuming latex2sympy treats \text{foo} as a symbol "foo" or "\text{foo}".
-            # Actually, latex2sympy2 usually treats \text{foo} as Symbol('foo') or similar.
-            # Let's verify via testing/handling both cases.
-            expr = latex2sympy(expression_latex)
+            expr = latex2sympy(modified_latex)
         except Exception as e:
             raise EvaluationError(f"Failed to parse LaTeX '{expression_latex}': {e}")
 
@@ -273,11 +285,20 @@ class Evaluator:
         """
         Parses LaTeX and re-emits it standardly formatted,
         WITHOUT evaluating variables (symbols remain symbols).
+        Protects multi-letter variable names from being split.
         """
+        import re
+
         try:
-            # We use the same latex2sympy but we DON'T substitute from symbol table.
-            # However, latex2sympy might produce Numbers.
-            expr = latex2sympy(latex_str)
+            # Pre-process: Wrap known multi-letter names in \text{}
+            modified = latex_str
+            known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
+
+            for name in known_names:
+                if len(name) > 1 and f'\\text{{{name}}}' not in modified:
+                    modified = re.sub(rf'\b{re.escape(name)}\b', rf'\\text{{{name}}}', modified)
+
+            expr = latex2sympy(modified)
             return self._format_result(expr)
         except:
              return latex_str

@@ -1,5 +1,3 @@
-> *Updated: 2026-01-04 19:59:19 | Duration: 0.21s* <!-- livemathtex-meta -->
-
 # Test Phase 2: Units and Symbolic
 
 ## Units
@@ -26,3 +24,7 @@ $W := 100 \text{J}$
 Convert Energy to Newtons (should be N * m):
 
 $W == 100 \text{m} \cdot \text{N}$ <!-- [N] -->
+
+---
+
+> *livemathtex: 2026-01-04 20:29:07 | 4 definitions, 3 evaluations | no errors | 0.20s* <!-- livemathtex-meta -->
