@@ -33,15 +33,22 @@ $F_1 := a_1 \cdot m_1 == 98.1 \frac{\text{kg} \cdot \text{m}}{\text{s}^{2}}$
 $mass := 25 \text{kg}$
 $accel := 9.81 \frac{m}{s^{2}}$
 
-Calculate force:
+Calculate force (without unit conversion):
 $F_2 := \text{accel} \cdot \text{mass} == 245.25 \frac{\text{kg} \cdot \text{m}}{\text{s}^{2}}$
+
+Calculate force (with unit conversion to N):
+$F_3 := \text{accel} \cdot \text{mass} == 245.25 \text{N}$ <!-- [N] -->
+
+$\text{accel} == 9810 \frac{\text{mm}}{\text{s}^{2}}$ <!-- [mm] -->
 
 ## Compare Results
 
-$ratio := \frac{F_2}{F_1} == 2.5$
+$ratio_1 := \frac{F_2}{F_1} == 2.5$
+
+$ratio_2 := \frac{F_3}{F_1} == 2.5$
 
 The ratio should be 2.5 (25 kg / 10 kg).
 
 ---
 
-> *livemathtex: 2026-01-04 21:05:25 | 10 definitions, 3 evaluations | 3 errors | 0.16s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-04 21:17:52 | 12 definitions, 6 evaluations | 3 errors | 0.19s* <!-- livemathtex-meta -->

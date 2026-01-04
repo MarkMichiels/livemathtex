@@ -272,10 +272,18 @@ class Evaluator:
 
     # Common SI units that need protection from being split by latex2sympy
     SI_UNITS = [
-        # Multi-letter base units
-        'kg', 'mol',
-        # Multi-letter derived units
-        'Hz', 'Pa',
+        # Mass
+        'kg', 'mg',
+        # Length
+        'mm', 'cm', 'km',
+        # Time
+        'ms', 'min',
+        # Pressure
+        'Pa', 'bar',
+        # Frequency
+        'Hz',
+        # Amount
+        'mol',
     ]
 
     def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None) -> Any:
@@ -333,17 +341,32 @@ class Evaluator:
 
             # 2. Check in SymPy Units (with common abbreviation mapping)
             unit_mapping = {
+                # Mass
                 'kg': u.kilogram,
                 'g': u.gram,
+                'mg': u.milligram,
+                # Length
                 'm': u.meter,
+                'mm': u.millimeter,
+                'cm': u.centimeter,
+                'km': u.kilometer,
+                # Time
                 's': u.second,
+                'ms': u.millisecond,
+                'min': u.minute,
+                'h': u.hour,
+                # Force/Energy/Power
                 'N': u.newton,
                 'J': u.joule,
                 'W': u.watt,
+                # Pressure
                 'Pa': u.pascal,
+                'bar': u.bar,
+                # Frequency/Electrical
                 'Hz': u.hertz,
                 'V': u.volt,
                 'A': u.ampere,
+                # Temperature/Amount
                 'K': u.kelvin,
                 'mol': u.mole,
             }

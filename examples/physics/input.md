@@ -27,11 +27,18 @@ $F_1 := m_1 \cdot a_1 ==$
 $mass := 25 \cdot kg$
 $accel := 9.81 \cdot \frac{m}{s^2}$
 
-Calculate force:
+Calculate force (without unit conversion):
 $F_2 := mass \cdot accel ==$
+
+Calculate force (with unit conversion to N):
+$F_3 := mass \cdot accel ==$ <!-- [N] -->
+
+$accel == $ <!-- [mm] -->
 
 ## Compare Results
 
-$ratio := \frac{F_2}{F_1} ==$
+$ratio_1 := \frac{F_2}{F_1} == $
+
+$ratio_2 := \frac{F_3}{F_1} == $
 
 The ratio should be 2.5 (25 kg / 10 kg).
