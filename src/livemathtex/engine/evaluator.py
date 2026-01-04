@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import sympy
 import sympy.physics.units as u
 from sympy.parsing.latex import parse_latex
@@ -15,6 +15,8 @@ except ImportError:
 from .symbols import SymbolTable
 from ..parser.models import Calculation
 from ..utils.errors import EvaluationError, UndefinedVariableError
+from ..ir.schema import LivemathIR, SymbolEntry, BlockResult
+from ..ir.normalize import normalize_symbol, denormalize_symbol, GREEK_LETTERS_REVERSE
 
 class Evaluator:
     """
@@ -36,6 +38,80 @@ class Evaluator:
 
     def __init__(self):
         self.symbols = SymbolTable()
+        self._ir: Optional[LivemathIR] = None  # Current IR being processed
+
+    def evaluate_ir(self, ir: LivemathIR, calculations: List[Calculation]) -> LivemathIR:
+        """
+        Evaluate all calculations and update the IR.
+
+        This is the main entry point for IR-based evaluation.
+
+        Args:
+            ir: The LivemathIR to update with results
+            calculations: List of Calculation objects to process
+
+        Returns:
+            Updated LivemathIR with symbol values and block results
+        """
+        self._ir = ir
+
+        # Pre-load symbols from IR into SymbolTable
+        for name, entry in ir.symbols.items():
+            if entry.value is not None:
+                self.symbols.set(name, entry.value)
+
+        # Process each calculation
+        stats = {"definitions": 0, "evaluations": 0, "symbolic": 0, "errors": 0}
+
+        for i, calc in enumerate(calculations):
+            result_latex = self.evaluate(calc)
+
+            # Update the corresponding block in IR
+            if i < len(ir.blocks):
+                ir.blocks[i].latex_output = result_latex
+                if calc.operation == "ERROR" or "\\color{red}" in result_latex:
+                    ir.blocks[i].error = calc.error_message or "Evaluation error"
+                    stats["errors"] += 1
+
+            # Update stats
+            if calc.operation == ":=":
+                stats["definitions"] += 1
+            elif calc.operation == "==":
+                stats["evaluations"] += 1
+            elif calc.operation == ":=_==":
+                stats["definitions"] += 1
+                stats["evaluations"] += 1
+            elif calc.operation == "=>":
+                stats["symbolic"] += 1
+
+        # Update IR with symbol values from SymbolTable
+        for name in self.symbols.all_names():
+            entry = self.symbols.get(name)
+            if entry and name in ir.symbols:
+                ir_entry = ir.symbols[name]
+                # Try to extract numeric value
+                try:
+                    if hasattr(entry.value, 'evalf'):
+                        numeric = float(entry.value.evalf())
+                        ir_entry.value = numeric
+                    elif isinstance(entry.value, (int, float)):
+                        ir_entry.value = float(entry.value)
+                except:
+                    pass
+
+        ir.stats = stats
+        self._ir = None
+        return ir
+
+    def _get_display_latex(self, internal_name: str, original_latex: str) -> str:
+        """
+        Get the display LaTeX for a symbol, using IR mapping if available.
+
+        Falls back to denormalize_symbol if no IR mapping exists.
+        """
+        if self._ir and internal_name in self._ir.symbols:
+            return self._ir.symbols[internal_name].mapping.latex_display
+        return denormalize_symbol(internal_name)
 
     def evaluate(self, calculation: Calculation) -> str:
         """
@@ -462,6 +538,7 @@ class Evaluator:
         Parses LaTeX and re-emits it standardly formatted,
         WITHOUT evaluating variables (symbols remain symbols).
         Protects multi-letter variable names and SI units from being split.
+        Uses IR mappings for proper display formatting when available.
         """
         import re
 
@@ -493,9 +570,37 @@ class Evaluator:
                     modified = re.sub(rf'\b{re.escape(name)}\b', rf'\\text{{{name}}}', modified)
 
             expr = latex2sympy(modified)
-            return self._format_result(expr)
+            return self._format_result_with_display(expr)
         except:
              return latex_str
+
+    def _format_result_with_display(self, value: Any) -> str:
+        """
+        Format result with proper display LaTeX using IR mappings.
+
+        This replaces internal symbol names (like Delta_T_h) with
+        their proper LaTeX display form (like \\Delta_{T_h}).
+        """
+        result = self._format_result(value)
+
+        # Post-process: Replace \text{Greek_X} patterns with proper LaTeX
+        import re
+
+        def replace_text_greek(match):
+            content = match.group(1)
+            # Check if it starts with a Greek letter name
+            for greek_name, greek_cmd in GREEK_LETTERS_REVERSE.items():
+                if content == greek_name:
+                    return greek_cmd
+                if content.startswith(greek_name + '_'):
+                    subscript = content[len(greek_name) + 1:]
+                    return f"{greek_cmd}_{{{subscript}}}"
+            # Not a Greek letter, keep as \text{}
+            return f"\\text{{{content}}}"
+
+        result = re.sub(r'\\text\{([^}]+)\}', replace_text_greek, result)
+
+        return result
 
     def _simplify_subscripts(self, latex_str: str) -> str:
         """Simplify LaTeX subscripts: a_{1} -> a_1 for single-char subscripts."""

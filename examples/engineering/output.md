@@ -52,14 +52,14 @@ Temperature drop:
 $\Delta T_h := \frac{Q}{c_p \cdot m_h} == 17.91686574$
 
 Outlet temperature:
-$T_{h,out} := T_{h,in} - \text{Delta_T_h} == 72.08313426$
+$T_{h,out} := T_{h,in} - \Delta_{T_h} == 72.08313426$
 
 ### Cold Fluid
 Temperature rise:
 $\Delta T_c := \frac{Q}{c_p \cdot m_c} == 11.94457716$
 
 Outlet temperature:
-$T_{c,out} := T_{c,in} + \text{Delta_T_c} == 31.94457716$
+$T_{c,out} := T_{c,in} + \Delta_{T_c} == 31.94457716$
 
 ---
 
@@ -72,9 +72,9 @@ $\Delta T_1 := - T_{c,out} + T_{h,in} == 58.05542284$
 $\Delta T_2 := - T_{c,in} + T_{h,out} == 52.08313426$
 
 LMTD calculation (using natural log):
-$ratio := \frac{\text{Delta_T_1}}{\text{Delta_T_2}} == 1.114668379$
+$ratio := \frac{\Delta_{T_1}}{\Delta_{T_2}} == 1.114668379$
 
-$$LMTD := \frac{\text{Delta_T_1} - \text{Delta_T_2}}{\log{\left(\text{ratio} \right)}} == 55.01526137$$
+$$LMTD := \frac{\Delta_{T_1} - \Delta_{T_2}}{\log{\left(\text{ratio} \right)}} == 55.01526137$$
 
 ---
 
@@ -136,4 +136,4 @@ $A_m := \frac{A}{\text{length}} == 2.726516175$
 
 ---
 
-> *livemathtex: 2026-01-04 23:13:26 | 26 definitions, 16 evaluations | no errors | 0.50s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-04 23:54:09 | 26 definitions, 16 evaluations | no errors | 0.51s* <!-- livemathtex-meta -->
