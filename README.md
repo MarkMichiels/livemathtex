@@ -84,12 +84,12 @@ LaTeX is the universal language for math. LLMs already speak it fluently. Keep e
 
 Three operators. That's it.
 
-| Operator | Meaning | Example |
-|----------|---------|---------|
-| `:=` | Define | `$x := 42$` |
-| `==` | Evaluate | `$x ==$` → shows value |
-| `:= ==` | Define + evaluate | `$y := x^2 ==$` → defines AND shows |
-| `=>` | Symbolic | `$f'(x) =>$` → shows derivation |
+| Operator | Meaning | Input | Output |
+|----------|---------|-------|--------|
+| `:=` | Define | `$x := 42$` | `$x := 42$` (unchanged) |
+| `==` | Evaluate | `$x ==$` | `$x == 42$` (result filled in) |
+| `:= ==` | Define + evaluate | `$y := x^2 ==$` | `$y := x^2 == 1764$` |
+| `=>` | Symbolic | `$f'(x) =>$` | `$f'(x) => 2x$` |
 
 > ⚠️ **Why `==` not `=`?** Safety. You can't accidentally overwrite a variable by forgetting the `:` in `:=`.
 
