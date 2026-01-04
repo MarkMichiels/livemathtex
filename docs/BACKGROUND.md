@@ -1,6 +1,6 @@
-# Background: The Road to Livemathtex
+# Background: The Road to LiveMathTeX
 
-This document captures the research and exploration that led to creating Livemathtex. It explains what alternatives exist, what we tried, and why we decided to build a new tool.
+This document captures the research and exploration that led to creating LiveMathTeX. It explains what alternatives exist, what we tried, and why we decided to build a new tool.
 
 ---
 
@@ -269,20 +269,20 @@ This changes the value proposition:
 - **Old thinking:** "I need a tool to help me write LaTeX calculations"
 - **New thinking:** "LLMs write the LaTeX, I need a tool to make the results verifiable"
 
-Livemathtex bridges the disconnect between AI-generated formulas and computed results. The LLM generates `$F := m \cdot a ==$`, Livemathtex fills in `49.05 \text{ N}`.
+LiveMathTeX bridges the disconnect between AI-generated formulas and computed results. The LLM generates `$F := m \cdot a ==$`, LiveMathTeX fills in `49.05 \text{ N}`.
 
 ---
 
 ## Conclusion
 
-Livemathtex exists because:
+LiveMathTeX exists because:
 
 1. **LaTeX + Markdown + live calculations** didn't exist together
 2. **LLMs generate LaTeX fluently** — we leverage that
 3. **Focused tools beat complex platforms** — do one thing well
 4. **Plain text wins** — Git, AI, tooling all work better with text
 
-The research showed many good tools, but none combined everything. Livemathtex fills that specific gap.
+The research showed many good tools, but none combined everything. LiveMathTeX fills that specific gap.
 
 ---
 

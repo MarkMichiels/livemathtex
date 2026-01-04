@@ -1,10 +1,10 @@
 ---
-description: Install and run Livemathtex with detailed guide
+description: Install and run LiveMathTeX with detailed guide
 ---
 
-# Livemathtex: The Comprehensive Guide
+# LiveMathTeX: The Comprehensive Guide
 
-**Livemathtex** turns your Markdown files into live calculation notebooks. It reads standard LaTeX math blocks, executes the math using a powerful Python engine (SymPy), and writes the results back into your document.
+**LiveMathTeX** turns your Markdown files into live calculation notebooks. It reads standard LaTeX math blocks, executes the math using a powerful Python engine (SymPy), and writes the results back into your document.
 
 ## 1. Installation & Setup
 
@@ -43,7 +43,7 @@ description: Install and run Livemathtex with detailed guide
 
 ## 2. The Core Syntax
 
-Livemathtex introduces three simple operators inside LaTeX math blocks (`$...$` or `$$...$$`):
+LiveMathTeX introduces three simple operators inside LaTeX math blocks (`$...$` or `$$...$$`):
 
 | Operator | Name | Description | Example |
 | :--- | :--- | :--- | :--- |

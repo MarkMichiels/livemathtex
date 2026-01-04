@@ -1,4 +1,4 @@
-# Livemathtex
+# LiveMathTeX
 
 **Live LaTeX calculations in Markdown — built for the AI era**
 
@@ -16,7 +16,7 @@ You don't write LaTeX by hand anymore — **LLMs do**.
 
 But when an LLM generates a calculation, where do the numbers come from? You have to trust it, or run Python separately to verify. The formula and the result are disconnected.
 
-**Livemathtex connects them.** AI generates the LaTeX formulas, Livemathtex computes the results. Everything stays in one Markdown file — verifiable, traceable, Git-friendly.
+**LiveMathTeX connects them.** AI generates the LaTeX formulas, LiveMathTeX computes the results. Everything stays in one Markdown file — verifiable, traceable, Git-friendly.
 
 ---
 
@@ -57,7 +57,7 @@ $F == 49.05 \text{ N}$
 
 ## Why This Matters
 
-| Traditional LLM output | With Livemathtex |
+| Traditional LLM output | With LiveMathTeX |
 |------------------------|------------------|
 | "The force is **49.05 N**" (trust me) | `$F = 49.05 \text{ N}$` (computed from formula) |
 | Separate Python to verify | Formula and result in one place |
@@ -191,13 +191,13 @@ See [ROADMAP.md](docs/ROADMAP.md) for full details.
 
 ---
 
-## What Livemathtex Does NOT Do
+## What LiveMathTeX Does NOT Do
 
 | Out of Scope | Why | Use Instead |
 |--------------|-----|-------------|
 | PDF export | Pandoc excels at this | `pandoc output.md -o output.pdf` |
 | Live editor | VS Code + extensions exist | Markdown Preview Enhanced |
-| GUI | Separate project | Build on top of Livemathtex |
+| GUI | Separate project | Build on top of LiveMathTeX |
 | Plotting | Many libraries exist | Matplotlib, Plotly |
 
 **Philosophy:** Do one thing well. The calculation engine. Everything else can build on top.
@@ -233,4 +233,4 @@ MIT License — See [LICENSE](LICENSE)
 
 ---
 
-*"AI writes the math. Livemathtex computes the results."*
+*"AI writes the math. LiveMathTeX computes the results."*

@@ -1,4 +1,4 @@
-# Livemathtex - Dependencies & Technology Research
+# LiveMathTeX - Dependencies & Technology Research
 
 ## Core Dependencies
 
@@ -45,7 +45,7 @@ expr = latex2sympy(r"\frac{x^2 + 1}{x - 1}")
 pip install sympy
 ```
 
-**Key Features for Livemathtex:**
+**Key Features for LiveMathTeX:**
 
 ```python
 from sympy import *
@@ -162,7 +162,7 @@ CODE_BLOCK = re.compile(r'```.*?```', re.DOTALL)
 
 ## PDF Generation (Out of Scope)
 
-PDF export is **intentionally out of scope** for Livemathtex. Use existing tools on the output:
+PDF export is **intentionally out of scope** for LiveMathTeX. Use existing tools on the output:
 
 ```bash
 # Pandoc (recommended)
@@ -172,7 +172,7 @@ pandoc output.md -o output.pdf
 weasyprint output.html output.pdf
 ```
 
-This keeps Livemathtex focused on one thing: Markdown → Markdown with computed results.
+This keeps LiveMathTeX focused on one thing: Markdown → Markdown with computed results.
 
 ---
 

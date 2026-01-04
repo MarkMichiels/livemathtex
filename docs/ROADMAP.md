@@ -1,10 +1,10 @@
-# Livemathtex - Development Roadmap
+# LiveMathTeX - Development Roadmap
 
 > ⚠️ **Built with AI** — This project is developed using AI tools. Feedback welcome.
 
 ## Overview
 
-This roadmap outlines the phased development of Livemathtex from MVP to full-featured release.
+This roadmap outlines the phased development of LiveMathTeX from MVP to full-featured release.
 
 ```
 Phase 1: Foundation     ████████████████████ 100%  [COMPLETE]

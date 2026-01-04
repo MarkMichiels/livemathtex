@@ -1,8 +1,8 @@
-# Livemathtex - Architecture
+# LiveMathTeX - Architecture
 
 ## Overview
 
-Livemathtex follows a modular pipeline architecture with an **Intermediate Representation (IR)** layer for clean symbol management and debugging:
+LiveMathTeX follows a modular pipeline architecture with an **Intermediate Representation (IR)** layer for clean symbol management and debugging:
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
@@ -501,7 +501,7 @@ livemathtex process calculation.md --import constants.lmt.json
 # Option 3: Both (directive overrides CLI)
 ```
 
-**Separate projects (build on top of Livemathtex):**
+**Separate projects (build on top of LiveMathTeX):**
 - VS Code Extension (`livemathtex-vscode`)
 - Web Playground (`livemathtex-web`)
 - GUI with PDF export (`livemathtex-desktop`)

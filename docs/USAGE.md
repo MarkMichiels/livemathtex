@@ -1,4 +1,4 @@
-# Livemathtex - Usage Reference
+# LiveMathTeX - Usage Reference
 
 > Complete reference for syntax, workflow, and examples.
 
@@ -31,7 +31,7 @@ Output:  $v == 27.78\ \text{m/s}$ <!-- [m/s] -->
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Editor    │───▶│   Save      │───▶│  Livemathtex│───▶│   Preview   │
+│   Editor    │───▶│   Save      │───▶│  LiveMathTeX│───▶│   Preview   │
 │  (VS Code)  │    │  (.md file) │    │  (CLI)      │    │  (Pandoc)   │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
 ```
@@ -695,7 +695,7 @@ true, false
 
 ## Summary
 
-Livemathtex transforms Markdown into live technical documents:
+LiveMathTeX transforms Markdown into live technical documents:
 
 1. **Immediate feedback** — See results as you type
 2. **Familiar syntax** — Markdown + LaTeX, no new language

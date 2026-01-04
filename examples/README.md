@@ -1,4 +1,4 @@
-# Livemathtex Examples
+# LiveMathTeX Examples
 
 ## Quick Start
 
@@ -38,7 +38,7 @@ python3 -m livemathtex.cli process examples/physics/input.md -o examples/physics
 
 ## SI Units Support
 
-Livemathtex recognizes SI units: `kg`, `m`, `s`, `N`, `J`, `W`, `Pa`, `Hz`, `V`, `A`, `K`, `mol`
+LiveMathTeX recognizes SI units: `kg`, `m`, `s`, `N`, `J`, `W`, `Pa`, `Hz`, `V`, `A`, `K`, `mol`
 
 ```markdown
 $mass := 10 \cdot kg$
