@@ -21,6 +21,19 @@ class Evaluator:
     Executes calculations using SymPy and a SymbolTable.
     """
 
+    # Build reserved names from SymPy units module
+    RESERVED_UNIT_NAMES = set()
+    for _name in dir(u):
+        _obj = getattr(u, _name, None)
+        if isinstance(_obj, (u.Quantity,)):
+            RESERVED_UNIT_NAMES.add(_name)
+    # Add common single-letter and abbreviation units
+    RESERVED_UNIT_NAMES.update({
+        'm', 's', 'g', 'A', 'K', 'N', 'J', 'W', 'V', 'C', 'F', 'H', 'T',
+        'Pa', 'Hz', 'kg', 'mol', 'cd', 'rad', 'sr', 'Wb', 'lx', 'Bq', 'Gy',
+        'km', 'cm', 'mm', 'nm', 'pm', 'ms', 'ns', 'ps', 'mg', 'ug',
+    })
+
     def __init__(self):
         self.symbols = SymbolTable()
 
@@ -84,15 +97,29 @@ class Evaluator:
 
             # Normalize input
             rhs_normalized = self._normalize_latex(rhs_raw)
-            # Reconstruct content with normalized RHS
-            # Note: This changes the 'source' for the next step?
-            # Ideally we return this string.
         else:
              lhs = None # Should not happen
 
         # Execute logic (setting symbols)
         target = calc.target
         import re
+
+        # VALIDATION: Check if variable name conflicts with a unit
+        # Extract the base name (without subscripts or function args)
+        base_name = target
+        if target:
+            # Remove subscript notation: x_1 -> x, mass_2 -> mass
+            base_match = re.match(r'^([a-zA-Z_]+)', target)
+            if base_match:
+                base_name = base_match.group(1)
+
+            # Check for conflict with reserved unit names
+            if base_name in self.RESERVED_UNIT_NAMES:
+                raise EvaluationError(
+                    f"Variable name '{target}' conflicts with SI unit '{base_name}'. "
+                    f"Use a different name like '{base_name}_val' or 'my_{base_name}'."
+                )
+
         func_match = re.match(r'^\s*([a-zA-Z_]\w*)\s*\(\s*([a-zA-Z_]\w*)\s*\)\s*$', target) if target else None
 
         if func_match:
@@ -205,14 +232,26 @@ class Evaluator:
         result_latex = sympy.latex(value)
         return f"{lhs} => {result_latex}"
 
+    # Common SI units that need protection from being split by latex2sympy
+    SI_UNITS = [
+        # Multi-letter base units
+        'kg', 'mol',
+        # Multi-letter derived units
+        'Hz', 'Pa',
+    ]
+
     def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None) -> Any:
         import re
 
-        # Pre-process: Replace known multi-letter variable names with \text{} wrapper
-        # to prevent latex2sympy from splitting them into individual letters
         modified_latex = expression_latex
 
-        # Get all known symbols sorted by length (longest first to avoid partial matches)
+        # Pre-process: Protect SI units from being split
+        for unit in sorted(self.SI_UNITS, key=len, reverse=True):
+            if len(unit) > 1 and f'\\text{{{unit}}}' not in modified_latex:
+                modified_latex = re.sub(rf'\b{re.escape(unit)}\b', rf'\\text{{{unit}}}', modified_latex)
+
+        # Pre-process: Replace known multi-letter variable names with \text{} wrapper
+        # to prevent latex2sympy from splitting them into individual letters
         known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
 
         for name in known_names:
@@ -251,8 +290,27 @@ class Evaluator:
                 subs_dict[sym] = known.value
                 continue
 
-            # 2. Check in SymPy Units
-            if hasattr(u, clean_name):
+            # 2. Check in SymPy Units (with common abbreviation mapping)
+            unit_mapping = {
+                'kg': u.kilogram,
+                'g': u.gram,
+                'm': u.meter,
+                's': u.second,
+                'N': u.newton,
+                'J': u.joule,
+                'W': u.watt,
+                'Pa': u.pascal,
+                'Hz': u.hertz,
+                'V': u.volt,
+                'A': u.ampere,
+                'K': u.kelvin,
+                'mol': u.mole,
+            }
+
+            if clean_name in unit_mapping:
+                subs_dict[sym] = unit_mapping[clean_name]
+                continue
+            elif hasattr(u, clean_name):
                 unit_val = getattr(u, clean_name)
                 if isinstance(unit_val, (u.Unit, u.Quantity)):
                    subs_dict[sym] = unit_val
@@ -285,13 +343,19 @@ class Evaluator:
         """
         Parses LaTeX and re-emits it standardly formatted,
         WITHOUT evaluating variables (symbols remain symbols).
-        Protects multi-letter variable names from being split.
+        Protects multi-letter variable names and SI units from being split.
         """
         import re
 
         try:
-            # Pre-process: Wrap known multi-letter names in \text{}
             modified = latex_str
+
+            # Pre-process: Protect SI units from being split
+            for unit in sorted(self.SI_UNITS, key=len, reverse=True):
+                if len(unit) > 1 and f'\\text{{{unit}}}' not in modified:
+                    modified = re.sub(rf'\b{re.escape(unit)}\b', rf'\\text{{{unit}}}', modified)
+
+            # Pre-process: Wrap known multi-letter variable names in \text{}
             known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
 
             for name in known_names:

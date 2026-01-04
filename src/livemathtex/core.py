@@ -56,6 +56,9 @@ def process_file(input_path: str, output_path: str = None):
 
                 try:
                     result_latex = evaluator.evaluate(calc)
+                    # Check if the evaluator returned an error (contains \color{red})
+                    if '\\color{red}' in result_latex:
+                        error_count += 1
                     block_calcs_results.append(result_latex)
                 except Exception as e:
                     error_count += 1
