@@ -43,51 +43,51 @@ With Livemathtex, the calculation IS the documentation:
 
 **Input (`calculation.md`):**
 ```markdown
-# Energy Calculation
+# Projectile Motion
 
-$P_{LED} := 3273.6 \text{ kW}$
-$t := 8760 \text{ h}$
-$\eta := 0.90$
+$v_0 := 25 \text{ m/s}$
+$\theta := 45°$
+$g := 9.81 \text{ m/s}^2$
 
-$E_{year} := P_{LED} \cdot t \cdot \eta =$
+$h_{max} := \frac{v_0^2 \cdot \sin^2(\theta)}{2g} =$
 ```
 
 **Input rendered:**
 
-> **Energy Calculation**
+> **Projectile Motion**
 >
-> $P_{LED} := 3273.6 \text{ kW}$
+> $v_0 := 25 \text{ m/s}$
 >
-> $t := 8760 \text{ h}$
+> $\theta := 45°$
 >
-> $\eta := 0.90$
+> $g := 9.81 \text{ m/s}^2$
 >
-> $E_{year} := P_{LED} \cdot t \cdot \eta =$ ← *waiting for result*
+> $h_{max} := \frac{v_0^2 \cdot \sin^2(\theta)}{2g} =$ ← *waiting for result*
 
 ---
 
 **Output (`calculation.md` after `livemathtex process`):**
 ```markdown
-# Energy Calculation
+# Projectile Motion
 
-$P_{LED} := 3273.6 \text{ kW}$
-$t := 8760 \text{ h}$
-$\eta := 0.90$
+$v_0 := 25 \text{ m/s}$
+$\theta := 45°$
+$g := 9.81 \text{ m/s}^2$
 
-$E_{year} := P_{LED} \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
+$h_{max} := \frac{v_0^2 \cdot \sin^2(\theta)}{2g} = 15.94 \text{ m}$
 ```
 
 **Output rendered:**
 
-> **Energy Calculation**
+> **Projectile Motion**
 >
-> $P_{LED} := 3273.6 \text{ kW}$
+> $v_0 := 25 \text{ m/s}$
 >
-> $t := 8760 \text{ h}$
+> $\theta := 45°$
 >
-> $\eta := 0.90$
+> $g := 9.81 \text{ m/s}^2$
 >
-> $E_{year} := P_{LED} \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
+> $h_{max} := \frac{v_0^2 \cdot \sin^2(\theta)}{2g} = 15.94 \text{ m}$
 
 **No disconnect.** The numbers come directly from the formulas. Change a parameter → results update automatically. Everything stays consistent, traceable, and verifiable.
 
