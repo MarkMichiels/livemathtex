@@ -174,19 +174,25 @@ $1.2\ \text{kg/m}^3$
 
 ### Unit Conversion
 
-Request specific output units with brackets (bracket notation removed from output):
+Request specific output units using HTML comments (stays in source, invisible when rendered):
 
-```latex
+```markdown
 # Input
 $v := 100\ \text{km/h}$
-$v\ [\text{m/s}] ==$
+$v ==$ <!-- [m/s] -->
 
-# Output
+# Output (source file)
 $v := 100\ \text{km/h}$
-$v == 27.78\ \text{m/s}$
+$v == 27.78\ \text{m/s}$ <!-- [m/s] -->
+
+# Rendered (preview/PDF)
+v := 100 km/h
+v == 27.78 m/s       ← comment invisible
 ```
 
-**Default:** Results shown in SI units unless `[unit]` specified.
+**Default:** Results shown in SI units unless `<!-- [unit] -->` specified.
+
+**Why HTML comments?** The instruction stays in the source for re-runs, but doesn't appear in the rendered document.
 
 ### Custom Units
 

@@ -89,13 +89,18 @@ Three operators. That's it.
 | `:=` | Define | `$x := 42$` | `$x := 42$` (unchanged) |
 | `==` | Evaluate | `$x ==$` | `$x == 42$` (result filled in) |
 | `:= ==` | Define + evaluate | `$y := x^2 ==$` | `$y := x^2 == 1764$` |
-| `[unit]` | Unit conversion | `$v [\text{m/s}] ==$` | `$v == 27.78\ \text{m/s}$` |
 | `=>` | Symbolic | `$f'(x) =>$` | `$f'(x) => 2x$` |
+
+**Unit conversion** (using HTML comment, invisible in rendered output):
+```
+Input:   $v ==$ <!-- [m/s] -->
+Output:  $v == 27.78\ \text{m/s}$ <!-- [m/s] -->
+```
 
 **Notes:**
 - Results are **overwritten** on re-run (old values replaced with new)
 - Default output: SI units
-- Custom units: `[unit]` syntax (removed from output, result shown in requested unit)
+- Unit instruction stays in source (for re-runs) but hidden in rendered Markdown
 
 > ⚠️ **Why `==` not `=`?** Safety. You can't accidentally overwrite a variable by forgetting the `:` in `:=`.
 
@@ -106,8 +111,6 @@ $x := 42$
 $\alpha := \frac{\pi}{4}$
 $E := 200 \times 10^9 \text{ Pa}$
 ```
-
-$v ==_{\text{m/s}}$  
 
 
 ### Evaluation
