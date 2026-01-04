@@ -61,7 +61,12 @@ $F := m \cdot a = 49.05 \text{ N}$
 | Edit text → numbers become stale | Edit input → outputs auto-update |
 | Binary tools or JSON notebooks | Plain Markdown, Git-friendly |
 
-**Jupyter?** Great for code, but `F = m * a` isn't what you put in a report. LaTeX is the universal language for math — and LLMs already speak it fluently.
+**Jupyter?** Great for code, but:
+- `F = m * a` isn't what you put in a report — LaTeX renders beautifully
+- JSON format loses all Markdown advantages: plain text, Git diffs, extensible tooling
+- Markdown is an ecosystem — combine with Pandoc, static site generators, documentation tools
+
+LaTeX is the universal language for math. LLMs already speak it fluently. Keep everything in Markdown.
 
 ---
 
