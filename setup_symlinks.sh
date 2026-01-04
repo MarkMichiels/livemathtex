@@ -5,7 +5,7 @@
 # - Cursor rules (coding standards, documentation guidelines)
 # - Shared tools (optional)
 #
-# CalcuLaTeX is a standalone project, but during development in the
+# LiveMathTeX is a standalone project, but during development in the
 # axabio workspace, we benefit from shared coding standards.
 
 set -e
@@ -13,7 +13,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROVIRON_DIR="$(dirname "$SCRIPT_DIR")/proviron"
 
-echo "=== CalcuLaTeX Symlink Setup ==="
+echo "=== LiveMathTeX Symlink Setup ==="
 echo "Script directory: $SCRIPT_DIR"
 echo "Proviron directory: $PROVIRON_DIR"
 echo ""
@@ -21,7 +21,7 @@ echo ""
 # Verify proviron exists
 if [ ! -d "$PROVIRON_DIR" ]; then
     echo "⚠️  Proviron not found at $PROVIRON_DIR"
-    echo "   This is OK if you're developing CalcuLaTeX standalone."
+    echo "   This is OK if you're developing LiveMathTeX standalone."
     echo "   Symlinks will not be created."
     exit 0
 fi
@@ -64,9 +64,9 @@ done
 # Create rules index if it doesn't exist
 if [ ! -f "$SCRIPT_DIR/.cursor/rules/index.md" ]; then
     cat > "$SCRIPT_DIR/.cursor/rules/index.md" << 'EOF'
-# CalcuLaTeX Cursor Rules
+# LiveMathTeX Cursor Rules
 
-This directory contains Cursor rules for the CalcuLaTeX project.
+This directory contains Cursor rules for the LiveMathTeX project.
 
 ## Symlinked Rules (from proviron)
 
@@ -80,7 +80,7 @@ General coding standards are symlinked from the proviron repository:
 
 ## Local Rules
 
-CalcuLaTeX-specific rules can be added here as `.mdc` files.
+LiveMathTeX-specific rules can be added here as `.mdc` files.
 They will override symlinked rules if they have the same name.
 
 ## Setup
@@ -91,7 +91,7 @@ EOF
 fi
 
 # =============================================================================
-# .cursor/commands/ - CalcuLaTeX specific commands (not symlinked)
+# .cursor/commands/ - LiveMathTeX specific commands (not symlinked)
 # =============================================================================
 echo ""
 echo "📁 Setting up .cursor/commands/..."
@@ -99,9 +99,9 @@ mkdir -p "$SCRIPT_DIR/.cursor/commands"
 
 if [ ! -f "$SCRIPT_DIR/.cursor/commands/README.md" ]; then
     cat > "$SCRIPT_DIR/.cursor/commands/README.md" << 'EOF'
-# CalcuLaTeX Cursor Commands
+# LiveMathTeX Cursor Commands
 
-This directory contains Cursor commands specific to CalcuLaTeX development.
+This directory contains Cursor commands specific to LiveMathTeX development.
 
 ## Available Commands
 
@@ -179,7 +179,7 @@ fi
 echo ""
 echo "=== Setup Complete ==="
 echo ""
-echo "Symlinks created. CalcuLaTeX now uses proviron's coding standards."
+echo "Symlinks created. LiveMathTeX now uses proviron's coding standards."
 echo ""
 echo "To update symlinks after proviron changes:"
 echo "  ./setup_symlinks.sh"

@@ -1,6 +1,6 @@
-# CalcuLaTeX Cursor Rules
+# LiveMathTeX Cursor Rules
 
-This directory contains Cursor rules for the CalcuLaTeX project.
+This directory contains Cursor rules for the LiveMathTeX project.
 
 ## Symlinked Rules (from proviron)
 
@@ -14,7 +14,7 @@ General coding standards are symlinked from the proviron repository:
 
 ## Local Rules
 
-CalcuLaTeX-specific rules can be added here as `.mdc` files.
+LiveMathTeX-specific rules can be added here as `.mdc` files.
 They will override symlinked rules if they have the same name.
 
 ## Setup

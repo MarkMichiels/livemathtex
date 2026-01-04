@@ -1,6 +1,6 @@
-# CalcuLaTeX Cursor Commands
+# LiveMathTeX Cursor Commands
 
-This directory contains Cursor commands specific to CalcuLaTeX development.
+This directory contains Cursor commands specific to LiveMathTeX development.
 
 ## Available Commands
 
