@@ -206,7 +206,6 @@ See [ROADMAP.md](docs/ROADMAP.md) for full details.
 | Document | Description |
 |----------|-------------|
 | [BACKGROUND.md](docs/BACKGROUND.md) | Research: what we tried and why we built this |
-| [SPEC.md](docs/SPEC.md) | Full specification |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design |
 | [SYNTAX.md](docs/SYNTAX.md) | Complete syntax reference |
 | [EXAMPLES.md](docs/EXAMPLES.md) | Example calculations |

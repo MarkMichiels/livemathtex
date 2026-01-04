@@ -278,7 +278,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to help with development.
 
 ## References
 
-- [Project SPEC](./SPEC.md)
+- [Background](./BACKGROUND.md)
 - [Architecture](./ARCHITECTURE.md)
 - [UX Design](./UX.md)
 - [Syntax Reference](./SYNTAX.md)

@@ -259,7 +259,7 @@ livemathtex/
 │   ├── test_units.py
 │   └── test_integration.py
 ├── docs/
-│   ├── SPEC.md
+│   ├── BACKGROUND.md
 │   ├── ARCHITECTURE.md
 │   ├── UX.md
 │   └── SYNTAX.md
