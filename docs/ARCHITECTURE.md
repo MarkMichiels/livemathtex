@@ -130,15 +130,16 @@ $d = v \cdot t = 200\ \text{km}$
 $F = m \cdot a = \textcolor{red}{\text{Error: Undefined variable } m}$
 ```
 
-#### Result Highlighting
+#### Symbolic Results (`=>`)
 
-Using `=>` syntax to mark important results:
+The `=>` operator triggers symbolic evaluation:
 
 ```markdown
-$\text{Final Answer} = 42 =>$
+$f(x) := x^2 + 2x + 1$
+$f'(x) =>$
 ```
 
-Renders with visual emphasis (boxed, bold, or icon).
+Output: `$f'(x) = 2x + 2$`
 
 ---
 

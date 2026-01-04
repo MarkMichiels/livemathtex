@@ -150,17 +150,16 @@ Error on line 15: Unit mismatch in addition
 
 ---
 
-## Highlighting Important Results
+## Symbolic Operations (`=>`)
 
-Use `=>` to mark key results:
+Use `=>` for symbolic math (differentiation, integration, solving):
 
 ```markdown
-$\text{Total Cost} = price \cdot quantity =>$
+$f(x) := x^2 + 2x + 1$
+$f'(x) =>$
 ```
 
-Output renders with emphasis (boxed, bold, or highlighted).
-
-This helps readers identify final answers vs intermediate steps.
+Output: `$f'(x) = 2x + 2$`
 
 ---
 
@@ -378,7 +377,7 @@ $\text{Safe} = \delta_{max} < \delta_{allow} =>$
 ✅ Document your calculations with text
 ✅ Use meaningful variable names (`F_gravity` not `F1`)
 ✅ Include units in definitions
-✅ Mark final answers with `=>`
+✅ Use `=>` for symbolic operations (derivatives, integrals)
 ✅ Use comments for clarification
 
 ### Don't

@@ -149,10 +149,10 @@ $F = m \cdot a = 49.05\ \text{N}$
   - [ ] Differentiation
   - [ ] Integration
 
-- [ ] **3.3 Result Highlighting**
-  - [ ] `=>` syntax for important results
-  - [ ] Visual emphasis in output
-  - [ ] Summary generation (optional)
+- [ ] **3.3 Symbolic Operations (`=>`)**
+  - [ ] Differentiation: `$f'(x) =>$`
+  - [ ] Integration: `$\int f(x) dx =>$`
+  - [ ] Equation solving: `$\text{solve}(f(x)=0) =>$`
 
 - [ ] **3.4 Performance**
   - [ ] Caching of parsed AST

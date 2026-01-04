@@ -6,7 +6,7 @@
 |--------|---------|---------|
 | `:=` | Definition (assign) | `x := 5` |
 | `=` | Evaluation (compute) | `y = x + 1` |
-| `=>` | Symbolic / highlight | `diff(x^2, x) =>` |
+| `=>` | Symbolic (derivation) | `diff(x^2, x) =>` |
 | `#` | Comment | `# this is ignored` |
 
 ---
@@ -79,17 +79,16 @@ $v_{\text{m/s}} = v\ [\text{m/s}]$    <!-- Convert to m/s -->
 $v_{\text{mph}} = v\ [\text{mph}]$    <!-- Convert to mph -->
 ```
 
-### Highlighted Result
+### Symbolic Evaluation
 
-Use `=>` for important results you want to emphasize:
+Use `=>` for symbolic operations (differentiation, integration, solving):
 
 ```latex
-$\text{Total Cost} = price \cdot quantity =>$
+$f(x) := x^2 + 2x + 1$
+$f'(x) =>$
 ```
 
-**Output:** Result with visual emphasis (boxed, bold).
-
-Note: `=>` serves dual purpose: symbolic operations AND highlighting important numeric results.
+**Output:** `$f'(x) = 2x + 2$`
 
 ---
 
