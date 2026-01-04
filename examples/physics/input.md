@@ -1,30 +1,37 @@
 # Newton's Second Law: F = m × a
 
-This example demonstrates force calculation with SI units.
+This example demonstrates SI units and variable naming.
 
-## Given Values
+## ❌ Common Mistakes (These Will Error)
 
-Mass of the object (10 kg):
-$mass := 10 \cdot kg$
+Using single-letter names that conflict with SI units:
 
-Acceleration due to gravity (9.81 m/s²):
+$m := 10 \cdot kg$
+
+$s := 5$
+
+$t := 10$
+
+## ✅ Correct Approach: Use Subscripts or Descriptive Names
+
+### Option 1: Subscript notation (m_1, t_1, etc.)
+
+$m_1 := 10 \cdot kg$
+$a_1 := 9.81 \cdot \frac{m}{s^2}$
+
+Calculate force:
+$F_1 := m_1 \cdot a_1 ==$
+
+### Option 2: Descriptive names
+
+$mass := 25 \cdot kg$
 $accel := 9.81 \cdot \frac{m}{s^2}$
 
-## Calculate Force
+Calculate force:
+$F_2 := mass \cdot accel ==$
 
-Using Newton's second law \( F = m \cdot a \):
+## Compare Results
 
-$F := mass \cdot accel ==$
+$ratio := \frac{F_2}{F_1} ==$
 
-The result should be approximately 98.1 N (Newtons).
-
-## Verify with Different Mass
-
-$mass_2 := 25 \cdot kg$
-$F_2 := mass_2 \cdot accel ==$
-
-## Calculate Ratio (dimensionless)
-
-$ratio := \frac{F_2}{F} ==$
-
-The heavier object experiences 2.5× more force.
+The ratio should be 2.5 (25 kg / 10 kg).

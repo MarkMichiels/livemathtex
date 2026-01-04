@@ -229,7 +229,7 @@ class Evaluator:
         # So we just compute 'lhs' as usual. _compute handles function calls like diff if mapped.
 
         value = self._compute(lhs)
-        result_latex = sympy.latex(value)
+        result_latex = self._simplify_subscripts(sympy.latex(value))
         return f"{lhs} => {result_latex}"
 
     # Common SI units that need protection from being split by latex2sympy
@@ -252,10 +252,13 @@ class Evaluator:
 
         # Pre-process: Replace known multi-letter variable names with \text{} wrapper
         # to prevent latex2sympy from splitting them into individual letters
+        # BUT: Don't wrap names with subscripts (like m_1) - KaTeX can't handle \text{m_1}
         known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
 
         for name in known_names:
-            if len(name) > 1:  # Only multi-letter names need protection
+            # Skip single letters (they're fine) and subscripted names (e.g., m_1, F_2)
+            # Subscripted names are valid LaTeX and don't need \text{} wrapping
+            if len(name) > 1 and '_' not in name:
                 # Wrap in \text{} which latex2sympy treats as single symbol
                 # But only if not already wrapped
                 if f'\\text{{{name}}}' not in modified_latex:
@@ -356,16 +359,23 @@ class Evaluator:
                     modified = re.sub(rf'\b{re.escape(unit)}\b', rf'\\text{{{unit}}}', modified)
 
             # Pre-process: Wrap known multi-letter variable names in \text{}
+            # BUT: Don't wrap names with subscripts (like m_1) - KaTeX can't handle \text{m_1}
             known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
 
             for name in known_names:
-                if len(name) > 1 and f'\\text{{{name}}}' not in modified:
+                if len(name) > 1 and '_' not in name and f'\\text{{{name}}}' not in modified:
                     modified = re.sub(rf'\b{re.escape(name)}\b', rf'\\text{{{name}}}', modified)
 
             expr = latex2sympy(modified)
             return self._format_result(expr)
         except:
              return latex_str
+
+    def _simplify_subscripts(self, latex_str: str) -> str:
+        """Simplify LaTeX subscripts: a_{1} -> a_1 for single-char subscripts."""
+        import re
+        # Replace _{X} with _X where X is a single alphanumeric character
+        return re.sub(r'_\{([a-zA-Z0-9])\}', r'_\1', latex_str)
 
     def _format_result(self, value: Any) -> str:
         """Format the result for output (simplify, evalf numericals)."""
@@ -394,7 +404,7 @@ class Evaluator:
                      # .15g usually preserves value well without trailing zeros?
                      # User Example: 9.8 -> 9.8.
                      return f"{float(n):.10g}"
-                return sympy.latex(n)
+                return self._simplify_subscripts(sympy.latex(n))
 
             # If rest is 1, it's just a number
             if rest == 1:
@@ -402,13 +412,13 @@ class Evaluator:
 
             # If coeff is 1, it's just units/symbols
             if coeff == 1:
-                return sympy.latex(rest, mul_symbol='dot')
+                return self._simplify_subscripts(sympy.latex(rest, mul_symbol='dot'))
 
             # Mixed
             c_str = fmt_num(coeff)
-            r_str = sympy.latex(rest, mul_symbol='dot')
+            r_str = self._simplify_subscripts(sympy.latex(rest, mul_symbol='dot'))
 
             # User request: No dot between numeric and unit. Use space.
-            return f"{c_str} {r_str}" # Space separator
+            return f"{c_str} {r_str}"
 
-        return sympy.latex(value, mul_symbol='dot')
+        return self._simplify_subscripts(sympy.latex(value, mul_symbol='dot'))

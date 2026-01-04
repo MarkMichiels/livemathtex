@@ -31,4 +31,4 @@ With simple definitions and evaluations, we can build up calculations step by st
 
 ---
 
-> *livemathtex: 2026-01-04 20:28:51 | 5 definitions, 4 evaluations | no errors | 0.05s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-04 20:47:43 | 5 definitions, 4 evaluations | no errors | 0.05s* <!-- livemathtex-meta -->
