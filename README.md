@@ -1,4 +1,4 @@
-# CalcuLaTeX
+# Livemathtex
 
 **Live LaTeX calculations in Markdown documents**
 
@@ -24,7 +24,7 @@ Current solutions fall short:
 | LaTeX | ✅ Excellent | ❌ No | ✅ Yes | ✅ Yes |
 | Markdown | ✅ Good (KaTeX) | ❌ No | ✅ Yes | ✅ Yes |
 
-**CalcuLaTeX combines the best:** LaTeX notation + live calculations + plain Markdown.
+**Livemathtex combines the best:** LaTeX notation + live calculations + plain Markdown.
 
 ---
 
@@ -98,7 +98,7 @@ $\alpha := \frac{\pi}{4}$
 
 ### Evaluation (`=` or `= ?`)
 
-Request the calculated value. CalcuLaTeX fills in the result.
+Request the calculated value. Livemathtex fills in the result.
 
 ```latex
 $y = ?$           → $y = 1849$
@@ -127,7 +127,7 @@ $f'(x) = ?$       → $f'(x) = 2x + 2$
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    CalcuLaTeX Pipeline                       │
+│                    Livemathtex Pipeline                       │
 └─────────────────────────────────────────────────────────────┘
 
   input.md          Parser           Engine           output.md
@@ -164,7 +164,7 @@ Components:
 - [ ] Common functions: `sin cos tan log exp sqrt`
 - [ ] Greek letters: `\alpha \beta \gamma` etc.
 - [ ] Number formatting (thousands separator, decimals)
-- [ ] CLI: `calculatex process input.md -o output.md`
+- [ ] CLI: `livemathtex process input.md -o output.md`
 
 ### Phase 2: Scientific
 
@@ -200,24 +200,24 @@ Components:
 
 ```bash
 # Process single file
-calculatex process calculation.md
+livemathtex process calculation.md
 
 # Output to specific file
-calculatex process calculation.md -o result.md
+livemathtex process calculation.md -o result.md
 
 # Watch mode (auto-update)
-calculatex watch calculation.md
+livemathtex watch calculation.md
 
 # Export to PDF
-calculatex export calculation.md -o calculation.pdf
+livemathtex export calculation.md -o calculation.pdf
 ```
 
 ### Python API
 
 ```python
-from calculatex import CalcuLaTeXProcessor
+from livemathtex import LivemathtexProcessor
 
-processor = CalcuLaTeXProcessor()
+processor = LivemathtexProcessor()
 result = processor.process_file("calculation.md")
 result.save("output.md")
 
@@ -237,7 +237,7 @@ print(output)
 
 ## Comparison with Alternatives
 
-| Feature | CalcuLaTeX | Mathcad | SMath | Jupyter | Typst |
+| Feature | Livemathtex | Mathcad | SMath | Jupyter | Typst |
 |---------|-----------|---------|-------|---------|-------|
 | LaTeX notation | ✅ Native | ✅ Yes | ⚠️ Similar | ❌ Code | ⚠️ Own syntax |
 | Plain text source | ✅ Markdown | ❌ Binary | ❌ XML | ⚠️ JSON | ✅ Yes |
@@ -253,11 +253,11 @@ print(output)
 
 ```bash
 # From PyPI (when published)
-pip install calculatex
+pip install livemathtex
 
 # From source
-git clone https://github.com/MarkMichiels/calculatex.git
-cd calculatex
+git clone https://github.com/MarkMichiels/livemathtex.git
+cd livemathtex
 pip install -e .
 ```
 
@@ -307,8 +307,8 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ### Development Setup
 
 ```bash
-git clone https://github.com/MarkMichiels/calculatex.git
-cd calculatex
+git clone https://github.com/MarkMichiels/livemathtex.git
+cd livemathtex
 python -m venv venv
 source venv/bin/activate
 pip install -e ".[dev]"

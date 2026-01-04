@@ -3,15 +3,15 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "calculatex"
+name = "livemathtex"
 version = "0.1.0"
-description = "CalcuLaTeX - Live LaTeX calculations in Markdown documents"
+description = "Livemathtex - Live LaTeX calculations in Markdown documents"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
     {name = "Mark Michiels", email = "mark@example.com"}
 ]
-keywords = ["calculatex", "latex", "markdown", "calculations", "engineering", "sympy", "live-math"]
+keywords = ["livemathtex", "latex", "markdown", "calculations", "engineering", "sympy", "live-math"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -48,13 +48,13 @@ docs = [
 ]
 
 [project.scripts]
-calculatex = "calculatex.cli:main"
+livemathtex = "livemathtex.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/MarkMichiels/calculatex"
-Documentation = "https://calculatex.readthedocs.io"
-Repository = "https://github.com/MarkMichiels/calculatex"
-Issues = "https://github.com/MarkMichiels/calculatex/issues"
+Homepage = "https://github.com/MarkMichiels/livemathtex"
+Documentation = "https://livemathtex.readthedocs.io"
+Repository = "https://github.com/MarkMichiels/livemathtex"
+Issues = "https://github.com/MarkMichiels/livemathtex/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -69,7 +69,7 @@ select = ["E", "F", "W", "I", "UP", "B", "C4"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v --cov=calculatex"
+addopts = "-v --cov=livemathtex"
 
 [tool.mypy]
 python_version = "3.10"
