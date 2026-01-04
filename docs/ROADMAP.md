@@ -166,13 +166,13 @@ $F := m \cdot a == 49.05\ \text{N}$
 ```markdown
 # Input
 $A := [[1, 2]; [3, 4]]$
-$\det(A) =$
+$\det(A) ==$
 $f(x) := x^2 - 4x + 3$
 $f'(x) =>$
 
 # Output
-$\det(A) = -2$
-$f'(x) = 2x - 4$
+$\det(A) == -2$
+$f'(x) => 2x - 4$
 ```
 
 ---
@@ -186,7 +186,7 @@ $f'(x) = 2x - 4$
 ### Deliverables
 
 - [ ] **4.1 VS Code Extension**
-  - [ ] Syntax highlighting for `:=`, `=`, `=>`
+  - [ ] Syntax highlighting for `:=`, `==`, `=>`
   - [ ] Live preview pane
   - [ ] Error diagnostics
   - [ ] Hover for computed values

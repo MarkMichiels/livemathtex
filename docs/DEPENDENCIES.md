@@ -260,7 +260,7 @@ dev = [
 
 **We don't need a custom grammar parser because:**
 - `latex2sympy2` handles LaTeX parsing → SymPy
-- Operator detection (`:=`, `=`, `=>`) is simple string/regex
+- Operator detection (`:=`, `==`, `=>`) is simple string/regex
 - Math block detection (`$...$`) is regex-based
 
 **Keep it simple:** regex + latex2sympy2 is sufficient.

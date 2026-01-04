@@ -246,7 +246,7 @@ Rather than forcing existing tools to do something they weren't designed for, we
 3. **Output:** Same Markdown with computed results
 
 **Key insight:** We don't need a full environment. Just a preprocessor that:
-- Understands `:=` (assignment) and `=` (evaluation)
+- Understands `:=` (assignment) and `==` (evaluation)
 - Maintains variable state across the document
 - Inserts results back into the LaTeX
 
@@ -269,7 +269,7 @@ This changes the value proposition:
 - **Old thinking:** "I need a tool to help me write LaTeX calculations"
 - **New thinking:** "LLMs write the LaTeX, I need a tool to make the results verifiable"
 
-Livemathtex bridges the disconnect between AI-generated formulas and computed results. The LLM generates `$F := m \cdot a =$`, Livemathtex fills in `49.05 \text{ N}`.
+Livemathtex bridges the disconnect between AI-generated formulas and computed results. The LLM generates `$F := m \cdot a ==$`, Livemathtex fills in `49.05 \text{ N}`.
 
 ---
 
