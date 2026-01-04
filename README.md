@@ -14,18 +14,49 @@ A preprocessor that brings live calculations to Markdown files. Define variables
 
 ## Vision: Why Now?
 
-We're in a unique moment. AI and LLMs are transforming how we work with documents and calculations. **Context is king** — the more structured, version-controlled context you provide, the better AI can assist you.
+### The Problem with LLM-Generated Calculations
 
-Livemathtex fits perfectly into this new paradigm:
+Today when you ask an LLM to do calculations, you get:
+
+```
+Here's the calculation:
+- Power: 3273.6 kW
+- Hours: 8760 h
+- Efficiency: 90%
+
+**Result: 25,808,726 kWh per year**
+
+Here's the Python code to verify:
+```python
+power = 3273.6
+hours = 8760
+efficiency = 0.90
+result = power * hours * efficiency
+```
+
+**The problem**: Where does that `25,808,726` come from? You have to trust it, or run the Python separately to verify. The Markdown and the calculation are **disconnected**.
+
+### The Livemathtex Solution
+
+With Livemathtex, the calculation IS the documentation:
+
+```latex
+$P_{LED} := 3273.6 \text{ kW}$
+$t := 8760 \text{ h}$
+$\eta := 0.90$
+$E_{year} = P_{LED} \cdot t \cdot \eta$   →  $E_{year} = 25{,}808{,}726 \text{ kWh}$
+```
+
+**No disconnect.** The numbers come from the formulas. Change a parameter → results update. Everything stays consistent. Everything is verifiable.
+
+### Why This Fits the AI Era
 
 - **Markdown + Git** = AI-friendly, version-controlled documentation
-- **LaTeX math** = Universal notation AI understands and can generate
-- **Live calculations** = Documents that stay consistent when parameters change
+- **LaTeX math** = Universal notation AI understands and generates
+- **Live calculations** = Documents that stay consistent and verifiable
 - **Plain text** = Easy to diff, merge, review, and process with AI tools
 
-**The vision**: Your calculations become part of your documentation. When you update a parameter, results update automatically. When AI reads your document, it understands both the math and the results. When you commit to Git, you have a complete audit trail.
-
-This isn't about replacing tools like Mathcad — it's about bringing calculation capabilities into the text-first, AI-augmented workflow that modern engineering demands.
+**The vision**: AI generates the formulas, Livemathtex computes the results. No more "trust but verify" — everything is in one place, traceable, and correct by construction.
 
 ---
 
