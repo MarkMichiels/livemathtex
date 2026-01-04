@@ -2,9 +2,13 @@
 
 **Live LaTeX calculations in Markdown documents**
 
-A preprocessor that brings live calculations to Markdown files. Define variables with `:=` and evaluate expressions with `=` — all in beautiful LaTeX notation.
+| | |
+|---|---|
+| **Status** | 🚧 **Design phase** — Documentation complete, implementation not started |
+| **Version** | 0.0.0 (pre-alpha) |
+| **Built with** | AI assistance (Claude/Cursor) |
 
-> ⚠️ **Built with AI assistance** — This project is developed with AI tools (Claude/Cursor). We aim for quality but appreciate bug reports and contributions.
+A preprocessor that brings live calculations to Markdown files. Define variables with `:=` and evaluate expressions with `=` — all in beautiful LaTeX notation.
 
 ---
 
