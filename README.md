@@ -52,6 +52,20 @@ $\eta := 0.90$
 $E_{year} := P_{LED} \cdot t \cdot \eta =$
 ```
 
+**Input rendered:**
+
+> **Energy Calculation**
+>
+> $P_{LED} := 3273.6 \text{ kW}$
+>
+> $t := 8760 \text{ h}$
+>
+> $\eta := 0.90$
+>
+> $E_{year} := P_{LED} \cdot t \cdot \eta =$ ← *waiting for result*
+
+---
+
 **Output (`calculation.md` after `livemathtex process`):**
 ```markdown
 # Energy Calculation
@@ -63,9 +77,17 @@ $\eta := 0.90$
 $E_{year} := P_{LED} \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
 ```
 
-**Rendered:**
+**Output rendered:**
 
-$E_{year} := P_{LED} \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
+> **Energy Calculation**
+>
+> $P_{LED} := 3273.6 \text{ kW}$
+>
+> $t := 8760 \text{ h}$
+>
+> $\eta := 0.90$
+>
+> $E_{year} := P_{LED} \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$ ✓
 
 **No disconnect.** The numbers come directly from the formulas. Change a parameter → results update automatically. Everything stays consistent, traceable, and verifiable.
 
