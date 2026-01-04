@@ -41,21 +41,29 @@ result = power * hours * efficiency  # You have to run this separately!
 
 With Livemathtex, the calculation IS the documentation:
 
-**You write:**
+**Input (`calculation.md`):**
 ```markdown
+# Energy Calculation
+
 $P_{LED} := 3273.6 \text{ kW}$
 $t := 8760 \text{ h}$
 $\eta := 0.90$
+
 $E_{year} := P_{LED} \cdot t \cdot \eta =$
 ```
 
-**You see (after processing):**
+**Output (`calculation.md` after `livemathtex process`):**
+```markdown
+# Energy Calculation
 
 $P_{LED} := 3273.6 \text{ kW}$
-
 $t := 8760 \text{ h}$
-
 $\eta := 0.90$
+
+$E_{year} := P_{LED} \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
+```
+
+**Rendered:**
 
 $E_{year} := P_{LED} \cdot t \cdot \eta = 25{,}808{,}726 \text{ kWh}$
 
