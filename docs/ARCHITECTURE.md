@@ -191,22 +191,7 @@ pandoc output.md -o output.pdf
 **Pros:** Rich ecosystem, rapid development, SymPy for CAS
 **Cons:** Distribution (requires Python), slightly slower
 
-### Alternative: Rust
-
-| Component | Library |
-|-----------|---------|
-| Parser | `pest` or `nom` |
-| Units | `uom` or custom |
-| Numeric | `nalgebra` |
-| Symbolic | Limited (SymEngine FFI) |
-| WASM | Native support |
-
-**Pros:** Fast, single binary, WASM for web demo
-**Cons:** Harder CAS integration, longer development
-
-### Recommendation
-
-**Start with Python** for rapid prototyping and rich math ecosystem. Consider Rust rewrite for performance-critical parts or web deployment later.
+**Why Python:** Rich math ecosystem (SymPy, Pint), rapid development, easy distribution via pip.
 
 ---
 
