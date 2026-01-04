@@ -87,8 +87,8 @@ Three operators. That's it.
 | Operator | Meaning | Example |
 |----------|---------|---------|
 | `:=` | Define | `$x := 42$` |
-| `==$` | Evaluate | `$x ==$` → shows value |
-| `:= ... ==` | Define + evaluate | `$y := x^2 ==$` → defines AND shows |
+| `==` | Evaluate | `$x ==$` → shows value |
+| `:= ==` | Define + evaluate | `$y := x^2 ==$` → defines AND shows |
 | `=>` | Symbolic | `$f'(x) =>$` → shows derivation |
 
 > ⚠️ **Why `==` not `=`?** Safety. You can't accidentally overwrite a variable by forgetting the `:` in `:=`.
