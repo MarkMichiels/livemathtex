@@ -341,28 +341,60 @@ scientific: false
 ### Basic
 
 ```bash
-livemathtex input.md -o output.md
+livemathtex process input.md -o output.md
 ```
 
-### Watch Mode
+### With Debug Output
+
+The `--verbose` flag writes an IR (Intermediate Representation) JSON file for debugging:
 
 ```bash
-livemathtex input.md --watch
+livemathtex process input.md --verbose
+# Creates: input.lmt.json with all symbol mappings and results
+
+livemathtex process input.md -v --ir-output debug.json
+# Custom IR output path
+```
+
+### Inspect IR
+
+View the contents of an IR JSON file:
+
+```bash
+livemathtex inspect input.lmt.json
+```
+
+Output:
+```
+Source: engineering/input.md
+Version: 1.0
+
+Symbols:
+  \Delta_{T_h}: = 17.92 [K]
+  T_{h,out}: = 72.08
+  LMTD: = 55.01 [K]
+  A: = 5.45 [m²]
+
+Stats:
+  definitions: 26
+  evaluations: 16
+  errors: 0
 ```
 
 ### Options
 
-```bash
-livemathtex input.md --digits 6          # precision
-livemathtex input.md --scientific        # scientific notation
-```
+| Option | Description |
+|--------|-------------|
+| `-o, --output FILE` | Output Markdown file (default: in-place) |
+| `-v, --verbose` | Write IR to JSON file for debugging |
+| `--ir-output FILE` | Custom path for IR JSON |
 
 ### PDF Output
 
 Use Pandoc on the processed Markdown:
 
 ```bash
-livemathtex calculation.md -o calculation_out.md
+livemathtex process calculation.md -o calculation_out.md
 pandoc calculation_out.md -o calculation.pdf
 ```
 
@@ -394,6 +426,69 @@ $y == x + 1$ → Error: Undefined variable 'x'
 - In calculation block: `$$ x := 5 \n y = x + 3 $$` → Error on the `y = ...` line
 
 Console also reports errors with line numbers.
+
+---
+
+## Debugging
+
+### IR JSON Output
+
+Use `--verbose` to generate a JSON file containing the full intermediate representation:
+
+```bash
+livemathtex process input.md --verbose
+```
+
+This creates `input.lmt.json` with:
+
+```json
+{
+  "version": "1.0",
+  "source": "input.md",
+  "symbols": {
+    "Delta_T_h": {
+      "mapping": {
+        "latex_original": "\\Delta T_h",
+        "latex_display": "\\Delta_{T_h}",
+        "internal_name": "Delta_T_h"
+      },
+      "value": 17.92,
+      "unit": "K",
+      "line": 52
+    }
+  },
+  "blocks": [...],
+  "errors": [],
+  "stats": {
+    "definitions": 26,
+    "evaluations": 16,
+    "errors": 0
+  }
+}
+```
+
+### Symbol Mapping
+
+The IR tracks three forms of each symbol:
+
+| Form | Example | Purpose |
+|------|---------|---------|
+| `latex_original` | `\Delta T_h` | Exactly as written in input |
+| `latex_display` | `\Delta_{T_h}` | KaTeX-safe display form |
+| `internal_name` | `Delta_T_h` | Python/SymPy identifier |
+
+This mapping solves:
+- **KaTeX rendering issues** (no `\text{Delta_T_h}` errors)
+- **Symbol lookup consistency** (Greek letters work correctly)
+- **Debugging clarity** (see exactly what's happening)
+
+### Inspecting Results
+
+```bash
+livemathtex inspect input.lmt.json
+```
+
+Shows all symbols, their values, and any errors in a human-readable format.
 
 ---
 

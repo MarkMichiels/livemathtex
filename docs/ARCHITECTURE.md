@@ -2,13 +2,133 @@
 
 ## Overview
 
-Livemathtex follows a modular pipeline architecture:
+Livemathtex follows a modular pipeline architecture with an **Intermediate Representation (IR)** layer for clean symbol management and debugging:
 
 ```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Parser    │───▶│   Engine    │───▶│  Renderer   │───▶│   Output    │
-│  (Frontend) │    │(Interpreter)│    │ (Compiler)  │    │    (MD)     │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Parser    │───▶│ IR Builder  │───▶│   Engine    │───▶│  Renderer   │───▶│   Output    │
+│  (Lexer)    │    │ (Normalize) │    │ (Evaluator) │    │ (Markdown)  │    │    (MD)     │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+                         │
+                         ▼
+                   ┌─────────────┐
+                   │  IR JSON    │  (--verbose)
+                   │  (Debug)    │
+                   └─────────────┘
+```
+
+### Intermediate Representation (IR)
+
+The IR layer (inspired by [Cortex-JS MathJSON](https://cortexjs.io/math-json/)) provides:
+
+1. **Symbol Normalization** - Clean mapping between LaTeX (`\Delta T_h`) and internal names (`Delta_T_h`)
+2. **Debugging** - Write IR to JSON with `--verbose` flag
+3. **Traceability** - Track all calculations and their results
+4. **Import System** - Load symbols from other Markdown files via their IR JSON
+
+```json
+{
+  "symbols": {
+    "Delta_T_h": {
+      "mapping": {
+        "latex_original": "\\Delta T_h",
+        "latex_display": "\\Delta_{T_h}",
+        "internal_name": "Delta_T_h"
+      },
+      "value": 17.92,
+      "unit": "K"
+    }
+  }
+}
+```
+
+### Import System (Future)
+
+The IR JSON enables importing symbols from other Markdown files without modifying them:
+
+```mermaid
+graph LR
+    subgraph library [Library Files]
+        L1[constants.md] --> L1J[constants.lmt.json]
+        L2[formulas.md] --> L2J[formulas.lmt.json]
+    end
+
+    subgraph calc [Calculation File]
+        C[calculation.md]
+    end
+
+    L1J --> C
+    L2J --> C
+    C --> OUT[output.md]
+
+    style L1 fill:#4a90e2,stroke:#2e5c8a,color:#fff
+    style L2 fill:#4a90e2,stroke:#2e5c8a,color:#fff
+    style L1J fill:#f39c12,stroke:#c87f0a,color:#fff
+    style L2J fill:#f39c12,stroke:#c87f0a,color:#fff
+    style C fill:#7cb342,stroke:#558b2f,color:#fff
+    style OUT fill:#7cb342,stroke:#558b2f,color:#fff
+```
+
+**Workflow:**
+
+1. **Create library Markdown** - Define reusable constants/functions:
+   ```markdown
+   <!-- constants.md -->
+   $g := 9.81$
+   $c := 299792458$
+   $\pi := 3.14159265359$
+   ```
+
+2. **Process library** - Generate IR JSON:
+   ```bash
+   livemathtex process constants.md --verbose
+   # Creates: constants.lmt.json with all symbol values
+   ```
+
+3. **Import in calculation** - Use directive to load symbols:
+   ```markdown
+   <!-- calculation.md -->
+   <!-- livemathtex: import constants.lmt.json -->
+
+   $h := 100$
+   $t := \sqrt{\frac{2h}{g}} ==$   <!-- g comes from constants -->
+   ```
+
+4. **Process calculation** - Symbols are pre-loaded:
+   ```bash
+   livemathtex process calculation.md -o output.md
+   # g, c, π are available from imported JSON
+   ```
+
+**Key Benefits:**
+
+| Benefit | Description |
+|---------|-------------|
+| **Source = Markdown** | Library files are readable, editable Markdown |
+| **No modification needed** | Import uses IR output, original stays unchanged |
+| **Composable** | Chain multiple imports, build complex calculations |
+| **Cacheable** | Re-process library only when source changes |
+| **Intermediate files** | Create helper Markdown files just for their IR |
+
+**Example: Engineering Library**
+
+```
+libs/
+├── physical_constants.md    → physical_constants.lmt.json
+├── material_properties.md   → material_properties.lmt.json
+└── common_formulas.md       → common_formulas.lmt.json
+
+projects/
+└── heat_exchanger.md        # Imports all three libraries
+```
+
+```markdown
+<!-- heat_exchanger.md -->
+<!-- livemathtex: import ../libs/physical_constants.lmt.json -->
+<!-- livemathtex: import ../libs/material_properties.lmt.json -->
+
+## Heat Exchanger Design
+$Q := m \cdot c_p \cdot \Delta T ==$   <!-- c_p from material_properties -->
 ```
 
 ---
@@ -148,26 +268,50 @@ Output: `$f'(x) => 2x + 2$`
 
 ### 4. CLI Interface
 
-**Responsibility:** Orchestrate pipeline, handle file I/O, watch mode.
+**Responsibility:** Orchestrate pipeline, handle file I/O, debugging output.
 
 #### Commands
 
 ```bash
-livemathtex <input> [options]
+# Process a file
+livemathtex process <input> [options]
 
 Options:
   -o, --output FILE    Output Markdown file
-  -w, --watch          Watch mode, rebuild on change
-  --config FILE        Path to config file
-  --digits N           Significant figures (default: 4)
-  --scientific         Force scientific notation
-  --no-symbolic        Disable CAS features
-  --timeout N          Max seconds per expression
-  -v, --verbose        Verbose output
-  -q, --quiet          Only show errors
+  -v, --verbose        Write IR to JSON file for debugging
+  --ir-output FILE     Custom path for IR JSON (default: input.lmt.json)
+
+# Inspect an IR JSON file
+livemathtex inspect <ir_file>
+
+# Examples
+livemathtex process input.md                      # In-place processing
+livemathtex process input.md -o output.md         # Separate output
+livemathtex process input.md --verbose            # Write debug IR
+livemathtex inspect input.lmt.json                # View symbols and results
 
 # For PDF: use external tools on the output
 pandoc output.md -o output.pdf
+```
+
+#### IR Debug Output (`--verbose`)
+
+When using `--verbose`, livemathtex writes a JSON file containing:
+
+- **symbols**: All defined variables with their values and LaTeX mappings
+- **blocks**: Each calculation block with input/output LaTeX
+- **errors**: List of any errors encountered
+- **stats**: Timing and operation counts
+
+```bash
+$ livemathtex process engineering.md --verbose
+✓ Processed engineering.md
+  Definitions (:=): 26
+  Evaluations (==): 16
+  Symbolic (=>):    0
+  Errors: 0
+  Duration: 0.50s
+  IR written to: engineering.lmt.json
 ```
 
 #### Configuration
@@ -236,20 +380,20 @@ livemathtex/
 │   └── livemathtex/
 │       ├── __init__.py
 │       ├── cli.py           # CLI entry point
+│       ├── core.py          # Main pipeline orchestration
 │       ├── parser/
 │       │   ├── __init__.py
-│       │   ├── lexer.py     # Tokenization
-│       │   ├── grammar.py   # Expression grammar
-│       │   └── ast.py       # AST node types
+│       │   ├── lexer.py     # Markdown/LaTeX tokenization
+│       │   └── models.py    # AST node types (Document, MathBlock, etc.)
+│       ├── ir/              # NEW: Intermediate Representation
+│       │   ├── __init__.py
+│       │   ├── schema.py    # IR dataclasses (LivemathIR, SymbolEntry, etc.)
+│       │   ├── normalize.py # Symbol normalization (LaTeX <-> internal)
+│       │   └── builder.py   # Build IR from parsed AST
 │       ├── engine/
 │       │   ├── __init__.py
-│       │   ├── evaluator.py # Main evaluation logic
-│       │   ├── symbols.py   # Symbol table
-│       │   ├── units.py     # Unit handling (pint wrapper)
-│       │   └── functions.py # Built-in functions
-│       ├── symbolic/
-│       │   ├── __init__.py
-│       │   └── cas.py       # SymPy integration
+│       │   ├── evaluator.py # Main evaluation logic + IR integration
+│       │   └── symbols.py   # Symbol table
 │       ├── render/
 │       │   ├── __init__.py
 │       │   └── markdown.py  # MD output (only output format)
@@ -259,7 +403,6 @@ livemathtex/
 ├── tests/
 │   ├── test_parser.py
 │   ├── test_engine.py
-│   ├── test_units.py
 │   └── test_integration.py
 ├── docs/
 │   ├── BACKGROUND.md
@@ -268,9 +411,16 @@ livemathtex/
 │   ├── ROADMAP.md
 │   └── DEPENDENCIES.md
 └── examples/
-    ├── basic.md
-    ├── physics.md
-    └── engineering.md
+    ├── simple/
+    │   ├── input.md
+    │   └── output.md
+    ├── physics/
+    │   ├── input.md
+    │   └── output.md
+    └── engineering/
+        ├── input.md
+        ├── output.md
+        └── images/
 ```
 
 ---
@@ -331,10 +481,25 @@ SAFE_FUNCTIONS = {
 ## Future Extensions
 
 **In scope (this repo):**
-1. **Import/Include** - Reference other documents
-2. **Tables with Calculations** - Spreadsheet-like tables
-3. **Conditional Logic** - If/else in expressions
-4. **Iteration** - Loops and summations
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Import System** | Planned | Import symbols from other Markdown via IR JSON (see above) |
+| **CLI `--import` flag** | Planned | `livemathtex process calc.md --import lib.lmt.json` |
+| **Watch Mode** | Planned | Auto-rebuild on file changes |
+| **Tables with Calculations** | Future | Spreadsheet-like tables in Markdown |
+| **Conditional Logic** | Future | If/else in expressions |
+
+**Import System Implementation (next priority):**
+```bash
+# Option 1: CLI flag
+livemathtex process calculation.md --import constants.lmt.json
+
+# Option 2: Document directive
+<!-- livemathtex: import constants.lmt.json -->
+
+# Option 3: Both (directive overrides CLI)
+```
 
 **Separate projects (build on top of Livemathtex):**
 - VS Code Extension (`livemathtex-vscode`)

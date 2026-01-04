@@ -7,58 +7,61 @@
 This roadmap outlines the phased development of Livemathtex from MVP to full-featured release.
 
 ```
-Phase 1: Foundation     ████████░░░░░░░░░░░░  40%  [Current]
-Phase 2: Core Features  ░░░░░░░░░░░░░░░░░░░░   0%
+Phase 1: Foundation     ████████████████████ 100%  [COMPLETE]
+Phase 2: Core Features  ████████████████░░░░  80%  [Current]
 Phase 3: Advanced       ░░░░░░░░░░░░░░░░░░░░   0%
 Phase 4: Ecosystem      ░░░░░░░░░░░░░░░░░░░░   0%
 ```
 
 ---
 
-## Phase 1: Foundation (MVP)
+## Phase 1: Foundation (MVP) - COMPLETE
 
 **Goal:** Minimal viable product that demonstrates core concept.
 
-**Timeline:** 2-3 weeks
+**Status:** COMPLETE
 
 ### Deliverables
 
-- [ ] **1.1 Project Setup**
+- [x] **1.1 Project Setup**
   - [x] Repository structure
   - [x] Documentation (ARCHITECTURE, USAGE, ROADMAP)
-  - [ ] pyproject.toml with dependencies
-  - [ ] Basic test infrastructure
+  - [x] pyproject.toml with dependencies
+  - [x] Basic test infrastructure
 
-- [ ] **1.2 Parser (Basic)**
-  - [ ] Recognize `:=` definitions
-  - [ ] Recognize `==` evaluations
-  - [ ] Recognize `=>` symbolic operations
-  - [ ] Error on bare `=` (safety feature)
-  - [ ] Parse simple arithmetic expressions
-  - [ ] Handle variable names (including Greek letters)
-  - [ ] Skip non-calculation Markdown content
+- [x] **1.2 Parser (Basic)**
+  - [x] Recognize `:=` definitions
+  - [x] Recognize `==` evaluations
+  - [x] Recognize `=>` symbolic operations
+  - [x] Error on bare `=` (safety feature)
+  - [x] Parse simple arithmetic expressions
+  - [x] Handle variable names (including Greek letters)
+  - [x] Skip non-calculation Markdown content
+  - [x] **NEW:** Display-only formulas pass through unchanged
 
-- [ ] **1.3 Engine (Basic)**
-  - [ ] Symbol table for variables
-  - [ ] Numeric evaluation of expressions
-  - [ ] Basic error handling (undefined variable, division by zero)
-  - [ ] Evaluation order (top-down)
+- [x] **1.3 Engine (Basic)**
+  - [x] Symbol table for variables
+  - [x] Numeric evaluation of expressions
+  - [x] Basic error handling (undefined variable, division by zero)
+  - [x] Evaluation order (top-down)
 
-- [ ] **1.4 Error Handling (from day one)**
-  - [ ] Undefined variable: clear message at evaluation point
-  - [ ] Division by zero, math errors
-  - [ ] Syntax errors with line numbers
-  - [ ] Console summary with all errors
-  - [ ] Errors never crash - always produce output
+- [x] **1.4 Error Handling (from day one)**
+  - [x] Undefined variable: clear message at evaluation point
+  - [x] Division by zero, math errors
+  - [x] Syntax errors with line numbers
+  - [x] Console summary with all errors
+  - [x] Errors never crash - always produce output
 
-- [ ] **1.5 Renderer (Basic)**
-  - [ ] Output Markdown with results injected
-  - [ ] Format numbers (configurable precision)
-  - [ ] Display errors inline (red/warning style)
+- [x] **1.5 Renderer (Basic)**
+  - [x] Output Markdown with results injected
+  - [x] Format numbers (configurable precision)
+  - [x] Display errors inline (red/warning style)
 
-- [ ] **1.6 CLI (Basic)**
-  - [ ] `livemathtex input.md -o output.md`
-  - [ ] Basic file I/O
+- [x] **1.6 CLI (Basic)**
+  - [x] `livemathtex process input.md -o output.md`
+  - [x] Basic file I/O
+  - [x] **NEW:** `--verbose` flag for IR JSON output
+  - [x] **NEW:** `livemathtex inspect` command
 
 ### Success Criteria
 
@@ -76,44 +79,51 @@ $z := x + y == 8$
 
 ---
 
-## Phase 2: Core Features
+## Phase 2: Core Features - IN PROGRESS
 
-**Goal:** Full numeric calculation with units.
+**Goal:** Full numeric calculation with units, IR layer.
 
-**Timeline:** 3-4 weeks
+**Status:** 80% complete
 
 ### Deliverables
 
-- [ ] **2.1 Unit Support**
-  - [ ] Integrate Pint library
-  - [ ] Parse units in expressions
-  - [ ] Automatic dimension checking
-  - [ ] Unit conversion on output
-  - [ ] Error messages for unit mismatch
+- [x] **2.1 Unit Support**
+  - [x] Integrate SymPy physics.units (not Pint - simpler)
+  - [x] Parse units in expressions
+  - [x] Automatic dimension checking
+  - [x] Unit conversion on output (via HTML comments)
+  - [x] Error messages for unit/variable name conflicts
 
-- [ ] **2.2 LaTeX Parsing**
-  - [ ] Integrate latex2sympy2
-  - [ ] Parse fractions (`\frac{}{}`)
-  - [ ] Parse subscripts/superscripts
-  - [ ] Parse Greek letters
-  - [ ] Parse common functions (sin, cos, sqrt)
+- [x] **2.2 LaTeX Parsing**
+  - [x] Integrate latex2sympy2
+  - [x] Parse fractions (`\frac{}{}`)
+  - [x] Parse subscripts/superscripts (including complex like `T_{h,in}`)
+  - [x] Parse Greek letters (Δ, α, θ, etc.)
+  - [x] Parse common functions (sin, cos, sqrt, log)
 
-- [ ] **2.3 Functions**
-  - [ ] Built-in math functions
-  - [ ] User-defined functions `f(x) := ...`
+- [x] **2.3 Intermediate Representation (IR)** - NEW
+  - [x] Symbol normalization (LaTeX ↔ internal names)
+  - [x] IR JSON output for debugging (`--verbose`)
+  - [x] `inspect` command for IR files
+  - [ ] **Import system** (load symbols from other Markdown via IR)
+
+- [x] **2.4 Functions**
+  - [x] Built-in math functions
+  - [x] User-defined functions `f(x) := ...`
   - [ ] Multiple parameters
 
-- [ ] **2.4 CLI Enhanced**
+- [ ] **2.5 CLI Enhanced**
   - [ ] Watch mode (`--watch`)
-  - [ ] Verbose/quiet modes
+  - [x] Verbose mode (`--verbose`)
   - [ ] Precision flag (`--digits`)
-  - [ ] Documentation: explain how to use Pandoc for PDF
+  - [x] Documentation: explain how to use Pandoc for PDF
+  - [ ] `--import` flag for loading library IR
 
-- [ ] **2.5 Error Handling**
-  - [ ] Comprehensive error types
-  - [ ] Line number in errors
-  - [ ] Visual error markers in output
-  - [ ] Console error summary
+- [x] **2.6 Error Handling**
+  - [x] Comprehensive error types
+  - [x] Line number in errors
+  - [x] Visual error markers in output (inline LaTeX)
+  - [x] Console error summary
 
 ### Success Criteria
 
@@ -195,9 +205,17 @@ $f'(x) => 2x - 4$
   - [ ] Browser-based demo via Pyodide
   - [ ] Share calculations via URL
 
-- [ ] **4.3 Import/Include** (future)
-  - [ ] Include other documents
-  - [ ] Shared constants libraries
+- [ ] **4.3 Import/Include** (moved to Phase 2)
+  - [x] IR JSON output enables import workflow
+  - [ ] CLI `--import` flag to load library IR
+  - [ ] Document directive `<!-- livemathtex: import lib.lmt.json -->`
+
+  **Import Workflow:**
+  ```bash
+  # 1. Create library Markdown (constants.md)
+  # 2. Process: livemathtex process constants.md --verbose
+  # 3. Import: livemathtex process calc.md --import constants.lmt.json
+  ```
 
 ---
 
@@ -217,12 +235,12 @@ $f'(x) => 2x - 4$
 
 ## Version Milestones
 
-| Version | Phase | Key Features |
-|---------|-------|--------------|
-| 0.1.0 | 1 | Basic arithmetic, variables, error handling |
-| 0.2.0 | 2 | Units, LaTeX parsing, watch mode |
-| 0.3.0 | 3 | Symbolic math, matrices |
-| 1.0.0 | - | Stable release |
+| Version | Phase | Key Features | Status |
+|---------|-------|--------------|--------|
+| 0.1.0 | 1 | Basic arithmetic, variables, error handling, IR layer | DONE |
+| 0.2.0 | 2 | Units, LaTeX parsing, import system | In progress |
+| 0.3.0 | 3 | Symbolic math, matrices | Planned |
+| 1.0.0 | - | Stable release | Future |
 
 ---
 
@@ -239,27 +257,28 @@ $f'(x) => 2x - 4$
 
 ## Priorities
 
-### Must Have (MVP)
-- `:=`, `==` and `=>` syntax
-- Variable definitions
-- Basic arithmetic
-- Error handling (from day one!)
-- CLI with file I/O
+### Done (v0.1)
+- [x] `:=`, `==` and `=>` syntax
+- [x] Variable definitions
+- [x] Basic arithmetic
+- [x] Error handling (from day one!)
+- [x] CLI with file I/O
+- [x] Unit support (SI)
+- [x] LaTeX parsing
+- [x] IR layer for debugging
 
-### Should Have (v0.2)
-- Unit support
-- LaTeX parsing
-- Watch mode
+### In Progress (v0.2)
+- [ ] Import system (load Markdown IR)
+- [ ] Watch mode
+- [ ] Symbolic math (`=>`)
 
 ### Nice to Have (v0.3+)
-- Symbolic math
 - Matrices
 - VS Code extension
+- Tables with calculations
 
 ### Future (maybe)
-- Tables with calculations
 - Conditional logic
-- Import/include
 - Web playground (for demo only)
 
 ---

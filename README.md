@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| **Status** | 🚧 Design phase — documentation complete, implementation not started |
-| **Version** | 0.0.0 (pre-alpha) |
+| **Status** | ✅ Core implementation complete |
+| **Version** | 0.1.0 (alpha) |
 | **Built with** | AI assistance (Claude/Cursor) |
 
 ---
@@ -116,20 +116,28 @@ livemathtex process calculation.md
 # Output to specific file
 livemathtex process calculation.md -o result.md
 
-# Watch mode (auto-update on save)
-livemathtex watch calculation.md
+# Debug mode - writes IR (Intermediate Representation) to JSON
+livemathtex process calculation.md --verbose
+# Creates: calculation.lmt.json with all symbol values and mappings
+
+# Inspect the IR
+livemathtex inspect calculation.lmt.json
 ```
 
 ### Python API
 
 ```python
-from livemathtex import process
+from livemathtex.core import process_text
 
-output = process("""
+output, ir = process_text("""
 $x := 5$
 $y := x^2 ==$
 """)
-# Returns: $x := 5$  $y := x^2 == 25$
+# output: Markdown with results
+# ir: LivemathIR with all symbol values
+
+# Access computed values
+print(ir.symbols['y'].value)  # 25.0
 ```
 
 ### With AI assistants
@@ -149,26 +157,35 @@ You're not writing LaTeX by hand — you're reviewing and tweaking AI-generated 
 ### Done
 
 - [x] Project design and specification
+- [x] Parse Markdown for LaTeX math blocks
+- [x] Assignment (`:=`) and evaluation (`==`) operators
+- [x] Variable storage and lookup
+- [x] Basic arithmetic and common functions (sin, cos, log, sqrt, etc.)
+- [x] Error handling (undefined variables, syntax errors, unit conflicts)
+- [x] CLI: `livemathtex process`
+- [x] SI units support (kg, m, s, N, etc.)
+- [x] Unit conversion via HTML comments (`<!-- [mm] -->`)
+- [x] Greek letter support (Δ, α, θ, etc.)
+- [x] Complex subscripts (T_{h,in}, etc.)
+- [x] IR (Intermediate Representation) layer for debugging
+- [x] `--verbose` flag for JSON debug output
 
-### Phase 1: Core (MVP)
+### In Progress
 
-- [ ] Parse Markdown for LaTeX math blocks
-- [ ] Assignment (`:=`) and evaluation (`=`) operators
-- [ ] Variable storage and lookup
-- [ ] Basic arithmetic and common functions
-- [ ] Error handling (undefined variables, syntax errors)
-- [ ] CLI: `livemathtex process`
-
-### Phase 2: Scientific
-
-- [ ] Units (SI, imperial, custom)
 - [ ] Symbolic differentiation (`=>`)
-- [ ] Matrix operations
-
-### Phase 3: Integration
-
-- [ ] VS Code extension
 - [ ] Watch mode
+
+### Future
+
+- [ ] **Import system** - Import symbols from other Markdown files via IR JSON
+- [ ] VS Code extension
+
+**Import System Preview:**
+```bash
+# 1. Create library: constants.md with $g := 9.81$ etc.
+# 2. Process: livemathtex process constants.md --verbose
+# 3. Import: livemathtex process calc.md --import constants.lmt.json
+```
 
 See [ROADMAP.md](docs/ROADMAP.md) for full details.
 
