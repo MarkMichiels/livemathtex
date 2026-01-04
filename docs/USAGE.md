@@ -174,14 +174,19 @@ $1.2\ \text{kg/m}^3$
 
 ### Unit Conversion
 
-Request specific output units with brackets:
+Request specific output units with brackets (bracket notation removed from output):
 
 ```latex
+# Input
 $v := 100\ \text{km/h}$
-$v_{\text{si}} := v\ [\text{m/s}] ==$
+$v\ [\text{m/s}] ==$
+
+# Output
+$v := 100\ \text{km/h}$
+$v == 27.78\ \text{m/s}$
 ```
 
-**Output:** `$v_{\text{si}} := v == 27.78\ \text{m/s}$`
+**Default:** Results shown in SI units unless `[unit]` specified.
 
 ### Custom Units
 
