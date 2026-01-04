@@ -43,6 +43,16 @@ $a := 9.81 \text{ m/s}^2$
 $F := m \cdot a =$
 ```
 
+**Input rendered:**
+
+> $m := 5 \text{ kg}$
+>
+> $a := 9.81 \text{ m/s}^2$
+>
+> $F := m \cdot a =$
+
+---
+
 **Output (after `livemathtex process`):**
 ```markdown
 $m := 5 \text{ kg}$
@@ -50,9 +60,11 @@ $a := 9.81 \text{ m/s}^2$
 $F := m \cdot a = 49.05 \text{ N}$
 ```
 
-**Rendered:**
+**Output rendered:**
 
-> $m := 5 \text{ kg}$ · $a := 9.81 \text{ m/s}^2$
+> $m := 5 \text{ kg}$
+>
+> $a := 9.81 \text{ m/s}^2$
 >
 > $F := m \cdot a = 49.05 \text{ N}$
 
