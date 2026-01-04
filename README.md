@@ -18,36 +18,31 @@ A preprocessor that brings live calculations to Markdown files. Define variables
 
 Today when you ask an LLM to do calculations, you get:
 
-```
-Here's the calculation:
-- Power: 3273.6 kW
-- Hours: 8760 h
-- Efficiency: 90%
+> *"Here's the calculation: Power = 3273.6 kW, Hours = 8760 h, Efficiency = 90%.*
+> ***Result: 25,808,726 kWh per year***
+> *Here's the Python to verify..."*
 
-**Result: 25,808,726 kWh per year**
-
-Here's the Python code to verify:
 ```python
 power = 3273.6
 hours = 8760
 efficiency = 0.90
-result = power * hours * efficiency
+result = power * hours * efficiency  # You have to run this separately!
 ```
 
-**The problem**: Where does that `25,808,726` come from? You have to trust it, or run the Python separately to verify. The Markdown and the calculation are **disconnected**.
+**The problem**: Where does that `25,808,726` come from? You have to trust the LLM, or run the Python separately to verify. The Markdown text and the calculation are **disconnected**.
 
 ### The Livemathtex Solution
 
 With Livemathtex, the calculation IS the documentation:
 
-```latex
+```markdown
 $P_{LED} := 3273.6 \text{ kW}$
 $t := 8760 \text{ h}$
 $\eta := 0.90$
-$E_{year} = P_{LED} \cdot t \cdot \eta$   →  $E_{year} = 25{,}808{,}726 \text{ kWh}$
+$E_{year} = P_{LED} \cdot t \cdot \eta$   →   $E_{year} = 25{,}808{,}726 \text{ kWh}$
 ```
 
-**No disconnect.** The numbers come from the formulas. Change a parameter → results update. Everything stays consistent. Everything is verifiable.
+**No disconnect.** The numbers come directly from the formulas. Change a parameter → results update automatically. Everything stays consistent, traceable, and verifiable.
 
 ### Why This Fits the AI Era
 
