@@ -79,57 +79,52 @@ expr.evalf(50)  # 50 decimal places
 
 ---
 
-### 3. Unit Handling: `pint`
+### 3. Unit Handling: `sympy.physics.units`
 
 **Purpose:** Physical quantity calculations with units.
 
-**Repository:** [hgrecco/pint](https://github.com/hgrecco/pint)
-
-**Installation:**
-```bash
-pip install pint
-```
+**Why SymPy units instead of Pint:**
+- Already using SymPy for symbolic math
+- Simpler integration (no additional dependency)
+- Units are SymPy expressions (can be manipulated symbolically)
+- Automatic dimensional analysis
 
 **Example:**
 ```python
-from pint import UnitRegistry
-
-ureg = UnitRegistry()
-Q_ = ureg.Quantity
+from sympy.physics.units import kg, m, s, N, convert_to
 
 # Define quantities with units
-mass = 5 * ureg.kg
-acceleration = 9.81 * ureg.m / ureg.s**2
+mass = 5 * kg
+acceleration = 9.81 * m / s**2
 
 # Calculate
 force = mass * acceleration
-print(force)  # 49.05 kg·m/s²
-print(force.to('N'))  # 49.05 newton
+print(force)  # 49.05*kilogram*meter/second**2
+
+# Convert to different units
+force_in_N = convert_to(force, N)
+print(force_in_N)  # 49.05*newton
 
 # Unit conversion
-speed = Q_(100, 'km/h')
-print(speed.to('m/s'))  # 27.78 m/s
-
-# Dimensionality checking
-try:
-    mass + speed  # Raises DimensionalityError
-except Exception as e:
-    print(f"Error: {e}")
+from sympy.physics.units import km, hour
+speed = 100 * km / hour
+speed_in_ms = convert_to(speed, m/s)
+print(speed_in_ms.evalf())  # 27.78 m/s
 ```
 
 **Key Features:**
-- 1000+ built-in units
+- SI units + common derived units
 - Automatic dimension checking
-- Unit conversion
-- NumPy integration
-- Custom unit definitions
-- Formatting options
+- Unit conversion via `convert_to()`
+- Works with SymPy symbolic expressions
+- SI prefixes (k, M, m, µ, etc.)
 
-**Custom Units:**
+**SI Prefixes:**
 ```python
-ureg.define('lightyear = 9.461e15 * meter')
-distance = 4.2 * ureg.lightyear
-print(distance.to('km'))
+from sympy.physics.units import kilo, watt, milli, meter
+
+power = 2.858 * kilo * watt  # 2.858 kW
+length = 500 * milli * meter  # 500 mm
 ```
 
 ---
@@ -192,18 +187,19 @@ pip install ruff               # Linting
 **requirements.txt:**
 ```
 # Core
-sympy>=1.12
-pint>=0.23
-latex2sympy2>=1.9
+sympy>=1.12              # Symbolic math + units
+latex2sympy2>=1.9        # LaTeX parsing (our fork)
 numpy>=1.24
 
 # CLI
 click>=8.1
-rich>=13.0  # Pretty terminal output
+rich>=13.0               # Pretty terminal output
 
 # Watch mode
 watchdog>=3.0
 ```
+
+**Note:** We use SymPy's built-in `physics.units` module instead of Pint.
 
 **pyproject.toml extras:**
 ```toml
@@ -249,12 +245,12 @@ dev = [
 
 | Library | Pros | Cons |
 |---------|------|------|
-| `pint` | Most complete, NumPy compat | Slightly complex API |
+| `sympy.physics.units` | **Chosen** - integrates with SymPy | Fewer units than Pint |
+| `pint` | Most complete, NumPy compat | Separate dependency, overkill |
 | `astropy.units` | Scientific focus | Heavy dependency |
 | `quantities` | Simple | Less maintained |
-| `unyt` | Fast, yt integration | Less units |
 
-**Choice:** `pint` - industry standard, most units.
+**Choice:** `sympy.physics.units` - simpler integration, already using SymPy.
 
 ### Why No Dedicated Parser (lark, pyparsing, etc.)
 
@@ -270,5 +266,5 @@ dev = [
 ## References
 
 - [SymPy Documentation](https://docs.sympy.org/)
-- [Pint Documentation](https://pint.readthedocs.io/)
-- [latex2sympy2 GitHub](https://github.com/augustt198/latex2sympy)
+- [SymPy Units](https://docs.sympy.org/latest/modules/physics/units/)
+- [latex2sympy2 GitHub](https://github.com/augustt198/latex2sympy) (we use [our fork](https://github.com/MarkMichiels/latex2sympy))

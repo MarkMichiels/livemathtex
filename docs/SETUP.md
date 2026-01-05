@@ -192,7 +192,6 @@ git clone https://github.com/MarkMichiels/latex2sympy.git latex2sympy-fork
 
 # Recommended for investigation
 git clone --depth 1 https://github.com/sympy/sympy.git sympy
-git clone --depth 1 https://github.com/hgrecco/pint.git pint
 git clone --depth 1 https://github.com/cortex-js/compute-engine.git cortex-compute-engine
 ```
 
@@ -208,15 +207,14 @@ git clone --depth 1 https://github.com/cortex-js/compute-engine.git cortex-compu
 |------------|-----------|------------|
 | **sympy** | `sympy/physics/units/` | Unit system, conversions |
 | **sympy** | `sympy/parsing/latex/` | Alternative LaTeX parsing |
-| **pint** | `pint/default_en.txt` | Unit definitions |
 | **cortex-compute-engine** | `src/compute-engine/latex-syntax/` | Symbol normalization |
 | **latex2sympy-fork** | `PS.g4` | ANTLR grammar (our fix) |
 
 **Example investigation workflow:**
 ```bash
 # Problem: Units not converting correctly
-# Step 1: Check pint's unit definitions
-grep -r "millimeter" pint/pint/
+# Step 1: Check SymPy's unit definitions
+grep -r "kilowatt" sympy/sympy/physics/units/
 
 # Problem: Symbol not parsing
 # Step 2: Check latex2sympy grammar

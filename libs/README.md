@@ -14,7 +14,6 @@ git clone https://github.com/MarkMichiels/latex2sympy.git latex2sympy-fork
 
 # Reference repos (recommended)
 git clone --depth 1 https://github.com/sympy/sympy.git
-git clone --depth 1 https://github.com/hgrecco/pint.git
 git clone --depth 1 https://github.com/cortex-js/compute-engine.git cortex-compute-engine
 ```
 

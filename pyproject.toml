@@ -28,14 +28,11 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    # Core math engine
+    # Core math engine (includes sympy.physics.units for unit support)
     "sympy>=1.12",
     # Using forked version with DIFFERENTIAL bug fix
     # See: https://github.com/MarkMichiels/latex2sympy
     "latex2sympy2 @ git+https://github.com/MarkMichiels/latex2sympy.git",
-
-    # Units support
-    "pint>=0.23",
 
     # Numeric
     "numpy>=1.24",

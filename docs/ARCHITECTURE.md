@@ -359,16 +359,18 @@ system = "SI"  # or "imperial"
 | Component | Library |
 |-----------|---------|
 | Operators | `regex` (`:=`, `==`, `=>` detection) |
-| Units | `pint` |
-| Numeric | `numpy`, `scipy` |
+| Units | `sympy.physics.units` |
+| Numeric | `numpy` |
 | Symbolic | `sympy` |
-| LaTeX parsing | `latex2sympy2` |
+| LaTeX parsing | `latex2sympy2` (our fork) |
 | Math detection | `regex` (built-in) |
 
 **Pros:** Rich ecosystem, rapid development, SymPy for CAS
 **Cons:** Distribution (requires Python), slightly slower
 
-**Why Python:** Rich math ecosystem (SymPy, Pint), rapid development, easy distribution via pip.
+**Why Python:** Rich math ecosystem (SymPy), rapid development, easy distribution via pip.
+
+**Why SymPy units:** Simpler integration than Pint - units are SymPy expressions, already using SymPy for symbolic math.
 
 ---
 
@@ -510,6 +512,7 @@ livemathtex process calculation.md --import constants.lmt.json
 
 ## References
 
-- [Pint Documentation](https://pint.readthedocs.io/)
 - [SymPy Documentation](https://docs.sympy.org/)
-- [latex2sympy2](https://github.com/augustt198/latex2sympy)
+- [SymPy Units](https://docs.sympy.org/latest/modules/physics/units/)
+- [latex2sympy2](https://github.com/augustt198/latex2sympy) (we use [our fork](https://github.com/MarkMichiels/latex2sympy))
+- [Cortex-JS MathJSON](https://cortexjs.io/math-json/) (inspiration for IR layer)
