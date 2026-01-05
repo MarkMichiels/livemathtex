@@ -50,10 +50,10 @@ $D_{pipe} := 100 \cdot mm$
 ### Fluid Properties
 
 Water density:
-$rho := 1000 \cdot \frac{kg}{m^3}$
+$\rho := 1000 \cdot \frac{kg}{m^3}$
 
 Gravitational acceleration:
-$grav := 9.81 \cdot \frac{m}{s^2}$
+$g := 9.81 \cdot \frac{m}{s^2}$
 
 ### Friction Parameters
 
@@ -83,14 +83,14 @@ $H_{static} := h_d - h_s ==$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot grav} ==$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g} ==$$
 
 ### Minor Losses
 
 K-factor for fittings (dimensionless):
 $K_{fit} := 5$
 
-$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot grav} ==$$
+$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g} ==$$
 
 ---
 
@@ -103,7 +103,7 @@ $$TDH := H_{static} + H_f + H_m ==$$
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := rho \cdot grav \cdot Q \cdot TDH ==$$ <!-- [kW] -->
+$$P_{hyd} := \rho \cdot g \cdot Q \cdot TDH ==$$ <!-- [kW] -->
 
 ---
 

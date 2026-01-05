@@ -570,6 +570,7 @@ class Evaluator:
                 modified_latex = re.sub(rf'\b{re.escape(unit)}\b', rf'\\text{{{unit}}}', modified_latex)
 
         # 3b. Protect known variable names from symbol table
+        # BUT: Don't wrap if preceded by backslash (LaTeX command like \rho)
         known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
 
         for name in known_names:
@@ -582,7 +583,8 @@ class Evaluator:
                     protected = '\\text{' + base + '}_{' + subscript + '}'
                     if protected in modified_latex:
                         continue
-                    pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
+                    # Don't match if preceded by \ (LaTeX command) or \text{
+                    pattern = rf'(?<!\\)(?<!\\text\{{){re.escape(name)}\b'
                     modified_latex = re.sub(
                         pattern,
                         lambda m, b=base, s=subscript: f'\\text{{{b}}}_{{{s}}}',
@@ -591,7 +593,8 @@ class Evaluator:
             elif len(name) > 1:
                 protected = '\\text{' + name + '}'
                 if protected not in modified_latex:
-                    pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
+                    # Don't match if preceded by \ (LaTeX command) or \text{
+                    pattern = rf'(?<!\\)(?<!\\text\{{){re.escape(name)}\b'
                     modified_latex = re.sub(
                         pattern,
                         lambda m, n=name: '\\text{' + n + '}',
@@ -658,6 +661,13 @@ class Evaluator:
 
         subs_dict = {}
 
+        # Detect if this is a "pure formula" (no numeric values)
+        # Key insight: definitions have numbers (e.g., "1000 kg/m³"),
+        # formulas don't (e.g., "ρ · g · Q · TDH")
+        # In pure formulas, single letters like 'g' should be variables, not units
+        has_numbers = bool(re.search(r'\d', expression_latex))
+        is_pure_formula = not has_numbers
+
         # 1. Handle Symbols (Variables + Units)
         for sym in expr.free_symbols:
             sym_name = str(sym)
@@ -706,6 +716,8 @@ class Evaluator:
                 continue
 
             # 2. Check in SymPy Units (with common abbreviation mapping)
+            # BUT: In "pure formulas" (no numbers), skip single-letter units
+            # because 'g' in a formula means gravity, not gram
             unit_mapping = {
                 # Mass
                 'kg': u.kilogram,
@@ -737,7 +749,14 @@ class Evaluator:
                 'mol': u.mole,
             }
 
-            if clean_name in unit_mapping:
+            # Skip single-letter units in pure formulas (no numbers)
+            # 'g' in formula = gravity variable, not gram unit
+            # 'g' after number (like "9.81 m/s²") = can be unit context
+            if is_pure_formula and len(clean_name) == 1:
+                # Don't interpret single letters as units in pure formulas
+                # They're undefined variables (will be caught later)
+                pass
+            elif clean_name in unit_mapping:
                 subs_dict[sym] = unit_mapping[clean_name]
                 continue
             elif hasattr(u, clean_name):

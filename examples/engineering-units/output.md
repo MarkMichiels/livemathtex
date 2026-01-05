@@ -31,7 +31,7 @@ $Q := 50 \frac{m^{3}}{h}$
 Display in different units (no manual conversion needed!):
 $Q == 50 \text{m³/h}$ <!-- [m³/h] -->
 $Q == 0.01389 \text{m³/s}$ <!-- [m³/s] -->
-$Q == 13.89 \text{L/s}$ <!-- [L/s] -->
+$Q == 50 \frac{\text{m}^{3}}{\text{hour}}$ <!-- [L/s] -->
 
 ### Geometry
 
@@ -50,10 +50,10 @@ $D_{pipe} := 100 \text{mm}$
 ### Fluid Properties
 
 Water density:
-$rho := 1000 \frac{\text{kg}}{m^{3}}$
+$\rho := 1000 \frac{\text{kg}}{m^{3}}$
 
 Gravitational acceleration:
-$grav := 9.81 \frac{m}{s^{2}}$
+$g := 9.81 \frac{m}{s^{2}}$
 
 ### Friction Parameters
 
@@ -83,14 +83,14 @@ $H_{static} := h_d - h_s == 17 \text{m}$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot grav} == 3.188 \text{m}$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g} == 3.188 \text{m}$$
 
 ### Minor Losses
 
 K-factor for fittings (dimensionless):
 $K_{fit} := 5$
 
-$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot grav} == 0.7969 \text{m}$$
+$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g} == 0.7969 \text{m}$$
 
 ---
 
@@ -103,7 +103,7 @@ $$TDH := H_{static} + H_f + H_m == 20.98 \text{m}$$
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := rho \cdot grav \cdot Q \cdot TDH == 2.859 \text{kW}$$ <!-- [kW] -->
+$$P_{hyd} := \rho \cdot g \cdot Q \cdot TDH == 2.859 \text{kW}$$ <!-- [kW] -->
 
 ---
 
@@ -142,4 +142,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236 \text{kW}$$ <!-- [kW] 
 
 ---
 
-> *livemathtex: 2026-01-05 02:14:53 | 19 definitions, 11 evaluations | no errors | 0.54s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-05 02:23:10 | 19 definitions, 11 evaluations | no errors | 0.53s* <!-- livemathtex-meta -->
