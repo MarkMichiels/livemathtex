@@ -2,21 +2,19 @@
 
 This example demonstrates SI units and variable naming.
 
-## Single-Letter Variables (Now Supported!)
+## ⚠️ Single-Letter Variables: Use With Care!
 
-Using single-letter names that look like SI units - LiveMathTeX knows the context:
+Single-letter names like `m`, `s`, `t` CAN be used as variables, but they will 
+**shadow** the corresponding SI units in the same document.
 
-**Left of `:=` → always a variable:**
-$m := 10 \cdot kg$
+**Example of the problem:**
 
-$s := 5$
+If you write `m := 10 · kg` and then `accel := 9.81 · m/s²`, the `m` in the 
+acceleration formula becomes `10 kg` instead of `meter`!
 
-$t := 10 \cdot s$
+**Best practice:** Use subscripts or descriptive names to avoid conflicts.
 
-**Test: use `m` as variable AND `m` as unit in same formula:**
-$distance := m \cdot t ==$ <!-- [m] -->
-
-## Alternative: Subscripts or Descriptive Names
+## ✅ Recommended: Subscripts or Descriptive Names
 
 ### Option 1: Subscript notation (m_1, t_1, etc.)
 
@@ -31,18 +29,17 @@ $F_1 := m_1 \cdot a_1 ==$
 $mass := 25 \cdot kg$
 $accel := 9.81 \cdot \frac{m}{s^2}$
 
-Calculate force (without unit conversion):
+Calculate force:
 $F_2 := mass \cdot accel ==$
 
-Calculate force (with unit conversion to N):
-$F_3 := mass \cdot accel ==$ <!-- [N] -->
+Convert to Newtons:
+$F_2N := F_2 ==$ <!-- [N] -->
 
-$accel == $ <!-- [mm] -->
+Convert to kilonewtons:
+$F_2kN := F_2 ==$ <!-- [kN] -->
 
 ## Compare Results
 
-$ratio_1 := \frac{F_2}{F_1} == $
-
-$ratio_2 := \frac{F_3}{F_1} == $
+$ratio := \frac{mass}{m_1} == $
 
 The ratio should be 2.5 (25 kg / 10 kg).

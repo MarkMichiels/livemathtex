@@ -2,50 +2,6 @@
   "version": "1.0",
   "source": "examples/simple-units/input.md",
   "symbols": {
-    "m": {
-      "mapping": {
-        "latex_original": "m",
-        "latex_display": "m",
-        "internal_name": "m"
-      },
-      "value": 10.0,
-      "unit": "\\text{kg}",
-      "expression_latex": "10 \\cdot kg",
-      "line": 10
-    },
-    "s": {
-      "mapping": {
-        "latex_original": "s",
-        "latex_display": "s",
-        "internal_name": "s"
-      },
-      "value": 5.0,
-      "unit": null,
-      "expression_latex": "5",
-      "line": 12
-    },
-    "t": {
-      "mapping": {
-        "latex_original": "t",
-        "latex_display": "t",
-        "internal_name": "t"
-      },
-      "value": 50.0,
-      "unit": null,
-      "expression_latex": "10 \\cdot s",
-      "line": 14
-    },
-    "distance": {
-      "mapping": {
-        "latex_original": "distance",
-        "latex_display": "distance",
-        "internal_name": "distance"
-      },
-      "value": 500.0,
-      "unit": "\\text{kg}",
-      "expression_latex": "m \\cdot t",
-      "line": 17
-    },
     "m_1": {
       "mapping": {
         "latex_original": "m_1",
@@ -55,7 +11,7 @@
       "value": 10.0,
       "unit": "\\text{kg}",
       "expression_latex": "10 \\cdot kg",
-      "line": 23
+      "line": 21
     },
     "a_1": {
       "mapping": {
@@ -63,10 +19,10 @@
         "latex_display": "a_1",
         "internal_name": "a_1"
       },
-      "value": 3.924,
-      "unit": "\\text{kg}",
+      "value": 9.81,
+      "unit": "\\frac{\\text{m}}{\\text{s}^{2}}",
       "expression_latex": "9.81 \\cdot \\frac{m}{s^2}",
-      "line": 24
+      "line": 22
     },
     "F_1": {
       "mapping": {
@@ -74,10 +30,10 @@
         "latex_display": "F_1",
         "internal_name": "F_1"
       },
-      "value": 39.24,
-      "unit": "\\text{kg}^{2}",
+      "value": 98.1,
+      "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}",
       "expression_latex": "m_1 \\cdot a_1",
-      "line": 27
+      "line": 25
     },
     "mass": {
       "mapping": {
@@ -88,7 +44,7 @@
       "value": 25.0,
       "unit": "\\text{kg}",
       "expression_latex": "25 \\cdot kg",
-      "line": 31
+      "line": 29
     },
     "accel": {
       "mapping": {
@@ -96,10 +52,10 @@
         "latex_display": "accel",
         "internal_name": "accel"
       },
-      "value": 3.924,
-      "unit": "\\text{kg}",
+      "value": 9.81,
+      "unit": "\\frac{\\text{m}}{\\text{s}^{2}}",
       "expression_latex": "9.81 \\cdot \\frac{m}{s^2}",
-      "line": 32
+      "line": 30
     },
     "F_2": {
       "mapping": {
@@ -107,80 +63,48 @@
         "latex_display": "F_2",
         "internal_name": "F_2"
       },
-      "value": 98.1,
-      "unit": "\\text{kg}^{2}",
+      "value": 245.25,
+      "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}",
       "expression_latex": "mass \\cdot accel",
-      "line": 35
+      "line": 33
     },
-    "F_3": {
+    "F_2N": {
       "mapping": {
-        "latex_original": "F_3",
-        "latex_display": "F_3",
-        "internal_name": "F_3"
+        "latex_original": "F_2N",
+        "latex_display": "F_{2N}",
+        "internal_name": "F_2N"
       },
-      "value": 98.1,
-      "unit": "\\text{kg}^{2}",
-      "expression_latex": "mass \\cdot accel",
-      "line": 38
+      "value": 245.25,
+      "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}",
+      "expression_latex": "F_2",
+      "line": 36
     },
-    "ratio_1": {
+    "F_2kN": {
       "mapping": {
-        "latex_original": "ratio_1",
-        "latex_display": "ratio_1",
-        "internal_name": "ratio_1"
+        "latex_original": "F_2kN",
+        "latex_display": "F_{2kN}",
+        "internal_name": "F_2kN"
+      },
+      "value": 245.25,
+      "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}",
+      "expression_latex": "F_2",
+      "line": 39
+    },
+    "ratio": {
+      "mapping": {
+        "latex_original": "ratio",
+        "latex_display": "ratio",
+        "internal_name": "ratio"
       },
       "value": 2.5,
       "unit": null,
-      "expression_latex": "\\frac{F_2}{F_1}",
-      "line": 44
-    },
-    "ratio_2": {
-      "mapping": {
-        "latex_original": "ratio_2",
-        "latex_display": "ratio_2",
-        "internal_name": "ratio_2"
-      },
-      "value": 2.5,
-      "unit": null,
-      "expression_latex": "\\frac{F_3}{F_1}",
-      "line": 46
+      "expression_latex": "\\frac{mass}{m_1}",
+      "line": 43
     }
   },
   "blocks": [
     {
-      "line": 10,
-      "latex_input": "m := 10 \\cdot kg",
-      "latex_output": "m := 10 \\cdot kg",
-      "operation": ":=",
-      "target": "m",
-      "error": null
-    },
-    {
-      "line": 12,
-      "latex_input": "s := 5",
-      "latex_output": "s := 5",
-      "operation": ":=",
-      "target": "s",
-      "error": null
-    },
-    {
-      "line": 14,
-      "latex_input": "t := 10 \\cdot s",
-      "latex_output": "t := 10 \\cdot s",
-      "operation": ":=",
-      "target": "t",
-      "error": null
-    },
-    {
-      "line": 17,
-      "latex_input": "distance := m \\cdot t ==",
-      "latex_output": "distance := m \\cdot t ==",
-      "operation": ":=_==",
-      "target": "distance",
-      "error": null
-    },
-    {
-      "line": 23,
+      "line": 21,
       "latex_input": "m_1 := 10 \\cdot kg",
       "latex_output": "m_1 := 10 \\cdot kg",
       "operation": ":=",
@@ -188,7 +112,7 @@
       "error": null
     },
     {
-      "line": 24,
+      "line": 22,
       "latex_input": "a_1 := 9.81 \\cdot \\frac{m}{s^2}",
       "latex_output": "a_1 := 9.81 \\cdot \\frac{m}{s^2}",
       "operation": ":=",
@@ -196,7 +120,7 @@
       "error": null
     },
     {
-      "line": 27,
+      "line": 25,
       "latex_input": "F_1 := m_1 \\cdot a_1 ==",
       "latex_output": "F_1 := m_1 \\cdot a_1 ==",
       "operation": ":=_==",
@@ -204,7 +128,7 @@
       "error": null
     },
     {
-      "line": 31,
+      "line": 29,
       "latex_input": "mass := 25 \\cdot kg",
       "latex_output": "mass := 25 \\cdot kg",
       "operation": ":=",
@@ -212,7 +136,7 @@
       "error": null
     },
     {
-      "line": 32,
+      "line": 30,
       "latex_input": "accel := 9.81 \\cdot \\frac{m}{s^2}",
       "latex_output": "accel := 9.81 \\cdot \\frac{m}{s^2}",
       "operation": ":=",
@@ -220,7 +144,7 @@
       "error": null
     },
     {
-      "line": 35,
+      "line": 33,
       "latex_input": "F_2 := mass \\cdot accel ==",
       "latex_output": "F_2 := mass \\cdot accel ==",
       "operation": ":=_==",
@@ -228,44 +152,36 @@
       "error": null
     },
     {
-      "line": 38,
-      "latex_input": "F_3 := mass \\cdot accel ==",
-      "latex_output": "F_3 := mass \\cdot accel ==",
+      "line": 36,
+      "latex_input": "F_2N := F_2 ==",
+      "latex_output": "F_2N := F_2 ==",
       "operation": ":=_==",
-      "target": "F_3",
+      "target": "F_2N",
       "error": null
     },
     {
-      "line": 40,
-      "latex_input": "accel ==",
-      "latex_output": "accel ==",
-      "operation": "==",
-      "target": null,
+      "line": 39,
+      "latex_input": "F_2kN := F_2 ==",
+      "latex_output": "F_2kN := F_2 ==",
+      "operation": ":=_==",
+      "target": "F_2kN",
       "error": null
     },
     {
-      "line": 44,
-      "latex_input": "ratio_1 := \\frac{F_2}{F_1} ==",
-      "latex_output": "ratio_1 := \\frac{F_2}{F_1} ==",
+      "line": 43,
+      "latex_input": "ratio := \\frac{mass}{m_1} ==",
+      "latex_output": "ratio := \\frac{mass}{m_1} ==",
       "operation": ":=_==",
-      "target": "ratio_1",
-      "error": null
-    },
-    {
-      "line": 46,
-      "latex_input": "ratio_2 := \\frac{F_3}{F_1} ==",
-      "latex_output": "ratio_2 := \\frac{F_3}{F_1} ==",
-      "operation": ":=_==",
-      "target": "ratio_2",
+      "target": "ratio",
       "error": null
     }
   ],
   "errors": [],
   "stats": {
-    "last_run": "2026-01-05 03:28:17",
-    "duration": "0.23s",
-    "definitions": 13,
-    "evaluations": 7,
+    "last_run": "2026-01-05 03:33:40",
+    "duration": "0.21s",
+    "definitions": 9,
+    "evaluations": 5,
     "symbolic": 0,
     "value_refs": 0,
     "errors": 0
