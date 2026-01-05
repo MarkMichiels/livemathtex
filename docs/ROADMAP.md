@@ -119,7 +119,15 @@ $z := x + y == 8$
   - [x] Documentation: explain how to use Pandoc for PDF
   - [ ] `--import` flag for loading library IR
 
-- [x] **2.6 Error Handling**
+- [ ] **2.6 Configuration System** (documented in ARCHITECTURE.md)
+  - [ ] Command-line args (`--digits`, `--scientific`)
+  - [ ] Document directives (`<!-- livemathtex: digits=4 -->`)
+  - [ ] Local config (`.livemathtex.toml`)
+  - [ ] Project config (`pyproject.toml [tool.livemathtex]`)
+  - [ ] User config (`~/.config/livemathtex/config.toml`)
+  - [ ] Config precedence hierarchy
+
+- [x] **2.7 Error Handling**
   - [x] Comprehensive error types
   - [x] Line number in errors
   - [x] Visual error markers in output (inline LaTeX)
