@@ -1,6 +1,8 @@
-# Pump Sizing Calculation
+# Pump Sizing Calculation (with Units)
 
-This example demonstrates a complete engineering calculation with **SI units** for sizing a centrifugal pump.
+This example demonstrates a complete engineering calculation **with SI units** for sizing a centrifugal pump.
+
+![Centrifugal Pump System](images/pump_system.svg)
 
 ## Problem Statement
 
@@ -22,44 +24,48 @@ Design a pump system to transfer water from a storage tank to an elevated proces
 ## Input Data
 
 ### Flow Requirements
-Volume flow rate (m³/h):
-$Q_{vol} := 50$
+
+Volume flow rate:
+$Q_{vol} := 50 \cdot \frac{m^3}{h}$
 
 Convert to m³/s:
 $Q_s := \frac{Q_{vol}}{3600} ==$
 
 ### Geometry
-Suction head (m, negative = below pump):
-$h_s := -2$
 
-Discharge head (m):
-$h_d := 15$
+Suction head (negative = below pump):
+$h_s := -2 \cdot m$
 
-Pipe length (m):
-$L_{pipe} := 100$
+Discharge head:
+$h_d := 15 \cdot m$
 
-Pipe diameter (m):
-$D_{pipe} := 0.1$
+Pipe length:
+$L_{pipe} := 100 \cdot m$
+
+Pipe diameter:
+$D_{pipe} := 100 \cdot mm$
 
 ### Fluid Properties
-Water density (kg/m³):
-$rho := 1000$
 
-Gravitational acceleration (m/s²):
-$grav := 9.81$
+Water density:
+$rho := 1000 \cdot \frac{kg}{m^3}$
+
+Gravitational acceleration:
+$grav := 9.81 \cdot \frac{m}{s^2}$
 
 ### Friction Parameters
-Darcy friction factor:
-$f := 0.02$
+
+Darcy friction factor (dimensionless):
+$f_d := 0.02$
 
 ---
 
 ## Step 1: Flow Velocity
 
-Cross-sectional area (m²):
+Cross-sectional area:
 $A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} ==$
 
-Flow velocity (m/s):
+Flow velocity:
 $vel := \frac{Q_s}{A_{pipe}} ==$
 
 ---
@@ -67,16 +73,19 @@ $vel := \frac{Q_s}{A_{pipe}} ==$
 ## Step 2: Head Losses
 
 ### Static Head
-Total static head (m):
+
+Total static head:
 $H_{static} := h_d - h_s ==$
 
 ### Friction Head Loss
+
 Using Darcy-Weisbach equation:
 
-$$H_f := f \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot grav} ==$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot grav} ==$$
 
 ### Minor Losses
-K-factor for fittings:
+
+K-factor for fittings (dimensionless):
 $K_{fit} := 5$
 
 $$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot grav} ==$$
@@ -91,41 +100,35 @@ $$TDH := H_{static} + H_f + H_m ==$$
 
 ## Step 4: Hydraulic Power
 
-Hydraulic power (W):
+Hydraulic power:
 $$P_{hyd} := rho \cdot grav \cdot Q_s \cdot TDH ==$$
-
-Convert to kW:
-$P_{kW} := \frac{P_{hyd}}{1000} ==$
 
 ---
 
 ## Step 5: Motor Sizing
 
-Pump efficiency (assumed):
+Pump efficiency (assumed, dimensionless):
 $eta_p := 0.75$
 
-Motor efficiency (assumed):
+Motor efficiency (assumed, dimensionless):
 $eta_m := 0.90$
 
-Required motor power (W):
+Required motor power:
 $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} ==$$
-
-In kW:
-$P_{motor,kW} := \frac{P_{motor}}{1000} ==$
 
 ---
 
 ## Results Summary
 
-| Parameter | Symbol | Calculated | Unit |
-|-----------|--------|------------|------|
-| Flow rate | Q_vol | 50 | m³/h |
-| Flow velocity | vel | see above | m/s |
-| Static head | H_static | see above | m |
-| Friction loss | H_f | see above | m |
-| Total head | TDH | see above | m |
-| Hydraulic power | P_hyd | see above | W |
-| Motor power | P_motor,kW | see above | kW |
+| Parameter | Symbol | Value | Unit |
+|-----------|--------|-------|------|
+| Flow rate | $Q_{vol}$ | 50 | m³/h |
+| Flow velocity | $vel$ | calculated | m/s |
+| Static head | $H_{static}$ | calculated | m |
+| Friction loss | $H_f$ | calculated | m |
+| Total head | $TDH$ | calculated | m |
+| Hydraulic power | $P_{hyd}$ | calculated | W |
+| Motor power | $P_{motor}$ | calculated | W |
 
 ---
 
