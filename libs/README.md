@@ -2,9 +2,29 @@
 
 This project uses forked versions of external libraries with bug fixes.
 
+## Reference Repositories
+
+For development, clone these locally for investigation:
+
+```bash
+cd ~/Repositories
+
+# Our fork (required)
+git clone https://github.com/MarkMichiels/latex2sympy.git latex2sympy-fork
+
+# Reference repos (recommended)
+git clone --depth 1 https://github.com/sympy/sympy.git
+git clone --depth 1 https://github.com/hgrecco/pint.git
+git clone --depth 1 https://github.com/cortex-js/compute-engine.git cortex-compute-engine
+```
+
+See [docs/SETUP.md](../docs/SETUP.md#development-setup) for details on why this is valuable.
+
+---
+
 ## latex2sympy
 
-**Fork:** [MarkMichiels/latex2sympy](https://github.com/MarkMichiels/latex2sympy)  
+**Fork:** [MarkMichiels/latex2sympy](https://github.com/MarkMichiels/latex2sympy)
 **Original:** [OrangeX4/latex2sympy](https://github.com/OrangeX4/latex2sympy)
 
 ### Bug Fix: DIFFERENTIAL rule capturing `\cdot`

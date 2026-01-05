@@ -175,6 +175,60 @@ rm -rf /path/to/livemathtex
 
 ---
 
+---
+
+## Development Setup
+
+### Reference Repositories (Important!)
+
+For development and debugging, clone these reference repositories locally.
+This has proven **extremely valuable** for understanding and fixing issues.
+
+```bash
+cd ~/Repositories  # or your preferred location
+
+# Already required (our fork with bug fix)
+git clone https://github.com/MarkMichiels/latex2sympy.git latex2sympy-fork
+
+# Recommended for investigation
+git clone --depth 1 https://github.com/sympy/sympy.git sympy
+git clone --depth 1 https://github.com/hgrecco/pint.git pint
+git clone --depth 1 https://github.com/cortex-js/compute-engine.git cortex-compute-engine
+```
+
+**Why local clones matter:**
+- 🔍 Investigate bugs at the source (not just workarounds)
+- 📚 Learn from well-designed architecture (Cortex-JS patterns)
+- 🐛 Debug issues by reading actual implementations
+- 💡 Find solutions that aren't in documentation
+
+**Useful locations in these repos:**
+
+| Repository | Key Paths | Useful For |
+|------------|-----------|------------|
+| **sympy** | `sympy/physics/units/` | Unit system, conversions |
+| **sympy** | `sympy/parsing/latex/` | Alternative LaTeX parsing |
+| **pint** | `pint/default_en.txt` | Unit definitions |
+| **cortex-compute-engine** | `src/compute-engine/latex-syntax/` | Symbol normalization |
+| **latex2sympy-fork** | `PS.g4` | ANTLR grammar (our fix) |
+
+**Example investigation workflow:**
+```bash
+# Problem: Units not converting correctly
+# Step 1: Check pint's unit definitions
+grep -r "millimeter" pint/pint/
+
+# Problem: Symbol not parsing
+# Step 2: Check latex2sympy grammar
+less latex2sympy-fork/PS.g4
+
+# Problem: Understanding MathJSON
+# Step 3: Look at Cortex-JS patterns
+cat cortex-compute-engine/src/compute-engine/latex-syntax/parse-symbol.ts
+```
+
+---
+
 ## Next Steps
 
 - **[USAGE.md](USAGE.md)** - Learn the syntax
