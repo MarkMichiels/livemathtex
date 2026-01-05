@@ -406,67 +406,145 @@ class Evaluator:
     ]
 
     def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None) -> Any:
+        r"""
+        Parse and compute a LaTeX expression.
+
+        Pre-processing follows Cortex-JS philosophy: normalize LaTeX BEFORE parsing
+        to work around latex2sympy limitations.
+
+        Key transformations:
+        1. Add braces to subscripts: x_y -> x_{y} (consistency)
+        2. Wrap multi-letter names in \text{} (prevents T*D*H splitting)
+
+        NOTE: With our local latex2sympy fork (libs/latex2sympy), the \cdot bug is fixed
+        and no longer requires conversion to *.
+        """
         import re
 
         modified_latex = expression_latex
 
-        # Pre-process: Convert Greek letter + following symbol patterns to single symbols
-        # This handles cases like "\Delta T_h" which latex2sympy would split into Delta * T_h
-        # We convert to a form like "\text{Delta_T_h}" that's treated as one symbol
+        # =================================================================
+        # STEP 1: Structural normalization
+        # =================================================================
+
+        # 1a. Add explicit braces around subscripts without braces for consistency
+        # Pattern: letter_letter (not already letter_{...})
+        # NOTE: With our local latex2sympy fork, this is optional but improves consistency
+        modified_latex = re.sub(
+            r'([a-zA-Z])_([a-zA-Z0-9])(?![a-zA-Z0-9])',
+            r'\1_{\2}',
+            modified_latex
+        )
+
+        # NOTE: \cdot -> * replacement REMOVED - fixed in local latex2sympy fork
+        # See: libs/latex2sympy/PS.g4 - DIFFERENTIAL rule no longer captures \cdot
+
+        # =================================================================
+        # STEP 2: Greek letter normalization
+        # =================================================================
+
+        # Convert Greek letter + following symbol patterns to single symbols
+        # "\Delta T_h" -> "\text{Delta_T_h}"
         greek_space_pattern = r'\\(Delta|Theta|Omega|Sigma|Pi|alpha|beta|gamma|delta|theta|omega|sigma|pi|phi|psi|lambda|mu|nu|epsilon|rho|tau)\s+([a-zA-Z](?:_\{?[a-zA-Z0-9,]+\}?)?)'
 
         def greek_replacement(m):
             greek = m.group(1)
             following = m.group(2)
-            # Create a combined symbol name that we'll track
             combined = f"{greek}_{following}"
             return f'\\text{{{combined}}}'
 
         modified_latex = re.sub(greek_space_pattern, greek_replacement, modified_latex)
 
-        # Pre-process: Protect SI units from being split
+        # =================================================================
+        # STEP 3: Protect multi-letter sequences from being split
+        # =================================================================
+
+        # 3a. Protect SI units (longest first to avoid partial matches)
         for unit in sorted(self.SI_UNITS, key=len, reverse=True):
             if len(unit) > 1 and f'\\text{{{unit}}}' not in modified_latex:
                 modified_latex = re.sub(rf'\b{re.escape(unit)}\b', rf'\\text{{{unit}}}', modified_latex)
 
-        # Pre-process: Replace known multi-letter variable names with \text{} wrapper
-        # to prevent latex2sympy from splitting them into individual letters
-        # Following Cortex-JS convention for multi-letter symbol protection
+        # 3b. Protect known variable names from symbol table
         known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
 
         for name in known_names:
-            # Skip if name is already wrapped (from Greek letter conversion)
             if '\\text{' + name + '}' in modified_latex:
                 continue
 
             if '_' in name:
-                # For names with subscript (like eta_p, L_pipe), wrap base in \text{}
-                # eta_p -> \text{eta}_p  (produces single symbol \text{eta}_p)
                 base, subscript = name.split('_', 1)
                 if len(base) > 1:
-                    # Skip if already wrapped
-                    protected = '\\text{' + base + '}_' + subscript
+                    protected = '\\text{' + base + '}_{' + subscript + '}'
                     if protected in modified_latex:
                         continue
-                    # Multi-letter base: wrap in \text{} with subscript outside
-                    # Use negative lookbehind to avoid double-wrapping
                     pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
                     modified_latex = re.sub(
                         pattern,
-                        lambda m: '\\text{' + base + '}_' + subscript,
+                        lambda m, b=base, s=subscript: f'\\text{{{b}}}_{{{s}}}',
                         modified_latex
                     )
             elif len(name) > 1:
-                # No subscript, multi-letter: wrap entire name
                 protected = '\\text{' + name + '}'
                 if protected not in modified_latex:
-                    # Use negative lookbehind to avoid double-wrapping
                     pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
                     modified_latex = re.sub(
                         pattern,
                         lambda m, n=name: '\\text{' + n + '}',
                         modified_latex
                     )
+
+        # 3c. Protect ANY remaining multi-letter sequences (2+ letters)
+        # This catches new variable names not yet in symbol table
+        #
+        # IMPORTANT: First protect LaTeX commands from partial matching
+        # Problem: \frac gets matched as \f + rac (rac is 2+ letters after f)
+        # Solution: Temporarily replace LaTeX commands with placeholders
+
+        # LaTeX commands to protect from multi-letter wrapping
+        latex_commands = [
+            # Math functions
+            'frac', 'sqrt', 'sin', 'cos', 'tan', 'log', 'ln', 'exp',
+            'text', 'mathrm', 'mathit', 'cdot', 'times', 'div',
+            'left', 'right', 'begin', 'end', 'over', 'int', 'sum',
+            'prod', 'lim', 'infty', 'partial', 'nabla', 'vec', 'hat',
+            'bar', 'dot', 'ddot', 'tilde', 'prime', 'quad', 'qquad',
+            # Greek letters (lowercase)
+            'alpha', 'beta', 'gamma', 'delta', 'epsilon', 'varepsilon',
+            'zeta', 'eta', 'theta', 'vartheta', 'iota', 'kappa',
+            'lambda', 'mu', 'nu', 'xi', 'pi', 'varpi',
+            'rho', 'varrho', 'sigma', 'varsigma', 'tau', 'upsilon',
+            'phi', 'varphi', 'chi', 'psi', 'omega',
+            # Greek letters (uppercase)
+            'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta',
+            'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu',
+            'Nu', 'Xi', 'Pi', 'Rho', 'Sigma', 'Tau',
+            'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega',
+        ]
+
+        # Replace \command with placeholder
+        # Requirements: No underscores (become subscripts), no multi-letter sequences (get wrapped)
+        # Solution: Use numbers only: ⌘0⌘, ⌘1⌘, etc.
+        placeholders = {}
+        for i, cmd in enumerate(latex_commands):
+            placeholder = f'⌘{i}⌘'  # Unicode char won't match regex
+            placeholders[placeholder] = f'\\{cmd}'
+            modified_latex = modified_latex.replace(f'\\{cmd}', placeholder)
+
+        # Now wrap remaining multi-letter sequences
+        # NOTE: \b doesn't work with underscore, use lookahead instead
+        def wrap_multiletter(match):
+            word = match.group(1)
+            return f'\\text{{{word}}}'
+
+        modified_latex = re.sub(
+            r'([a-zA-Z]{2,})(?=_|\s|$|\*|\{|\+|\-|\/|\)|\^|\,)',
+            lambda m: wrap_multiletter(m),
+            modified_latex
+        )
+
+        # Restore LaTeX commands
+        for placeholder, cmd in placeholders.items():
+            modified_latex = modified_latex.replace(placeholder, cmd)
 
         try:
             expr = latex2sympy(modified_latex)
@@ -590,15 +668,25 @@ class Evaluator:
         """
         Parses LaTeX and re-emits it standardly formatted,
         WITHOUT evaluating variables (symbols remain symbols).
-        Protects multi-letter variable names and SI units from being split.
-        Uses IR mappings for proper display formatting when available.
+
+        Uses same pre-processing as _compute() for consistency.
         """
         import re
 
         try:
             modified = latex_str
 
-            # Pre-process: Convert Greek letter + following symbol patterns to single symbols
+            # Same pre-processing as _compute():
+            # 1. Add braces to subscripts
+            modified = re.sub(
+                r'([a-zA-Z])_([a-zA-Z0-9])(?![a-zA-Z0-9])',
+                r'\1_{\2}',
+                modified
+            )
+
+            # NOTE: \cdot -> * replacement REMOVED - fixed in local latex2sympy fork
+
+            # 2. Greek letter + following symbol
             greek_space_pattern = r'\\(Delta|Theta|Omega|Sigma|Pi|alpha|beta|gamma|delta|theta|omega|sigma|pi|phi|psi|lambda|mu|nu|epsilon|rho|tau)\s+([a-zA-Z](?:_\{?[a-zA-Z0-9,]+\}?)?)'
 
             def greek_replacement(m):
@@ -609,32 +697,28 @@ class Evaluator:
 
             modified = re.sub(greek_space_pattern, greek_replacement, modified)
 
-            # Pre-process: Protect SI units from being split
+            # 3. Protect SI units
             for unit in sorted(self.SI_UNITS, key=len, reverse=True):
                 if len(unit) > 1 and f'\\text{{{unit}}}' not in modified:
                     modified = re.sub(rf'\b{re.escape(unit)}\b', rf'\\text{{{unit}}}', modified)
 
-            # Pre-process: Wrap known multi-letter variable names in \text{}
-            # Following Cortex-JS convention for multi-letter symbol protection
+            # 4. Protect known variable names
             known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
 
             for name in known_names:
-                # Skip if name is already wrapped
                 if '\\text{' + name + '}' in modified:
                     continue
 
                 if '_' in name:
-                    # For names with subscript (like eta_p), wrap base in \text{}
                     base, subscript = name.split('_', 1)
                     if len(base) > 1:
-                        protected = '\\text{' + base + '}_' + subscript
+                        protected = '\\text{' + base + '}_{' + subscript + '}'
                         if protected in modified:
                             continue
-                        # Use negative lookbehind to avoid double-wrapping
                         pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
                         modified = re.sub(
                             pattern,
-                            lambda m: '\\text{' + base + '}_' + subscript,
+                            lambda m, b=base, s=subscript: f'\\text{{{b}}}_{{{s}}}',
                             modified
                         )
                 elif len(name) > 1:
@@ -646,6 +730,47 @@ class Evaluator:
                             lambda m, n=name: '\\text{' + n + '}',
                             modified
                         )
+
+            # 5. Wrap remaining multi-letter sequences
+            # First protect LaTeX commands from partial matching
+            latex_commands = [
+                # Math functions
+                'frac', 'sqrt', 'sin', 'cos', 'tan', 'log', 'ln', 'exp',
+                'text', 'mathrm', 'mathit', 'cdot', 'times', 'div',
+                'left', 'right', 'begin', 'end', 'over', 'int', 'sum',
+                'prod', 'lim', 'infty', 'partial', 'nabla', 'vec', 'hat',
+                'bar', 'dot', 'ddot', 'tilde', 'prime', 'quad', 'qquad',
+                # Greek letters (lowercase)
+                'alpha', 'beta', 'gamma', 'delta', 'epsilon', 'varepsilon',
+                'zeta', 'eta', 'theta', 'vartheta', 'iota', 'kappa',
+                'lambda', 'mu', 'nu', 'xi', 'pi', 'varpi',
+                'rho', 'varrho', 'sigma', 'varsigma', 'tau', 'upsilon',
+                'phi', 'varphi', 'chi', 'psi', 'omega',
+                # Greek letters (uppercase)
+                'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta',
+                'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu',
+                'Nu', 'Xi', 'Pi', 'Rho', 'Sigma', 'Tau',
+                'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega',
+            ]
+
+            placeholders = {}
+            for i, cmd in enumerate(latex_commands):
+                placeholder = f'⌘{i}⌘'  # Unicode char won't match regex
+                placeholders[placeholder] = f'\\{cmd}'
+                modified = modified.replace(f'\\{cmd}', placeholder)
+
+            def wrap_multiletter(match):
+                word = match.group(1)
+                return f'\\text{{{word}}}'
+
+            modified = re.sub(
+                r'([a-zA-Z]{2,})(?=_|\s|$|\*|\{|\+|\-|\/|\)|\^|\,)',
+                lambda m: wrap_multiletter(m),
+                modified
+            )
+
+            for placeholder, cmd in placeholders.items():
+                modified = modified.replace(placeholder, cmd)
 
             expr = latex2sympy(modified)
             return self._format_result_with_display(expr)

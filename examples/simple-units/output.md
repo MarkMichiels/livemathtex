@@ -45,4 +45,4 @@ The ratio should be 2.5 (25 kg / 10 kg).
 
 ---
 
-> *livemathtex: 2026-01-05 01:03:25 | 12 definitions, 6 evaluations | no errors | 0.19s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-05 01:37:29 | 12 definitions, 6 evaluations | no errors | 0.28s* <!-- livemathtex-meta -->

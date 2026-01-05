@@ -30,7 +30,9 @@ requires-python = ">=3.10"
 dependencies = [
     # Core math engine
     "sympy>=1.12",
-    "latex2sympy2>=1.9.1",
+    # Using forked version with DIFFERENTIAL bug fix
+    # See: https://github.com/MarkMichiels/latex2sympy
+    "latex2sympy2 @ git+https://github.com/MarkMichiels/latex2sympy.git",
 
     # Units support
     "pint>=0.23",

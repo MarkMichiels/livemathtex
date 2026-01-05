@@ -81,9 +81,7 @@ $H_{static} := h_d - h_s == 17 \text{m}$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot grav} ==
-\\ \color{red}{\text{
-    Error: Undefined variable(s): f\_\{d \textbackslash\{\}cdot\}}}$$
+$$H_f := 0.5 \frac{L_{pipe} \cdot \text{vel}^{2} \cdot f_d}{D_{pipe} \cdot \text{grav}} == 3.146197506e-14 \frac{\text{m}^{6} \cdot \text{s}^{2}}{\pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{5}}$$
 
 ### Minor Losses
 
@@ -96,16 +94,14 @@ $$H_m := 0.5 \frac{K_{fit} \cdot \text{vel}^{2}}{\text{grav}} == 7.865493764e-12
 
 ## Step 3: Total Dynamic Head (TDH)
 
-$$TDH := H_{static} + H_f + H_m ==
-\\ \color{red}{\text{
-    Error: Undefined variable(s): H\_f}}$$
+$$TDH := H_f + H_m + H_{static} == 17 \cdot \text{m} + \frac{\text{m}^{6} \cdot \text{s}^{2}}{31784400000000 \cdot \pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{5}} + \frac{\text{m}^{5} \cdot \text{s}^{2}}{127137600000 \cdot \pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{4}}$$
 
 ---
 
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := D \cdot H \cdot Q_s \cdot T \cdot \text{grav} \cdot \rho == 136.25 \frac{\text{dioptre} \cdot \text{H} \cdot \text{kg} \cdot \text{m} \cdot \text{T}}{\text{hour} \cdot \text{s}^{2}}$$
+$$P_{hyd} := Q_s \cdot \text{TDH} \cdot \text{grav} \cdot \rho == 136.25 \frac{\left(17 \cdot \text{m} + \frac{\text{m}^{6} \cdot \text{s}^{2}}{31784400000000 \cdot \pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{5}} + \frac{\text{m}^{5} \cdot \text{s}^{2}}{127137600000 \cdot \pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{4}}\right) \cdot \text{kg} \cdot \text{m}}{\text{hour} \cdot \text{s}^{2}}$$
 
 ---
 
@@ -118,7 +114,7 @@ Motor efficiency (assumed, dimensionless):
 $eta_m := 0.9$
 
 Required motor power:
-$$P_{motor} := \frac{P_{hyd}}{\eta_m \cdot \eta_p} == 201.8518519 \frac{\text{dioptre} \cdot \text{H} \cdot \text{kg} \cdot \text{m} \cdot \text{T}}{\text{hour} \cdot \text{s}^{2}}$$
+$$P_{motor} := \frac{P_{hyd}}{\eta_m \cdot \eta_p} == 201.8518519 \frac{\left(17 \cdot \text{m} + \frac{\text{m}^{6} \cdot \text{s}^{2}}{31784400000000 \cdot \pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{5}} + \frac{\text{m}^{5} \cdot \text{s}^{2}}{127137600000 \cdot \pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{4}}\right) \cdot \text{kg} \cdot \text{m}}{\text{hour} \cdot \text{s}^{2}}$$
 
 ---
 
@@ -144,4 +140,4 @@ $$P_{motor} := \frac{P_{hyd}}{\eta_m \cdot \eta_p} == 201.8518519 \frac{\text{di
 
 ---
 
-> *livemathtex: 2026-01-05 01:17:04 | 20 definitions, 9 evaluations | 2 errors | 0.53s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-05 01:45:24 | 20 definitions, 9 evaluations | no errors | 0.65s* <!-- livemathtex-meta -->
