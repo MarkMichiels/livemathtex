@@ -273,10 +273,11 @@ class Evaluator:
         # Check for undefined variables (symbols that weren't substituted)
         self._check_undefined_symbols(value, lhs)
 
-        # Use unit_comment from parser
+        # Use unit_comment from parser for display conversion
         value, suffix = self._apply_conversion(value, calc.unit_comment)
+        skip_si_conversion = bool(calc.unit_comment)
 
-        result_latex = self._format_result(value)
+        result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion)
 
         # Format LHS too? "x * y" -> "x \cdot y"
         # The user said "input mee formatten". LHS of evaluation is input.
@@ -300,13 +301,18 @@ class Evaluator:
         normalized_lhs = self._normalize_symbol_name(lhs)
         self.symbols.set(normalized_lhs, value, raw_latex=rhs)
 
-        # Use unit_comment
+        # Use unit_comment for display conversion
+        # If unit_comment is specified, don't auto-convert to SI in _format_result
         value, suffix = self._apply_conversion(value, calc.unit_comment)
+        skip_si_conversion = bool(calc.unit_comment)
 
-        result_latex = self._format_result(value)
-        rhs_normalized = self._normalize_latex(rhs)
+        result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion)
 
-        return f"{lhs} := {rhs_normalized} == {result_latex}"
+        # IMPORTANT: Keep original RHS LaTeX for definitions
+        # Don't re-format it - user's notation should be preserved
+        # Only the result (after ==) gets formatted
+
+        return f"{lhs} := {rhs} == {result_latex}"
 
     def _check_undefined_symbols(self, value: Any, original_latex: str) -> None:
         """Check if the computed value contains undefined symbols."""
@@ -370,6 +376,60 @@ class Evaluator:
 
         return unit_str
 
+    def _parse_unit_with_prefix(self, unit_str: str):
+        """
+        Parse a unit string that may include SI prefixes (kW, MHz, mm, etc.)
+
+        Handles common SI prefixes: k(ilo), M(ega), G(iga), m(illi), µ/u(micro), n(ano)
+        """
+        import sympy.physics.units as u
+        from sympy.physics.units.prefixes import kilo, mega, giga, milli, micro, nano, centi
+
+        # SI prefix mapping
+        prefix_map = {
+            'k': kilo,    # kilo (10³)
+            'M': mega,    # mega (10⁶) - capital M
+            'G': giga,    # giga (10⁹)
+            'c': centi,   # centi (10⁻²)
+            # Note: 'm' is ambiguous (meter vs milli) - handle specially
+            'µ': micro,   # micro (10⁻⁶)
+            'u': micro,   # micro alternative
+            'n': nano,    # nano (10⁻⁹)
+        }
+
+        # Common base units with their SymPy objects
+        base_units = {
+            'W': u.W, 'watt': u.W,
+            'Hz': u.Hz, 'hertz': u.Hz,
+            'N': u.N, 'newton': u.N,
+            'J': u.J, 'joule': u.J,
+            'Pa': u.Pa, 'pascal': u.Pa,
+            'V': u.V, 'volt': u.V,
+            'A': u.A, 'ampere': u.A,
+            'F': u.F, 'farad': u.F,
+            'Ω': u.ohm, 'ohm': u.ohm,
+            'g': u.g, 'gram': u.g,
+            # Note: 'm' (meter) handled separately
+        }
+
+        # Check for prefixed units (e.g., kW, MHz, mm)
+        for prefix_char, prefix_val in prefix_map.items():
+            if unit_str.startswith(prefix_char) and len(unit_str) > 1:
+                base_part = unit_str[1:]
+                if base_part in base_units:
+                    return prefix_val * base_units[base_part]
+
+        # Special case: mm (millimeter) - 'm' prefix with 'm' base
+        if unit_str == 'mm':
+            return milli * u.m
+
+        # No prefix found, try direct lookup
+        if unit_str in base_units:
+            return base_units[unit_str]
+
+        # Fallback to _compute for complex expressions
+        return None
+
     def _apply_conversion(self, value: Any, target_unit_latex: str):
         """
         Attempts to convert value to the target unit defined by latex string.
@@ -382,15 +442,20 @@ class Evaluator:
             # Normalize Unicode characters (e.g., m³/s → m^3/s)
             normalized_unit = self._normalize_unit_string(target_unit_latex)
 
-            # We need to parse the unit string 'N' or 'm/s' into a SymPy unit expression
-            target_unit = self._compute(normalized_unit)
+            # First try to parse as a prefixed unit (kW, MHz, etc.)
+            target_unit = self._parse_unit_with_prefix(normalized_unit)
+
+            # If that didn't work, try _compute for complex expressions
+            if target_unit is None:
+                target_unit = self._compute(normalized_unit)
 
             from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
+            import sympy
 
-            # Strategy for partial conversion:
-            # 1. Calculate ratio: value / target
-            # 2. Convert ratio to base units (so that it simplifies)
-            # 3. Result = ratio_base * target
+            # Strategy for unit conversion:
+            # 1. Calculate ratio: value / target_unit (gives dimensionless number)
+            # 2. Convert ratio to base SI to get a pure number
+            # 3. Return the number with the original unit string for display
 
             ratio = value / target_unit
             # List of SI base units to simplify the remainder into
@@ -398,7 +463,16 @@ class Evaluator:
 
             ratio_base = convert_to(ratio, base_units)
 
-            new_value = ratio_base * target_unit
+            # Try to get a pure numeric value
+            if hasattr(ratio_base, 'evalf'):
+                numeric_value = float(ratio_base.evalf())
+            else:
+                numeric_value = float(ratio_base)
+
+            # Create a symbol for the target unit display
+            # This allows us to show "2.859 kW" instead of "2858.525 W"
+            unit_symbol = sympy.Symbol(f'\\text{{{target_unit_latex}}}')
+            new_value = numeric_value * unit_symbol
 
             return new_value, "" # No suffix needed, renderer handles comment
         except Exception as e:
@@ -842,8 +916,40 @@ class Evaluator:
         # Replace _{X} with _X where X is a single alphanumeric character
         return re.sub(r'_\{([a-zA-Z0-9])\}', r'_\1', latex_str)
 
-    def _format_result(self, value: Any) -> str:
-        """Format the result for output (simplify, evalf numericals)."""
+    def _format_result(self, value: Any, skip_si_conversion: bool = False) -> str:
+        """Format the result for output (simplify, evalf numericals).
+
+        Args:
+            value: The SymPy expression to format
+            skip_si_conversion: If True, don't auto-convert to SI base units
+                               (used when a specific unit was requested via comment)
+        """
+        from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd, N, J, W, Pa
+        from sympy import pi, E, I
+
+        # First: Evaluate symbolic constants (pi, e) to numeric values
+        # This prevents things like "5.556 m/(π·s)" - should be "1.768 m/s"
+        if hasattr(value, 'subs'):
+            try:
+                # Replace pi and e with their numeric values
+                value = value.subs(pi, float(pi.evalf()))
+                value = value.subs(E, float(E.evalf()))
+            except:
+                pass
+
+        # Convert to SI base units (unless a specific unit was requested)
+        # This simplifies things like m³/hour/mm² → m/s
+        if not skip_si_conversion:
+            try:
+                # SI base units for conversion
+                si_base = [kg, m, s, A, K, mol, cd]
+
+                converted = convert_to(value, si_base)
+                # If conversion succeeded and simplified, use it
+                if converted != value:
+                    value = converted
+            except:
+                pass  # Keep original if conversion fails
 
         # If value has no free symbols but contains functions (like log), evaluate numerically
         if hasattr(value, 'free_symbols') and len(value.free_symbols) == 0:
@@ -875,9 +981,16 @@ class Evaluator:
             # Use 4 significant figures for scientific/engineering relevance
             # Full precision is preserved in IR JSON for further calculations
             def fmt_num(n):
+                # First try to evaluate to a numeric value (handles pi, e, sqrt(2), etc.)
+                if hasattr(n, 'evalf'):
+                    try:
+                        numeric = n.evalf()
+                        if hasattr(numeric, 'is_number') and numeric.is_number:
+                            return f"{float(numeric):.4g}"
+                    except:
+                        pass
+                # Fallback: check if already a number
                 if hasattr(n, 'is_number') and n.is_number:
-                     # Convert to float with 4 significant figures
-                     # Avoids \frac{}{} and excessive decimals like 0.0002777777778
                      return f"{float(n):.4g}"
                 return self._simplify_subscripts(sympy.latex(n))
 

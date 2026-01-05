@@ -29,9 +29,9 @@ Volume flow rate:
 $Q := 50 \frac{m^{3}}{h}$
 
 Display in different units (no manual conversion needed!):
-$Q == 50 \frac{\text{m}^{3}}{\text{hour}}$ <!-- [m³/h] -->
-$Q == 0.01389 \frac{\text{m}^{3}}{\text{s}}$ <!-- [m³/s] -->
-$Q == 13.89 \frac{\text{l}}{\text{s}}$ <!-- [L/s] -->
+$Q == 50 \text{m³/h}$ <!-- [m³/h] -->
+$Q == 0.01389 \text{m³/s}$ <!-- [m³/s] -->
+$Q == 13.89 \text{L/s}$ <!-- [L/s] -->
 
 ### Geometry
 
@@ -65,10 +65,10 @@ $f_d := 0.02$
 ## Step 1: Flow Velocity
 
 Cross-sectional area:
-$A_{pipe} := 0.25 \pi \cdot D_{pipe}^{2} == 2500 \pi \cdot \text{mm}^{2}$
+$A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} == 0.007854 \text{m}^{2}$
 
 Flow velocity:
-$vel := \frac{Q}{A_{pipe}} == 0.02 \frac{\text{m}^{3}}{\pi \cdot \text{hour} \cdot \text{mm}^{2}}$
+$vel := \frac{Q}{A_{pipe}} == 1.768 \frac{\text{m}}{\text{s}}$
 
 ---
 
@@ -83,27 +83,27 @@ $H_{static} := h_d - h_s == 17 \text{m}$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := 0.5 \frac{L_{pipe} \cdot \text{vel}^{2} \cdot f_d}{D_{pipe} \cdot \text{grav}} == 4.077e-07 \frac{\text{m}^{6} \cdot \text{s}^{2}}{\pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{5}}$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot grav} == 3.188 \text{m}$$
 
 ### Minor Losses
 
 K-factor for fittings (dimensionless):
 $K_{fit} := 5$
 
-$$H_m := 0.5 \frac{K_{fit} \cdot \text{vel}^{2}}{\text{grav}} == 0.0001019 \frac{\text{m}^{5} \cdot \text{s}^{2}}{\pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{4}}$$
+$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot grav} == 0.7969 \text{m}$$
 
 ---
 
 ## Step 3: Total Dynamic Head (TDH)
 
-$$TDH := H_f + H_m + H_{static} == 17 \cdot \text{m} + \frac{\text{m}^{6} \cdot \text{s}^{2}}{2452500 \cdot \pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{5}} + \frac{\text{m}^{5} \cdot \text{s}^{2}}{9810 \cdot \pi^{2} \cdot \text{hour}^{2} \cdot \text{mm}^{4}}$$
+$$TDH := H_{static} + H_f + H_m == 20.98 \text{m}$$
 
 ---
 
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := Q \cdot \text{TDH} \cdot \text{grav} \cdot \rho == 136.2 \frac{\left(\frac{3125000 \cdot \text{m}}{79461 \cdot \pi^{2}} + 17 \cdot \text{m}\right) \cdot \text{kg} \cdot \text{m}^{2}}{\text{s}^{3}}$$ <!-- [kW] -->
+$$P_{hyd} := rho \cdot grav \cdot Q \cdot TDH == 2.859 \text{kW}$$ <!-- [kW] -->
 
 ---
 
@@ -116,7 +116,7 @@ Motor efficiency (assumed, dimensionless):
 $eta_m := 0.9$
 
 Required motor power:
-$$P_{motor} := \frac{P_{hyd}}{\eta_m \cdot \eta_p} == 201.9 \frac{\left(\frac{3125000 \cdot \text{m}}{79461 \cdot \pi^{2}} + 17 \cdot \text{m}\right) \cdot \text{kg} \cdot \text{m}^{2}}{\text{s}^{3}}$$ <!-- [kW] -->
+$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236 \text{kW}$$ <!-- [kW] -->
 
 ---
 
@@ -142,4 +142,4 @@ $$P_{motor} := \frac{P_{hyd}}{\eta_m \cdot \eta_p} == 201.9 \frac{\left(\frac{31
 
 ---
 
-> *livemathtex: 2026-01-05 02:02:36 | 19 definitions, 11 evaluations | no errors | 0.64s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-05 02:14:53 | 19 definitions, 11 evaluations | no errors | 0.54s* <!-- livemathtex-meta -->
