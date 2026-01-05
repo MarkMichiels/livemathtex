@@ -1,11 +1,40 @@
 """
 Symbol Normalization - Convert between LaTeX and internal representations.
 
-Inspired by Cortex-JS parse-symbol.ts patterns, this module handles:
-- Greek letters: \\Delta -> Delta
-- Subscripts: T_{h,in} -> T_h_in
-- Spaces after Greek: \\Delta T -> Delta_T
-- Preserving original for display
+This module follows the Cortex-JS / MathJSON standard for symbol representation.
+
+IMPORTANT: When encountering symbol parsing issues, consult:
+- Local reference: src/livemathtex/ir/CORTEX_REFERENCE.md
+- Cortex-JS repo: /home/mark/Repositories/cortex-compute-engine/
+- Key files:
+  - parse-symbol.ts: LaTeX symbol parsing logic
+  - serializer.ts: Symbol serialization (lines 441-557 are most relevant)
+  - definitions-symbols.ts: Greek letter mappings
+
+GitHub: https://github.com/cortex-js/compute-engine
+
+Key conventions from Cortex-JS (definitions-symbols.ts, parse-symbol.ts):
+
+1. Greek Letters:
+   - LaTeX command -> internal name: \\alpha -> alpha, \\Delta -> Delta
+   - Consistent across uppercase and lowercase
+
+2. Subscripts/Superscripts:
+   - Subscript uses '_': x_1, T_{h,in} -> T_h_in
+   - Superscript uses '__': x^2 -> x__2
+   - Multiple subscripts: x_{a,b} -> x_a_b (commas become underscores)
+
+3. Modifiers (for future extension):
+   - \\dot{x} -> x_dot
+   - \\hat{x} -> x_hat
+   - \\vec{x} -> x_vec
+   - \\bar{x} -> x_bar
+
+4. Multi-letter symbols:
+   - Use \\text{} or \\mathrm{} for protection from splitting
+   - Internal name preserves structure: speed_of_sound
+
+This allows consistent internal representation while preserving LaTeX display forms.
 """
 
 import re

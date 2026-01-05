@@ -1,3 +1,27 @@
+"""
+LiveMathTeX Evaluator - Core calculation engine.
+
+Symbol Normalization follows the Cortex-JS / MathJSON standard:
+https://github.com/cortex-js/compute-engine
+
+IMPORTANT: When encountering symbol parsing or unit issues, consult:
+- Local reference: src/livemathtex/ir/CORTEX_REFERENCE.md
+- Cortex-JS clone: /home/mark/Repositories/cortex-compute-engine/
+- Key files to study:
+  - parse-symbol.ts: How they parse LaTeX symbols
+  - serializer.ts (lines 441-557): How they serialize back to LaTeX
+  - definitions-symbols.ts: Greek letter mappings
+
+Key conventions (from Cortex-JS parse-symbol.ts):
+- Greek letters: \\alpha -> alpha, \\Delta -> Delta
+- Subscripts use '_': x_1, T_{h,in} -> T_h_in
+- Superscripts use '__': x^2 -> x__2
+- Modifiers append: x_dot, x_hat, x_vec, x_bar
+
+This allows consistent internal representation while preserving
+LaTeX display forms for rendering.
+"""
+
 from typing import Dict, Any, Optional, List
 import sympy
 import sympy.physics.units as u
@@ -16,7 +40,10 @@ from .symbols import SymbolTable
 from ..parser.models import Calculation
 from ..utils.errors import EvaluationError, UndefinedVariableError
 from ..ir.schema import LivemathIR, SymbolEntry, BlockResult
-from ..ir.normalize import normalize_symbol, denormalize_symbol, GREEK_LETTERS_REVERSE
+from ..ir.normalize import (
+    normalize_symbol, denormalize_symbol, GREEK_LETTERS_REVERSE,
+    GREEK_LETTERS, latex_to_internal
+)
 
 class Evaluator:
     """
@@ -139,37 +166,28 @@ class Evaluator:
 
     def _normalize_symbol_name(self, name: str) -> str:
         """
-        Normalize a LaTeX symbol name to match what our _compute() produces.
+        Normalize a LaTeX symbol name to internal representation.
 
-        Converts:
-          - \\Delta_h -> Delta_h
-          - \\Delta T_h -> Delta_T_h (Greek + space + symbol becomes combined)
-          - \\theta_1 -> theta_1
-          - \\dot{m}_h -> dot{m}_h (keeps structure but removes leading backslash)
-          - T_{h,in} -> T_{h,in} (unchanged, already compatible)
+        Follows Cortex-JS / MathJSON standard (parse-symbol.ts):
+        - Greek letters: \\Delta -> Delta, \\alpha -> alpha
+        - Subscripts: T_{h,in} -> T_h_in (commas become underscores)
+        - Greek + space: \\Delta T_h -> Delta_T_h
+
+        Uses the normalize module for consistent handling.
+
+        Examples:
+            "\\Delta_h"   -> "Delta_h"
+            "\\Delta T_h" -> "Delta_T_h"
+            "\\theta_1"   -> "theta_1"
+            "T_{h,in}"    -> "T_h_in"
+            "eta_p"       -> "eta_p"
         """
         if not name:
             return name
 
-        import re
-
-        # Handle Greek letter + space + symbol pattern: \Delta T_h -> Delta_T_h
-        greek_space_pattern = r'^\\(Delta|Theta|Omega|Sigma|Pi|alpha|beta|gamma|delta|theta|omega|sigma|pi|phi|psi|lambda|mu|nu|epsilon|rho|tau)\s+([a-zA-Z](?:_\{?[a-zA-Z0-9,]+\}?)?)$'
-        match = re.match(greek_space_pattern, name)
-        if match:
-            greek = match.group(1)
-            following = match.group(2)
-            return f"{greek}_{following}"
-
-        # Common Greek letters that latex2sympy converts
-        # Pattern: \Greek -> Greek (strip backslash, keep name)
-        greek_pattern = r'^\\([a-zA-Z]+)'
-        match = re.match(greek_pattern, name)
-        if match:
-            # \Delta_h -> Delta_h
-            return name[1:]  # Just remove the leading backslash
-
-        return name
+        # Use the normalize module for consistent handling
+        mapping = normalize_symbol(name)
+        return mapping.internal_name
 
     def _escape_latex_text(self, text: str) -> str:
         """Escape special LaTeX characters in text."""
@@ -215,21 +233,10 @@ class Evaluator:
         target = self._normalize_symbol_name(calc.target)
         import re
 
-        # VALIDATION: Check if variable name conflicts with a unit
-        # Extract the base name (without subscripts or function args)
-        base_name = target
-        if target:
-            # Remove subscript notation: x_1 -> x, mass_2 -> mass
-            base_match = re.match(r'^([a-zA-Z_]+)', target)
-            if base_match:
-                base_name = base_match.group(1)
-
-            # Check for conflict with reserved unit names
-            if base_name in self.RESERVED_UNIT_NAMES:
-                raise EvaluationError(
-                    f"Variable name '{target}' conflicts with SI unit '{base_name}'. "
-                    f"Use a different name like '{base_name}_val' or 'my_{base_name}'."
-                )
+        # NOTE: Variable names CAN overlap with SI unit names (like g, m, s, K, L)
+        # The symbol table takes priority over unit lookup in _compute()
+        # So if you define $g := 9.81$, then use $F := m \cdot g$,
+        # the 'g' will be looked up from symbol table first, not as gram unit
 
         func_match = re.match(r'^\s*([a-zA-Z_]\w*)\s*\(\s*([a-zA-Z_]\w*)\s*\)\s*$', target) if target else None
 
@@ -424,17 +431,42 @@ class Evaluator:
 
         # Pre-process: Replace known multi-letter variable names with \text{} wrapper
         # to prevent latex2sympy from splitting them into individual letters
-        # BUT: Don't wrap names with subscripts (like m_1) - KaTeX can't handle \text{m_1}
+        # Following Cortex-JS convention for multi-letter symbol protection
         known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
 
         for name in known_names:
-            # Skip single letters (they're fine) and subscripted names (e.g., m_1, F_2)
-            # Subscripted names are valid LaTeX and don't need \text{} wrapping
-            if len(name) > 1 and '_' not in name:
-                # Wrap in \text{} which latex2sympy treats as single symbol
-                # But only if not already wrapped
-                if f'\\text{{{name}}}' not in modified_latex:
-                    modified_latex = re.sub(rf'\b{re.escape(name)}\b', rf'\\text{{{name}}}', modified_latex)
+            # Skip if name is already wrapped (from Greek letter conversion)
+            if '\\text{' + name + '}' in modified_latex:
+                continue
+
+            if '_' in name:
+                # For names with subscript (like eta_p, L_pipe), wrap base in \text{}
+                # eta_p -> \text{eta}_p  (produces single symbol \text{eta}_p)
+                base, subscript = name.split('_', 1)
+                if len(base) > 1:
+                    # Skip if already wrapped
+                    protected = '\\text{' + base + '}_' + subscript
+                    if protected in modified_latex:
+                        continue
+                    # Multi-letter base: wrap in \text{} with subscript outside
+                    # Use negative lookbehind to avoid double-wrapping
+                    pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
+                    modified_latex = re.sub(
+                        pattern,
+                        lambda m: '\\text{' + base + '}_' + subscript,
+                        modified_latex
+                    )
+            elif len(name) > 1:
+                # No subscript, multi-letter: wrap entire name
+                protected = '\\text{' + name + '}'
+                if protected not in modified_latex:
+                    # Use negative lookbehind to avoid double-wrapping
+                    pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
+                    modified_latex = re.sub(
+                        pattern,
+                        lambda m, n=name: '\\text{' + n + '}',
+                        modified_latex
+                    )
 
         try:
             expr = latex2sympy(modified_latex)
@@ -447,9 +479,30 @@ class Evaluator:
         for sym in expr.free_symbols:
             sym_name = str(sym)
 
-            # Clean name: remove \text{} or \mathrm{} wrapper ONLY
+            # Clean name: convert to internal representation
+            # Following Cortex-JS / MathJSON standard for symbol normalization
             import re
-            clean_name = re.sub(r'^\\(text|mathrm)\{([^}]+)\}$', r'\2', sym_name).strip()
+
+            # Handle \text{base}_subscript pattern -> base_subscript
+            # This is how we protect multi-letter names with subscripts
+            subscript_match = re.match(r'^\\text\{([^}]+)\}_(.+)$', sym_name)
+            if subscript_match:
+                base = subscript_match.group(1)
+                subscript = subscript_match.group(2)
+                clean_name = f"{base}_{subscript}"
+            else:
+                # Simple \text{name} or \mathrm{name} wrapper -> name
+                match = re.match(r'^\\(text|mathrm)\{([^}]+)\}$', sym_name)
+                if match:
+                    clean_name = match.group(2)
+                else:
+                    clean_name = sym_name
+
+            # Normalize any remaining LaTeX patterns (Greek letters, etc.)
+            # This ensures \Delta_T_h stored as Delta_T_h is found when
+            # latex2sympy produces a symbol like Delta_T_h or \text{Delta_T_h}
+            if clean_name and (clean_name.startswith('\\') or '_' in clean_name):
+                clean_name = latex_to_internal(clean_name)
 
             # Debug
             # print(f"DEBUG: sym='{sym_name}' clean='{clean_name}'")
@@ -562,12 +615,37 @@ class Evaluator:
                     modified = re.sub(rf'\b{re.escape(unit)}\b', rf'\\text{{{unit}}}', modified)
 
             # Pre-process: Wrap known multi-letter variable names in \text{}
-            # BUT: Don't wrap names with subscripts (like m_1) - KaTeX can't handle \text{m_1}
+            # Following Cortex-JS convention for multi-letter symbol protection
             known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
 
             for name in known_names:
-                if len(name) > 1 and '_' not in name and f'\\text{{{name}}}' not in modified:
-                    modified = re.sub(rf'\b{re.escape(name)}\b', rf'\\text{{{name}}}', modified)
+                # Skip if name is already wrapped
+                if '\\text{' + name + '}' in modified:
+                    continue
+
+                if '_' in name:
+                    # For names with subscript (like eta_p), wrap base in \text{}
+                    base, subscript = name.split('_', 1)
+                    if len(base) > 1:
+                        protected = '\\text{' + base + '}_' + subscript
+                        if protected in modified:
+                            continue
+                        # Use negative lookbehind to avoid double-wrapping
+                        pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
+                        modified = re.sub(
+                            pattern,
+                            lambda m: '\\text{' + base + '}_' + subscript,
+                            modified
+                        )
+                elif len(name) > 1:
+                    protected = '\\text{' + name + '}'
+                    if protected not in modified:
+                        pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
+                        modified = re.sub(
+                            pattern,
+                            lambda m, n=name: '\\text{' + n + '}',
+                            modified
+                        )
 
             expr = latex2sympy(modified)
             return self._format_result_with_display(expr)
