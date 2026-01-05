@@ -739,25 +739,45 @@ class Evaluator:
         return None
 
     def _extract_numeric_value(self, value: Any) -> float:
-        """Extract the numeric coefficient from a possibly dimensioned value."""
+        """Extract the numeric value from a possibly dimensioned or symbolic expression.
+        
+        For pure numeric expressions (including those with log, exp, etc.), 
+        we evaluate numerically first.
+        
+        For dimensioned values (with units), we extract the coefficient.
+        """
         import sympy
         from sympy.physics.units import Quantity
 
-        # If value contains pi, evaluate it
-        if hasattr(value, 'free_symbols') and sympy.pi in value.free_symbols:
-            free_non_pi = [s for s in value.free_symbols if s != sympy.pi]
-            if not free_non_pi:
-                value = value.evalf()
+        # First try: evaluate the full expression numerically
+        # This handles symbolic expressions like log(), exp(), etc. correctly
+        try:
+            result = value.evalf()
+            if result.is_number:
+                return float(result)
+        except:
+            pass
 
-        # Try to get numeric coefficient
+        # Second try: for dimensioned values, extract coefficient
+        # Only use as_coeff_Mul if the "rest" contains units (Quantities)
         try:
             if hasattr(value, 'as_coeff_Mul'):
-                coeff, _ = value.as_coeff_Mul()
-                if coeff.is_number:
-                    return float(coeff)
-            return float(value.evalf())
+                coeff, rest = value.as_coeff_Mul()
+                # Check if rest contains unit Quantities
+                if hasattr(rest, 'atoms'):
+                    quantities = rest.atoms(Quantity)
+                    if quantities:
+                        # This is a dimensioned value, extract coefficient
+                        if coeff.is_number:
+                            return float(coeff.evalf())
         except:
+            pass
+
+        # Fallback: try direct float conversion
+        try:
             return float(value)
+        except:
+            return float(value.evalf())
 
     def _format_numeric(self, value: float, precision: Optional[int] = None) -> str:
         """Format a numeric value with the specified precision."""

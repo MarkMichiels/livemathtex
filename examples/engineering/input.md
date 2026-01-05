@@ -113,14 +113,14 @@ $$NTU := \frac{U \cdot A}{Cmin} ==$$
 
 ## Results Summary
 
-| Parameter | Value | Unit |
-|-----------|-------|------|
-| Heat transfer area (A) | see calculation | m² |
-| Hot outlet temp | $T_{h,out}$ | °C |
-| Cold outlet temp | $T_{c,out}$ | °C |
-| LMTD | see calculation | K |
-| Effectiveness (ε) | see calculation | - |
-| NTU | see calculation | - |
+| Parameter | Symbol | Value | Unit |
+|-----------|--------|-------|------|
+| Heat transfer area | $A$ | $ $ <!-- value:A :2 --> | m² |
+| Hot outlet temp | $T_{h,out}$ | $ $ <!-- value:T_{h,out} :1 --> | °C |
+| Cold outlet temp | $T_{c,out}$ | $ $ <!-- value:T_{c,out} :1 --> | °C |
+| LMTD | $LMTD$ | $ $ <!-- value:LMTD :2 --> | K |
+| Effectiveness | $\varepsilon$ | $ $ <!-- value:\varepsilon :3 --> | - |
+| NTU | $NTU$ | $ $ <!-- value:NTU :3 --> | - |
 
 ---
 

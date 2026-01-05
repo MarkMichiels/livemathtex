@@ -27,8 +27,8 @@ $T_{h,in} := 90$
 $T_{c,in} := 20$
 
 ### Mass Flow Rates (kg/s)
-$m_h := 2$
-$m_c := 3$
+$m_h := 2.0$
+$m_c := 3.0$
 
 ### Fluid Properties - Water
 Specific heat capacity (J/kg·K):
@@ -49,17 +49,17 @@ From energy balance: $Q = m \cdot c_p \cdot \Delta T$
 
 ### Hot Fluid
 Temperature drop:
-$\Delta T_h := \frac{Q}{c_p \cdot m_h} == 17.91686574$
+$\Delta T_h := \frac{Q}{m_h \cdot c_p} == 17.92$
 
 Outlet temperature:
-$T_{h,out} := T_{h,in} - \text{\text{Delta}_T_h} == 72.08313426$
+$T_{h,out} := T_{h,in} - \Delta T_h == 72.08$
 
 ### Cold Fluid
 Temperature rise:
-$\Delta T_c := \frac{Q}{c_p \cdot m_c} == 11.94457716$
+$\Delta T_c := \frac{Q}{m_c \cdot c_p} == 11.94$
 
 Outlet temperature:
-$T_{c,out} := T_{c,in} + \text{\text{Delta}_T_c} == 31.94457716$
+$T_{c,out} := T_{c,in} + \Delta T_c == 31.94$
 
 ---
 
@@ -67,14 +67,14 @@ $T_{c,out} := T_{c,in} + \text{\text{Delta}_T_c} == 31.94457716$
 
 For counter-flow arrangement, temperature differences at each end:
 
-$\Delta T_1 := - T_{c,out} + T_{h,in} == 58.05542284$
+$\Delta T_1 := T_{h,in} - T_{c,out} == 58.06$
 
-$\Delta T_2 := - T_{c,in} + T_{h,out} == 52.08313426$
+$\Delta T_2 := T_{h,out} - T_{c,in} == 52.08$
 
 LMTD calculation (using natural log):
-$ratio := \frac{\text{\text{Delta}_T_1}}{\text{\text{Delta}_T_2}} == 1.114668379$
+$ratio := \frac{\Delta T_1}{\Delta T_2} == 1.115$
 
-$$LMTD := \frac{\text{\text{Delta}_T_1} - \text{\text{Delta}_T_2}}{\log{\left(\text{ratio} \right)}} == 55.01526137$$
+$$LMTD := \frac{\Delta T_1 - \Delta T_2}{\ln(ratio)} == 55.02$$
 
 ---
 
@@ -82,45 +82,45 @@ $$LMTD := \frac{\text{\text{Delta}_T_1} - \text{\text{Delta}_T_2}}{\log{\left(\t
 
 From heat exchanger equation: $Q = U \cdot A \cdot LMTD$
 
-$$A := \frac{Q}{U \cdot \text{LMTD}} == 5.45303235$$
+$$A := \frac{Q}{U \cdot LMTD} == 5.453$$
 
 ---
 
 ## Step 4: Effectiveness-NTU Analysis
 
 ### Heat Capacity Rates (W/K)
-$C_h := c_p \cdot m_h == 8372$
+$C_h := m_h \cdot c_p == 8372$
 
-$C_c := c_p \cdot m_c == 12558$
+$C_c := m_c \cdot c_p == 1.256e+04$
 
 Since $C_h < C_c$:
 $Cmin := C_h$
 $Cmax := C_c$
 
 ### Heat Capacity Ratio
-$C_r := \frac{\text{Cmin}}{\text{Cmax}} == 0.6666666667$
+$C_r := \frac{Cmin}{Cmax} == 0.6667$
 
 ### Maximum Possible Heat Transfer (W)
-$Qmax := \text{Cmin} \cdot \left(- T_{c,in} + T_{h,in}\right) == 586040$
+$Qmax := Cmin \cdot (T_{h,in} - T_{c,in}) == 5.86e+05$
 
 ### Effectiveness
-$$\varepsilon := \frac{Q}{\text{Qmax}} == 0.2559552249$$
+$$\varepsilon := \frac{Q}{Qmax} == 0.256$$
 
 ### Number of Transfer Units (NTU)
-$$NTU := \frac{A \cdot U}{\text{Cmin}} == 0.3256708283$$
+$$NTU := \frac{U \cdot A}{Cmin} == 0.3257$$
 
 ---
 
 ## Results Summary
 
-| Parameter | Value | Unit |
-|-----------|-------|------|
-| Heat transfer area (A) | see calculation | m² |
-| Hot outlet temp | $T_{h,out}$ | °C |
-| Cold outlet temp | $T_{c,out}$ | °C |
-| LMTD | see calculation | K |
-| Effectiveness (ε) | see calculation | - |
-| NTU | see calculation | - |
+| Parameter | Symbol | Value | Unit |
+|-----------|--------|-------|------|
+| Heat transfer area | $A$ | $5.45$ <!-- value:A :2 --> | m² |
+| Hot outlet temp | $T_{h,out}$ | $72.1$ <!-- value:T_{h,out} :1 --> | °C |
+| Cold outlet temp | $T_{c,out}$ | $31.9$ <!-- value:T_{c,out} :1 --> | °C |
+| LMTD | $LMTD$ | $55.02$ <!-- value:LMTD :2 --> | K |
+| Effectiveness | $\varepsilon$ | $0.256$ <!-- value:\varepsilon :3 --> | - |
+| NTU | $NTU$ | $0.326$ <!-- value:NTU :3 --> | - |
 
 ---
 
@@ -130,10 +130,10 @@ Tube length (m):
 $length := 2$
 
 Area per meter:
-$A_m := \frac{A}{\text{length}} == 2.726516175$
+$A_m := \frac{A}{length} == 2.727$
 
 **Conclusion:** The design meets thermal requirements with calculated effectiveness.
 
 ---
 
-> *livemathtex: 2026-01-05 01:37:30 | 26 definitions, 16 evaluations | no errors | 0.74s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-05 03:24:14 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.54s* <!-- livemathtex-meta -->
