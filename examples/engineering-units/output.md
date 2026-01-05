@@ -31,7 +31,7 @@ $Q := 50 \frac{m^{3}}{h}$
 Display in different units (no manual conversion needed!):
 $Q == 50 \text{m³/h}$ <!-- [m³/h] -->
 $Q == 0.01389 \text{m³/s}$ <!-- [m³/s] -->
-$Q == 50 \frac{\text{m}^{3}}{\text{hour}}$ <!-- [L/s] -->
+$Q == 13.89 \text{L/s}$ <!-- [L/s] -->
 
 ### Geometry
 
@@ -50,7 +50,7 @@ $D_{pipe} := 100 \text{mm}$
 ### Fluid Properties
 
 Water density:
-$\rho := 1000 \frac{\text{kg}}{m^{3}}$
+$\rho := 1000 \frac{kg}{m^{3}}$
 
 Gravitational acceleration:
 $g := 9.81 \frac{m}{s^{2}}$
@@ -113,7 +113,7 @@ Pump efficiency (assumed, dimensionless):
 $eta_p := 0.75$
 
 Motor efficiency (assumed, dimensionless):
-$eta_m := 0.9$
+$eta_m := 0.90$
 
 Required motor power:
 $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236 \text{kW}$$ <!-- [kW] -->
@@ -124,13 +124,13 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236 \text{kW}$$ <!-- [kW] 
 
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
-| Flow rate | $Q$ | 50 | m³/h |
-| Flow velocity | $vel$ | calculated | m/s |
-| Static head | $H_{static}$ | calculated | m |
-| Friction loss | $H_f$ | calculated | m |
-| Total head | $TDH$ | calculated | m |
-| Hydraulic power | $P_{hyd}$ | calculated | W |
-| Motor power | $P_{motor}$ | calculated | kW |
+| Flow rate | $Q$ | $50.00$ <!-- value:Q [m³/h] --> | m³/h |
+| Flow velocity | $vel$ | $1.77$ <!-- value:vel [m/s] :2 --> | m/s |
+| Static head | $H_{static}$ | $17.0$ <!-- value:H_{static} [m] :1 --> | m |
+| Friction loss | $H_f$ | $3.19$ <!-- value:H_f [m] :2 --> | m |
+| Total head | $TDH$ | $21.0$ <!-- value:TDH [m] :1 --> | m |
+| Hydraulic power | $P_{hyd}$ | $2.86$ <!-- value:P_{hyd} [kW] :2 --> | kW |
+| Motor power | $P_{motor}$ | $4.24$ <!-- value:P_{motor} [kW] :2 --> | kW |
 
 ---
 
@@ -142,4 +142,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236 \text{kW}$$ <!-- [kW] 
 
 ---
 
-> *livemathtex: 2026-01-05 02:23:10 | 19 definitions, 11 evaluations | no errors | 0.53s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-05 03:14:52 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.61s* <!-- livemathtex-meta -->

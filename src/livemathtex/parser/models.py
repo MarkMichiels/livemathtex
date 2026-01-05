@@ -21,17 +21,19 @@ class MathBlock(Node):
     content: str  # The raw LaTeX content including delimiters
     inner_content: str # Content without delimiters
     is_display: bool = False
-    unit_comment: Optional[str] = None # e.g. "m/s" if <!-- [m/s] --> follows
+    unit_comment: Optional[str] = None  # e.g. "m/s" if <!-- [m/s] --> follows
+    value_comment: Optional[str] = None  # e.g. "value" or "value:kW" or "value:kW:2"
 
 @dataclass(kw_only=True, frozen=True)
 class Calculation(Node):
     """Represents a calculable portion of a math block."""
     latex: str
-    operation: str  # ":=", "==", "=>", or "ERROR"
-    target: Optional[str] = None  # Variable name for assignment
+    operation: str  # ":=", "==", "=>", "value", or "ERROR"
+    target: Optional[str] = None  # Variable name for assignment or lookup
     original_result: Optional[str] = None  # Existing result if present
-    unit_comment: Optional[str] = None # Inherited from block
-    error_message: Optional[str] = None # Error message for invalid syntax
+    unit_comment: Optional[str] = None  # Inherited from block, or target unit for value
+    precision: Optional[int] = None  # Decimal places for value display
+    error_message: Optional[str] = None  # Error message for invalid syntax
 
 @dataclass(kw_only=True, frozen=True)
 class TextBlock(Node):

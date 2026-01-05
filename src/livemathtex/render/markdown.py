@@ -26,15 +26,28 @@ class MarkdownRenderer:
             elif isinstance(node, MathBlock):
                 if node in calculations:
                     new_inner = calculations[node]
-                    if node.is_display:
-                        math_part = f"$${new_inner}$$"
-                    else:
-                        math_part = f"${new_inner}$"
 
-                    if node.unit_comment:
-                        output.append(f"{math_part} <!-- [{node.unit_comment}] -->")
+                    # Check if this is a value display (<!-- value:... --> syntax)
+                    # Value display outputs the number in math mode, preserving the comment
+                    # Input:  $ $ <!-- value:vel [\frac{m}{s}] :2 -->
+                    # Output: $1.77$ <!-- value:vel [\frac{m}{s}] :2 -->
+                    if node.value_comment:
+                        # Output value in math mode (with dollar signs), preserve original comment
+                        if node.is_display:
+                            output.append(f"$${new_inner}$$ <!-- value:{node.value_comment} -->")
+                        else:
+                            output.append(f"${new_inner}$ <!-- value:{node.value_comment} -->")
                     else:
-                        output.append(math_part)
+                        # Normal calculation: output LaTeX
+                        if node.is_display:
+                            math_part = f"$${new_inner}$$"
+                        else:
+                            math_part = f"${new_inner}$"
+
+                        if node.unit_comment:
+                            output.append(f"{math_part} <!-- [{node.unit_comment}] -->")
+                        else:
+                            output.append(math_part)
                 else:
                     output.append(node.content or "")
 
@@ -45,6 +58,7 @@ class MarkdownRenderer:
             assigns = metadata.get('assigns', 0)
             evals = metadata.get('evals', 0)
             symbolics = metadata.get('symbolics', 0)
+            values = metadata.get('values', 0)
             errors = metadata.get('errors', 0)
 
             # Build stats with descriptive names
@@ -55,6 +69,8 @@ class MarkdownRenderer:
                 stats_parts.append(f"{evals} evaluation{'s' if evals != 1 else ''}")
             if symbolics > 0:
                 stats_parts.append(f"{symbolics} symbolic")
+            if values > 0:
+                stats_parts.append(f"{values} value ref{'s' if values != 1 else ''}")
             stats_str = ", ".join(stats_parts) if stats_parts else "0 operations"
 
             error_str = "no errors" if errors == 0 else f"{errors} error{'s' if errors != 1 else ''}"

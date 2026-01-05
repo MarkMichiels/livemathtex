@@ -224,6 +224,60 @@ $Q ==$ <!-- [m³/s] -->       ← Just request the display unit
 - Invisible when rendered (preview/PDF)
 - Doesn't affect calculations, only display
 
+### Value Display in Tables
+
+When creating summary tables, you often want to display just the **numeric value** of a variable, not the full formula. Use the `<!-- value:VAR [unit] :precision -->` syntax:
+
+```markdown
+| Parameter | Value | Unit |
+|-----------|-------|------|
+| Flow rate | $ $ <!-- value:Q [m³/h] --> | m³/h |
+| Velocity  | $ $ <!-- value:vel [m/s] :2 --> | m/s |
+| Power     | $ $ <!-- value:P [kW] :2 --> | kW |
+```
+
+**Output:**
+
+| Parameter | Value | Unit |
+|-----------|-------|------|
+| Flow rate | $50.00$ | m³/h |
+| Velocity  | $1.77$ | m/s |
+| Power     | $2.86$ | kW |
+
+**Syntax components:**
+
+| Part | Required | Description | Example |
+|------|----------|-------------|---------|
+| `$ $` | Yes | Empty math block (placeholder) | `$ $` |
+| `value:VAR` | Yes | Variable name (LaTeX notation) | `value:P_{hyd}` |
+| `[unit]` | Optional | Target unit for conversion | `[kW]` |
+| `:precision` | Optional | Decimal places | `:2` |
+
+**Important:**
+- The math block must be empty (`$ $`) for value-only display
+- Variable names use the same LaTeX notation as in your formulas
+- Units use simple Unicode notation (`m³/h`, `kW`, `m/s`)
+- The dollar signs are preserved in the output for proper KaTeX rendering
+
+**Examples:**
+
+```markdown
+<!-- Just the value, default precision -->
+$ $ <!-- value:Q -->
+
+<!-- Value with unit conversion -->
+$ $ <!-- value:Q [L/s] -->
+
+<!-- Value with precision -->
+$ $ <!-- value:vel :3 -->
+
+<!-- Value with unit AND precision -->
+$ $ <!-- value:P_{hyd} [kW] :2 -->
+
+<!-- Greek letter variables -->
+$ $ <!-- value:\rho [kg/m³] -->
+```
+
 ### Custom Units
 
 ```latex

@@ -9,13 +9,27 @@ class Lexer:
     """
 
     # Regex for finding math blocks: $...$ or $$...$$
-    # AND optionally an HTML comment immediately following it on the same line (ignoring whitespace).
+    # AND optionally an HTML comment immediately following it on the same line.
+    # 
+    # Supported comment formats:
+    # - <!-- [\frac{m}{s}] -->                    → unit conversion (LaTeX notation)
+    # - <!-- value:vel -->                        → value lookup
+    # - <!-- value:vel [\frac{m}{s}] -->          → value lookup with unit (LaTeX)
+    # - <!-- value:vel [\frac{m}{s}] :2 -->       → value lookup with unit and precision
+    # - <!-- value:P_{hyd} [\text{kW}] :2 -->     → complex variable names work too
+    #
     # Group 1: The math block
-    # Group 2: The comment content (inside <!-- [ ... ] -->) if exists
-    # Note: We need to match lazily.
-    # New regex: (\$\$[\s\S]*?\$\$|\$[^\$\n]*\$)(?:[ \t]*<!--\s*\[(.*?)\]\s*-->)?
+    # Group 2: Unit comment content (inside <!-- [...] -->)
+    # Group 3: Value comment content (after <!-- value:...)
 
-    MATH_BLOCK_RE = re.compile(r'(\$\$[\s\S]*?\$\$|\$[^\$\n]*\$)(?:[ \t]*<!--\s*\[(.*?)\]\s*-->)?')
+    MATH_BLOCK_RE = re.compile(
+        r'(\$\$[\s\S]*?\$\$|\$[^\$\n]*\$)'  # Group 1: math block
+        r'(?:'
+            r'[ \t]*<!--\s*\[(.*?)\]\s*-->'  # Group 2: unit comment <!-- [...] -->
+            r'|'
+            r'[ \t]*<!--\s*value:(.*?)\s*-->'  # Group 3: value comment <!-- value:... -->
+        r')?'
+    )
 
     # Regex for finding operations inside a math block
     # Matches:
@@ -48,7 +62,8 @@ class Lexer:
 
             # The math block itself is Group 1
             full_math_str = match.group(1)
-            unit_comment = match.group(2) # Optional unit from comment
+            unit_comment = match.group(2)  # Optional unit from <!-- [unit] -->
+            value_comment = match.group(3)  # Optional value from <!-- value... -->
 
             is_display = full_math_str.startswith('$$')
             inner_content = full_math_str[2:-2] if is_display else full_math_str[1:-1]
@@ -66,6 +81,7 @@ class Lexer:
                 inner_content=inner_content,
                 is_display=is_display,
                 unit_comment=unit_comment,
+                value_comment=value_comment,  # New: for <!-- value --> syntax
                 location=SourceLocation(start_line, end_line, 0, 0)
             )
             children.append(math_block)
@@ -93,10 +109,53 @@ class Lexer:
 
         If block contains NO livemathtex operators (:=, ==, =>), it's treated as
         pure display LaTeX and passed through unchanged (no error for bare '=').
+
+        Special case: <!-- value --> or <!-- value:unit --> or <!-- value:unit:precision -->
+        triggers a "value" operation that displays the value of a previously defined variable.
         """
         content = math_block.inner_content
         lines = content.split('\n')
         calculations = []
+
+        # Check for value display syntax: <!-- value:VAR_LATEX [\unit_latex] :precision -->
+        if math_block.value_comment:
+            # Parse: "VAR_LATEX [\unit_latex] :precision"
+            # Examples:
+            #   "vel" → var=vel, unit=None, precision=None
+            #   "vel [\frac{m}{s}]" → var=vel, unit=\frac{m}{s}, precision=None
+            #   "vel [\frac{m}{s}] :2" → var=vel, unit=\frac{m}{s}, precision=2
+            #   "P_{hyd} [\text{kW}] :2" → var=P_{hyd}, unit=\text{kW}, precision=2
+            
+            value_str = math_block.value_comment.strip()
+            
+            # Extract precision (at end, after :)
+            precision = None
+            if re.search(r'\s*:\s*(\d+)\s*$', value_str):
+                precision_match = re.search(r'\s*:\s*(\d+)\s*$', value_str)
+                precision = int(precision_match.group(1))
+                value_str = value_str[:precision_match.start()].strip()
+            
+            # Extract unit (in square brackets)
+            target_unit = None
+            unit_match = re.search(r'\s*\[(.*?)\]\s*$', value_str)
+            if unit_match:
+                target_unit = unit_match.group(1).strip()
+                value_str = value_str[:unit_match.start()].strip()
+            
+            # Remaining is the variable name (LaTeX notation)
+            var_name = value_str.strip()
+
+            calculations.append(
+                Calculation(
+                    latex=content.strip(),
+                    operation="value",
+                    target=var_name,  # The LaTeX variable name to look up
+                    original_result=None,
+                    unit_comment=target_unit,  # Unit in LaTeX notation
+                    precision=precision  # Precision for formatting
+                )
+            )
+            return calculations
 
         # First pass: check if block has ANY livemathtex operators
         has_operators = bool(re.search(r':=|==|=>', content))

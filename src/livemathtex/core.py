@@ -57,6 +57,7 @@ def process_file(
     assign_count = 0  # :=
     eval_count = 0    # ==
     symbolic_count = 0  # =>
+    value_count = 0   # <!-- value -->
 
     for block in document.children:
         if isinstance(block, MathBlock):
@@ -80,6 +81,8 @@ def process_file(
                     eval_count += 1
                 elif calc.operation == '=>':
                     symbolic_count += 1
+                elif calc.operation == 'value':
+                    value_count += 1
 
                 try:
                     result_latex = evaluator.evaluate(calc)
@@ -104,6 +107,7 @@ def process_file(
         "definitions": assign_count,
         "evaluations": eval_count,
         "symbolic": symbolic_count,
+        "value_refs": value_count,
         "errors": error_count,
     }
 
@@ -123,17 +127,51 @@ def process_file(
                 block_idx += 1
 
     # Update IR symbols with computed values from evaluator
+    from sympy.physics.units import convert_to
+    from sympy.physics import units as u
+    import sympy
+
+    si_base = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
+
     for name in evaluator.symbols.all_names():
         entry = evaluator.symbols.get(name)
         if entry and name in ir.symbols:
             try:
-                if hasattr(entry.value, 'evalf'):
-                    numeric = float(entry.value.evalf())
-                    ir.symbols[name].value = numeric
-                elif isinstance(entry.value, (int, float)):
-                    ir.symbols[name].value = float(entry.value)
-            except:
-                pass
+                value = entry.value
+
+                # First convert to SI base units for consistent storage
+                try:
+                    value_si = convert_to(value, si_base)
+                except:
+                    value_si = value
+
+                # Simplify and evaluate any remaining symbolic constants (like pi)
+                if hasattr(value_si, 'simplify'):
+                    value_si = value_si.simplify()
+                if hasattr(value_si, 'evalf'):
+                    value_si = value_si.evalf()
+
+                # Extract numeric value and unit using as_coeff_Mul
+                if hasattr(value_si, 'as_coeff_Mul'):
+                    coeff, unit_part = value_si.as_coeff_Mul()
+
+                    # Store numeric coefficient
+                    if hasattr(coeff, 'is_number') and coeff.is_number:
+                        ir.symbols[name].value = float(coeff)
+                    elif hasattr(coeff, 'evalf'):
+                        ir.symbols[name].value = float(coeff.evalf())
+                    else:
+                        ir.symbols[name].value = float(coeff)
+
+                    # Store unit as simplified SI string
+                    if unit_part != 1:
+                        ir.symbols[name].unit = sympy.latex(unit_part)
+
+                elif isinstance(value, (int, float)):
+                    ir.symbols[name].value = float(value)
+
+            except Exception:
+                pass  # Skip symbols that can't be converted
 
     # 5. Render
     metadata = {
@@ -142,6 +180,7 @@ def process_file(
         "assigns": assign_count,
         "evals": eval_count,
         "symbolics": symbolic_count,
+        "values": value_count,
         "errors": error_count
     }
 
@@ -200,6 +239,7 @@ def process_text(
     assign_count = 0
     eval_count = 0
     symbolic_count = 0
+    value_count = 0
 
     for block in document.children:
         if isinstance(block, MathBlock):
@@ -219,6 +259,8 @@ def process_text(
                     eval_count += 1
                 elif calc.operation == '=>':
                     symbolic_count += 1
+                elif calc.operation == 'value':
+                    value_count += 1
 
                 try:
                     result_latex = evaluator.evaluate(calc)
@@ -240,6 +282,7 @@ def process_text(
         "definitions": assign_count,
         "evaluations": eval_count,
         "symbolic": symbolic_count,
+        "value_refs": value_count,
         "errors": error_count,
     }
 
@@ -250,6 +293,7 @@ def process_text(
         "assigns": assign_count,
         "evals": eval_count,
         "symbolics": symbolic_count,
+        "values": value_count,
         "errors": error_count
     }
 

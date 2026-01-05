@@ -81,6 +81,30 @@ $Q ==$ <!-- [m³/h] -->    → 0.05 m³/h
 
 **🚨 Don't manually convert** - just request the display unit!
 
+## Value Display in Tables
+
+Display just the numeric value of a variable (useful for summary tables):
+
+```markdown
+| Parameter | Value | Unit |
+|-----------|-------|------|
+| Flow rate | $ $ <!-- value:Q [m³/h] --> | m³/h |
+| Power     | $ $ <!-- value:P_{hyd} [kW] :2 --> | kW |
+```
+
+**Output:**
+
+| Parameter | Value | Unit |
+|-----------|-------|------|
+| Flow rate | $50.00$ | m³/h |
+| Power     | $2.86$ | kW |
+
+**Syntax:** `$ $ <!-- value:VAR [unit] :precision -->`
+- `$ $` - Empty math block (required)
+- `value:VAR` - Variable name in LaTeX notation
+- `[unit]` - Optional unit conversion
+- `:precision` - Optional decimal places
+
 ## Error Handling
 
 LiveMathTeX shows errors inline:

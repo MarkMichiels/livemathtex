@@ -157,6 +157,8 @@ class Evaluator:
                  return self._handle_assignment_evaluation(calculation)
             elif calculation.operation == "=>":
                 return self._handle_symbolic(calculation)
+            elif calculation.operation == "value":
+                return self._handle_value_display(calculation)
             else:
                 return ""
         except Exception as e:
@@ -250,13 +252,17 @@ class Evaluator:
             self.symbols.set(func_name, func_obj, raw_latex=rhs_raw)
 
             # Use original target for display (preserves \Delta etc.)
-            assignment_latex = f"{original_target} := {self._normalize_latex(rhs_raw)}"
+            # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
+            assignment_latex = f"{original_target} := {rhs_raw}"
 
         elif target:
             value = self._compute(rhs_raw)
-            self.symbols.set(target, value, raw_latex=rhs_raw)
-            # Use original LaTeX form for display, normalized form for storage
-            assignment_latex = f"{original_target} := {self._normalize_latex(rhs_raw)}"
+            # Store with normalized name (e.g., D_{pipe} -> D_pipe)
+            normalized_target = self._normalize_symbol_name(target)
+            self.symbols.set(normalized_target, value, raw_latex=rhs_raw)
+            # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
+            # User explicitly requested: "Als het een definitie is, moet je gewoon laten staan"
+            assignment_latex = f"{original_target} := {rhs_raw}"
 
         else:
             return content
@@ -381,9 +387,14 @@ class Evaluator:
         Parse a unit string that may include SI prefixes (kW, MHz, mm, etc.)
 
         Handles common SI prefixes: k(ilo), M(ega), G(iga), m(illi), µ/u(micro), n(ano)
+        Also handles LaTeX notation like \\text{kW}
         """
         import sympy.physics.units as u
         from sympy.physics.units.prefixes import kilo, mega, giga, milli, micro, nano, centi
+
+        # Strip LaTeX wrappers: \text{kW} -> kW
+        if unit_str.startswith('\\text{') and unit_str.endswith('}'):
+            unit_str = unit_str[6:-1]  # Remove \text{ and }
 
         # SI prefix mapping
         prefix_map = {
@@ -446,8 +457,9 @@ class Evaluator:
             target_unit = self._parse_unit_with_prefix(normalized_unit)
 
             # If that didn't work, try _compute for complex expressions
+            # Use force_units=True to ensure single letters like m, s are units
             if target_unit is None:
-                target_unit = self._compute(normalized_unit)
+                target_unit = self._compute(normalized_unit, force_units=True)
 
             from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
             import sympy
@@ -470,8 +482,15 @@ class Evaluator:
                 numeric_value = float(ratio_base)
 
             # Create a symbol for the target unit display
-            # This allows us to show "2.859 kW" instead of "2858.525 W"
-            unit_symbol = sympy.Symbol(f'\\text{{{target_unit_latex}}}')
+            # Use simple text wrapping for simple units (kW, m/s)
+            # Don't wrap if unit contains LaTeX commands (\frac, etc.)
+            if '\\' in target_unit_latex:
+                # Contains LaTeX - use as-is (e.g., \frac{m}{s})
+                unit_symbol = sympy.Symbol(target_unit_latex)
+            else:
+                # Simple unit - wrap in \text{} for proper rendering
+                unit_symbol = sympy.Symbol(f'\\text{{{target_unit_latex}}}')
+
             new_value = numeric_value * unit_symbol
 
             return new_value, "" # No suffix needed, renderer handles comment
@@ -494,6 +513,285 @@ class Evaluator:
         result_latex = self._simplify_subscripts(sympy.latex(value))
         return f"{lhs} => {result_latex}"
 
+    def _handle_value_display(self, calc: Calculation) -> str:
+        """
+        Handle value display: $ $ <!-- value:VAR [unit] :precision -->
+
+        Returns just the numeric value (not the formula), optionally converted to
+        the specified unit and formatted with the specified precision.
+
+        The variable name and unit are in LaTeX notation, parsed using latex2sympy.
+        """
+        var_name = calc.target.strip() if calc.target else calc.latex.strip()
+
+        # Normalize the variable name (handle Greek letters, subscripts, etc.)
+        normalized_name = self._normalize_symbol_name(var_name)
+
+        # Look up the variable
+        stored = self.symbols.get(normalized_name)
+        if not stored:
+            # Try with backslash for Greek letters
+            stored = self.symbols.get('\\' + normalized_name)
+
+        if not stored:
+            raise EvaluationError(f"Undefined variable: {var_name}")
+
+        value = stored.value
+
+        # Apply unit conversion if specified (unit is in LaTeX notation)
+        if calc.unit_comment:
+            # Parse the unit using LaTeX parser (same as formulas)
+            numeric_value = self._get_numeric_in_unit_latex(value, calc.unit_comment)
+        else:
+            numeric_value = self._extract_numeric_value(value)
+
+        # Format the result
+        result = self._format_numeric(numeric_value, calc.precision)
+
+        return result
+
+    def _get_numeric_in_unit_latex(self, value: Any, unit_latex: str) -> float:
+        """
+        Convert a dimensioned value to a target unit (in LaTeX notation) and return the numeric part.
+
+        Example: 50*meter**3/hour, "m³/h" → 50.0
+        Example: 2859*watt, "kW" → 2.859
+        """
+        from sympy.physics.units import convert_to
+        from sympy.physics import units as u
+        import sympy
+
+        try:
+            # Normalize Unicode characters (e.g., m³ → m^3)
+            normalized_unit = self._normalize_unit_string(unit_latex)
+
+            # First try to parse as prefixed unit (kW, MHz, mm, etc.)
+            target_unit = self._parse_unit_with_prefix(normalized_unit)
+
+            # If that didn't work, try parsing as expression
+            if target_unit is None:
+                target_unit = self._parse_unit_expression(normalized_unit)
+
+            if target_unit is None:
+                return self._extract_numeric_value(value)
+
+            # First convert both value and target to SI base units
+            base_units = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
+
+            try:
+                value_si = convert_to(value, base_units)
+                target_si = convert_to(target_unit, base_units)
+            except:
+                value_si = value
+                target_si = target_unit
+
+            # Calculate ratio: value / target_unit (should give dimensionless number)
+            ratio = value_si / target_si
+
+            # Simplify and evaluate
+            ratio_simplified = sympy.simplify(ratio)
+            if hasattr(ratio_simplified, 'evalf'):
+                ratio_simplified = ratio_simplified.evalf()
+
+            # Extract numeric value
+            if hasattr(ratio_simplified, 'is_number') and ratio_simplified.is_number:
+                return float(ratio_simplified)
+            else:
+                # If still has symbols, try as_coeff_Mul
+                if hasattr(ratio_simplified, 'as_coeff_Mul'):
+                    coeff, _ = ratio_simplified.as_coeff_Mul()
+                    return float(coeff.evalf()) if hasattr(coeff, 'evalf') else float(coeff)
+                return float(ratio_simplified)
+
+        except Exception as e:
+            # Fallback: try to extract numeric without conversion
+            return self._extract_numeric_value(value)
+
+    def _get_numeric_in_unit(self, value: Any, target_unit_latex: str) -> float:
+        """
+        Convert a dimensioned value to a target unit and return just the numeric part.
+
+        Example: 50*meter**3/hour → "m³/h" → 50.0
+        Example: 2859*watt → "kW" → 2.859
+        """
+        from sympy.physics.units import convert_to
+        from sympy.physics import units as u
+        import sympy
+
+        try:
+            # Normalize Unicode characters (e.g., m³/s → m^3/s)
+            normalized_unit = self._normalize_unit_string(target_unit_latex)
+
+            # Parse the target unit - use _parse_unit_expression for proper unit parsing
+            target_unit = self._parse_unit_expression(normalized_unit)
+
+            if target_unit is None:
+                # Fallback: just extract numeric from value without conversion
+                return self._extract_numeric_value(value)
+
+            # Calculate ratio: value / target_unit (should give dimensionless number)
+            ratio = value / target_unit
+
+            # Convert to SI base units to get pure number
+            base_units = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
+            ratio_base = convert_to(ratio, base_units)
+
+            # Simplify to remove any remaining unit symbols
+            ratio_simplified = sympy.simplify(ratio_base)
+
+            # Extract numeric value
+            if hasattr(ratio_simplified, 'evalf'):
+                result = float(ratio_simplified.evalf())
+            else:
+                result = float(ratio_simplified)
+
+            return result
+        except Exception as e:
+            # Fallback: try to extract numeric without conversion
+            return self._extract_numeric_value(value)
+
+    def _parse_unit_expression(self, unit_str: str) -> Any:
+        """
+        Parse a unit string into SymPy unit expression.
+
+        Handles: m/s, m³/h, kW, mm, etc.
+        """
+        from sympy.physics import units as u
+        import sympy
+
+        # First try prefixed units (kW, MHz, mm)
+        prefixed = self._parse_unit_with_prefix(unit_str)
+        if prefixed is not None:
+            return prefixed
+
+        # Map common abbreviations to SymPy units
+        unit_map = {
+            'm': u.meter, 's': u.second, 'kg': u.kilogram, 'g': u.gram,
+            'h': u.hour, 'min': u.minute, 'day': u.day,
+            'N': u.newton, 'Pa': u.pascal, 'J': u.joule, 'W': u.watt,
+            'A': u.ampere, 'V': u.volt, 'K': u.kelvin,
+            'Hz': u.hertz, 'mol': u.mole, 'cd': u.candela,
+            'L': u.liter, 'bar': u.bar,
+            'mm': u.millimeter, 'cm': u.centimeter, 'km': u.kilometer,
+            'ms': u.millisecond, 'hour': u.hour,
+        }
+
+        # Handle compound expressions like m/s, m³/h, m^3/h
+        # Replace ³ with ^3
+        unit_str = unit_str.replace('³', '^3').replace('²', '^2')
+
+        # Parse expression
+        try:
+            # Build expression by parsing components
+            result = sympy.Integer(1)
+
+            # Split by / for numerator/denominator
+            if '/' in unit_str:
+                parts = unit_str.split('/')
+                num_str = parts[0].strip()
+                den_str = parts[1].strip() if len(parts) > 1 else ''
+
+                # Parse numerator
+                if num_str:
+                    num_unit = self._parse_single_unit(num_str, unit_map)
+                    if num_unit:
+                        result = result * num_unit
+
+                # Parse denominator
+                if den_str:
+                    den_unit = self._parse_single_unit(den_str, unit_map)
+                    if den_unit:
+                        result = result / den_unit
+            else:
+                # Single unit
+                single = self._parse_single_unit(unit_str, unit_map)
+                if single:
+                    result = single
+
+            return result if result != 1 else None
+        except:
+            return None
+
+    def _parse_single_unit(self, unit_str: str, unit_map: dict) -> Any:
+        """Parse a single unit with optional exponent like m^3 or m³."""
+        import sympy
+
+        # Handle exponents
+        if '^' in unit_str:
+            base, exp = unit_str.split('^')
+            base = base.strip()
+            exp = int(exp.strip())
+
+            if base in unit_map:
+                return unit_map[base] ** exp
+            # Try prefixed
+            prefixed = self._parse_unit_with_prefix(base)
+            if prefixed:
+                return prefixed ** exp
+        else:
+            if unit_str in unit_map:
+                return unit_map[unit_str]
+            # Try prefixed
+            prefixed = self._parse_unit_with_prefix(unit_str)
+            if prefixed:
+                return prefixed
+
+        return None
+
+    def _extract_numeric_value(self, value: Any) -> float:
+        """Extract the numeric coefficient from a possibly dimensioned value."""
+        import sympy
+        from sympy.physics.units import Quantity
+
+        # If value contains pi, evaluate it
+        if hasattr(value, 'free_symbols') and sympy.pi in value.free_symbols:
+            free_non_pi = [s for s in value.free_symbols if s != sympy.pi]
+            if not free_non_pi:
+                value = value.evalf()
+
+        # Try to get numeric coefficient
+        try:
+            if hasattr(value, 'as_coeff_Mul'):
+                coeff, _ = value.as_coeff_Mul()
+                if coeff.is_number:
+                    return float(coeff)
+            return float(value.evalf())
+        except:
+            return float(value)
+
+    def _format_numeric(self, value: float, precision: Optional[int] = None) -> str:
+        """Format a numeric value with the specified precision."""
+        if precision is not None:
+            return f"{value:.{precision}f}"
+        else:
+            # Default: 4 significant figures
+            return self._format_significant(value, 4)
+
+    def _format_significant(self, value: float, sig_figs: int) -> str:
+        """Format a number with the specified number of significant figures."""
+        if value == 0:
+            return "0"
+
+        from math import log10, floor
+
+        # Calculate order of magnitude
+        magnitude = floor(log10(abs(value)))
+
+        # Round to significant figures
+        rounded = round(value, sig_figs - 1 - magnitude)
+
+        # Format appropriately
+        if abs(magnitude) >= 4:
+            # Scientific notation for very large/small numbers
+            return f"{rounded:.{sig_figs-1}e}"
+        elif magnitude >= sig_figs - 1:
+            # Integer-like (no decimals needed)
+            return f"{rounded:.0f}"
+        else:
+            # Decimal format
+            decimals = max(0, sig_figs - 1 - magnitude)
+            return f"{rounded:.{decimals}f}"
+
     # Common SI units that need protection from being split by latex2sympy
     SI_UNITS = [
         # Mass
@@ -501,7 +799,7 @@ class Evaluator:
         # Length
         'mm', 'cm', 'km',
         # Time
-        'ms', 'min',
+        'ms', 'min', 'hour',
         # Pressure
         'Pa', 'bar',
         # Frequency
@@ -510,12 +808,17 @@ class Evaluator:
         'mol',
     ]
 
-    def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None) -> Any:
+    def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None, force_units: bool = False) -> Any:
         r"""
         Parse and compute a LaTeX expression.
 
         Pre-processing follows Cortex-JS philosophy: normalize LaTeX BEFORE parsing
         to work around latex2sympy limitations.
+
+        Args:
+            expression_latex: LaTeX expression to parse
+            local_overrides: Optional dict of symbol -> value overrides
+            force_units: If True, treat single letters as SI units (for unit parsing)
 
         Key transformations:
         1. Add braces to subscripts: x_y -> x_{y} (consistency)
@@ -665,8 +968,9 @@ class Evaluator:
         # Key insight: definitions have numbers (e.g., "1000 kg/m³"),
         # formulas don't (e.g., "ρ · g · Q · TDH")
         # In pure formulas, single letters like 'g' should be variables, not units
+        # EXCEPTION: force_units=True (for parsing unit expressions like "\frac{m}{s}")
         has_numbers = bool(re.search(r'\d', expression_latex))
-        is_pure_formula = not has_numbers
+        is_pure_formula = not has_numbers and not force_units
 
         # 1. Handle Symbols (Variables + Units)
         for sym in expr.free_symbols:

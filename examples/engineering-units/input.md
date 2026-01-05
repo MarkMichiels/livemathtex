@@ -26,7 +26,7 @@ Design a pump system to transfer water from a storage tank to an elevated proces
 ### Flow Requirements
 
 Volume flow rate:
-$Q := 50 \cdot \frac{m^3}{h}$
+$Q := 50 \frac{m^{3}}{h}$
 
 Display in different units (no manual conversion needed!):
 $Q ==$ <!-- [m³/h] -->
@@ -36,24 +36,24 @@ $Q ==$ <!-- [L/s] -->
 ### Geometry
 
 Suction head (negative = below pump):
-$h_s := -2 \cdot m$
+$h_s := -2 m$
 
 Discharge head:
-$h_d := 15 \cdot m$
+$h_d := 15 m$
 
 Pipe length:
-$L_{pipe} := 100 \cdot m$
+$L_{pipe} := 100 m$
 
 Pipe diameter:
-$D_{pipe} := 100 \cdot mm$
+$D_{pipe} := 100 \text{mm}$
 
 ### Fluid Properties
 
 Water density:
-$\rho := 1000 \cdot \frac{kg}{m^3}$
+$\rho := 1000 \frac{kg}{m^{3}}$
 
 Gravitational acceleration:
-$g := 9.81 \cdot \frac{m}{s^2}$
+$g := 9.81 \frac{m}{s^{2}}$
 
 ### Friction Parameters
 
@@ -124,13 +124,13 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} ==$$ <!-- [kW] -->
 
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
-| Flow rate | $Q$ | 50 | m³/h |
-| Flow velocity | $vel$ | calculated | m/s |
-| Static head | $H_{static}$ | calculated | m |
-| Friction loss | $H_f$ | calculated | m |
-| Total head | $TDH$ | calculated | m |
-| Hydraulic power | $P_{hyd}$ | calculated | W |
-| Motor power | $P_{motor}$ | calculated | kW |
+| Flow rate | $Q$ | $ $ <!-- value:Q [m³/h] --> | m³/h |
+| Flow velocity | $vel$ | $ $ <!-- value:vel [m/s] :2 --> | m/s |
+| Static head | $H_{static}$ | $ $ <!-- value:H_{static} [m] :1 --> | m |
+| Friction loss | $H_f$ | $ $ <!-- value:H_f [m] :2 --> | m |
+| Total head | $TDH$ | $ $ <!-- value:TDH [m] :1 --> | m |
+| Hydraulic power | $P_{hyd}$ | $ $ <!-- value:P_{hyd} [kW] :2 --> | kW |
+| Motor power | $P_{motor}$ | $ $ <!-- value:P_{motor} [kW] :2 --> | kW |
 
 ---
 
