@@ -61,7 +61,25 @@ $gravity := 9.81 \text{ m/s}^2$
 $Force := mass \cdot gravity ==$
 ```
 
-Result: `$Force := mass \cdot gravity == 735.75 \text{ N}$`
+Result: `$Force := mass \cdot gravity == 735.8 \text{ N}$`
+
+## Unit Display (Important!)
+
+**Default:** Results in SI base units. **Use `<!-- [unit] -->` for specific display:**
+
+```markdown
+# Define in any unit
+$Q := 50\ \text{L/h}$
+
+# Display in SI (default)
+$Q ==$                    → 1.389e-05 m³/s
+
+# Display in specific unit
+$Q ==$ <!-- [L/h] -->     → 50 L/h
+$Q ==$ <!-- [m³/h] -->    → 0.05 m³/h
+```
+
+**🚨 Don't manually convert** - just request the display unit!
 
 ## Error Handling
 

@@ -181,27 +181,48 @@ $1.2\ \text{kg/m}^3$
 | Pressure | Pa, kPa, MPa, bar, psi, atm |
 | Temperature | K, °C, °F |
 
-### Unit Conversion
+### Unit Display (IMPORTANT)
 
-Request specific output units using HTML comments (stays in source, invisible when rendered):
+**Default behavior:** All results are displayed in **SI base units** (m, kg, s, A, K, mol, cd).
+
+**To display in different units:** Add `<!-- [unit] -->` comment after the evaluation:
 
 ```markdown
-# Input
-$v := 100\ \text{km/h}$
-$v ==$ <!-- [m/s] -->
+# Input (define in any unit you want)
+$Q := 50\ \text{L/h}$
 
-# Output (source file)
-$v := 100\ \text{km/h}$
-$v == 27.78\ \text{m/s}$ <!-- [m/s] -->
+# Display in default SI (m³/s)
+$Q ==$
 
-# Rendered (preview/PDF)
-v := 100 km/h
-v == 27.78 m/s       ← comment invisible
+# Display in specific unit
+$Q ==$ <!-- [L/h] -->
+$Q ==$ <!-- [m³/h] -->
 ```
 
-**Default:** Results shown in SI units unless `<!-- [unit] -->` specified.
+```markdown
+# Output
+$Q := 50\ \text{L/h}$
+$Q == 1.389e-05\ \text{m}^3/\text{s}$           ← SI default
+$Q == 50\ \text{L/h}$ <!-- [L/h] -->             ← same as input
+$Q == 0.05\ \text{m}^3/\text{h}$ <!-- [m³/h] --> ← converted
+```
 
-**Why HTML comments?** The instruction stays in the source for re-runs, but doesn't appear in the rendered document.
+**🚨 Common mistake - Don't manually convert:**
+
+```markdown
+# ❌ WRONG - unnecessary manual conversion
+$Q_{vol} := 50\ \text{L/h}$
+$Q_s := 0.0000139\ Q_{vol}$  ← Don't do this!
+
+# ✅ CORRECT - let LiveMathTeX handle conversion
+$Q := 50\ \text{L/h}$
+$Q ==$ <!-- [m³/s] -->       ← Just request the display unit
+```
+
+**Why HTML comments?**
+- The instruction stays in the source for re-runs
+- Invisible when rendered (preview/PDF)
+- Doesn't affect calculations, only display
 
 ### Custom Units
 

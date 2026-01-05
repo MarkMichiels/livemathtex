@@ -26,10 +26,12 @@ Design a pump system to transfer water from a storage tank to an elevated proces
 ### Flow Requirements
 
 Volume flow rate:
-$Q_{vol} := 50 \cdot \frac{m^3}{h}$
+$Q := 50 \cdot \frac{m^3}{h}$
 
-Convert to m³/s:
-$Q_s := \frac{Q_{vol}}{3600} ==$
+Display in different units (no manual conversion needed!):
+$Q ==$ <!-- [m³/h] -->
+$Q ==$ <!-- [m³/s] -->
+$Q ==$ <!-- [L/s] -->
 
 ### Geometry
 
@@ -66,7 +68,7 @@ Cross-sectional area:
 $A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} ==$
 
 Flow velocity:
-$vel := \frac{Q_s}{A_{pipe}} ==$
+$vel := \frac{Q}{A_{pipe}} ==$
 
 ---
 
@@ -101,7 +103,7 @@ $$TDH := H_{static} + H_f + H_m ==$$
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := rho \cdot grav \cdot Q_s \cdot TDH ==$$
+$$P_{hyd} := rho \cdot grav \cdot Q \cdot TDH ==$$ <!-- [kW] -->
 
 ---
 
@@ -114,7 +116,7 @@ Motor efficiency (assumed, dimensionless):
 $eta_m := 0.90$
 
 Required motor power:
-$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} ==$$
+$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} ==$$ <!-- [kW] -->
 
 ---
 
@@ -122,13 +124,13 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} ==$$
 
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
-| Flow rate | $Q_{vol}$ | 50 | m³/h |
+| Flow rate | $Q$ | 50 | m³/h |
 | Flow velocity | $vel$ | calculated | m/s |
 | Static head | $H_{static}$ | calculated | m |
 | Friction loss | $H_f$ | calculated | m |
 | Total head | $TDH$ | calculated | m |
 | Hydraulic power | $P_{hyd}$ | calculated | W |
-| Motor power | $P_{motor}$ | calculated | W |
+| Motor power | $P_{motor}$ | calculated | kW |
 
 ---
 

@@ -342,6 +342,34 @@ class Evaluator:
         if undefined:
             raise EvaluationError(f"Undefined variable(s): {', '.join(sorted(undefined))}")
 
+    def _normalize_unit_string(self, unit_str: str) -> str:
+        """
+        Normalize Unicode characters in unit strings to LaTeX notation.
+
+        Converts:
+        - Unicode superscripts: ² → ^2, ³ → ^3
+        - Unicode subscripts: ₀ → _0, ₁ → _1
+        - Common unit symbols: µ → micro (for parsing)
+        """
+        # Unicode superscripts to LaTeX
+        superscript_map = {
+            '⁰': '^0', '¹': '^1', '²': '^2', '³': '^3', '⁴': '^4',
+            '⁵': '^5', '⁶': '^6', '⁷': '^7', '⁸': '^8', '⁹': '^9',
+            '⁻': '^-',
+        }
+        # Unicode subscripts to LaTeX
+        subscript_map = {
+            '₀': '_0', '₁': '_1', '₂': '_2', '₃': '_3', '₄': '_4',
+            '₅': '_5', '₆': '_6', '₇': '_7', '₈': '_8', '₉': '_9',
+        }
+
+        for unicode_char, latex in superscript_map.items():
+            unit_str = unit_str.replace(unicode_char, latex)
+        for unicode_char, latex in subscript_map.items():
+            unit_str = unit_str.replace(unicode_char, latex)
+
+        return unit_str
+
     def _apply_conversion(self, value: Any, target_unit_latex: str):
         """
         Attempts to convert value to the target unit defined by latex string.
@@ -351,8 +379,11 @@ class Evaluator:
             return value, ""
 
         try:
+            # Normalize Unicode characters (e.g., m³/s → m^3/s)
+            normalized_unit = self._normalize_unit_string(target_unit_latex)
+
             # We need to parse the unit string 'N' or 'm/s' into a SymPy unit expression
-            target_unit = self._compute(target_unit_latex)
+            target_unit = self._compute(normalized_unit)
 
             from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
 
@@ -840,15 +871,14 @@ class Evaluator:
                  except:
                      pass
 
-            # Helper to format number
+            # Helper to format number for display
+            # Use 4 significant figures for scientific/engineering relevance
+            # Full precision is preserved in IR JSON for further calculations
             def fmt_num(n):
                 if hasattr(n, 'is_number') and n.is_number:
-                     # Convert to float to avoid \frac{}{}
-                     # Using .4g or similar as preferred? User used 9.8.
-                     # Let's try to preserve reasonable precision or just str(float(n))?
-                     # .15g usually preserves value well without trailing zeros?
-                     # User Example: 9.8 -> 9.8.
-                     return f"{float(n):.10g}"
+                     # Convert to float with 4 significant figures
+                     # Avoids \frac{}{} and excessive decimals like 0.0002777777778
+                     return f"{float(n):.4g}"
                 return self._simplify_subscripts(sympy.latex(n))
 
             # If rest is 1, it's just a number
