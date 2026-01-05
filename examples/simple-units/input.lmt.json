@@ -1,0 +1,254 @@
+{
+  "version": "1.0",
+  "source": "examples/simple-units/input.md",
+  "symbols": {
+    "m": {
+      "mapping": {
+        "latex_original": "m",
+        "latex_display": "m",
+        "internal_name": "m"
+      },
+      "value": 10.0,
+      "unit": "\\text{kg}",
+      "expression_latex": "10 \\cdot kg",
+      "line": 9
+    },
+    "s": {
+      "mapping": {
+        "latex_original": "s",
+        "latex_display": "s",
+        "internal_name": "s"
+      },
+      "value": 5.0,
+      "unit": null,
+      "expression_latex": "5",
+      "line": 11
+    },
+    "t": {
+      "mapping": {
+        "latex_original": "t",
+        "latex_display": "t",
+        "internal_name": "t"
+      },
+      "value": 10.0,
+      "unit": null,
+      "expression_latex": "10",
+      "line": 13
+    },
+    "m_1": {
+      "mapping": {
+        "latex_original": "m_1",
+        "latex_display": "m_1",
+        "internal_name": "m_1"
+      },
+      "value": 10.0,
+      "unit": "\\text{kg}",
+      "expression_latex": "10 \\cdot kg",
+      "line": 19
+    },
+    "a_1": {
+      "mapping": {
+        "latex_original": "a_1",
+        "latex_display": "a_1",
+        "internal_name": "a_1"
+      },
+      "value": 3.924,
+      "unit": "\\text{kg}",
+      "expression_latex": "9.81 \\cdot \\frac{m}{s^2}",
+      "line": 20
+    },
+    "F_1": {
+      "mapping": {
+        "latex_original": "F_1",
+        "latex_display": "F_1",
+        "internal_name": "F_1"
+      },
+      "value": 39.24,
+      "unit": "\\text{kg}^{2}",
+      "expression_latex": "m_1 \\cdot a_1",
+      "line": 23
+    },
+    "mass": {
+      "mapping": {
+        "latex_original": "mass",
+        "latex_display": "mass",
+        "internal_name": "mass"
+      },
+      "value": 25.0,
+      "unit": "\\text{kg}",
+      "expression_latex": "25 \\cdot kg",
+      "line": 27
+    },
+    "accel": {
+      "mapping": {
+        "latex_original": "accel",
+        "latex_display": "accel",
+        "internal_name": "accel"
+      },
+      "value": 3.924,
+      "unit": "\\text{kg}",
+      "expression_latex": "9.81 \\cdot \\frac{m}{s^2}",
+      "line": 28
+    },
+    "F_2": {
+      "mapping": {
+        "latex_original": "F_2",
+        "latex_display": "F_2",
+        "internal_name": "F_2"
+      },
+      "value": 98.1,
+      "unit": "\\text{kg}^{2}",
+      "expression_latex": "mass \\cdot accel",
+      "line": 31
+    },
+    "F_3": {
+      "mapping": {
+        "latex_original": "F_3",
+        "latex_display": "F_3",
+        "internal_name": "F_3"
+      },
+      "value": 98.1,
+      "unit": "\\text{kg}^{2}",
+      "expression_latex": "mass \\cdot accel",
+      "line": 34
+    },
+    "ratio_1": {
+      "mapping": {
+        "latex_original": "ratio_1",
+        "latex_display": "ratio_1",
+        "internal_name": "ratio_1"
+      },
+      "value": 2.5,
+      "unit": null,
+      "expression_latex": "\\frac{F_2}{F_1}",
+      "line": 40
+    },
+    "ratio_2": {
+      "mapping": {
+        "latex_original": "ratio_2",
+        "latex_display": "ratio_2",
+        "internal_name": "ratio_2"
+      },
+      "value": 2.5,
+      "unit": null,
+      "expression_latex": "\\frac{F_3}{F_1}",
+      "line": 42
+    }
+  },
+  "blocks": [
+    {
+      "line": 9,
+      "latex_input": "m := 10 \\cdot kg",
+      "latex_output": "m := 10 \\cdot kg",
+      "operation": ":=",
+      "target": "m",
+      "error": null
+    },
+    {
+      "line": 11,
+      "latex_input": "s := 5",
+      "latex_output": "s := 5",
+      "operation": ":=",
+      "target": "s",
+      "error": null
+    },
+    {
+      "line": 13,
+      "latex_input": "t := 10",
+      "latex_output": "t := 10",
+      "operation": ":=",
+      "target": "t",
+      "error": null
+    },
+    {
+      "line": 19,
+      "latex_input": "m_1 := 10 \\cdot kg",
+      "latex_output": "m_1 := 10 \\cdot kg",
+      "operation": ":=",
+      "target": "m_1",
+      "error": null
+    },
+    {
+      "line": 20,
+      "latex_input": "a_1 := 9.81 \\cdot \\frac{m}{s^2}",
+      "latex_output": "a_1 := 9.81 \\cdot \\frac{m}{s^2}",
+      "operation": ":=",
+      "target": "a_1",
+      "error": null
+    },
+    {
+      "line": 23,
+      "latex_input": "F_1 := m_1 \\cdot a_1 ==",
+      "latex_output": "F_1 := m_1 \\cdot a_1 ==",
+      "operation": ":=_==",
+      "target": "F_1",
+      "error": null
+    },
+    {
+      "line": 27,
+      "latex_input": "mass := 25 \\cdot kg",
+      "latex_output": "mass := 25 \\cdot kg",
+      "operation": ":=",
+      "target": "mass",
+      "error": null
+    },
+    {
+      "line": 28,
+      "latex_input": "accel := 9.81 \\cdot \\frac{m}{s^2}",
+      "latex_output": "accel := 9.81 \\cdot \\frac{m}{s^2}",
+      "operation": ":=",
+      "target": "accel",
+      "error": null
+    },
+    {
+      "line": 31,
+      "latex_input": "F_2 := mass \\cdot accel ==",
+      "latex_output": "F_2 := mass \\cdot accel ==",
+      "operation": ":=_==",
+      "target": "F_2",
+      "error": null
+    },
+    {
+      "line": 34,
+      "latex_input": "F_3 := mass \\cdot accel ==",
+      "latex_output": "F_3 := mass \\cdot accel ==",
+      "operation": ":=_==",
+      "target": "F_3",
+      "error": null
+    },
+    {
+      "line": 36,
+      "latex_input": "accel ==",
+      "latex_output": "accel ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 40,
+      "latex_input": "ratio_1 := \\frac{F_2}{F_1} ==",
+      "latex_output": "ratio_1 := \\frac{F_2}{F_1} ==",
+      "operation": ":=_==",
+      "target": "ratio_1",
+      "error": null
+    },
+    {
+      "line": 42,
+      "latex_input": "ratio_2 := \\frac{F_3}{F_1} ==",
+      "latex_output": "ratio_2 := \\frac{F_3}{F_1} ==",
+      "operation": ":=_==",
+      "target": "ratio_2",
+      "error": null
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-05 03:26:21",
+    "duration": "0.23s",
+    "definitions": 12,
+    "evaluations": 6,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0
+  }
+}

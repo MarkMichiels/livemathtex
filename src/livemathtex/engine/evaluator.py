@@ -740,10 +740,10 @@ class Evaluator:
 
     def _extract_numeric_value(self, value: Any) -> float:
         """Extract the numeric value from a possibly dimensioned or symbolic expression.
-        
-        For pure numeric expressions (including those with log, exp, etc.), 
+
+        For pure numeric expressions (including those with log, exp, etc.),
         we evaluate numerically first.
-        
+
         For dimensioned values (with units), we extract the coefficient.
         """
         import sympy
