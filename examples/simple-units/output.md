@@ -2,17 +2,21 @@
 
 This example demonstrates SI units and variable naming.
 
-## ❌ Common Mistakes (These Will Error)
+## Single-Letter Variables (Now Supported!)
 
-Using single-letter names that conflict with SI units:
+Using single-letter names that look like SI units - LiveMathTeX knows the context:
 
+**Left of `:=` → always a variable:**
 $m := 10 \cdot kg$
 
 $s := 5$
 
-$t := 10$
+$t := 10 \cdot s$
 
-## ✅ Correct Approach: Use Subscripts or Descriptive Names
+**Test: use `m` as variable AND `m` as unit in same formula:**
+$distance := m \cdot t == 50 \text{m}$ <!-- [m] -->
+
+## Alternative: Subscripts or Descriptive Names
 
 ### Option 1: Subscript notation (m_1, t_1, etc.)
 
@@ -45,4 +49,4 @@ The ratio should be 2.5 (25 kg / 10 kg).
 
 ---
 
-> *livemathtex: 2026-01-05 03:26:21 | 12 definitions, 6 evaluations | no errors | 0.23s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-05 03:28:17 | 13 definitions, 7 evaluations | no errors | 0.23s* <!-- livemathtex-meta -->

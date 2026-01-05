@@ -11,7 +11,7 @@
       "value": 10.0,
       "unit": "\\text{kg}",
       "expression_latex": "10 \\cdot kg",
-      "line": 9
+      "line": 10
     },
     "s": {
       "mapping": {
@@ -22,7 +22,7 @@
       "value": 5.0,
       "unit": null,
       "expression_latex": "5",
-      "line": 11
+      "line": 12
     },
     "t": {
       "mapping": {
@@ -30,10 +30,21 @@
         "latex_display": "t",
         "internal_name": "t"
       },
-      "value": 10.0,
+      "value": 50.0,
       "unit": null,
-      "expression_latex": "10",
-      "line": 13
+      "expression_latex": "10 \\cdot s",
+      "line": 14
+    },
+    "distance": {
+      "mapping": {
+        "latex_original": "distance",
+        "latex_display": "distance",
+        "internal_name": "distance"
+      },
+      "value": 500.0,
+      "unit": "\\text{kg}",
+      "expression_latex": "m \\cdot t",
+      "line": 17
     },
     "m_1": {
       "mapping": {
@@ -44,7 +55,7 @@
       "value": 10.0,
       "unit": "\\text{kg}",
       "expression_latex": "10 \\cdot kg",
-      "line": 19
+      "line": 23
     },
     "a_1": {
       "mapping": {
@@ -55,7 +66,7 @@
       "value": 3.924,
       "unit": "\\text{kg}",
       "expression_latex": "9.81 \\cdot \\frac{m}{s^2}",
-      "line": 20
+      "line": 24
     },
     "F_1": {
       "mapping": {
@@ -66,7 +77,7 @@
       "value": 39.24,
       "unit": "\\text{kg}^{2}",
       "expression_latex": "m_1 \\cdot a_1",
-      "line": 23
+      "line": 27
     },
     "mass": {
       "mapping": {
@@ -77,7 +88,7 @@
       "value": 25.0,
       "unit": "\\text{kg}",
       "expression_latex": "25 \\cdot kg",
-      "line": 27
+      "line": 31
     },
     "accel": {
       "mapping": {
@@ -88,7 +99,7 @@
       "value": 3.924,
       "unit": "\\text{kg}",
       "expression_latex": "9.81 \\cdot \\frac{m}{s^2}",
-      "line": 28
+      "line": 32
     },
     "F_2": {
       "mapping": {
@@ -99,7 +110,7 @@
       "value": 98.1,
       "unit": "\\text{kg}^{2}",
       "expression_latex": "mass \\cdot accel",
-      "line": 31
+      "line": 35
     },
     "F_3": {
       "mapping": {
@@ -110,7 +121,7 @@
       "value": 98.1,
       "unit": "\\text{kg}^{2}",
       "expression_latex": "mass \\cdot accel",
-      "line": 34
+      "line": 38
     },
     "ratio_1": {
       "mapping": {
@@ -121,7 +132,7 @@
       "value": 2.5,
       "unit": null,
       "expression_latex": "\\frac{F_2}{F_1}",
-      "line": 40
+      "line": 44
     },
     "ratio_2": {
       "mapping": {
@@ -132,12 +143,12 @@
       "value": 2.5,
       "unit": null,
       "expression_latex": "\\frac{F_3}{F_1}",
-      "line": 42
+      "line": 46
     }
   },
   "blocks": [
     {
-      "line": 9,
+      "line": 10,
       "latex_input": "m := 10 \\cdot kg",
       "latex_output": "m := 10 \\cdot kg",
       "operation": ":=",
@@ -145,7 +156,7 @@
       "error": null
     },
     {
-      "line": 11,
+      "line": 12,
       "latex_input": "s := 5",
       "latex_output": "s := 5",
       "operation": ":=",
@@ -153,15 +164,23 @@
       "error": null
     },
     {
-      "line": 13,
-      "latex_input": "t := 10",
-      "latex_output": "t := 10",
+      "line": 14,
+      "latex_input": "t := 10 \\cdot s",
+      "latex_output": "t := 10 \\cdot s",
       "operation": ":=",
       "target": "t",
       "error": null
     },
     {
-      "line": 19,
+      "line": 17,
+      "latex_input": "distance := m \\cdot t ==",
+      "latex_output": "distance := m \\cdot t ==",
+      "operation": ":=_==",
+      "target": "distance",
+      "error": null
+    },
+    {
+      "line": 23,
       "latex_input": "m_1 := 10 \\cdot kg",
       "latex_output": "m_1 := 10 \\cdot kg",
       "operation": ":=",
@@ -169,7 +188,7 @@
       "error": null
     },
     {
-      "line": 20,
+      "line": 24,
       "latex_input": "a_1 := 9.81 \\cdot \\frac{m}{s^2}",
       "latex_output": "a_1 := 9.81 \\cdot \\frac{m}{s^2}",
       "operation": ":=",
@@ -177,7 +196,7 @@
       "error": null
     },
     {
-      "line": 23,
+      "line": 27,
       "latex_input": "F_1 := m_1 \\cdot a_1 ==",
       "latex_output": "F_1 := m_1 \\cdot a_1 ==",
       "operation": ":=_==",
@@ -185,7 +204,7 @@
       "error": null
     },
     {
-      "line": 27,
+      "line": 31,
       "latex_input": "mass := 25 \\cdot kg",
       "latex_output": "mass := 25 \\cdot kg",
       "operation": ":=",
@@ -193,7 +212,7 @@
       "error": null
     },
     {
-      "line": 28,
+      "line": 32,
       "latex_input": "accel := 9.81 \\cdot \\frac{m}{s^2}",
       "latex_output": "accel := 9.81 \\cdot \\frac{m}{s^2}",
       "operation": ":=",
@@ -201,7 +220,7 @@
       "error": null
     },
     {
-      "line": 31,
+      "line": 35,
       "latex_input": "F_2 := mass \\cdot accel ==",
       "latex_output": "F_2 := mass \\cdot accel ==",
       "operation": ":=_==",
@@ -209,7 +228,7 @@
       "error": null
     },
     {
-      "line": 34,
+      "line": 38,
       "latex_input": "F_3 := mass \\cdot accel ==",
       "latex_output": "F_3 := mass \\cdot accel ==",
       "operation": ":=_==",
@@ -217,7 +236,7 @@
       "error": null
     },
     {
-      "line": 36,
+      "line": 40,
       "latex_input": "accel ==",
       "latex_output": "accel ==",
       "operation": "==",
@@ -225,7 +244,7 @@
       "error": null
     },
     {
-      "line": 40,
+      "line": 44,
       "latex_input": "ratio_1 := \\frac{F_2}{F_1} ==",
       "latex_output": "ratio_1 := \\frac{F_2}{F_1} ==",
       "operation": ":=_==",
@@ -233,7 +252,7 @@
       "error": null
     },
     {
-      "line": 42,
+      "line": 46,
       "latex_input": "ratio_2 := \\frac{F_3}{F_1} ==",
       "latex_output": "ratio_2 := \\frac{F_3}{F_1} ==",
       "operation": ":=_==",
@@ -243,10 +262,10 @@
   ],
   "errors": [],
   "stats": {
-    "last_run": "2026-01-05 03:26:21",
+    "last_run": "2026-01-05 03:28:17",
     "duration": "0.23s",
-    "definitions": 12,
-    "evaluations": 6,
+    "definitions": 13,
+    "evaluations": 7,
     "symbolic": 0,
     "value_refs": 0,
     "errors": 0
