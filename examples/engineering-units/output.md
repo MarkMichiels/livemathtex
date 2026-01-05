@@ -142,4 +142,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236 \text{kW}$$ <!-- [kW] 
 
 ---
 
-> *livemathtex: 2026-01-05 03:24:28 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.61s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-05 03:36:26 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.61s* <!-- livemathtex-meta -->

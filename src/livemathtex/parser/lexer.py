@@ -45,6 +45,10 @@ class Lexer:
 
     OPERATOR_RE = re.compile(r'(:=|==|=>)')
 
+    # Regex for finding fenced code blocks (``` or ~~~)
+    # These should be skipped - we don't process math inside code blocks
+    CODE_BLOCK_RE = re.compile(r'```[\s\S]*?```|~~~[\s\S]*?~~~')
+
     def parse(self, text: str) -> Document:
         """Parse the full document text."""
         children = []
@@ -55,7 +59,20 @@ class Lexer:
         for match in re.finditer(r'\n', text):
             line_offsets.append(match.end())
 
+        # Find all code block regions to exclude
+        code_block_regions = [(m.start(), m.end()) for m in self.CODE_BLOCK_RE.finditer(text)]
+
+        def is_in_code_block(pos: int) -> bool:
+            """Check if position is inside a fenced code block."""
+            for start, end in code_block_regions:
+                if start <= pos < end:
+                    return True
+            return False
+
         for match in self.MATH_BLOCK_RE.finditer(text):
+            # Skip math blocks inside fenced code blocks
+            if is_in_code_block(match.start()):
+                continue
             # Text before the math block
             if match.start() > last_pos:
                 children.append(TextBlock(content=text[last_pos:match.start()]))
