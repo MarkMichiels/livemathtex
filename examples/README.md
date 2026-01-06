@@ -19,6 +19,7 @@ livemathtex process examples/playground.md
 | `engineering/` | Shell-and-tube heat exchanger design |
 | `engineering-units/` | Pump sizing with unit conversions |
 | `settings/` | **Configuration settings demo** (digits, format) |
+| `units/` | **Custom unit definitions** (`===` syntax) |
 | `playground.md` | **Editable** - experiment here! |
 
 ## Static Examples (input → output)
@@ -35,6 +36,7 @@ livemathtex process examples/simple-units/input.md
 livemathtex process examples/engineering/input.md
 livemathtex process examples/engineering-units/input.md
 livemathtex process examples/settings/input.md
+livemathtex process examples/units/input.md
 ```
 
 ## Operators Reference
@@ -44,6 +46,7 @@ livemathtex process examples/settings/input.md
 | `:=` | Definition | `$x := 10$` |
 | `==` | Evaluation | `$x + 5 ==$` → `$x + 5 == 15$` |
 | `=>` | Symbolic | `$x + x =>$` → `$x + x => 2x$` |
+| `===` | Unit definition | `$€ === €$` (new unit) |
 
 ## SI Units Support
 

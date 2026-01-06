@@ -1,0 +1,284 @@
+{
+  "version": "1.0",
+  "source": "examples/units/input.md",
+  "symbols": {
+    "€": {
+      "mapping": {
+        "latex_original": "€",
+        "latex_display": "€",
+        "internal_name": "€"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": null,
+      "line": 11
+    },
+    "dollar": {
+      "mapping": {
+        "latex_original": "dollar",
+        "latex_display": "dollar",
+        "internal_name": "dollar"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": null,
+      "line": 13
+    },
+    "mbar": {
+      "mapping": {
+        "latex_original": "mbar",
+        "latex_display": "mbar",
+        "internal_name": "mbar"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": null,
+      "line": 19
+    },
+    "kWh": {
+      "mapping": {
+        "latex_original": "kWh",
+        "latex_display": "kWh",
+        "internal_name": "kWh"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": null,
+      "line": 25
+    },
+    "dag": {
+      "mapping": {
+        "latex_original": "dag",
+        "latex_display": "dag",
+        "internal_name": "dag"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": null,
+      "line": 31
+    },
+    "uur": {
+      "mapping": {
+        "latex_original": "uur",
+        "latex_display": "uur",
+        "internal_name": "uur"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": null,
+      "line": 33
+    },
+    "prijs_{kWh}": {
+      "mapping": {
+        "latex_original": "prijs_{kWh}",
+        "latex_display": "prijs_{kWh}",
+        "internal_name": "prijs_{kWh}"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": "0.139",
+      "line": 43
+    },
+    "energie": {
+      "mapping": {
+        "latex_original": "energie",
+        "latex_display": "energie",
+        "internal_name": "energie"
+      },
+      "value": 1500.0,
+      "unit": null,
+      "expression_latex": "1500",
+      "line": 45
+    },
+    "kosten": {
+      "mapping": {
+        "latex_original": "kosten",
+        "latex_display": "kosten",
+        "internal_name": "kosten"
+      },
+      "value": 208.5,
+      "unit": null,
+      "expression_latex": "prijs_{kWh} \\cdot energie",
+      "line": 47
+    },
+    "P_{bar}": {
+      "mapping": {
+        "latex_original": "P_{bar}",
+        "latex_display": "P_{bar}",
+        "internal_name": "P_{bar}"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": "2.5",
+      "line": 51
+    },
+    "P_{mbar}": {
+      "mapping": {
+        "latex_original": "P_{mbar}",
+        "latex_display": "P_{mbar}",
+        "internal_name": "P_{mbar}"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": "P_{bar} \\cdot 1000",
+      "line": 53
+    },
+    "uren_{dag}": {
+      "mapping": {
+        "latex_original": "uren_{dag}",
+        "latex_display": "uren_{dag}",
+        "internal_name": "uren_{dag}"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": "8",
+      "line": 57
+    },
+    "dagen": {
+      "mapping": {
+        "latex_original": "dagen",
+        "latex_display": "dagen",
+        "internal_name": "dagen"
+      },
+      "value": 22.0,
+      "unit": null,
+      "expression_latex": "22",
+      "line": 59
+    },
+    "totaal_{uren}": {
+      "mapping": {
+        "latex_original": "totaal_{uren}",
+        "latex_display": "totaal_{uren}",
+        "internal_name": "totaal_{uren}"
+      },
+      "value": null,
+      "unit": null,
+      "expression_latex": "uren_{dag} \\cdot dagen",
+      "line": 61
+    }
+  },
+  "blocks": [
+    {
+      "line": 11,
+      "latex_input": "€ === €",
+      "latex_output": "€ === €",
+      "operation": "===",
+      "target": "€",
+      "error": null
+    },
+    {
+      "line": 13,
+      "latex_input": "dollar === dollar",
+      "latex_output": "dollar === dollar",
+      "operation": "===",
+      "target": "dollar",
+      "error": null
+    },
+    {
+      "line": 19,
+      "latex_input": "mbar === bar / 1000",
+      "latex_output": "mbar === bar / 1000",
+      "operation": "===",
+      "target": "mbar",
+      "error": null
+    },
+    {
+      "line": 25,
+      "latex_input": "kWh === kW \\cdot h",
+      "latex_output": "kWh === kW \\cdot h",
+      "operation": "===",
+      "target": "kWh",
+      "error": null
+    },
+    {
+      "line": 31,
+      "latex_input": "dag === day",
+      "latex_output": "dag === day",
+      "operation": "===",
+      "target": "dag",
+      "error": null
+    },
+    {
+      "line": 33,
+      "latex_input": "uur === hour",
+      "latex_output": "uur === hour",
+      "operation": "===",
+      "target": "uur",
+      "error": null
+    },
+    {
+      "line": 43,
+      "latex_input": "prijs_{kWh} := 0.139",
+      "latex_output": "prijs_{kWh} := 0.139",
+      "operation": ":=",
+      "target": "prijs_{kWh}",
+      "error": null
+    },
+    {
+      "line": 45,
+      "latex_input": "energie := 1500",
+      "latex_output": "energie := 1500",
+      "operation": ":=",
+      "target": "energie",
+      "error": null
+    },
+    {
+      "line": 47,
+      "latex_input": "kosten := prijs_{kWh} \\cdot energie ==",
+      "latex_output": "kosten := prijs_{kWh} \\cdot energie ==",
+      "operation": ":=_==",
+      "target": "kosten",
+      "error": null
+    },
+    {
+      "line": 51,
+      "latex_input": "P_{bar} := 2.5",
+      "latex_output": "P_{bar} := 2.5",
+      "operation": ":=",
+      "target": "P_{bar}",
+      "error": null
+    },
+    {
+      "line": 53,
+      "latex_input": "P_{mbar} := P_{bar} \\cdot 1000 ==",
+      "latex_output": "P_{mbar} := P_{bar} \\cdot 1000 ==",
+      "operation": ":=_==",
+      "target": "P_{mbar}",
+      "error": null
+    },
+    {
+      "line": 57,
+      "latex_input": "uren_{dag} := 8",
+      "latex_output": "uren_{dag} := 8",
+      "operation": ":=",
+      "target": "uren_{dag}",
+      "error": null
+    },
+    {
+      "line": 59,
+      "latex_input": "dagen := 22",
+      "latex_output": "dagen := 22",
+      "operation": ":=",
+      "target": "dagen",
+      "error": null
+    },
+    {
+      "line": 61,
+      "latex_input": "totaal_{uren} := uren_{dag} \\cdot dagen ==",
+      "latex_output": "totaal_{uren} := uren_{dag} \\cdot dagen ==",
+      "operation": ":=_==",
+      "target": "totaal_{uren}",
+      "error": null
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-07 00:45:49",
+    "duration": "0.09s",
+    "definitions": 8,
+    "evaluations": 3,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0
+  }
+}

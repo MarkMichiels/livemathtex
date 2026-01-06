@@ -39,17 +39,19 @@ class Lexer:
 
     # Regex for finding operations inside a math block
     # Matches:
-    # 1. Assignment:  var := expr
-    # 2. Evaluation:  expr == result (or just ==)
-    # 3. Both:        var := expr == result
-    # 4. Symbolic:    expr => result
+    # 1. Unit def:    unit === expr (unit definition)
+    # 2. Assignment:  var := expr
+    # 3. Evaluation:  expr == result (or just ==)
+    # 4. Both:        var := expr == result
+    # 5. Symbolic:    expr => result
 
     # We look for these operators.
+    # === Unit definition (must check BEFORE ==)
     # :=  Assignment
     # ==  Evaluation
     # =>  Symbolic
 
-    OPERATOR_RE = re.compile(r'(:=|==|=>)')
+    OPERATOR_RE = re.compile(r'(===|:=|==|=>)')
 
     # Regex for finding fenced code blocks (``` or ~~~)
     # These should be skipped - we don't process math inside code blocks
@@ -183,7 +185,7 @@ class Lexer:
             return calculations
 
         # First pass: check if block has ANY livemathtex operators
-        has_operators = bool(re.search(r':=|==|=>', content))
+        has_operators = bool(re.search(r':=|===|==|=>', content))
 
         if not has_operators:
             # Pure display LaTeX - no calculations, pass through unchanged
@@ -207,6 +209,22 @@ class Lexer:
                         original_result=None,
                         unit_comment=math_block.unit_comment,
                         error_message="Invalid operator '='. Use ':=' for definition or '==' for evaluation."
+                    )
+                )
+                continue
+
+            # Check for "===" (Unit Definition) - MUST come before "==" check!
+            unit_def_match = re.search(r'^\s*(.*?)\s*===\s*(.*)', line, re.DOTALL)
+            if unit_def_match:
+                lhs = unit_def_match.group(1).strip()
+                rhs = unit_def_match.group(2).strip()
+                calculations.append(
+                    Calculation(
+                        latex=line,
+                        operation="===",
+                        target=lhs,  # The unit name being defined
+                        original_result=rhs,  # The definition expression
+                        unit_comment=math_block.unit_comment
                     )
                 )
                 continue

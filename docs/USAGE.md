@@ -12,6 +12,7 @@
 | `==` | Evaluate | `$x ==$` | `$x == 42$` (result filled in) |
 | `:= ==` | Define + evaluate | `$y := x^2 ==$` | `$y := x^2 == 1764$` |
 | `=>` | Symbolic | `$f'(x) =>$` | `$f'(x) => 2x$` |
+| `===` | Unit definition | `$€ === €$` | (defines custom unit) |
 
 **Unit conversion** (using HTML comment, invisible in rendered output):
 ```
@@ -91,6 +92,48 @@ $\text{solve}(x^2 - 4 = 0) =>$
 ```
 
 **Output:** Shows symbolic result, not numeric.
+
+### Unit Definition (`===`)
+
+Defines custom units that can be used in calculations.
+
+**Base unit (new unit):**
+```latex
+$$ € === € $$
+$$ dollar === dollar $$
+```
+
+**Derived unit (from existing):**
+```latex
+$$ mbar === bar / 1000 $$
+$$ kPa === Pa * 1000 $$
+```
+
+**Compound unit:**
+```latex
+$$ kWh === kW \cdot h $$
+$$ mg_per_L === mg / L $$
+```
+
+**Alias (rename existing):**
+```latex
+$$ dag === day $$
+$$ uur === hour $$
+```
+
+**Pattern recognition:**
+
+| Pattern | Meaning | Example |
+|---------|---------|---------|
+| `X === X` | New base unit | `€ === €` |
+| `X === Y / n` | Derived (scaled) | `mbar === bar/1000` |
+| `X === Y * Z` | Compound | `kWh === kW * h` |
+| `X === Y` | Alias | `dag === day` |
+
+**Built-in units:** SymPy provides most SI and common units. Use `===` for:
+- Currency (euro, dollar)
+- Non-standard abbreviations (dag → day)
+- Domain-specific units
 
 ---
 
@@ -590,15 +633,17 @@ This creates `input.lmt.json` with:
   "version": "1.0",
   "source": "input.md",
   "symbols": {
-    "Delta_T_h": {
-      "mapping": {
-        "latex_original": "\\Delta T_h",
-        "latex_display": "\\Delta_{T_h}",
-        "internal_name": "Delta_T_h"
-      },
+    "v_{0}": {
+      "latex_name": "\\Delta T_h",
       "value": 17.92,
       "unit": "K",
       "line": 52
+    },
+    "v_{1}": {
+      "latex_name": "T_{h,out}",
+      "value": 72.08,
+      "unit": null,
+      "line": 55
     }
   },
   "blocks": [...],
@@ -613,18 +658,28 @@ This creates `input.lmt.json` with:
 
 ### Symbol Mapping
 
-The IR tracks three forms of each symbol:
+LiveMathTeX uses a simple `v_{n}` / `f_{n}` naming scheme for reliable parsing:
 
-| Form | Example | Purpose |
-|------|---------|---------|
-| `latex_original` | `\Delta T_h` | Exactly as written in input |
-| `latex_display` | `\Delta_{T_h}` | KaTeX-safe display form |
-| `internal_name` | `Delta_T_h` | Python/SymPy identifier |
+| Type | Pattern | Example LaTeX | Internal |
+|------|---------|---------------|----------|
+| **Variables** | `v_{n}` | `P_{LED,out}` | `v_{0}` |
+| **Functions** | `f_{n}` | `\eta_{PSU}(x)` | `f_{0}` |
 
-This mapping solves:
-- **KaTeX rendering issues** (no `\text{Delta_T_h}` errors)
-- **Symbol lookup consistency** (Greek letters work correctly)
-- **Debugging clarity** (see exactly what's happening)
+The IR tracks the mapping between internal names and original LaTeX:
+
+```json
+{
+  "v_{0}": {
+    "latex_name": "P_{LED,out}",
+    "value": 123.45
+  }
+}
+```
+
+This approach ensures:
+- **100% parsing success** - `v_{0}` always parses correctly
+- **Any LaTeX supported** - Greek, subscripts, commas, slashes all work
+- **Debugging clarity** - IR shows the full mapping
 
 ### Inspecting Results
 

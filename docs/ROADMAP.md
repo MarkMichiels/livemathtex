@@ -87,12 +87,17 @@ $z := x + y == 8$
 
 ### Deliverables
 
-- [x] **2.1 Unit Support**
+- [ ] **2.1 Unit Support** (TASK-007 partial)
   - [x] Integrate SymPy physics.units (not Pint - simpler)
-  - [x] Parse units in expressions
+  - [x] Parse units in expressions (basic)
   - [x] Automatic dimension checking
   - [x] Unit conversion on output (via HTML comments)
   - [x] Error messages for unit/variable name conflicts
+  - [x] **Custom unit definitions** (`===` syntax)
+  - [x] Unit abbreviation mappings (L→liter, h→hour, dag→day)
+  - [x] Currency units (euro, dollar)
+  - [ ] **Strip units from values** (e.g., `0.139\ \text{€/kWh}` → 0.139 + unit metadata)
+  - [ ] **Special character handling** (€ symbol in unit expressions)
 
 - [x] **2.2 LaTeX Parsing**
   - [x] Integrate latex2sympy2
@@ -101,8 +106,8 @@ $z := x + y == 8$
   - [x] Parse Greek letters (Δ, α, θ, etc.)
   - [x] Parse common functions (sin, cos, sqrt, log)
 
-- [x] **2.3 Intermediate Representation (IR)** - NEW
-  - [x] Symbol normalization (LaTeX ↔ internal names)
+- [x] **2.3 Intermediate Representation (IR)**
+  - [x] Symbol normalization (`v_{n}`/`f_{n}` architecture)
   - [x] IR JSON output for debugging (`--verbose`)
   - [x] `inspect` command for IR files
   - [ ] **Import system** (load symbols from other Markdown via IR)
@@ -119,13 +124,14 @@ $z := x + y == 8$
   - [x] Documentation: explain how to use Pandoc for PDF
   - [ ] `--import` flag for loading library IR
 
-- [ ] **2.6 Configuration System** (documented in ARCHITECTURE.md)
-  - [ ] Command-line args (`--digits`, `--scientific`)
-  - [ ] Document directives (`<!-- livemathtex: digits=4 -->`)
-  - [ ] Local config (`.livemathtex.toml`)
-  - [ ] Project config (`pyproject.toml [tool.livemathtex]`)
-  - [ ] User config (`~/.config/livemathtex/config.toml`)
-  - [ ] Config precedence hierarchy
+- [x] **2.6 Configuration System** (TASK-006 - COMPLETE)
+  - [x] Document directives (`<!-- livemathtex: digits=4 -->`)
+  - [x] Expression-level overrides (`<!-- digits:2 -->`)
+  - [x] Local config (`.livemathtex.toml`)
+  - [x] Project config (`pyproject.toml [tool.livemathtex]`)
+  - [x] User config (`~/.config/livemathtex/config.toml`)
+  - [x] Config precedence hierarchy
+  - [x] Safe output defaults (timestamped, not inplace)
 
 - [x] **2.7 Error Handling**
   - [x] Comprehensive error types

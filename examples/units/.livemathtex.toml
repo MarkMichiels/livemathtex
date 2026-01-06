@@ -1,0 +1,3 @@
+# LiveMathTeX configuration for units example
+output = "output.md"
+digits = 4
