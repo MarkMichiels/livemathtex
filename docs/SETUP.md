@@ -78,13 +78,31 @@ $result := 1/3 ==$
 
 ### VS Code / Cursor
 
-1. Install "Markdown Preview Enhanced" extension
-2. LiveMathTeX processes files, MPE renders LaTeX
+**Quick setup for keyboard shortcut processing:**
+
+1. Ensure livemathtex is in your workspace (or copy `.vscode/tasks.json`)
+2. Add keybinding to your `keybindings.json`:
+   ```json
+   {
+       "key": "f9",
+       "command": "workbench.action.tasks.runTask",
+       "args": "LiveMathTeX: Process Current File",
+       "when": "editorLangId == markdown"
+   }
+   ```
+3. Press `F9` on any Markdown file to process (same as Mathcad/SMath)
 
 **Workflow:**
-1. Edit `.md` file
-2. Run `livemathtex process file.md`
-3. Preview updates automatically
+1. Edit `.md` file with LiveMathTeX syntax
+2. Press `F9` (or run task manually)
+3. File updates with calculated results
+4. Preview with "Markdown Preview Enhanced" extension
+
+**Full guide:** See **[EDITOR_INTEGRATION.md](EDITOR_INTEGRATION.md)** for:
+- All available tasks
+- Multi-root workspace setup
+- Troubleshooting
+- Advanced configuration
 
 ### Watch Mode (Future)
 

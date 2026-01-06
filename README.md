@@ -31,6 +31,9 @@ pip install -e .
 livemathtex process calculation.md
 ```
 
+**Keyboard shortcut:** Press `F9` in VS Code/Cursor to process the current file (same as Mathcad/SMath).
+See [Editor Integration](docs/EDITOR_INTEGRATION.md) for setup.
+
 **Using Cursor/AI assistant?** Type `/livemathtex-setup` for guided installation.
 
 ---
@@ -105,6 +108,7 @@ Three operators. That's it.
 | [`/livemathtex`](.cursor/commands/livemathtex.md) | Process files (Cursor command) |
 | [`/livemathtex-setup`](.cursor/commands/livemathtex-setup.md) | Installation (Cursor command) |
 | [SETUP.md](docs/SETUP.md) | Detailed installation |
+| [EDITOR_INTEGRATION.md](docs/EDITOR_INTEGRATION.md) | Keyboard shortcuts & VS Code setup |
 | [USAGE.md](docs/USAGE.md) | Complete syntax reference |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design |
 | [ROADMAP.md](docs/ROADMAP.md) | Development phases |
