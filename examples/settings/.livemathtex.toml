@@ -1,0 +1,8 @@
+# Livemathtex configuration for settings example
+# This ensures output always goes to output.md (not timestamped)
+
+output = "output.md"
+
+# Using defaults for all other settings to demonstrate overrides
+# digits = 4       (default)
+# format = "general"   (default)

@@ -1,0 +1,4 @@
+# Livemathtex configuration for simple-units example
+# This ensures output always goes to output.md (not timestamped)
+
+output = "output.md"

@@ -29,7 +29,7 @@ Volume flow rate:
 $Q := 50 \frac{m^{3}}{h}$
 
 Display in different units (no manual conversion needed!):
-$Q == 50 \text{m³/h}$ <!-- [m³/h] -->
+$Q == 50.00 \text{m³/h}$ <!-- [m³/h] -->
 $Q == 0.01389 \text{m³/s}$ <!-- [m³/s] -->
 $Q == 13.89 \text{L/s}$ <!-- [L/s] -->
 
@@ -65,7 +65,7 @@ $f_d := 0.02$
 ## Step 1: Flow Velocity
 
 Cross-sectional area:
-$A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} == 0.007854 \text{m}^{2}$
+$A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} == 7.854e-03 \text{m}^{2}$
 
 Flow velocity:
 $vel := \frac{Q}{A_{pipe}} == 1.768 \frac{\text{m}}{\text{s}}$
@@ -77,7 +77,7 @@ $vel := \frac{Q}{A_{pipe}} == 1.768 \frac{\text{m}}{\text{s}}$
 ### Static Head
 
 Total static head:
-$H_{static} := h_d - h_s == 17 \text{m}$
+$H_{static} := h_d - h_s == 17.00 \text{m}$
 
 ### Friction Head Loss
 
@@ -125,12 +125,12 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236 \text{kW}$$ <!-- [kW] 
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
 | Flow rate | $Q$ | $50.00$ <!-- value:Q [m³/h] --> | m³/h |
-| Flow velocity | $vel$ | $1.77$ <!-- value:vel [m/s] :2 --> | m/s |
-| Static head | $H_{static}$ | $17.0$ <!-- value:H_{static} [m] :1 --> | m |
-| Friction loss | $H_f$ | $3.19$ <!-- value:H_f [m] :2 --> | m |
-| Total head | $TDH$ | $21.0$ <!-- value:TDH [m] :1 --> | m |
-| Hydraulic power | $P_{hyd}$ | $2.86$ <!-- value:P_{hyd} [kW] :2 --> | kW |
-| Motor power | $P_{motor}$ | $4.24$ <!-- value:P_{motor} [kW] :2 --> | kW |
+| Flow velocity | $vel$ | $1.8$ <!-- value:vel [m/s] :2 --> | m/s |
+| Static head | $H_{static}$ | $20$ <!-- value:H_{static} [m] :1 --> | m |
+| Friction loss | $H_f$ | $3.2$ <!-- value:H_f [m] :2 --> | m |
+| Total head | $TDH$ | $20$ <!-- value:TDH [m] :1 --> | m |
+| Hydraulic power | $P_{hyd}$ | $2.9$ <!-- value:P_{hyd} [kW] :2 --> | kW |
+| Motor power | $P_{motor}$ | $4.2$ <!-- value:P_{motor} [kW] :2 --> | kW |
 
 ---
 
@@ -142,4 +142,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236 \text{kW}$$ <!-- [kW] 
 
 ---
 
-> *livemathtex: 2026-01-05 03:36:26 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.61s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-06 22:58:04 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.60s* <!-- livemathtex-meta -->
