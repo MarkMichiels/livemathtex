@@ -8,6 +8,7 @@ from .parser.models import MathBlock
 from .engine.evaluator import Evaluator
 from .render.markdown import MarkdownRenderer
 from .ir import IRBuilder, LivemathIR
+from .config import LivemathConfig
 
 try:
     from .utils.errors import livemathtexError
@@ -24,9 +25,17 @@ def process_file(
     """
     Main pipeline: Read -> Parse -> Build IR -> Evaluate -> Render -> Write
 
+    Configuration is loaded hierarchically:
+    1. CLI -o (output path only, passed via output_path parameter)
+    2. Document directives (<!-- livemathtex: ... -->)
+    3. Local config (.livemathtex.toml)
+    4. Project config (pyproject.toml [tool.livemathtex])
+    5. User config (~/.config/livemathtex/config.toml)
+    6. Defaults
+
     Args:
         input_path: Path to input markdown file
-        output_path: Path to output markdown file (default: same as input)
+        output_path: Path to output markdown file (CLI -o override)
         verbose: If True, write IR to JSON file for debugging
         ir_output_path: Custom path for IR JSON (default: input_path.lmt.json)
 
@@ -36,20 +45,30 @@ def process_file(
     start_time = time.time()
     input_path_obj = Path(input_path)
 
-    # 1. Read
+    # 1. Read document
     with open(input_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # 2. Parse
+    # 2. Load config from files (levels 3-6 of hierarchy)
+    base_config = LivemathConfig.load(input_path_obj)
+
+    # 3. Parse document directives (level 2 of hierarchy)
     lexer = Lexer()
+    doc_directives = lexer.parse_document_directives(content)
+    config = base_config.with_overrides(doc_directives)
+
+    # 4. Resolve output path (CLI level 1 > config)
+    resolved_output = config.resolve_output_path(input_path_obj, output_path)
+
+    # 5. Parse document structure
     document = lexer.parse(content)
 
-    # 3. Build IR
+    # 6. Build IR
     builder = IRBuilder()
     ir = builder.build(document, source=str(input_path))
 
-    # 4. Extract calculations and evaluate
-    evaluator = Evaluator()
+    # 7. Extract calculations and evaluate (with config)
+    evaluator = Evaluator(config=config)
     results = {}  # Map MathBlock -> Resulting LaTeX string (full block content)
     all_calculations = []  # Flat list for IR evaluation
 
@@ -68,6 +87,9 @@ def process_file(
             if not calculations:
                 continue
 
+            # Extract expression-level config overrides from block comment
+            expr_overrides = lexer.extract_config_from_comment(block)
+
             for calc in calculations:
                 all_calculations.append(calc)
 
@@ -85,7 +107,8 @@ def process_file(
                     value_count += 1
 
                 try:
-                    result_latex = evaluator.evaluate(calc)
+                    # Pass expression-level overrides to evaluator
+                    result_latex = evaluator.evaluate(calc, config_overrides=expr_overrides)
                     # Check if the evaluator returned an error (contains \color{red})
                     if '\\color{red}' in result_latex:
                         error_count += 1
@@ -173,7 +196,7 @@ def process_file(
             except Exception:
                 pass  # Skip symbols that can't be converted
 
-    # 5. Render
+    # 8. Render
     metadata = {
         "last_run": now_str,
         "duration": f"{duration:.2f}s",
@@ -187,16 +210,11 @@ def process_file(
     renderer = MarkdownRenderer()
     new_doc_content = renderer.render(document, results, metadata=metadata)
 
-    # 6. Write output markdown
-    if output_path:
-        final_path = output_path
-    else:
-        final_path = input_path
-
-    with open(final_path, 'w') as f:
+    # 9. Write output markdown (using resolved path from config)
+    with open(resolved_output, 'w') as f:
         f.write(new_doc_content)
 
-    # 7. Optionally write IR JSON for debugging
+    # 10. Optionally write IR JSON for debugging
     if verbose:
         if ir_output_path:
             ir_path = Path(ir_output_path)
@@ -223,16 +241,20 @@ def process_text(
     """
     start_time = time.time()
 
-    # 1. Parse
+    # 1. Parse document structure
     lexer = Lexer()
     document = lexer.parse(content)
 
-    # 2. Build IR
+    # 2. Parse document directives and create config
+    doc_directives = lexer.parse_document_directives(content)
+    config = LivemathConfig().with_overrides(doc_directives) if doc_directives else LivemathConfig()
+
+    # 3. Build IR
     builder = IRBuilder()
     ir = builder.build(document, source=source)
 
-    # 3. Evaluate
-    evaluator = Evaluator()
+    # 4. Evaluate (with config)
+    evaluator = Evaluator(config=config)
     results = {}
 
     error_count = 0
@@ -249,6 +271,9 @@ def process_text(
             if not calculations:
                 continue
 
+            # Extract expression-level config overrides from block comment
+            expr_overrides = lexer.extract_config_from_comment(block)
+
             for calc in calculations:
                 if calc.operation == ':=':
                     assign_count += 1
@@ -263,7 +288,8 @@ def process_text(
                     value_count += 1
 
                 try:
-                    result_latex = evaluator.evaluate(calc)
+                    # Pass expression-level overrides to evaluator
+                    result_latex = evaluator.evaluate(calc, config_overrides=expr_overrides)
                     if '\\color{red}' in result_latex:
                         error_count += 1
                     block_calcs_results.append(result_latex)

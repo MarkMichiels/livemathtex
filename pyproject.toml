@@ -43,6 +43,9 @@ dependencies = [
 
     # Watch mode
     "watchdog>=3.0",
+
+    # Configuration (TOML parsing for Python < 3.11)
+    "tomli>=2.0; python_version < '3.11'",
 ]
 
 [project.optional-dependencies]

@@ -44,8 +44,14 @@ class MarkdownRenderer:
                         else:
                             math_part = f"${new_inner}$"
 
-                        if node.unit_comment:
+                        # Preserve comments: unit_comment and/or config_comment
+                        if node.unit_comment and node.config_comment:
+                            # Both unit and config: combine them
+                            output.append(f"{math_part} <!-- [{node.unit_comment}] {node.config_comment} -->")
+                        elif node.unit_comment:
                             output.append(f"{math_part} <!-- [{node.unit_comment}] -->")
+                        elif node.config_comment:
+                            output.append(f"{math_part} <!-- {node.config_comment} -->")
                         else:
                             output.append(math_part)
                 else:

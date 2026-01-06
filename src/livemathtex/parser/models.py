@@ -23,6 +23,7 @@ class MathBlock(Node):
     is_display: bool = False
     unit_comment: Optional[str] = None  # e.g. "m/s" if <!-- [m/s] --> follows
     value_comment: Optional[str] = None  # e.g. "value" or "value:kW" or "value:kW:2"
+    config_comment: Optional[str] = None  # e.g. "digits:6 format:sci" for overrides
 
 @dataclass(kw_only=True, frozen=True)
 class Calculation(Node):

@@ -44,6 +44,7 @@ from ..ir.normalize import (
     normalize_symbol, denormalize_symbol, GREEK_LETTERS_REVERSE,
     GREEK_LETTERS, latex_to_internal
 )
+from ..config import LivemathConfig
 
 class Evaluator:
     """
@@ -63,7 +64,14 @@ class Evaluator:
         'km', 'cm', 'mm', 'nm', 'pm', 'ms', 'ns', 'ps', 'mg', 'ug',
     })
 
-    def __init__(self):
+    def __init__(self, config: Optional[LivemathConfig] = None):
+        """
+        Initialize the evaluator with optional configuration.
+
+        Args:
+            config: LivemathConfig instance. If None, uses defaults.
+        """
+        self.config = config or LivemathConfig()
         self.symbols = SymbolTable()
         self._ir: Optional[LivemathIR] = None  # Current IR being processed
 
@@ -140,10 +148,23 @@ class Evaluator:
             return self._ir.symbols[internal_name].mapping.latex_display
         return denormalize_symbol(internal_name)
 
-    def evaluate(self, calculation: Calculation) -> str:
+    def evaluate(self, calculation: Calculation, config_overrides: Optional[Dict[str, Any]] = None) -> str:
         """
         Process a single calculation node and return the result string (LaTeX).
+
+        Args:
+            calculation: The calculation to evaluate
+            config_overrides: Optional expression-level config overrides
+                             (e.g., {"digits": 6, "format": "scientific"})
+
+        Returns:
+            LaTeX string with the calculation result
         """
+        # Apply expression-level config overrides for this calculation
+        calc_config = self.config
+        if config_overrides:
+            calc_config = self.config.with_overrides(config_overrides)
+
         try:
             if calculation.operation == "ERROR":
                 # Return error on new line, formatted for markdown readability
@@ -152,13 +173,13 @@ class Evaluator:
             elif calculation.operation == ":=":
                 return self._handle_assignment(calculation)
             elif calculation.operation == "==":
-                return self._handle_evaluation(calculation)
+                return self._handle_evaluation(calculation, config=calc_config)
             elif calculation.operation == ":=_==":
-                 return self._handle_assignment_evaluation(calculation)
+                 return self._handle_assignment_evaluation(calculation, config=calc_config)
             elif calculation.operation == "=>":
                 return self._handle_symbolic(calculation)
             elif calculation.operation == "value":
-                return self._handle_value_display(calculation)
+                return self._handle_value_display(calculation, config=calc_config)
             else:
                 return ""
         except Exception as e:
@@ -269,7 +290,9 @@ class Evaluator:
 
         return assignment_latex
 
-    def _handle_evaluation(self, calc: Calculation) -> str:
+    def _handle_evaluation(self, calc: Calculation, config: Optional[LivemathConfig] = None) -> str:
+        """Handle evaluation: $expr ==$"""
+        cfg = config or self.config
         content = calc.latex
         lhs_part, result_part = content.split("==", 1)
         lhs = lhs_part.strip()
@@ -283,7 +306,7 @@ class Evaluator:
         value, suffix = self._apply_conversion(value, calc.unit_comment)
         skip_si_conversion = bool(calc.unit_comment)
 
-        result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion)
+        result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion, config=cfg)
 
         # Format LHS too? "x * y" -> "x \cdot y"
         # The user said "input mee formatten". LHS of evaluation is input.
@@ -291,7 +314,9 @@ class Evaluator:
 
         return f"{lhs_normalized} == {result_latex}"
 
-    def _handle_assignment_evaluation(self, calc: Calculation) -> str:
+    def _handle_assignment_evaluation(self, calc: Calculation, config: Optional[LivemathConfig] = None) -> str:
+        """Handle combined assignment and evaluation: $var := expr ==$"""
+        cfg = config or self.config
         content = calc.latex
         part1, part2 = content.split(":=", 1)
         lhs = part1.strip()  # Original LaTeX form for display
@@ -312,7 +337,7 @@ class Evaluator:
         value, suffix = self._apply_conversion(value, calc.unit_comment)
         skip_si_conversion = bool(calc.unit_comment)
 
-        result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion)
+        result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion, config=cfg)
 
         # IMPORTANT: Keep original RHS LaTeX for definitions
         # Don't re-format it - user's notation should be preserved
@@ -513,7 +538,7 @@ class Evaluator:
         result_latex = self._simplify_subscripts(sympy.latex(value))
         return f"{lhs} => {result_latex}"
 
-    def _handle_value_display(self, calc: Calculation) -> str:
+    def _handle_value_display(self, calc: Calculation, config: Optional[LivemathConfig] = None) -> str:
         """
         Handle value display: $ $ <!-- value:VAR [unit] :precision -->
 
@@ -521,7 +546,12 @@ class Evaluator:
         the specified unit and formatted with the specified precision.
 
         The variable name and unit are in LaTeX notation, parsed using latex2sympy.
+
+        Args:
+            calc: The calculation containing value display info
+            config: Config to use for formatting (defaults to self.config)
         """
+        cfg = config or self.config
         var_name = calc.target.strip() if calc.target else calc.latex.strip()
 
         # Normalize the variable name (handle Greek letters, subscripts, etc.)
@@ -545,8 +575,8 @@ class Evaluator:
         else:
             numeric_value = self._extract_numeric_value(value)
 
-        # Format the result
-        result = self._format_numeric(numeric_value, calc.precision)
+        # Format the result using config
+        result = self._format_numeric(numeric_value, calc.precision, config=cfg)
 
         return result
 
@@ -779,13 +809,84 @@ class Evaluator:
         except:
             return float(value.evalf())
 
-    def _format_numeric(self, value: float, precision: Optional[int] = None) -> str:
-        """Format a numeric value with the specified precision."""
-        if precision is not None:
-            return f"{value:.{precision}f}"
+    def _format_numeric(
+        self,
+        value: float,
+        precision: Optional[int] = None,
+        config: Optional[LivemathConfig] = None
+    ) -> str:
+        """
+        Format a numeric value with the specified precision.
+
+        Args:
+            value: The numeric value to format
+            precision: Override precision (from calculation, e.g. <!-- value:x :3 -->)
+            config: Config to use (defaults to self.config)
+
+        Returns:
+            Formatted string representation
+        """
+        cfg = config or self.config
+        digits = precision if precision is not None else cfg.digits
+
+        # Check format type from config
+        if cfg.format == "scientific":
+            return self._format_scientific(value, digits)
+        elif cfg.format == "engineering":
+            return self._format_engineering(value, digits)
+        elif cfg.format == "decimal":
+            return f"{value:.{digits}f}"
+        else:  # "general" - auto-choose based on threshold
+            return self._format_general(value, digits, cfg.exponential_threshold)
+
+    def _format_scientific(self, value: float, digits: int) -> str:
+        """Format number in scientific notation (e.g., 1.234e5)."""
+        if value == 0:
+            return "0"
+        return f"{value:.{digits-1}e}"
+
+    def _format_engineering(self, value: float, digits: int) -> str:
+        """Format number in engineering notation (exponent multiple of 3)."""
+        if value == 0:
+            return "0"
+
+        from math import log10, floor
+
+        # Get exponent as multiple of 3
+        exp = floor(log10(abs(value)))
+        eng_exp = (exp // 3) * 3
+
+        # Adjust mantissa
+        mantissa = value / (10 ** eng_exp)
+
+        # Format mantissa with appropriate decimals
+        decimals = max(0, digits - 1 - (exp - eng_exp))
+        mantissa_str = f"{mantissa:.{decimals}f}"
+
+        if eng_exp == 0:
+            return mantissa_str
         else:
-            # Default: 4 significant figures
-            return self._format_significant(value, 4)
+            return f"{mantissa_str}e{eng_exp}"
+
+    def _format_general(self, value: float, digits: int, threshold: int) -> str:
+        """
+        Format number in general notation.
+
+        Uses scientific notation when magnitude exceeds threshold.
+        """
+        if value == 0:
+            return "0"
+
+        from math import log10, floor
+
+        magnitude = floor(log10(abs(value)))
+
+        # Switch to scientific notation if magnitude exceeds threshold
+        if abs(magnitude) >= threshold:
+            return self._format_scientific(value, digits)
+
+        # Otherwise use significant figures format
+        return self._format_significant(value, digits)
 
     def _format_significant(self, value: float, sig_figs: int) -> str:
         """Format a number with the specified number of significant figures."""
@@ -1259,14 +1360,21 @@ class Evaluator:
         # Replace _{X} with _X where X is a single alphanumeric character
         return re.sub(r'_\{([a-zA-Z0-9])\}', r'_\1', latex_str)
 
-    def _format_result(self, value: Any, skip_si_conversion: bool = False) -> str:
+    def _format_result(
+        self,
+        value: Any,
+        skip_si_conversion: bool = False,
+        config: Optional[LivemathConfig] = None
+    ) -> str:
         """Format the result for output (simplify, evalf numericals).
 
         Args:
             value: The SymPy expression to format
             skip_si_conversion: If True, don't auto-convert to SI base units
                                (used when a specific unit was requested via comment)
+            config: Config to use for formatting (defaults to self.config)
         """
+        cfg = config or self.config
         from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd, N, J, W, Pa
         from sympy import pi, E, I
 
@@ -1321,20 +1429,19 @@ class Evaluator:
                      pass
 
             # Helper to format number for display
-            # Use 4 significant figures for scientific/engineering relevance
-            # Full precision is preserved in IR JSON for further calculations
+            # Uses config for digits and format settings
             def fmt_num(n):
                 # First try to evaluate to a numeric value (handles pi, e, sqrt(2), etc.)
                 if hasattr(n, 'evalf'):
                     try:
                         numeric = n.evalf()
                         if hasattr(numeric, 'is_number') and numeric.is_number:
-                            return f"{float(numeric):.4g}"
+                            return self._format_numeric(float(numeric), config=cfg)
                     except:
                         pass
                 # Fallback: check if already a number
                 if hasattr(n, 'is_number') and n.is_number:
-                     return f"{float(n):.4g}"
+                    return self._format_numeric(float(n), config=cfg)
                 return self._simplify_subscripts(sympy.latex(n))
 
             # If rest is 1, it's just a number
