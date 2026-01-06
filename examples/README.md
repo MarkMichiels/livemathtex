@@ -3,8 +3,11 @@
 ## Quick Start
 
 ```bash
+# Install livemathtex
+pip install -e .
+
 # Process the playground file (feel free to edit it!)
-python3 -m livemathtex.cli process examples/playground.md
+livemathtex process examples/playground.md
 ```
 
 ## Example Structure
@@ -12,7 +15,10 @@ python3 -m livemathtex.cli process examples/playground.md
 | Directory | Purpose |
 |-----------|---------|
 | `simple/` | Basic arithmetic with multi-letter variables |
-| `physics/` | Force calculation with SI units (kg, m, s) |
+| `simple-units/` | Simple calculations with SI units |
+| `engineering/` | Shell-and-tube heat exchanger design |
+| `engineering-units/` | Pump sizing with unit conversions |
+| `settings/` | **Configuration settings demo** (digits, format) |
 | `playground.md` | **Editable** - experiment here! |
 
 ## Static Examples (input → output)
@@ -22,10 +28,13 @@ Each directory contains a before/after demonstration:
 - **`input.md`** - Source file (don't process this directly)
 - **`output.md`** - Result after processing
 
-To regenerate outputs:
+To regenerate outputs (each example has a `.livemathtex.toml` that sets `output = "output.md"`):
 ```bash
-python3 -m livemathtex.cli process examples/simple/input.md -o examples/simple/output.md
-python3 -m livemathtex.cli process examples/physics/input.md -o examples/physics/output.md
+livemathtex process examples/simple/input.md
+livemathtex process examples/simple-units/input.md
+livemathtex process examples/engineering/input.md
+livemathtex process examples/engineering-units/input.md
+livemathtex process examples/settings/input.md
 ```
 
 ## Operators Reference
@@ -68,3 +77,34 @@ $F ==$ <!-- [N] -->
 ```
 
 The comment stays in the source but is invisible when rendered.
+
+## Configuration Settings
+
+LiveMathTeX supports flexible configuration via expression-level overrides.
+
+### Expression-Level Overrides
+
+Override settings for individual calculations:
+
+```markdown
+$result ==$ <!-- digits:6 format:scientific -->
+```
+
+### Available Settings
+
+| Setting | Options | Default | Description |
+|---------|---------|---------|-------------|
+| `digits` | 1-15 | 4 | Significant figures |
+| `format` | `general`, `decimal`, `scientific` (`sci`), `engineering` (`eng`) | `general` | Number format |
+
+### Examples
+
+```markdown
+$x := 123456.789 ==$                        <!-- default: 1.235e+05 -->
+$x ==$ <!-- digits:6 -->                    <!-- 123457 -->
+$x ==$ <!-- format:scientific -->           <!-- 1.235e+05 -->
+$x ==$ <!-- format:engineering -->          <!-- 123.5e3 -->
+$x ==$ <!-- digits:2 format:decimal -->     <!-- 123456.79 -->
+```
+
+See `examples/settings/` for a complete demonstration of all configuration options.

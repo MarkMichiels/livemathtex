@@ -316,26 +316,106 @@ $ livemathtex process engineering.md --verbose
 
 #### Configuration
 
-**Precedence (highest to lowest):**
-1. Command-line arguments
-2. Document directives (`<!-- livemathtex: digits=4 -->`)
-3. Local config (`.livemathtex.toml` in document directory)
-4. Project config (`pyproject.toml` `[tool.livemathtex]` section)
-5. User config (`~/.config/livemathtex/config.toml`)
-6. Defaults
+LiveMathTeX uses a hierarchical configuration system inspired by Mathcad. The key design principle is that **documents are self-contained**: the same input produces the same output regardless of who processes it or where.
 
-**Config file format (TOML):**
+**Precedence (highest to lowest):**
+
+```
+1. CLI -o flag               (output path only - operational override)
+2. Expression-level override <!-- digits:6 -->           (per calculation)
+3. Document directives       <!-- livemathtex: ... -->   (top of document)
+4. Local config              .livemathtex.toml           (document directory)
+5. Project config            pyproject.toml              ([tool.livemathtex])
+6. User config               ~/.config/livemathtex/      (personal defaults)
+7. Defaults                  (hardcoded in code)
+```
+
+**Important:** CLI does NOT include formatting options (`--digits`, `--format`). Settings belong in the document or config files, ensuring reproducibility.
+
+##### Settings Reference
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `digits` | int | 4 | Significant figures (1-15) |
+| `format` | enum | "general" | general/decimal/scientific/engineering |
+| `exponential_threshold` | int | 3 | Magnitude for scientific notation |
+| `trailing_zeros` | bool | false | Show zeros to fill precision |
+| `unit_system` | enum | "SI" | SI/imperial/CGS |
+| `timeout` | int | 5 | Seconds per expression |
+| `output` | string | "timestamped" | Output mode (see below) |
+
+##### Output Modes
+
+| Value | Behavior | Use Case |
+|-------|----------|----------|
+| `"timestamped"` | `input_20260106_2045.md` | **Default** - safe, preserves history |
+| `"inplace"` | Overwrite input file | Iterative editing (explicit opt-in) |
+| `"output.md"` | Write to specific file | Examples, CI/CD |
+
+**Safety rationale:** Timestamped default prevents accidental data loss. Users must explicitly opt-in to overwrite.
+
+##### Expression-Level Overrides
+
+Override formatting for individual calculations using colon syntax:
+
+```markdown
+$P := 123456.789 ==$ <!-- digits:6 -->
+$E := 0.00001234 ==$ <!-- format:sci -->
+$Q := 50.123 ==$ <!-- digits:6 [m³/h] -->
+```
+
+Shortcuts: `sci` → `scientific`, `eng` → `engineering`
+
+##### Document Directives
+
+Set document-wide defaults at the top:
+
+```markdown
+<!-- livemathtex: digits=6, format=engineering, output=inplace -->
+
+# My Calculations
+$x := 5 ==$
+```
+
+##### Config Files (TOML)
+
+**.livemathtex.toml** (in document directory):
 
 ```toml
-# .livemathtex.toml or pyproject.toml [tool.livemathtex]
-digits = 4
-scientific = false
-timeout = 5
-symbolic = true
+# Project-specific settings
+digits = 6
+format = "engineering"
+output = "output.md"
 
 [units]
-system = "SI"  # or "imperial"
+system = "SI"
+simplify = true
 ```
+
+**pyproject.toml** section:
+
+```toml
+[tool.livemathtex]
+digits = 4
+format = "general"
+timeout = 10
+```
+
+**User config** (~/.config/livemathtex/config.toml):
+
+```toml
+# Personal defaults
+digits = 4
+output = "inplace"  # Power user preference
+```
+
+##### Excluded Settings (with rationale)
+
+| Setting | Reason for Exclusion |
+|---------|---------------------|
+| `decimal_separator` | LaTeX math universally uses "." |
+| `thousands_separator` | Nice-to-have, LaTeX uses `\,` if needed |
+| `fraction_display` | Complex, deferred to future version |
 
 **Why TOML:**
 - Standard for Python tools (pyproject.toml, ruff, black, pytest)

@@ -390,24 +390,93 @@ Multi-line comment
 
 ---
 
-## Document Directives
+## Configuration
 
-Control behavior within documents:
+LiveMathTeX uses a hierarchical configuration system. The key principle is that **documents are self-contained**: the same input produces the same output regardless of who processes it.
+
+### Configuration Hierarchy
+
+From highest to lowest priority:
+
+```
+1. CLI -o flag               (output path only)
+2. Expression-level          <!-- digits:6 -->
+3. Document directives       <!-- livemathtex: ... -->
+4. Local config              .livemathtex.toml
+5. Project config            pyproject.toml
+6. User config               ~/.config/livemathtex/
+7. Defaults
+```
+
+### Settings Reference
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `digits` | int | 4 | Significant figures (1-15) |
+| `format` | enum | "general" | general/decimal/scientific/engineering |
+| `exponential_threshold` | int | 3 | Magnitude for scientific notation |
+| `trailing_zeros` | bool | false | Show zeros to fill precision |
+| `unit_system` | enum | "SI" | SI/imperial/CGS |
+| `timeout` | int | 5 | Seconds per expression |
+| `output` | string | "timestamped" | Output mode |
+
+### Output Modes
+
+| Value | Behavior | Use Case |
+|-------|----------|----------|
+| `"timestamped"` | `input_20260106_2045.md` | **Default** - safe |
+| `"inplace"` | Overwrite input | Explicit opt-in |
+| `"output.md"` | Specific file | Examples, CI |
+
+### Expression-Level Overrides
+
+Override formatting for individual calculations:
 
 ```markdown
-<!-- livemathtex: digits=4 -->
-<!-- livemathtex: scientific=true -->
-<!-- livemathtex: units=SI -->
+$P := 123456.789 ==$ <!-- digits:6 -->
+$E := 0.00001234 ==$ <!-- format:sci -->
+$Q := 50.123 ==$ <!-- digits:6 [m³/h] -->
 ```
 
-Or with code fence:
+### Document Directives
 
-````markdown
-```livemathtex-config
-digits: 4
-scientific: false
+Set document-wide defaults at the top:
+
+```markdown
+<!-- livemathtex: digits=6, format=engineering -->
+<!-- livemathtex: output=inplace -->
+
+# My Calculations
+$x := 5 ==$
 ```
-````
+
+### Config Files
+
+**.livemathtex.toml** (in document directory):
+
+```toml
+digits = 6
+format = "engineering"
+output = "output.md"
+
+[units]
+system = "SI"
+```
+
+**pyproject.toml**:
+
+```toml
+[tool.livemathtex]
+digits = 4
+timeout = 10
+```
+
+**User config** (~/.config/livemathtex/config.toml):
+
+```toml
+digits = 4
+output = "inplace"
+```
 
 ---
 
