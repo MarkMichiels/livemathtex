@@ -70,7 +70,6 @@ Click the icon in the top-right to open `keybindings.json` and add:
 |------|-------------|----------|
 | **Process Current File** | Updates file in place | Normal workflow |
 | **Process Current File (Verbose)** | Shows debug info, creates `.lmt.json` | Debugging |
-| **Process to Output File** | Creates `_output.md` file | Keep original unchanged |
 
 ### Run Tasks Manually
 
