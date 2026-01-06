@@ -1,25 +1,18 @@
 """
 LiveMathTeX Evaluator - Core calculation engine.
 
-Symbol Normalization follows the Cortex-JS / MathJSON standard:
-https://github.com/cortex-js/compute-engine
+Symbol Normalization uses a simple v_{n} / f_{n} naming scheme:
+- Variables: v_{0}, v_{1}, v_{2}, ...
+- Functions: f_{0}, f_{1}, f_{2}, ...
 
-IMPORTANT: When encountering symbol parsing or unit issues, consult:
-- Local reference: src/livemathtex/ir/CORTEX_REFERENCE.md
-- Cortex-JS clone: /home/mark/Repositories/cortex-compute-engine/
-- Key files to study:
-  - parse-symbol.ts: How they parse LaTeX symbols
-  - serializer.ts (lines 441-557): How they serialize back to LaTeX
-  - definitions-symbols.ts: Greek letter mappings
+This approach ensures 100% latex2sympy compatibility:
+- Original: "P_{LED,out} * N_{MPC}"
+- Internal: "v_{0} * v_{1}"
 
-Key conventions (from Cortex-JS parse-symbol.ts):
-- Greek letters: \\alpha -> alpha, \\Delta -> Delta
-- Subscripts use '_': x_1, T_{h,in} -> T_h_in
-- Superscripts use '__': x^2 -> x__2
-- Modifiers append: x_dot, x_hat, x_vec, x_bar
+The NameGenerator in symbols.py manages the bidirectional mapping:
+- latex_name (P_{LED,out}) <-> internal_id (v_{0})
 
-This allows consistent internal representation while preserving
-LaTeX display forms for rendering.
+See ARCHITECTURE.md for full documentation.
 """
 
 from typing import Dict, Any, Optional, List
@@ -37,14 +30,28 @@ except ImportError:
             return sympy.Symbol(latex_str)
 
 from .symbols import SymbolTable
+from .units import get_unit_registry, UnitRegistry
 from ..parser.models import Calculation
 from ..utils.errors import EvaluationError, UndefinedVariableError
 from ..ir.schema import LivemathIR, SymbolEntry, BlockResult
-from ..ir.normalize import (
-    normalize_symbol, denormalize_symbol, GREEK_LETTERS_REVERSE,
-    GREEK_LETTERS, latex_to_internal
-)
 from ..config import LivemathConfig
+
+# Greek letter mappings for display purposes
+GREEK_LETTERS = {
+    '\\alpha': 'alpha', '\\beta': 'beta', '\\gamma': 'gamma', '\\delta': 'delta',
+    '\\epsilon': 'epsilon', '\\zeta': 'zeta', '\\eta': 'eta', '\\theta': 'theta',
+    '\\iota': 'iota', '\\kappa': 'kappa', '\\lambda': 'lambda', '\\mu': 'mu',
+    '\\nu': 'nu', '\\xi': 'xi', '\\pi': 'pi', '\\rho': 'rho', '\\sigma': 'sigma',
+    '\\tau': 'tau', '\\upsilon': 'upsilon', '\\phi': 'phi', '\\chi': 'chi',
+    '\\psi': 'psi', '\\omega': 'omega',
+    '\\Alpha': 'Alpha', '\\Beta': 'Beta', '\\Gamma': 'Gamma', '\\Delta': 'Delta',
+    '\\Epsilon': 'Epsilon', '\\Zeta': 'Zeta', '\\Eta': 'Eta', '\\Theta': 'Theta',
+    '\\Iota': 'Iota', '\\Kappa': 'Kappa', '\\Lambda': 'Lambda', '\\Mu': 'Mu',
+    '\\Nu': 'Nu', '\\Xi': 'Xi', '\\Pi': 'Pi', '\\Rho': 'Rho', '\\Sigma': 'Sigma',
+    '\\Tau': 'Tau', '\\Upsilon': 'Upsilon', '\\Phi': 'Phi', '\\Chi': 'Chi',
+    '\\Psi': 'Psi', '\\Omega': 'Omega',
+}
+GREEK_LETTERS_REVERSE = {v: k for k, v in GREEK_LETTERS.items()}
 
 class Evaluator:
     """
@@ -93,7 +100,8 @@ class Evaluator:
         # Pre-load symbols from IR into SymbolTable
         for name, entry in ir.symbols.items():
             if entry.value is not None:
-                self.symbols.set(name, entry.value)
+                latex_name = entry.mapping.latex_original if entry.mapping else ""
+                self.symbols.set(name, entry.value, latex_name=latex_name)
 
         # Process each calculation
         stats = {"definitions": 0, "evaluations": 0, "symbolic": 0, "errors": 0}
@@ -140,13 +148,24 @@ class Evaluator:
 
     def _get_display_latex(self, internal_name: str, original_latex: str) -> str:
         """
-        Get the display LaTeX for a symbol, using IR mapping if available.
+        Get the display LaTeX for a symbol.
 
-        Falls back to denormalize_symbol if no IR mapping exists.
+        Priority:
+        1. IR mapping (if available)
+        2. SymbolTable latex_name
+        3. Original LaTeX (fallback)
         """
+        # Check IR mapping
         if self._ir and internal_name in self._ir.symbols:
             return self._ir.symbols[internal_name].mapping.latex_display
-        return denormalize_symbol(internal_name)
+
+        # Check SymbolTable for latex_name
+        entry = self.symbols.get(internal_name)
+        if entry and entry.latex_name:
+            return entry.latex_name
+
+        # Fallback to original
+        return original_latex if original_latex else internal_name
 
     def evaluate(self, calculation: Calculation, config_overrides: Optional[Dict[str, Any]] = None) -> str:
         """
@@ -180,6 +199,8 @@ class Evaluator:
                 return self._handle_symbolic(calculation)
             elif calculation.operation == "value":
                 return self._handle_value_display(calculation, config=calc_config)
+            elif calculation.operation == "===":
+                return self._handle_unit_definition(calculation)
             else:
                 return ""
         except Exception as e:
@@ -189,28 +210,40 @@ class Evaluator:
 
     def _normalize_symbol_name(self, name: str) -> str:
         """
-        Normalize a LaTeX symbol name to internal representation.
+        Normalize a LaTeX symbol name to internal dict key.
 
-        Follows Cortex-JS / MathJSON standard (parse-symbol.ts):
-        - Greek letters: \\Delta -> Delta, \\alpha -> alpha
-        - Subscripts: T_{h,in} -> T_h_in (commas become underscores)
-        - Greek + space: \\Delta T_h -> Delta_T_h
-
-        Uses the normalize module for consistent handling.
+        Simple normalization for symbol table keys:
+        - Strip whitespace
+        - Replace Greek LaTeX commands with names
+        - Replace commas and braces for consistency
 
         Examples:
             "\\Delta_h"   -> "Delta_h"
-            "\\Delta T_h" -> "Delta_T_h"
-            "\\theta_1"   -> "theta_1"
             "T_{h,in}"    -> "T_h_in"
-            "eta_p"       -> "eta_p"
+            "P_{LED,out}" -> "P_LED_out"
         """
         if not name:
             return name
 
-        # Use the normalize module for consistent handling
-        mapping = normalize_symbol(name)
-        return mapping.internal_name
+        result = name.strip()
+
+        # Replace Greek letter commands with names
+        for latex_cmd, greek_name in GREEK_LETTERS.items():
+            result = result.replace(latex_cmd, greek_name)
+
+        # Normalize subscript content
+        result = result.replace(',', '_')
+        result = result.replace('{', '')
+        result = result.replace('}', '')
+
+        # Remove remaining backslashes
+        result = result.replace('\\', '')
+
+        # Clean up multiple underscores
+        while '__' in result:
+            result = result.replace('__', '_')
+
+        return result
 
     def _escape_latex_text(self, text: str) -> str:
         """Escape special LaTeX characters in text."""
@@ -270,7 +303,7 @@ class Evaluator:
             # Use local override to prevent variable substitution during definition
             expr = self._compute(rhs_raw, local_overrides={arg_name: arg_sym})
             func_obj = sympy.Lambda(arg_sym, expr)
-            self.symbols.set(func_name, func_obj, raw_latex=rhs_raw)
+            self.symbols.set(func_name, func_obj, raw_latex=rhs_raw, latex_name=original_target)
 
             # Use original target for display (preserves \Delta etc.)
             # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
@@ -280,7 +313,7 @@ class Evaluator:
             value = self._compute(rhs_raw)
             # Store with normalized name (e.g., D_{pipe} -> D_pipe)
             normalized_target = self._normalize_symbol_name(target)
-            self.symbols.set(normalized_target, value, raw_latex=rhs_raw)
+            self.symbols.set(normalized_target, value, raw_latex=rhs_raw, latex_name=original_target)
             # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
             # User explicitly requested: "Als het een definitie is, moet je gewoon laten staan"
             assignment_latex = f"{original_target} := {rhs_raw}"
@@ -330,7 +363,7 @@ class Evaluator:
 
         # Store with normalized name (e.g., \Delta T_h -> Delta_T_h)
         normalized_lhs = self._normalize_symbol_name(lhs)
-        self.symbols.set(normalized_lhs, value, raw_latex=rhs)
+        self.symbols.set(normalized_lhs, value, raw_latex=rhs, latex_name=lhs)
 
         # Use unit_comment for display conversion
         # If unit_comment is specified, don't auto-convert to SI in _format_result
@@ -579,6 +612,44 @@ class Evaluator:
         result = self._format_numeric(numeric_value, calc.precision, config=cfg)
 
         return result
+
+    def _handle_unit_definition(self, calc: Calculation) -> str:
+        """
+        Handle unit definition: $$ unit === expr $$
+
+        Defines a custom unit using the === syntax:
+        - Base unit:     € === €           (new unit)
+        - Derived unit:  mbar === bar/1000 (scaled from existing)
+        - Compound unit: kWh === kW * h    (product of units)
+        - Alias:         dag === day       (rename existing)
+
+        Args:
+            calc: The calculation containing unit definition
+                  calc.target = left side (unit name being defined)
+                  calc.original_result = right side (definition expression)
+
+        Returns:
+            The original LaTeX (unit definitions don't produce output)
+        """
+        unit_name = calc.target.strip() if calc.target else ""
+        definition = calc.original_result.strip() if calc.original_result else ""
+
+        if not unit_name:
+            raise EvaluationError("Unit definition requires a unit name on the left side of ===")
+
+        # Build the full definition string for the unit registry
+        full_definition = f"{unit_name} === {definition}"
+
+        # Get the global unit registry and define the unit
+        registry = get_unit_registry()
+        unit_def = registry.define_unit(full_definition)
+
+        if unit_def:
+            # Unit was defined successfully
+            # Return the original LaTeX unchanged (unit definitions are declarations)
+            return calc.latex
+        else:
+            raise EvaluationError(f"Failed to define unit: {unit_name}")
 
     def _get_numeric_in_unit_latex(self, value: Any, unit_latex: str) -> float:
         """
@@ -929,154 +1000,151 @@ class Evaluator:
         'mol',
     ]
 
+    def _latex_var_to_internal(self, latex_var: str) -> str:
+        """
+        Convert a LaTeX variable name to a simple internal name.
+
+        Examples:
+            "P_{LED,out}" → "P_LED_out"
+            "\\eta_{driver}" → "eta_driver"
+            "N_{headers/MPC}" → "N_headers_per_MPC"
+            "LED_{R2}" → "LED_R2"
+        """
+        import re
+
+        result = latex_var
+
+        # 1. Replace Greek letters with their names
+        for greek_cmd, greek_name in [
+            ('\\eta', 'eta'), ('\\alpha', 'alpha'), ('\\beta', 'beta'),
+            ('\\gamma', 'gamma'), ('\\delta', 'delta'), ('\\epsilon', 'epsilon'),
+            ('\\theta', 'theta'), ('\\lambda', 'lambda'), ('\\mu', 'mu'),
+            ('\\nu', 'nu'), ('\\pi', 'pi'), ('\\rho', 'rho'), ('\\sigma', 'sigma'),
+            ('\\tau', 'tau'), ('\\phi', 'phi'), ('\\psi', 'psi'), ('\\omega', 'omega'),
+            ('\\Delta', 'Delta'), ('\\Theta', 'Theta'), ('\\Omega', 'Omega'),
+            ('\\Sigma', 'Sigma'), ('\\Pi', 'Pi'), ('\\Phi', 'Phi'), ('\\Psi', 'Psi'),
+        ]:
+            result = result.replace(greek_cmd, greek_name)
+
+        # 2. Remove LaTeX commands and braces
+        result = result.replace('\\text{', '').replace('\\mathrm{', '')
+        result = result.replace('\\mathit{', '').replace('}', '')
+        result = result.replace('{', '').replace('\\', '')
+
+        # 3. Normalize separators
+        result = result.replace('/', '_per_')
+        result = result.replace(',', '_')
+
+        # 4. Remove spaces
+        result = result.replace(' ', '')
+
+        return result
+
+    def _rewrite_with_internal_ids(self, expression_latex: str) -> str:
+        """
+        Replace all known LaTeX variable names with their internal IDs (v_{n}).
+
+        This is the key to 100% latex2sympy compatibility:
+        - Original: "N_{MPC} \\cdot P_{PSU,out}"
+        - Internal: "v_{0} * v_{1}"
+
+        The v_{n} format always parses correctly in latex2sympy.
+
+        IMPORTANT: Only replace whole variable names, not parts of LaTeX commands!
+        E.g., don't replace 'a' inside '\frac{a}{b}' for the 'a' in 'frac'.
+        """
+        import re
+
+        result = expression_latex
+
+        # Get all LaTeX -> internal ID mappings
+        mappings = self.symbols.get_all_latex_to_internal()
+
+        # Sort by LaTeX length descending to avoid partial matches
+        sorted_mappings = sorted(mappings.items(), key=lambda x: len(x[0]), reverse=True)
+
+        # Replace each LaTeX form with its internal ID
+        for latex_form, internal_id in sorted_mappings:
+            # Escape special regex characters in LaTeX
+            escaped = re.escape(latex_form)
+
+            # Use word boundaries to avoid replacing parts of commands
+            # For single letters: use negative lookbehind for backslash and letters
+            # For multi-char: simpler matching is OK
+            if len(latex_form) == 1 and latex_form.isalpha():
+                # Single letter: don't match if preceded by backslash or letter
+                # or followed by letter (to avoid \frac -> \frv_{0}c)
+                pattern = rf'(?<!\\)(?<![a-zA-Z]){escaped}(?![a-zA-Z])'
+            else:
+                # Multi-char patterns like N_{MPC}: direct replacement is safe
+                pattern = escaped
+
+            result = re.sub(pattern, internal_id, result)
+
+        # Convert LaTeX operators to simple operators
+        result = result.replace(r'\cdot', '*')
+        result = result.replace(r'\times', '*')
+        result = result.replace(r'\div', '/')
+
+        return result
+
     def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None, force_units: bool = False) -> Any:
         r"""
         Parse and compute a LaTeX expression.
 
-        Pre-processing follows Cortex-JS philosophy: normalize LaTeX BEFORE parsing
-        to work around latex2sympy limitations.
+        Architecture follows the Symbol Mapping principle:
+        1. Rewrite expression with internal names (simple strings)
+        2. Apply remaining LaTeX preprocessing
+        3. Parse with latex2sympy
+        4. Evaluate
 
         Args:
             expression_latex: LaTeX expression to parse
             local_overrides: Optional dict of symbol -> value overrides
             force_units: If True, treat single letters as SI units (for unit parsing)
-
-        Key transformations:
-        1. Add braces to subscripts: x_y -> x_{y} (consistency)
-        2. Wrap multi-letter names in \text{} (prevents T*D*H splitting)
-
-        NOTE: With our local latex2sympy fork (libs/latex2sympy), the \cdot bug is fixed
-        and no longer requires conversion to *.
         """
         import re
 
-        modified_latex = expression_latex
+        # =================================================================
+        # STEP 0: Rewrite expression with internal IDs (v_{n} format)
+        # =================================================================
+        # Replace known LaTeX variable forms with v_{0}, v_{1}, etc.
+        # This format is 100% compatible with latex2sympy!
+        modified_latex = self._rewrite_with_internal_ids(expression_latex)
 
         # =================================================================
-        # STEP 1: Structural normalization
+        # STEP 1: LaTeX preprocessing (for remaining LaTeX)
         # =================================================================
 
-        # 1a. Add explicit braces around subscripts without braces for consistency
-        # Pattern: letter_letter (not already letter_{...})
-        # NOTE: With our local latex2sympy fork, this is optional but improves consistency
+        # 1a. Spacing normalization
+        modified_latex = modified_latex.replace(r'\ ', ' ')  # non-breaking space
+        modified_latex = modified_latex.replace(r'\,', ' ')  # thin space
+
+        # 1b. Special character substitution
+        modified_latex = modified_latex.replace('€', 'EUR')
+
+        # 1c. Normalize subscript separators (for NEW variables not yet in symbol table)
+        def normalize_subscript(m):
+            content = m.group(1)
+            content = content.replace('/', '_per_')
+            content = content.replace(',', '_')
+            return f'_{{{content}}}'
+        modified_latex = re.sub(r'_\{([^}]+)\}', normalize_subscript, modified_latex)
+
+        # =================================================================
+        # STEP 2: Structural normalization (minimal)
+        # =================================================================
+        #
+        # Note: With the v_{n} internal ID system, most complex preprocessing
+        # is no longer needed. Known variables are already replaced with v_{0}, v_{1}, etc.
+        # We only need to handle edge cases for NEW variables not yet defined.
+
+        # Add explicit braces around subscripts without braces for consistency
         modified_latex = re.sub(
             r'([a-zA-Z])_([a-zA-Z0-9])(?![a-zA-Z0-9])',
             r'\1_{\2}',
             modified_latex
         )
-
-        # NOTE: \cdot -> * replacement REMOVED - fixed in local latex2sympy fork
-        # See: libs/latex2sympy/PS.g4 - DIFFERENTIAL rule no longer captures \cdot
-
-        # =================================================================
-        # STEP 2: Greek letter normalization
-        # =================================================================
-
-        # Convert Greek letter + following symbol patterns to single symbols
-        # "\Delta T_h" -> "\text{Delta_T_h}"
-        greek_space_pattern = r'\\(Delta|Theta|Omega|Sigma|Pi|alpha|beta|gamma|delta|theta|omega|sigma|pi|phi|psi|lambda|mu|nu|epsilon|rho|tau)\s+([a-zA-Z](?:_\{?[a-zA-Z0-9,]+\}?)?)'
-
-        def greek_replacement(m):
-            greek = m.group(1)
-            following = m.group(2)
-            combined = f"{greek}_{following}"
-            return f'\\text{{{combined}}}'
-
-        modified_latex = re.sub(greek_space_pattern, greek_replacement, modified_latex)
-
-        # =================================================================
-        # STEP 3: Protect multi-letter sequences from being split
-        # =================================================================
-
-        # 3a. Protect SI units (longest first to avoid partial matches)
-        for unit in sorted(self.SI_UNITS, key=len, reverse=True):
-            if len(unit) > 1 and f'\\text{{{unit}}}' not in modified_latex:
-                modified_latex = re.sub(rf'\b{re.escape(unit)}\b', rf'\\text{{{unit}}}', modified_latex)
-
-        # 3b. Protect known variable names from symbol table
-        # BUT: Don't wrap if preceded by backslash (LaTeX command like \rho)
-        known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
-
-        for name in known_names:
-            if '\\text{' + name + '}' in modified_latex:
-                continue
-
-            if '_' in name:
-                base, subscript = name.split('_', 1)
-                if len(base) > 1:
-                    protected = '\\text{' + base + '}_{' + subscript + '}'
-                    if protected in modified_latex:
-                        continue
-                    # Don't match if preceded by \ (LaTeX command) or \text{
-                    pattern = rf'(?<!\\)(?<!\\text\{{){re.escape(name)}\b'
-                    modified_latex = re.sub(
-                        pattern,
-                        lambda m, b=base, s=subscript: f'\\text{{{b}}}_{{{s}}}',
-                        modified_latex
-                    )
-            elif len(name) > 1:
-                protected = '\\text{' + name + '}'
-                if protected not in modified_latex:
-                    # Don't match if preceded by \ (LaTeX command) or \text{
-                    pattern = rf'(?<!\\)(?<!\\text\{{){re.escape(name)}\b'
-                    modified_latex = re.sub(
-                        pattern,
-                        lambda m, n=name: '\\text{' + n + '}',
-                        modified_latex
-                    )
-
-        # 3c. Protect ANY remaining multi-letter sequences (2+ letters)
-        # This catches new variable names not yet in symbol table
-        #
-        # IMPORTANT: First protect LaTeX commands from partial matching
-        # Problem: \frac gets matched as \f + rac (rac is 2+ letters after f)
-        # Solution: Temporarily replace LaTeX commands with placeholders
-
-        # LaTeX commands to protect from multi-letter wrapping
-        latex_commands = [
-            # Math functions
-            'frac', 'sqrt', 'sin', 'cos', 'tan', 'log', 'ln', 'exp',
-            'text', 'mathrm', 'mathit', 'cdot', 'times', 'div',
-            'left', 'right', 'begin', 'end', 'over', 'int', 'sum',
-            'prod', 'lim', 'infty', 'partial', 'nabla', 'vec', 'hat',
-            'bar', 'dot', 'ddot', 'tilde', 'prime', 'quad', 'qquad',
-            # Greek letters (lowercase)
-            'alpha', 'beta', 'gamma', 'delta', 'epsilon', 'varepsilon',
-            'zeta', 'eta', 'theta', 'vartheta', 'iota', 'kappa',
-            'lambda', 'mu', 'nu', 'xi', 'pi', 'varpi',
-            'rho', 'varrho', 'sigma', 'varsigma', 'tau', 'upsilon',
-            'phi', 'varphi', 'chi', 'psi', 'omega',
-            # Greek letters (uppercase)
-            'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta',
-            'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu',
-            'Nu', 'Xi', 'Pi', 'Rho', 'Sigma', 'Tau',
-            'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega',
-        ]
-
-        # Replace \command with placeholder
-        # Requirements: No underscores (become subscripts), no multi-letter sequences (get wrapped)
-        # Solution: Use numbers only: ⌘0⌘, ⌘1⌘, etc.
-        placeholders = {}
-        for i, cmd in enumerate(latex_commands):
-            placeholder = f'⌘{i}⌘'  # Unicode char won't match regex
-            placeholders[placeholder] = f'\\{cmd}'
-            modified_latex = modified_latex.replace(f'\\{cmd}', placeholder)
-
-        # Now wrap remaining multi-letter sequences
-        # NOTE: \b doesn't work with underscore, use lookahead instead
-        def wrap_multiletter(match):
-            word = match.group(1)
-            return f'\\text{{{word}}}'
-
-        modified_latex = re.sub(
-            r'([a-zA-Z]{2,})(?=_|\s|$|\*|\{|\+|\-|\/|\)|\^|\,)',
-            lambda m: wrap_multiletter(m),
-            modified_latex
-        )
-
-        # Restore LaTeX commands
-        for placeholder, cmd in placeholders.items():
-            modified_latex = modified_latex.replace(placeholder, cmd)
 
         try:
             expr = latex2sympy(modified_latex)
@@ -1120,7 +1188,7 @@ class Evaluator:
             # This ensures \Delta_T_h stored as Delta_T_h is found when
             # latex2sympy produces a symbol like Delta_T_h or \text{Delta_T_h}
             if clean_name and (clean_name.startswith('\\') or '_' in clean_name):
-                clean_name = latex_to_internal(clean_name)
+                clean_name = self._normalize_symbol_name(clean_name)
 
             # Debug
             # print(f"DEBUG: sym='{sym_name}' clean='{clean_name}'")
@@ -1130,7 +1198,23 @@ class Evaluator:
                 subs_dict[sym] = local_overrides[clean_name]
                 continue
 
-            # 1. Check in Symbol Table (try multiple name formats)
+            # 1. Check if this is an internal ID (v_0, v_1, etc.)
+            # After _rewrite_with_internal_ids(), variables become v_{0} -> v_0 in SymPy
+            if clean_name.startswith('v_') and clean_name[2:].isdigit():
+                # Convert SymPy form (v_0) back to LaTeX form (v_{0}) for lookup
+                internal_id = f"v_{{{clean_name[2:]}}}"
+                latex_name = self.symbols.get_latex_name(internal_id)
+                if latex_name:
+                    # Find the value by searching all symbols for this latex_name
+                    for name in self.symbols.all_names():
+                        entry = self.symbols.get(name)
+                        if entry and entry.latex_name == latex_name:
+                            subs_dict[sym] = entry.value
+                            break
+                    if sym in subs_dict:
+                        continue
+
+            # 2. Check in Symbol Table (try multiple name formats)
             # latex2sympy converts \Delta_h -> Delta_h, so we need to match
             known = self.symbols.get(clean_name)
             if not known:

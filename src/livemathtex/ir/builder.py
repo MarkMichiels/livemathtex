@@ -2,7 +2,9 @@
 IR Builder - Converts parsed Document AST to LivemathIR.
 
 This is the bridge between parsing and evaluation, creating a clean
-intermediate representation with normalized symbol mappings.
+intermediate representation.
+
+Symbol normalization uses the v_{n}/f_{n} architecture from symbols.py.
 """
 
 import re
@@ -12,7 +14,6 @@ from pathlib import Path
 from ..parser.models import Document, MathBlock, TextBlock, Calculation
 from ..parser.lexer import Lexer
 from .schema import LivemathIR, SymbolEntry, SymbolMapping, BlockResult
-from .normalize import normalize_symbol, latex_to_internal
 
 
 class IRBuilder:
@@ -83,9 +84,12 @@ class IRBuilder:
         Process a single calculation and add to IR.
 
         This:
-        1. Normalizes the target symbol name
+        1. Records the target symbol (LaTeX form)
         2. Creates/updates symbol entry
         3. Records the block result (to be filled by evaluator)
+
+        Note: The v_{n} internal IDs are assigned by the Evaluator's NameGenerator,
+        not here. The IR stores the original LaTeX names.
         """
         # Handle errors
         if calc.operation == "ERROR":
@@ -99,21 +103,25 @@ class IRBuilder:
             ))
             return
 
-        # Extract and normalize target symbol
-        target_internal = None
-        target_mapping = None
+        # Use the LaTeX target name directly
+        target_latex = calc.target
 
-        if calc.target:
-            target_mapping = normalize_symbol(calc.target)
-            target_internal = target_mapping.internal_name
+        if target_latex:
+            # Create simple mapping (LaTeX name stored as-is)
+            # The v_{n} ID will be assigned by the Evaluator
+            target_mapping = SymbolMapping(
+                latex_original=target_latex,
+                latex_display=target_latex,
+                internal_name=target_latex,  # Will be replaced by v_{n} at eval time
+            )
 
             # Create or update symbol entry
-            existing = ir.get_symbol(target_internal)
+            existing = ir.get_symbol(target_latex)
             if existing:
                 # Update existing entry
                 existing_dict = existing.to_dict()
                 existing_dict["line"] = line
-                ir.symbols[target_internal] = SymbolEntry.from_dict(existing_dict)
+                ir.symbols[target_latex] = SymbolEntry.from_dict(existing_dict)
             else:
                 # Create new entry
                 ir.set_symbol(SymbolEntry(
@@ -128,7 +136,7 @@ class IRBuilder:
             latex_input=calc.latex,
             latex_output=calc.latex,  # Placeholder, updated by evaluator
             operation=calc.operation,
-            target=target_internal,
+            target=target_latex,
         ))
 
     def _extract_rhs(self, calc: Calculation) -> Optional[str]:

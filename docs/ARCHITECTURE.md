@@ -19,28 +19,60 @@ LiveMathTeX follows a modular pipeline architecture with an **Intermediate Repre
 
 ### Intermediate Representation (IR)
 
-The IR layer (inspired by [Cortex-JS MathJSON](https://cortexjs.io/math-json/)) provides:
+The IR layer provides:
 
-1. **Symbol Normalization** - Clean mapping between LaTeX (`\Delta T_h`) and internal names (`Delta_T_h`)
+1. **Symbol Normalization** - Simple `v_{n}` / `f_{n}` naming for reliable parsing
 2. **Debugging** - Write IR to JSON with `--verbose` flag
 3. **Traceability** - Track all calculations and their results
 4. **Import System** - Load symbols from other Markdown files via their IR JSON
 
+#### Symbol Normalization Architecture
+
+LiveMathTeX uses a simple, robust naming scheme for internal symbol representation:
+
+| Type | Pattern | Example LaTeX | Internal Name |
+|------|---------|---------------|---------------|
+| **Variables** | `v_{n}` | `P_{LED,out}` | `v_{0}` |
+| **Functions** | `f_{n}` | `\eta_{PSU}(x)` | `f_{0}` |
+
+**Why this approach:**
+
+The `latex2sympy2` library has strict parsing requirements. Complex LaTeX like `P_{LED,out}` or `N_{headers/MPC}` fails to parse. Instead of complex preprocessing rules, LiveMathTeX:
+
+1. **Assigns unique IDs** - Each variable gets `v_{0}`, `v_{1}`, etc.
+2. **Stores mapping** - The `SymbolTable` tracks: `v_{0}` → `P_{LED,out}` (LaTeX) → 123.45 (value)
+3. **Rewrites expressions** - Before parsing: `P_{LED,out} \cdot 2` → `v_{0} \cdot 2`
+4. **Renders back** - After calculation: `v_{0}` → `P_{LED,out}` for display
+
+**Benefits:**
+
+- ✅ **100% parsing success** - `v_{0}` always parses correctly
+- ✅ **Simple implementation** - No complex regex rules
+- ✅ **Handles any LaTeX** - Greek, subscripts, commas, slashes all work
+- ✅ **Debugging** - IR JSON shows the mapping
+
 ```json
 {
   "symbols": {
-    "Delta_T_h": {
-      "mapping": {
-        "latex_original": "\\Delta T_h",
-        "latex_display": "\\Delta_{T_h}",
-        "internal_name": "Delta_T_h"
-      },
-      "value": 17.92,
-      "unit": "K"
+    "v_{0}": {
+      "latex_name": "P_{LED,out}",
+      "value": 123.45,
+      "unit": "W"
+    },
+    "v_{1}": {
+      "latex_name": "\\eta_{PSU}",
+      "value": 0.92,
+      "unit": null
     }
   }
 }
 ```
+
+**What's NOT normalized (handled by SymPy/latex2sympy2):**
+
+- Constants: `\pi`, `e` → SymPy built-ins
+- Units: `kg`, `m`, `W` → SymPy units / Pint
+- Operators: `+`, `\cdot`, `\frac` → latex2sympy2
 
 ### Import System (Future)
 
@@ -204,6 +236,39 @@ F = m * a
   = 10 kg·m/s²
   = 10 N
 ```
+
+#### Custom Unit Definitions (`===` Syntax) - TASK-007
+
+LiveMathTeX supports custom unit definitions using the `===` operator:
+
+```markdown
+$$ € === € $$                    <!-- Base unit: euro is a new unit -->
+$$ mbar === bar / 1000 $$        <!-- Derived unit -->
+$$ kWh === kW \cdot h $$         <!-- Compound unit -->
+$$ dag === day $$                <!-- Alias for existing unit -->
+```
+
+| Pattern | Meaning | SymPy Implementation |
+|---------|---------|---------------------|
+| `X === X` | New base unit | `Quantity('X')` |
+| `X === Y / n` | Derived from Y | `set_global_relative_scale_factor(1/n, Y)` |
+| `X === Y * Z` | Compound unit | `set_global_relative_scale_factor(1, Y*Z)` |
+| `X === Y` | Alias | `X = Y` |
+
+**Built-in unit abbreviations:**
+
+| Abbreviation | SymPy Unit | Example |
+|--------------|------------|---------|
+| `L` | `liter` | `197\ \text{L}` |
+| `h` | `hour` | `24\ \text{h}` |
+| `W` | `watt` | `100\ \text{W}` |
+| `kg` | `kilogram` | `5\ \text{kg}` |
+| `dag` | `day` | Dutch for "day" |
+
+**Note:** SymPy supports most SI and common units. Custom units are for:
+- Currency (euro, dollar)
+- Non-standard abbreviations (dag → day)
+- Domain-specific units
 
 #### Error Handling
 
@@ -467,10 +532,9 @@ livemathtex/
 │       │   ├── __init__.py
 │       │   ├── lexer.py     # Markdown/LaTeX tokenization
 │       │   └── models.py    # AST node types (Document, MathBlock, etc.)
-│       ├── ir/              # NEW: Intermediate Representation
+│       ├── ir/              # Intermediate Representation
 │       │   ├── __init__.py
 │       │   ├── schema.py    # IR dataclasses (LivemathIR, SymbolEntry, etc.)
-│       │   ├── normalize.py # Symbol normalization (LaTeX <-> internal)
 │       │   └── builder.py   # Build IR from parsed AST
 │       ├── engine/
 │       │   ├── __init__.py
@@ -595,4 +659,3 @@ livemathtex process calculation.md --import constants.lmt.json
 - [SymPy Documentation](https://docs.sympy.org/)
 - [SymPy Units](https://docs.sympy.org/latest/modules/physics/units/)
 - [latex2sympy2](https://github.com/augustt198/latex2sympy) (we use [our fork](https://github.com/MarkMichiels/latex2sympy))
-- [Cortex-JS MathJSON](https://cortexjs.io/math-json/) (inspiration for IR layer)
