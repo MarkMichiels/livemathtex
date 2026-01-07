@@ -178,7 +178,7 @@ From `examples/engineering-units/input.lmt.json`:
     "v6": {
       "latex_name": "P_{rated}",
       "original": { "value": 5.0, "unit": "kW" },
-      "base": { "value": 5000.0, "unit": "W" },
+      "base": { "value": 5000.0, "unit": "kg·m²/s³" },
       "conversion_ok": true,
       "line": 98
     },
@@ -192,7 +192,7 @@ From `examples/engineering-units/input.lmt.json`:
     "v8": {
       "latex_name": "price_{kWh}",
       "original": { "value": 0.25, "unit": "EUR/kWh" },
-      "base": { "value": 6.944e-08, "unit": "EUR/J" },
+      "base": { "value": 6.944e-08, "unit": "EUR·s²/(kg·m²)" },
       "conversion_ok": true,
       "line": 102
     },
@@ -236,7 +236,7 @@ From `examples/engineering-units/input.lmt.json`:
         "depends_on": ["f5", "v6", "v7"]
       },
       "original": { "value": 4235.80, "unit": "W" },
-      "base": { "value": 4235.80, "unit": "W" },
+      "base": { "value": 4235.80, "unit": "kg·m²/s³" },
       "conversion_ok": true,
       "line": 121
     },
@@ -288,7 +288,7 @@ From `examples/engineering-units/input.lmt.json`:
         "depends_on": ["v6", "v7"]
       },
       "original": { "value": 40.0, "unit": "kWh" },
-      "base": { "value": 144000000.0, "unit": "J" },
+      "base": { "value": 144000000.0, "unit": "kg·m²/s²" },
       "conversion_ok": true,
       "line": 150
     },
@@ -721,7 +721,7 @@ Custom units can be used like built-in units:
 "v2": {
   "latex_name": "power",
   "original": { "value": 5.0, "unit": "kW" },
-  "base": { "value": 5000.0, "unit": "W" },
+  "base": { "value": 5000.0, "unit": "kg·m²/s³" },
   "conversion_ok": true,
   "line": 42
 }
@@ -734,7 +734,7 @@ Custom units can be used like built-in units:
     "depends_on": ["v2", "v3"]
   },
   "original": { "value": 40.0, "unit": "kWh" },
-  "base": { "value": 144000000.0, "unit": "J" },
+  "base": { "value": 144000000.0, "unit": "kg·m²/s²" },
   "conversion_ok": true,
   "line": 53
 }
