@@ -118,7 +118,7 @@ Motor efficiency (assumed, dimensionless):
 $eta_m := 0.90$
 
 Required motor power:
-$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4236\ \text{kg} \cdot \text{m}^{3}/\text{s}^{3}$$ <!-- [kW] -->
+$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236\ \text{kW}$$ <!-- [kW] -->
 
 ---
 
@@ -127,12 +127,12 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4236\ \text{kg} \cdot \text{
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
 | Flow rate | $Q$ | $50$ <!-- value:Q [m³/h] --> | m³/h |
-| Flow velocity | $vel$ | $5.6$ <!-- value:vel [m/s] :2 --> | m/s |
+| Flow velocity | $vel$ | $1.8$ <!-- value:vel [m/s] :2 --> | m/s |
 | Static head | $H_{static}$ | $20$ <!-- value:H_{static} [m] :1 --> | m |
-| Friction loss | $H_f$ | $31$ <!-- value:H_f [m] :2 --> | m |
-| Total head | $TDH$ | $1$ <!-- value:TDH [m] :1 --> | m |
-| Hydraulic power | $P_{hyd}$ | $0.000001$ <!-- value:P_{hyd} [kW] :2 --> | kW |
-| Motor power | $P_{motor}$ | $0.000001$ <!-- value:P_{motor} [kW] :2 --> | kW |
+| Friction loss | $H_f$ | $3.2$ <!-- value:H_f [m] :2 --> | m |
+| Total head | $TDH$ | $20$ <!-- value:TDH [m] :1 --> | m |
+| Hydraulic power | $P_{hyd}$ | $2.9$ <!-- value:P_{hyd} [kW] :2 --> | kW |
+| Motor power | $P_{motor}$ | $4.2$ <!-- value:P_{motor} [kW] :2 --> | kW |
 
 ---
 
@@ -144,4 +144,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4236\ \text{kg} \cdot \text{
 
 ---
 
-> *livemathtex: 2026-01-07 03:43:31 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.48s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 03:46:32 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.45s* <!-- livemathtex-meta -->

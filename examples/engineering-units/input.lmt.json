@@ -110,12 +110,12 @@
     "A_{pipe}": {
       "id": "v_{8}",
       "original": {
-        "value": 0.0025000000000000005,
-        "unit": "pi·m^2"
+        "value": 0.007853981633974483,
+        "unit": "m^2"
       },
       "si": {
-        "value": 0.0025000000000000005,
-        "unit": "\\pi \\text{m}^{2}"
+        "value": 0.007853981633974483,
+        "unit": "\\text{m}^{2}"
       },
       "valid": true,
       "line": 70
@@ -123,12 +123,12 @@
     "vel": {
       "id": "v_{9}",
       "original": {
-        "value": 5.5555555555555545,
-        "unit": "m/(pi·s)"
+        "value": 1.7683882565766147,
+        "unit": "m/s"
       },
       "si": {
-        "value": 5.5555555555555545,
-        "unit": "\\frac{\\text{m}}{\\pi \\text{s}}"
+        "value": 1.7683882565766147,
+        "unit": "\\frac{\\text{m}}{\\text{s}}"
       },
       "valid": true,
       "line": 73
@@ -149,12 +149,12 @@
     "H_f": {
       "id": "v_{11}",
       "original": {
-        "value": 31.46197505694616,
-        "unit": "m/pi^2"
+        "value": 3.1877645524954934,
+        "unit": "m"
       },
       "si": {
-        "value": 31.46197505694616,
-        "unit": "\\frac{\\text{m}}{\\pi^{2}}"
+        "value": 3.1877645524954934,
+        "unit": "\\text{m}"
       },
       "valid": true,
       "line": 88
@@ -175,12 +175,12 @@
     "H_m": {
       "id": "v_{13}",
       "original": {
-        "value": 7.86549376423654,
-        "unit": "m/pi^2"
+        "value": 0.7969411381238733,
+        "unit": "m"
       },
       "si": {
-        "value": 7.86549376423654,
-        "unit": "\\frac{\\text{m}}{\\pi^{2}}"
+        "value": 0.7969411381238733,
+        "unit": "\\text{m}"
       },
       "valid": true,
       "line": 95
@@ -188,12 +188,12 @@
     "TDH": {
       "id": "v_{14}",
       "original": {
-        "value": 1.0,
-        "unit": "39.3274688211827·m/pi^2 + 17.0·m"
+        "value": 20.984705690619368,
+        "unit": "m"
       },
       "si": {
-        "value": 1.0,
-        "unit": "\\frac{39.3274688211827 \\text{m}}{\\pi^{2}} + 17.0 \\text{m}"
+        "value": 20.984705690619368,
+        "unit": "\\text{m}"
       },
       "valid": true,
       "line": 101
@@ -201,12 +201,12 @@
     "P_{hyd}": {
       "id": "v_{15}",
       "original": {
-        "value": 136.25,
-        "unit": "kg·m·(39.3274688211827·m/pi^2 + 17.0·m)/s^3"
+        "value": 2859.166150346889,
+        "unit": "kg·m^2/s^3"
       },
       "si": {
-        "value": 0.001,
-        "unit": "\\frac{\\left(\\frac{5358367.62688614 \\text{m}}{\\pi^{2}} + 2316250.0 \\text{m}\\right) \\text{kg} \\text{m}^{2}}{\\text{s}^{3}}"
+        "value": 2859.166150346889,
+        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{3}}"
       },
       "valid": true,
       "line": 108
@@ -240,12 +240,12 @@
     "P_{motor}": {
       "id": "v_{18}",
       "original": {
-        "value": 0.0014814814814814814,
-        "unit": "kg·m^2·(5358367.62688614·m/pi^2 + 2316250.0·m)/s^3"
+        "value": 4235.801704217613,
+        "unit": "kg·m^2/s^3"
       },
       "si": {
-        "value": 0.001,
-        "unit": "\\frac{\\left(\\frac{7938322.41020169 \\text{m}}{\\pi^{2}} + 3431481.48148148 \\text{m}\\right) \\text{kg} \\text{m}^{3}}{\\text{s}^{3}}"
+        "value": 4235.801704217613,
+        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{3}}"
       },
       "valid": true,
       "line": 121
@@ -253,8 +253,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:43:31",
-    "duration": "0.48s",
+    "last_run": "2026-01-07 03:46:32",
+    "duration": "0.45s",
     "symbols": 19,
     "definitions": 19,
     "evaluations": 11,

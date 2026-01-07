@@ -492,6 +492,11 @@ class Evaluator:
         # Check for undefined variables (symbols that weren't substituted)
         self._check_undefined_symbols(value, rhs)
 
+        # IMPORTANT: Simplify symbolic expressions (like 39.32/pi² + 17) to numeric
+        # This must happen BEFORE extracting unit, otherwise we get complex unit strings
+        if hasattr(value, 'evalf'):
+            value = value.evalf()
+
         # Store with normalized name (e.g., \Delta T_h -> Delta_T_h)
         normalized_lhs = self._normalize_symbol_name(lhs)
 
@@ -670,7 +675,7 @@ class Evaluator:
         Validate that SI conversion is dimensionally correct.
 
         Returns True if the SI conversion preserves the physical quantity.
-        
+
         Note: We don't do numeric round-trip because compound units like
         meter/1000 (from 'mm') don't convert back properly in SymPy.
         Instead, we verify that the product of original value*unit equals
@@ -685,15 +690,15 @@ class Evaluator:
 
             # Verify dimensional consistency: both should convert to same SI value
             si_base = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
-            
+
             # Original in SI
             orig_full = orig_value * orig_unit
             orig_si = convert_to(orig_full, si_base)
-            
+
             # Our computed SI value
             computed_si = si_value * si_unit
             computed_si_converted = convert_to(computed_si, si_base)
-            
+
             # Extract numeric values
             def get_numeric(expr):
                 if hasattr(expr, 'as_coeff_Mul'):
@@ -702,10 +707,10 @@ class Evaluator:
                         return float(coeff.evalf())
                     return float(coeff)
                 return float(expr)
-            
+
             orig_num = get_numeric(orig_si)
             computed_num = get_numeric(computed_si_converted)
-            
+
             # Check relative error
             if abs(orig_num) > 1e-10:
                 rel_error = abs(computed_num - orig_num) / abs(orig_num)
