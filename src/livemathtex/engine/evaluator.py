@@ -1621,13 +1621,17 @@ class Evaluator:
 
     def _format_unit_part(self, unit_expr: Any) -> str:
         """
-        Format the unit part of a result for display.
+        Format the unit part of a result for KaTeX-compatible LaTeX.
 
         Converts SymPy unit expressions to readable LaTeX:
         - euro -> €
         - kilogram -> kg
         - meter/second -> m/s
         - euro/(kilowatt*hour) -> €/kWh
+        
+        KaTeX requirements:
+        - Powers must be outside \\text{}: \\text{m}^2 not \\text{m^2}
+        - Use \\cdot for multiplication, not · character
         """
         from .units import format_unit_latex
         from sympy.physics.units import Quantity
@@ -1639,7 +1643,71 @@ class Evaluator:
                 # Use our custom formatter
                 formatted = format_unit_latex(unit_expr)
                 if formatted:
-                    return f"\\text{{{formatted}}}"
+                    # Make KaTeX compatible
+                    formatted = self._make_katex_compatible(formatted)
+                    return formatted
 
         # Fallback: use SymPy's latex
         return self._simplify_subscripts(sympy.latex(unit_expr, mul_symbol='dot'))
+    
+    def _make_katex_compatible(self, unit_str: str) -> str:
+        """
+        Convert unit string to KaTeX-compatible LaTeX.
+        
+        Handles:
+        - m^2 -> \\text{m}^{2}
+        - kg·m/s -> \\text{kg} \\cdot \\text{m/s}
+        - € -> \\text{€}
+        """
+        import re
+        
+        # Replace Unicode middle dot with LaTeX cdot marker (temporary)
+        unit_str = unit_str.replace('·', ' CDOT_MARKER ')
+        
+        # Handle powers: split on ^ and format properly
+        # Pattern: unit^power (e.g., m^2, s^-1)
+        if '^' in unit_str:
+            # Split into parts around operators
+            parts = re.split(r'(\s*/\s*|\s*CDOT_MARKER\s*)', unit_str)
+            result_parts = []
+            
+            for part in parts:
+                part = part.strip()
+                if not part:
+                    continue
+                if part == '/':
+                    result_parts.append('/')
+                    continue
+                if part == 'CDOT_MARKER':
+                    result_parts.append(r' \cdot ')
+                    continue
+                
+                # Check for power
+                if '^' in part:
+                    base, power = part.split('^', 1)
+                    result_parts.append(f"\\text{{{base}}}^{{{power}}}")
+                else:
+                    result_parts.append(f"\\text{{{part}}}")
+            
+            return ''.join(result_parts)
+        
+        # No powers - simple wrapping
+        # But handle division and multiplication
+        if '/' in unit_str or 'CDOT_MARKER' in unit_str:
+            # Split by / and CDOT_MARKER, wrap each part
+            parts = re.split(r'(/|CDOT_MARKER)', unit_str)
+            result_parts = []
+            
+            for part in parts:
+                part = part.strip()
+                if part == '/':
+                    result_parts.append('/')
+                elif part == 'CDOT_MARKER':
+                    result_parts.append(r' \cdot ')
+                elif part:
+                    result_parts.append(f"\\text{{{part}}}")
+            
+            return ''.join(result_parts)
+        
+        # Simple unit
+        return f"\\text{{{unit_str}}}"

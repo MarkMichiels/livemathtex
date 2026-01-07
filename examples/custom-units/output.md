@@ -58,7 +58,7 @@ $$mass := 5\ kg$$
 
 $$velocity := 10\ m/s$$
 
-$$momentum := mass \cdot velocity == 50.00\ \text{kg·m/s}$$
+$$momentum := mass \cdot velocity == 50.00\ \text{kg} \cdot \text{m}/\text{s}$$
 
 **Expected:** 50 kg·m/s
 
@@ -70,7 +70,7 @@ $$length := 4\ m$$
 
 $$width := 3\ m$$
 
-$$area := length \cdot width == 12.00\ \text{m^2}$$
+$$area := length \cdot width == 12.00\ \text{m}^{2}$$
 
 **Expected:** 12 m²
 
@@ -93,4 +93,4 @@ $$area := length \cdot width == 12.00\ \text{m^2}$$
 
 ---
 
-> *livemathtex: 2026-01-07 01:17:08 | 15 definitions, 5 evaluations | no errors | 0.14s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:21:21 | 15 definitions, 5 evaluations | no errors | 0.15s* <!-- livemathtex-meta -->
