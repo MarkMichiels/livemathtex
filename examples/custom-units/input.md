@@ -44,6 +44,7 @@ $$ time := 8\ h $$
 **Default (SI base units):**
 
 $$ energy\_si := power \cdot time == $$
+$$ energy\_si := power \cdot time == $$  <!-- format:scientific -->
 
 **In custom unit (kW·h):**
 
@@ -115,23 +116,140 @@ $$ total := cost\_per\_kg \cdot weight == $$
 
 ---
 
-## Test 6: Number Formatting
+## Test 6: Formatting Playground
 
-Control decimal places and notation:
+Explore all formatting possibilities!
 
-$$ large\_number := 1234567 $$
+### Base values for testing
 
-**Default:**
+$$ big := 144000000 $$
+$$ medium := 12345.6789 $$
+$$ small := 0.000012345 $$
+$$ integer := 40 $$
+$$ pi\_val := 3.14159265359 $$
 
-$$ result\_default := large\_number == $$
+---
 
-**With 2 significant digits:**
+### Format Types
 
-$$ result\_2dig := large\_number == $$ <!-- digits:2 -->
+**`format:general`** (default) - Automatic, strips trailing zeros:
 
-**With scientific notation:**
+$$ fmt\_general := big == $$
 
-$$ result\_sci := large\_number == $$ <!-- format:sci -->
+$$ fmt\_general\_med := medium == $$
+
+**`format:decimal`** - Force decimal notation:
+
+$$ fmt\_decimal := big == $$ <!-- format:decimal -->
+
+**`format:scientific`** or `format:sci` - Scientific notation (1.23e+05):
+
+$$ fmt\_sci := big == $$ <!-- format:scientific -->
+
+$$ fmt\_sci\_small := small == $$ <!-- format:sci -->
+
+**`format:engineering`** or `format:eng` - Powers of 3 (kilo, mega, etc.):
+
+$$ fmt\_eng := big == $$ <!-- format:engineering -->
+
+$$ fmt\_eng\_small := small == $$ <!-- format:eng -->
+
+---
+
+### Significant Digits
+
+**`digits:N`** - Control precision:
+
+$$ dig\_default := pi\_val == $$
+
+$$ dig\_2 := pi\_val == $$ <!-- digits:2 -->
+
+$$ dig\_4 := pi\_val == $$ <!-- digits:4 -->
+
+$$ dig\_8 := pi\_val == $$ <!-- digits:8 -->
+
+**Digits + Format combined:**
+
+$$ dig\_sci\_3 := big == $$ <!-- digits:3 format:sci -->
+
+$$ dig\_eng\_4 := big == $$ <!-- digits:4 format:eng -->
+
+---
+
+### Thousands Separators
+
+Large numbers automatically get thin space separators (≥5 digits):
+
+$$ thou\_1 := 1234 == $$ <!-- format:decimal -->
+
+$$ thou\_2 := 12345 == $$ <!-- format:decimal -->
+
+$$ thou\_3 := 1234567 == $$ <!-- format:decimal -->
+
+$$ thou\_4 := 123456789 == $$ <!-- format:decimal -->
+
+$$ thou\_5 := 1234567890 == $$ <!-- format:decimal -->
+
+---
+
+### Trailing Zeros
+
+By default, trailing zeros are stripped:
+
+$$ trail\_1 := 40.0000 == $$
+
+$$ trail\_2 := 3.14000 == $$
+
+$$ trail\_3 := integer == $$
+
+---
+
+### Combined: Units + Formatting
+
+Electricity example with different views:
+
+$$ combo\_power := 5\ kW $$
+$$ combo\_hours := 8\ h $$
+
+$$ combo\_energy := combo\_power \cdot combo\_hours == $$
+
+$$ combo\_kwh := combo\_power \cdot combo\_hours == $$ <!-- [kWh] -->
+
+$$ combo\_sci := combo\_power \cdot combo\_hours == $$ <!-- format:sci -->
+
+$$ combo\_full := combo\_power \cdot combo\_hours == $$ <!-- digits:2 [kWh] -->
+
+---
+
+### Edge Cases
+
+**Zero:**
+
+$$ zero := 0 == $$
+
+**Negative numbers:**
+
+$$ neg := -12345678 == $$ <!-- format:decimal -->
+
+**Very small (auto → scientific):**
+
+$$ tiny := 0.000000001 == $$
+
+**Very small (forced scientific):**
+
+$$ tiny\_sci := 0.000000001 == $$ <!-- format:sci -->
+
+**Very large (auto → scientific at 10⁹+):**
+
+$$ huge := 1000000000000000 == $$
+
+**Very large (engineering):**
+
+$$ huge\_eng := 1000000000000000 == $$ <!-- format:eng -->
+
+**Very large (forced decimal):**
+
+$$ huge\_dec := 1000000000000000 == $$ <!-- format:decimal -->
 
 ---
 

@@ -44,6 +44,7 @@ $$time := 8\ h$$
 **Default (SI base units):**
 
 $$energy\_si := power \cdot time == 144\,000\,000\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$
+$$energy\_si := power \cdot time == 1.440e+08\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$ <!-- format:scientific -->
 
 **In custom unit (kW·h):**
 
@@ -115,23 +116,140 @@ $$total := cost\_per\_kg \cdot weight == 100\ \text{€}$$
 
 ---
 
-## Test 6: Number Formatting
+## Test 6: Formatting Playground
 
-Control decimal places and notation:
+Explore all formatting possibilities!
 
-$$large\_number := 1234567$$
+### Base values for testing
 
-**Default:**
+$$big := 144000000$$
+$$medium := 12345.6789$$
+$$small := 0.000012345$$
+$$integer := 40$$
+$$pi\_val := 3.14159265359$$
 
-$$result\_default := large\_number == 1\,235\,000$$
+---
 
-**With 2 significant digits:**
+### Format Types
 
-$$result\_2dig := large\_number == 1\,200\,000$$ <!-- digits:2 -->
+**`format:general`** (default) - Automatic, strips trailing zeros:
 
-**With scientific notation:**
+$$fmt\_general := big == 144\,000\,000$$
 
-$$result\_sci := large\_number == 1.235e+06$$ <!-- format:sci -->
+$$fmt\_general\_med := medium == 12\,350$$
+
+**`format:decimal`** - Force decimal notation:
+
+$$fmt\_decimal := big == 144\,000\,000$$ <!-- format:decimal -->
+
+**`format:scientific`** or `format:sci` - Scientific notation (1.23e+05):
+
+$$fmt\_sci := big == 1.440e+08$$ <!-- format:scientific -->
+
+$$fmt\_sci\_small := small == 1.234e-05$$ <!-- format:sci -->
+
+**`format:engineering`** or `format:eng` - Powers of 3 (kilo, mega, etc.):
+
+$$fmt\_eng := big == 144.0e6$$ <!-- format:engineering -->
+
+$$fmt\_eng\_small := small == 12.35e-6$$ <!-- format:eng -->
+
+---
+
+### Significant Digits
+
+**`digits:N`** - Control precision:
+
+$$dig\_default := pi\_val == 3.142$$
+
+$$dig\_2 := pi\_val == 3.1$$ <!-- digits:2 -->
+
+$$dig\_4 := pi\_val == 3.142$$ <!-- digits:4 -->
+
+$$dig\_8 := pi\_val == 3.1415927$$ <!-- digits:8 -->
+
+**Digits + Format combined:**
+
+$$dig\_sci\_3 := big == 1.44e+08$$ <!-- digits:3 format:sci -->
+
+$$dig\_eng\_4 := big == 144.0e6$$ <!-- digits:4 format:eng -->
+
+---
+
+### Thousands Separators
+
+Large numbers automatically get thin space separators (≥5 digits):
+
+$$thou\_1 := 1234 == 1234$$ <!-- format:decimal -->
+
+$$thou\_2 := 12345 == 12\,345$$ <!-- format:decimal -->
+
+$$thou\_3 := 1234567 == 1\,234\,567$$ <!-- format:decimal -->
+
+$$thou\_4 := 123456789 == 123\,456\,789$$ <!-- format:decimal -->
+
+$$thou\_5 := 1234567890 == 1\,234\,567\,890$$ <!-- format:decimal -->
+
+---
+
+### Trailing Zeros
+
+By default, trailing zeros are stripped:
+
+$$trail\_1 := 40.0000 == 40$$
+
+$$trail\_2 := 3.14000 == 3.14$$
+
+$$trail\_3 := integer == 40$$
+
+---
+
+### Combined: Units + Formatting
+
+Electricity example with different views:
+
+$$combo\_power := 5\ kW$$
+$$combo\_hours := 8\ h$$
+
+$$combo\_energy := combo\_power \cdot combo\_hours == 144\,000\,000\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$
+
+$$combo\_kwh := combo\_power \cdot combo\_hours == 40\ \text{kWh}$$ <!-- [kWh] -->
+
+$$combo\_sci := combo\_power \cdot combo\_hours == 1.440e+08\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$ <!-- format:sci -->
+
+$$combo\_full := combo\_power \cdot combo\_hours == 40\ \text{kWh}$$ <!-- [kWh] digits:2 -->
+
+---
+
+### Edge Cases
+
+**Zero:**
+
+$$zero := 0 == 0$$
+
+**Negative numbers:**
+
+$$neg := -12345678 == -12\,345\,678$$ <!-- format:decimal -->
+
+**Very small (auto → scientific):**
+
+$$tiny := 0.000000001 == 1.000e-09$$
+
+**Very small (forced scientific):**
+
+$$tiny\_sci := 0.000000001 == 1.000e-09$$ <!-- format:sci -->
+
+**Very large (auto → scientific at 10⁹+):**
+
+$$huge := 1000000000000000 == 1.000e+15$$
+
+**Very large (engineering):**
+
+$$huge\_eng := 1000000000000000 == 1.000e15$$ <!-- format:eng -->
+
+**Very large (forced decimal):**
+
+$$huge\_dec := 1000000000000000 == 1\,000\,000\,000\,000\,000$$ <!-- format:decimal -->
 
 ---
 
@@ -168,4 +286,4 @@ $x ==$ <!-- digits:4 [mbar] -->
 
 ---
 
-> *livemathtex: 2026-01-07 01:43:23 | 23 definitions, 12 evaluations | no errors | 0.21s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:47:47 | 59 definitions, 42 evaluations | no errors | 0.35s* <!-- livemathtex-meta -->
