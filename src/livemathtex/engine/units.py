@@ -304,7 +304,7 @@ class UnitRegistry:
         # Check compound patterns
         if clean_name in COMPOUND_UNIT_PATTERNS:
             return COMPOUND_UNIT_PATTERNS[clean_name]
-        
+
         # Try to parse compound expressions like kW*h, m/s, etc.
         if '*' in clean_name or '/' in clean_name:
             return self._parse_compound_unit(clean_name)

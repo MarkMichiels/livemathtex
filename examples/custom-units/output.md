@@ -47,11 +47,16 @@ $$energy\_si := power \cdot time == 1.440e+08\ \text{kg} \cdot \text{m}^{2}/\tex
 
 **In custom unit (kW·h):**
 
-$$energy\_custom := power \cdot time == 40.00\ \text{kW*h}$$ <!-- [kW*h] -->
+$$energy\_kWh := power \cdot time == 40.00\ \text{kWh}$$ <!-- [kWh] -->
+
+**In decimal format (no scientific notation):**
+
+$$energy\_decimal := power \cdot time == 40.0000\ \text{kWh}$$ <!-- [kWh] format:decimal -->
 
 **Expected:**
-- SI: 144000000 J (or 1.44e+08 kg·m²/s²)
-- Custom: 40 kW·h
+- SI: 1.44e+08 kg·m²/s²
+- Custom: 40 kWh
+- Decimal: 40.0000 kWh
 
 ---
 
@@ -162,4 +167,4 @@ $x ==$ <!-- digits:4 [mbar] -->
 
 ---
 
-> *livemathtex: 2026-01-07 01:34:49 | 21 definitions, 10 evaluations | no errors | 0.19s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:37:17 | 22 definitions, 11 evaluations | no errors | 0.20s* <!-- livemathtex-meta -->

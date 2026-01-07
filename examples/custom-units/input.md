@@ -47,11 +47,16 @@ $$ energy\_si := power \cdot time == $$
 
 **In custom unit (kW·h):**
 
-$$ energy\_custom := power \cdot time == $$ <!-- [kW*h] -->
+$$ energy\_kWh := power \cdot time == $$ <!-- [kWh] -->
+
+**In decimal format (no scientific notation):**
+
+$$ energy\_decimal := power \cdot time == $$ <!-- format:decimal [kWh] -->
 
 **Expected:**
-- SI: 144000000 J (or 1.44e+08 kg·m²/s²)
-- Custom: 40 kW·h
+- SI: 1.44e+08 kg·m²/s²
+- Custom: 40 kWh
+- Decimal: 40.0000 kWh
 
 ---
 

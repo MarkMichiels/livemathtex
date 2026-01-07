@@ -593,7 +593,7 @@ class Evaluator:
             # First check the unit registry for custom units (mbar, kWh, €, etc.)
             registry = get_unit_registry()
             target_unit = registry.get_unit(normalized_unit)
-            
+
             # If not in registry, try to parse as a prefixed unit (kW, MHz, etc.)
             if target_unit is None:
                 target_unit = self._parse_unit_with_prefix(normalized_unit)
