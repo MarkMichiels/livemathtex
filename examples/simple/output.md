@@ -40,17 +40,17 @@ $b := 5$
 
 Calculate sum and product:
 
-$total := a + b == 15.00$
+$total := a + b == 15$
 
-$product := a \cdot b == 50.00$
+$product := a \cdot b == 50$
 
 ## Combined Definition + Evaluation
 
-$ratio := \frac{a}{b} == 2.000$
+$ratio := \frac{a}{b} == 2$
 
 ## Re-evaluate existing variable
 
-$\text{total} == 15.00$
+$\text{total} == 15$
 
 ## Summary
 
@@ -61,4 +61,4 @@ $\text{total} == 15.00$
 
 ---
 
-> *livemathtex: 2026-01-07 00:24:17 | 7 definitions, 5 evaluations | 2 errors | 0.15s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:51:03 | 7 definitions, 5 evaluations | 2 errors | 0.15s* <!-- livemathtex-meta -->

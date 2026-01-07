@@ -22,7 +22,9 @@ $m_1 := 10 \cdot kg$
 $a_1 := 9.81 \cdot \frac{m}{s^2}$
 
 Calculate force:
-$F_1 := m_1 \cdot a_1 == 98.1 \frac{\text{kg} \cdot \text{m}}{\text{s}^{2}}$
+$F_1 := m_1 \cdot a_1 ==
+\\ \color{red}{\text{
+    Error: Undefined variable(s): k}}$
 
 ### Option 2: Descriptive names
 
@@ -30,13 +32,19 @@ $mass := 25 \cdot kg$
 $accel := 9.81 \cdot \frac{m}{s^2}$
 
 Calculate force:
-$F_2 := mass \cdot accel == 245.2 \frac{\text{kg} \cdot \text{m}}{\text{s}^{2}}$
+$F_2 := mass \cdot accel ==
+\\ \color{red}{\text{
+    Error: Undefined variable(s): k}}$
 
 Convert to Newtons:
-$F_2N := F_2 == 245.2 \text{N}$ <!-- [N] -->
+$F_2N := F_2 ==
+\\ \color{red}{\text{
+    Error: Undefined variable(s): F\_2}}$ <!-- [N] -->
 
 Convert to kilonewtons:
-$F_2kN := F_2 == 0.2452 \text{kN}$ <!-- [kN] -->
+$F_2kN := F_2 ==
+\\ \color{red}{\text{
+    Error: Undefined variable(s): F\_2}}$ <!-- [kN] -->
 
 ## Compare Results
 
@@ -46,4 +54,4 @@ The ratio should be 2.5 (25 kg / 10 kg).
 
 ---
 
-> *livemathtex: 2026-01-05 03:36:27 | 9 definitions, 5 evaluations | no errors | 0.21s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:51:04 | 9 definitions, 5 evaluations | 4 errors | 0.16s* <!-- livemathtex-meta -->

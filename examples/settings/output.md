@@ -57,11 +57,11 @@ Controls **how numbers are displayed**. Four options available:
 
 Auto-switches between decimal and scientific notation based on `exponential_threshold`:
 
-$\text{large} == 1.235e+08$
+$\text{large} == 123\,500\,000$
 
-$\text{medium} == 42.50$
+$\text{medium} == 42.5$
 
-$\text{small} == 1.235e-06$
+$\text{small} == 0.000001235$
 
 ### 2.2 Scientific Format
 
@@ -87,11 +87,11 @@ $\text{small} == 1.235e-6$ <!-- format:engineering -->
 
 Fixed number of decimal places (digits = decimal places, not significant figures):
 
-$\text{medium} == 42.50$ <!-- format:decimal digits:2 -->
+$\text{medium} == 42.5$ <!-- format:decimal digits:2 -->
 
-$\text{medium} == 42.5000$ <!-- format:decimal digits:4 -->
+$\text{medium} == 42.5$ <!-- format:decimal digits:4 -->
 
-$\text{medium} == 42.500000$ <!-- format:decimal digits:6 -->
+$\text{medium} == 42.5$ <!-- format:decimal digits:6 -->
 
 ---
 
@@ -146,4 +146,4 @@ $\text{power} == 2.50e6$ <!-- format:engineering digits:3 -->
 
 ---
 
-> *livemathtex: 2026-01-06 23:14:49 | 9 definitions, 22 evaluations | no errors | 0.19s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:51:03 | 9 definitions, 22 evaluations | no errors | 0.27s* <!-- livemathtex-meta -->

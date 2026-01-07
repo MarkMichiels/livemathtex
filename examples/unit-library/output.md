@@ -69,7 +69,7 @@ $$electricity\_price := 0.139\ €/kWh$$
 
 $$consumption := 24000\ kWh$$
 
-$$cost := electricity\_price \cdot consumption == 3.336e+03\ \text{€}$$
+$$cost := electricity\_price \cdot consumption == 3336\ \text{€}$$
 
 ### Biomass Production
 
@@ -77,7 +77,7 @@ $$productivity := 5\ g/L$$
 
 $$reactor\_volume := 100\ L$$
 
-$$total := productivity \cdot reactor\_volume == 0.5000\ \text{kg}$$
+$$total := productivity \cdot reactor\_volume == 0.5\ \text{kg}$$
 
 ### Working Hours
 
@@ -87,7 +87,7 @@ $$days\_per\_week := 5$$
 
 $$weeks\_per\_year := 48$$
 
-$$total\_hours := hours\_per\_day \cdot days\_per\_week \cdot weeks\_per\_year == 1.920e+03$$
+$$total\_hours := hours\_per\_day \cdot days\_per\_week \cdot weeks\_per\_year == 1920$$
 
 ---
 
@@ -104,4 +104,4 @@ In future versions, an import mechanism will allow:
 
 ---
 
-> *livemathtex: 2026-01-07 01:21:29 | 10 definitions, 3 evaluations | no errors | 0.10s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:51:04 | 10 definitions, 3 evaluations | no errors | 0.09s* <!-- livemathtex-meta -->

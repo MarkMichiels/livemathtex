@@ -136,4 +136,4 @@ $A_m := \frac{A}{length} == 2.727$
 
 ---
 
-> *livemathtex: 2026-01-06 22:59:34 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.58s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:51:01 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.41s* <!-- livemathtex-meta -->
