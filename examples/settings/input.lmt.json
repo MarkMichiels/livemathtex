@@ -14,7 +14,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 13
     },
     "large": {
       "id": "v_{1}",
@@ -27,7 +27,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 14
     },
     "small": {
       "id": "v_{2}",
@@ -40,7 +40,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 15
     },
     "medium": {
       "id": "v_{3}",
@@ -53,7 +53,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 16
     },
     "price": {
       "id": "v_{4}",
@@ -66,7 +66,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 119
     },
     "tax_rate": {
       "id": "v_{5}",
@@ -79,7 +79,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 120
     },
     "total": {
       "id": "v_{6}",
@@ -92,7 +92,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 121
     },
     "wavelength": {
       "id": "v_{7}",
@@ -105,7 +105,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 125
     },
     "power": {
       "id": "v_{8}",
@@ -118,12 +118,12 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 130
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:35:20",
+    "last_run": "2026-01-07 03:43:33",
     "duration": "0.27s",
     "symbols": 9,
     "definitions": 9,

@@ -178,7 +178,12 @@ class Evaluator:
         # Fallback to original
         return original_latex if original_latex else internal_name
 
-    def evaluate(self, calculation: Calculation, config_overrides: Optional[Dict[str, Any]] = None) -> str:
+    def evaluate(
+        self,
+        calculation: Calculation,
+        config_overrides: Optional[Dict[str, Any]] = None,
+        line: int = 0
+    ) -> str:
         """
         Process a single calculation node and return the result string (LaTeX).
 
@@ -186,10 +191,12 @@ class Evaluator:
             calculation: The calculation to evaluate
             config_overrides: Optional expression-level config overrides
                              (e.g., {"digits": 6, "format": "scientific"})
+            line: Source line number for tracking
 
         Returns:
             LaTeX string with the calculation result
         """
+        self._current_line = line  # Store for use in handlers
         # Apply expression-level config overrides for this calculation
         calc_config = self.config
         if config_overrides:
@@ -392,7 +399,8 @@ class Evaluator:
                 value=func_obj,
                 raw_latex=rhs_raw,
                 latex_name=original_target,
-                valid=True
+                valid=True,
+                line=getattr(self, '_current_line', 0)
             )
 
             # Use original target for display (preserves \Delta etc.)
@@ -422,7 +430,8 @@ class Evaluator:
                 latex_name=original_target,
                 original_value=original_value,
                 original_unit=unit_latex or None,
-                valid=valid
+                valid=valid,
+                line=getattr(self, '_current_line', 0)
             )
 
             # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
@@ -512,7 +521,8 @@ class Evaluator:
             latex_name=lhs,
             original_value=original_value,
             original_unit=result_unit_latex or None,
-            valid=valid
+            valid=valid,
+            line=getattr(self, '_current_line', 0)
         )
 
         # Use unit_comment for display conversion
@@ -657,37 +667,52 @@ class Evaluator:
         self, orig_value: Any, orig_unit: Any, si_value: float, si_unit: Any
     ) -> bool:
         """
-        Validate that SI conversion is reversible (round-trip check).
+        Validate that SI conversion is dimensionally correct.
 
-        Returns True if converting back gives approximately the same value.
+        Returns True if the SI conversion preserves the physical quantity.
+        
+        Note: We don't do numeric round-trip because compound units like
+        meter/1000 (from 'mm') don't convert back properly in SymPy.
+        Instead, we verify that the product of original value*unit equals
+        the SI value*unit (dimensionally).
         """
         from sympy.physics.units import convert_to
+        import sympy.physics.units as u
 
         try:
             if si_unit is None or orig_unit is None:
                 return True
 
-            # Convert SI back to original unit
-            si_full = si_value * si_unit
-            back = convert_to(si_full, orig_unit)
+            # Verify dimensional consistency: both should convert to same SI value
+            si_base = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
+            
+            # Original in SI
+            orig_full = orig_value * orig_unit
+            orig_si = convert_to(orig_full, si_base)
+            
+            # Our computed SI value
+            computed_si = si_value * si_unit
+            computed_si_converted = convert_to(computed_si, si_base)
+            
+            # Extract numeric values
+            def get_numeric(expr):
+                if hasattr(expr, 'as_coeff_Mul'):
+                    coeff, _ = expr.as_coeff_Mul()
+                    if hasattr(coeff, 'evalf'):
+                        return float(coeff.evalf())
+                    return float(coeff)
+                return float(expr)
+            
+            orig_num = get_numeric(orig_si)
+            computed_num = get_numeric(computed_si_converted)
+            
+            # Check relative error
+            if abs(orig_num) > 1e-10:
+                rel_error = abs(computed_num - orig_num) / abs(orig_num)
+                return rel_error < 0.001  # 0.1% tolerance
+            else:
+                return abs(computed_num - orig_num) < 1e-10
 
-            # Extract numeric value
-            if hasattr(back, 'as_coeff_Mul'):
-                back_coeff, _ = back.as_coeff_Mul()
-                if hasattr(back_coeff, 'evalf'):
-                    back_coeff = float(back_coeff.evalf())
-                else:
-                    back_coeff = float(back_coeff)
-
-                # Check relative error
-                orig_num = float(orig_value) if not hasattr(orig_value, 'evalf') else float(orig_value.evalf())
-                if abs(orig_num) > 1e-10:
-                    rel_error = abs(back_coeff - orig_num) / abs(orig_num)
-                    return rel_error < 0.001  # 0.1% tolerance
-                else:
-                    return abs(back_coeff - orig_num) < 1e-10
-
-            return True
         except Exception:
             # If validation fails, assume conversion is OK
             return True

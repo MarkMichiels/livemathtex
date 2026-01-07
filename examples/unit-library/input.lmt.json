@@ -28,8 +28,8 @@
         "value": 3.861111111111111e-08,
         "unit": "\\frac{\\text{EUR} \\text{s}^{2}}{\\text{kg} \\text{m}^{2}}"
       },
-      "valid": false,
-      "line": 0
+      "valid": true,
+      "line": 70
     },
     "consumption": {
       "id": "v_{1}",
@@ -41,8 +41,8 @@
         "value": 86400000000.0,
         "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
       },
-      "valid": false,
-      "line": 0
+      "valid": true,
+      "line": 72
     },
     "cost": {
       "id": "v_{2}",
@@ -55,7 +55,7 @@
         "unit": "\\text{EUR}"
       },
       "valid": true,
-      "line": 0
+      "line": 74
     },
     "productivity": {
       "id": "v_{3}",
@@ -68,7 +68,7 @@
         "unit": "\\frac{\\text{kg}}{\\text{m}^{3}}"
       },
       "valid": true,
-      "line": 0
+      "line": 78
     },
     "reactor\\_volume": {
       "id": "v_{4}",
@@ -81,7 +81,7 @@
         "unit": "\\text{m}^{3}"
       },
       "valid": true,
-      "line": 0
+      "line": 80
     },
     "total": {
       "id": "v_{5}",
@@ -94,7 +94,7 @@
         "unit": "\\text{kg}"
       },
       "valid": true,
-      "line": 0
+      "line": 82
     },
     "hours\\_per\\_day": {
       "id": "v_{6}",
@@ -107,7 +107,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 86
     },
     "days\\_per\\_week": {
       "id": "v_{7}",
@@ -120,7 +120,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 88
     },
     "weeks\\_per\\_year": {
       "id": "v_{8}",
@@ -133,7 +133,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 90
     },
     "total\\_hours": {
       "id": "v_{9}",
@@ -146,13 +146,13 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 92
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:35:20",
-    "duration": "0.11s",
+    "last_run": "2026-01-07 03:43:33",
+    "duration": "0.12s",
     "symbols": 10,
     "definitions": 10,
     "evaluations": 3,

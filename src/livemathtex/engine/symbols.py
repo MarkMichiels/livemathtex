@@ -30,6 +30,7 @@ class SymbolValue:
         raw_latex: The LaTeX string of the RHS (definition expression)
         latex_name: The original LaTeX form of the variable name (LHS)
         internal_id: Internal ID for latex2sympy (e.g., "v_{0}")
+        line: Source line number where this symbol was defined
     """
     original_value: Optional[float] = None
     original_unit: Optional[str] = None
@@ -39,6 +40,7 @@ class SymbolValue:
     raw_latex: str = ""
     latex_name: str = ""
     internal_id: str = ""
+    line: int = 0
 
     @property
     def value(self) -> Any:
@@ -164,6 +166,7 @@ class SymbolTable:
         original_value: Optional[float] = None,
         original_unit: Optional[str] = None,
         valid: bool = True,
+        line: int = 0,
     ):
         """
         Define a variable with both original and SI values.
@@ -180,6 +183,7 @@ class SymbolTable:
             original_value: User's input value (numeric, before SI conversion)
             original_unit: User's input unit string (e.g., "m³/h")
             valid: Whether the unit conversion was successful
+            line: Source line number where this symbol was defined
         """
         # Generate internal ID for latex2sympy
         internal_id = ""
@@ -199,6 +203,7 @@ class SymbolTable:
             raw_latex=raw_latex,
             latex_name=latex_name,
             internal_id=internal_id,
+            line=line,
         )
 
     def get(self, name: str) -> Optional[SymbolValue]:

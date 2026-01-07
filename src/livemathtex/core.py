@@ -109,11 +109,12 @@ def process_file(
                     value_count += 1
 
                 try:
-                    result_latex = evaluator.evaluate(calc, config_overrides=expr_overrides)
+                    block_line = block.location.start_line if block.location else 0
+                    result_latex = evaluator.evaluate(calc, config_overrides=expr_overrides, line=block_line)
                     if '\\color{red}' in result_latex:
                         error_count += 1
                         # Add to IR errors
-                        line = block.location.start_line if block.location else 0
+                        line = block_line
                         ir.add_error(line, f"Evaluation error in: {calc.latex[:50]}...")
                     block_calcs_results.append(result_latex)
                 except Exception as e:
@@ -231,7 +232,7 @@ def _populate_ir_symbols(ir: LivemathIR, evaluator: Evaluator) -> None:
             original=original,
             si=si,
             valid=entry.valid,
-            line=0,  # Line tracking not fully implemented yet
+            line=entry.line,
         ))
 
 

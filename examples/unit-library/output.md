@@ -106,4 +106,4 @@ In future versions, an import mechanism will allow:
 
 ---
 
-> *livemathtex: 2026-01-07 03:35:20 | 10 definitions, 3 evaluations | no errors | 0.11s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 03:43:33 | 10 definitions, 3 evaluations | no errors | 0.12s* <!-- livemathtex-meta -->

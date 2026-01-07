@@ -14,7 +14,7 @@
         "unit": "\\frac{\\text{m}^{3}}{\\text{s}}"
       },
       "valid": true,
-      "line": 0
+      "line": 31
     },
     "h_s": {
       "id": "v_{1}",
@@ -27,7 +27,7 @@
         "unit": "\\text{m}"
       },
       "valid": true,
-      "line": 0
+      "line": 41
     },
     "h_d": {
       "id": "v_{2}",
@@ -40,7 +40,7 @@
         "unit": "\\text{m}"
       },
       "valid": true,
-      "line": 0
+      "line": 44
     },
     "L_{pipe}": {
       "id": "v_{3}",
@@ -53,7 +53,7 @@
         "unit": "\\text{m}"
       },
       "valid": true,
-      "line": 0
+      "line": 47
     },
     "D_{pipe}": {
       "id": "v_{4}",
@@ -65,8 +65,8 @@
         "value": 0.1,
         "unit": "\\text{m}"
       },
-      "valid": false,
-      "line": 0
+      "valid": true,
+      "line": 50
     },
     "\\rho": {
       "id": "v_{5}",
@@ -79,7 +79,7 @@
         "unit": "\\frac{\\text{kg}}{\\text{m}^{3}}"
       },
       "valid": true,
-      "line": 0
+      "line": 55
     },
     "g_{acc}": {
       "id": "v_{6}",
@@ -92,7 +92,7 @@
         "unit": "\\frac{\\text{m}}{\\text{s}^{2}}"
       },
       "valid": true,
-      "line": 0
+      "line": 58
     },
     "f_d": {
       "id": "v_{7}",
@@ -105,7 +105,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 63
     },
     "A_{pipe}": {
       "id": "v_{8}",
@@ -118,7 +118,7 @@
         "unit": "\\pi \\text{m}^{2}"
       },
       "valid": true,
-      "line": 0
+      "line": 70
     },
     "vel": {
       "id": "v_{9}",
@@ -131,7 +131,7 @@
         "unit": "\\frac{\\text{m}}{\\pi \\text{s}}"
       },
       "valid": true,
-      "line": 0
+      "line": 73
     },
     "H_{static}": {
       "id": "v_{10}",
@@ -144,7 +144,7 @@
         "unit": "\\text{m}"
       },
       "valid": true,
-      "line": 0
+      "line": 82
     },
     "H_f": {
       "id": "v_{11}",
@@ -157,7 +157,7 @@
         "unit": "\\frac{\\text{m}}{\\pi^{2}}"
       },
       "valid": true,
-      "line": 0
+      "line": 88
     },
     "K_{fit}": {
       "id": "v_{12}",
@@ -170,7 +170,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 93
     },
     "H_m": {
       "id": "v_{13}",
@@ -183,7 +183,7 @@
         "unit": "\\frac{\\text{m}}{\\pi^{2}}"
       },
       "valid": true,
-      "line": 0
+      "line": 95
     },
     "TDH": {
       "id": "v_{14}",
@@ -196,7 +196,7 @@
         "unit": "\\frac{39.3274688211827 \\text{m}}{\\pi^{2}} + 17.0 \\text{m}"
       },
       "valid": true,
-      "line": 0
+      "line": 101
     },
     "P_{hyd}": {
       "id": "v_{15}",
@@ -208,8 +208,8 @@
         "value": 0.001,
         "unit": "\\frac{\\left(\\frac{5358367.62688614 \\text{m}}{\\pi^{2}} + 2316250.0 \\text{m}\\right) \\text{kg} \\text{m}^{2}}{\\text{s}^{3}}"
       },
-      "valid": false,
-      "line": 0
+      "valid": true,
+      "line": 108
     },
     "eta_p": {
       "id": "v_{16}",
@@ -222,7 +222,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 115
     },
     "eta_m": {
       "id": "v_{17}",
@@ -235,7 +235,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 118
     },
     "P_{motor}": {
       "id": "v_{18}",
@@ -247,14 +247,14 @@
         "value": 0.001,
         "unit": "\\frac{\\left(\\frac{7938322.41020169 \\text{m}}{\\pi^{2}} + 3431481.48148148 \\text{m}\\right) \\text{kg} \\text{m}^{3}}{\\text{s}^{3}}"
       },
-      "valid": false,
-      "line": 0
+      "valid": true,
+      "line": 121
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:35:18",
-    "duration": "0.43s",
+    "last_run": "2026-01-07 03:43:31",
+    "duration": "0.48s",
     "symbols": 19,
     "definitions": 19,
     "evaluations": 11,

@@ -14,7 +14,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 25
     },
     "a_1": {
       "id": "v_{1}",
@@ -27,7 +27,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 26
     },
     "F_1": {
       "id": "v_{2}",
@@ -40,7 +40,7 @@
         "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
       },
       "valid": true,
-      "line": 0
+      "line": 29
     },
     "mass": {
       "id": "v_{3}",
@@ -53,7 +53,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 33
     },
     "accel": {
       "id": "v_{4}",
@@ -66,7 +66,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 34
     },
     "F_2": {
       "id": "v_{5}",
@@ -79,7 +79,7 @@
         "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
       },
       "valid": true,
-      "line": 0
+      "line": 37
     },
     "F_2N": {
       "id": "v_{6}",
@@ -92,7 +92,7 @@
         "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
       },
       "valid": true,
-      "line": 0
+      "line": 40
     },
     "F_2kN": {
       "id": "v_{7}",
@@ -105,7 +105,7 @@
         "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
       },
       "valid": true,
-      "line": 0
+      "line": 43
     },
     "ratio": {
       "id": "v_{8}",
@@ -118,7 +118,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 47
     },
     "h_{drop}": {
       "id": "v_{9}",
@@ -131,7 +131,7 @@
         "unit": null
       },
       "valid": true,
-      "line": 0
+      "line": 66
     }
   },
   "errors": [
@@ -145,8 +145,8 @@
     }
   ],
   "stats": {
-    "last_run": "2026-01-07 03:35:17",
-    "duration": "0.23s",
+    "last_run": "2026-01-07 03:43:30",
+    "duration": "0.24s",
     "symbols": 10,
     "definitions": 12,
     "evaluations": 6,
