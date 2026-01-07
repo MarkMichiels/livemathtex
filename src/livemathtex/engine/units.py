@@ -421,9 +421,10 @@ def strip_unit_from_value(latex: str) -> Tuple[str, Optional[str], Optional[Any]
     latex = latex.strip()
 
     # Pattern 0: number followed by \frac{numerator}{denominator}
-    # Example: "50 \frac{m^{3}}{h}" or "1000 \frac{kg}{m^{3}}"
+    # Example: "50 \frac{m^{3}}{h}" or "1000 \frac{kg}{m^{3}}" or "44\ \frac{mg}{L}"
     # Use helper to handle nested braces like {m^{3}}
-    frac_match = re.match(r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s*\\frac', latex)
+    # Note: \s*\\?\s* handles both "44 \frac" and "44\ \frac" (LaTeX thin space)
+    frac_match = re.match(r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s*\\?\s*\\frac', latex)
     if frac_match:
         value_part = frac_match.group(1).strip()
         rest = latex[frac_match.end():]
@@ -431,10 +432,14 @@ def strip_unit_from_value(latex: str) -> Tuple[str, Optional[str], Optional[Any]
         numerator, rest = _extract_braced_content(rest)
         denominator, _ = _extract_braced_content(rest)
         if numerator is not None and denominator is not None:
-            # Clean up LaTeX: m^{3} -> m³
+            # Clean up LaTeX: m^{3} -> m³, \text{kg} -> kg, \cdot -> *
             numerator = _clean_unit_latex(numerator)
             denominator = _clean_unit_latex(denominator)
-            unit_latex = f"{numerator}/{denominator}"
+            # Use parentheses if denominator contains multiplication to preserve order
+            if '*' in denominator or '·' in denominator:
+                unit_latex = f"{numerator}/({denominator})"
+            else:
+                unit_latex = f"{numerator}/{denominator}"
             sympy_unit = _parse_unit_string(unit_latex)
             if sympy_unit is not None:
                 return value_part, unit_latex, sympy_unit
@@ -540,21 +545,37 @@ def _clean_unit_latex(unit_latex: str) -> str:
     Clean LaTeX unit notation to simple format.
 
     Converts:
+        "\\text{mg}" -> "mg"
+        "\\mathrm{kg}" -> "kg"
         "m^{3}" -> "m³"
         "m^3"   -> "m³"
         "m^{2}" -> "m²"
         "s^{2}" -> "s²"
+        "\\cdot" -> "*"
 
     Returns:
         Cleaned unit string
     """
+    result = unit_latex
+
+    # Remove \text{} and \mathrm{} wrappers
+    result = re.sub(r'\\text\{([^}]+)\}', r'\1', result)
+    result = re.sub(r'\\mathrm\{([^}]+)\}', r'\1', result)
+
+    # Replace \cdot with *
+    result = result.replace(r'\cdot', '*')
+    result = result.replace('·', '*')  # Unicode middle dot
+
     # Replace LaTeX power notation with Unicode
     # Note: braces need to be escaped in regex
-    result = unit_latex
     result = re.sub(r'\^\{3\}', '³', result)
     result = re.sub(r'\^3', '³', result)
     result = re.sub(r'\^\{2\}', '²', result)
     result = re.sub(r'\^2', '²', result)
+
+    # Clean up whitespace
+    result = re.sub(r'\s+', '', result)
+
     return result
 
 
@@ -636,18 +657,39 @@ def _parse_compound_unit_expr(unit_str: str, registry: 'UnitRegistry') -> Option
 
 def _parse_single_unit(unit_str: str, registry: 'UnitRegistry') -> Optional[Any]:
     """
-    Parse a single unit (possibly with power).
+    Parse a single unit (possibly with power or parentheses).
 
     Examples:
         "kg" -> kilogram
         "m^2" -> meter**2
         "kWh" -> kilo*watt*hour
+        "(L*dag)" -> liter * day
     """
     import sympy
 
     unit_str = unit_str.strip()
     if not unit_str:
         return None
+
+    # Handle parentheses: (L*dag) -> multiply contents
+    if unit_str.startswith('(') and unit_str.endswith(')'):
+        inner = unit_str[1:-1]
+        # Parse as multiplication
+        if '*' in inner:
+            parts = inner.split('*')
+            result = None
+            for part in parts:
+                part_unit = _parse_single_unit(part.strip(), registry)
+                if part_unit is None:
+                    return None
+                if result is None:
+                    result = part_unit
+                else:
+                    result = result * part_unit
+            return result
+        else:
+            # Just remove parentheses and parse
+            return _parse_single_unit(inner, registry)
 
     # Handle powers: m^2, s^-1
     if '^' in unit_str:
@@ -660,6 +702,20 @@ def _parse_single_unit(unit_str: str, registry: 'UnitRegistry') -> Optional[Any]
             return base_unit ** exp_val
         except ValueError:
             return None
+
+    # Handle multiplication: L*dag
+    if '*' in unit_str:
+        parts = unit_str.split('*')
+        result = None
+        for part in parts:
+            part_unit = _parse_single_unit(part.strip(), registry)
+            if part_unit is None:
+                return None
+            if result is None:
+                result = part_unit
+            else:
+                result = result * part_unit
+        return result
 
     # Try direct lookup
     result = registry.get_unit(unit_str)
