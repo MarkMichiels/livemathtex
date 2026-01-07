@@ -4,17 +4,19 @@
 
 This example demonstrates SI units and variable naming.
 
-## ⚠️ Single-Letter Variables: Use With Care!
+## ⚠️ Single-Letter Variables: Error Detection
 
-Single-letter names like `m`, `s`, `t` CAN be used as variables, but they will
-**shadow** the corresponding SI units in the same document.
+Single-letter names like `m`, `s`, `t` that conflict with SI units will
+**generate an error** to prevent ambiguity.
 
-**Example of the problem:**
+**Example:**
 
-If you write `m := 10 · kg` and then `accel := 9.81 · m/s²`, the `m` in the
-acceleration formula becomes `10 kg` instead of `meter`!
+Writing `m := 10 · kg` produces:
 
-**Best practice:** Use subscripts or descriptive names to avoid conflicts.
+> Error: Variable name 'm' conflicts with unit 'm' (meter). 
+> Use a subscript like m_{var} or m_{0} to disambiguate.
+
+**Solution:** Use subscripts or descriptive names to avoid conflicts.
 
 ## ✅ Recommended: Subscripts or Descriptive Names
 
