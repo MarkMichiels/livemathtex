@@ -317,3 +317,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to help with development.
 - [Architecture](./ARCHITECTURE.md)
 - [Usage Reference](./USAGE.md)
 - [Dependencies](./DEPENDENCIES.md)
+- [Pint Migration Analysis](./PINT_MIGRATION_ANALYSIS.md)

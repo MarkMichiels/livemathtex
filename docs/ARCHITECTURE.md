@@ -754,3 +754,4 @@ livemathtex process calculation.md --import constants.lmt.json
 - [SymPy Documentation](https://docs.sympy.org/)
 - [SymPy Units](https://docs.sympy.org/latest/modules/physics/units/)
 - [latex2sympy2](https://github.com/augustt198/latex2sympy) (we use [our fork](https://github.com/MarkMichiels/latex2sympy))
+- [Pint Migration Analysis](PINT_MIGRATION_ANALYSIS.md)
