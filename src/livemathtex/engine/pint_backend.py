@@ -432,3 +432,191 @@ def create_quantity(value: float, unit: str) -> Optional[pint.Quantity]:
 def is_unit(token: str) -> bool:
     """Alias for is_unit_token."""
     return is_unit_token(token)
+
+
+# =============================================================================
+# IR v3.0 Conversion Helpers
+# =============================================================================
+
+
+@dataclass
+class ConversionResult:
+    """Result of converting a value to base units."""
+
+    original_value: float
+    original_unit: Optional[str]
+    base_value: float
+    base_unit: Optional[str]
+    success: bool
+    error: Optional[str] = None
+
+
+def convert_to_base_units(value: float, unit: Optional[str]) -> ConversionResult:
+    """
+    Convert a value with unit to SI base units.
+
+    This is the primary conversion function for IR v3.0, returning both
+    original and base unit representations.
+
+    Args:
+        value: The numeric value.
+        unit: The unit string (None for dimensionless).
+
+    Returns:
+        ConversionResult with both original and base representations.
+
+    Examples:
+        >>> convert_to_base_units(50.0, "m³/h")
+        ConversionResult(original_value=50.0, original_unit="m³/h",
+                        base_value=0.01389, base_unit="m³/s", ...)
+
+        >>> convert_to_base_units(5.0, "kW")
+        ConversionResult(original_value=5.0, original_unit="kW",
+                        base_value=5000.0, base_unit="kg·m²/s³", ...)
+    """
+    if unit is None:
+        return ConversionResult(
+            original_value=value,
+            original_unit=None,
+            base_value=value,
+            base_unit=None,
+            success=True
+        )
+
+    ureg = get_unit_registry()
+
+    try:
+        quantity = value * ureg(unit)
+        base = quantity.to_base_units()
+
+        return ConversionResult(
+            original_value=value,
+            original_unit=unit,
+            base_value=float(base.magnitude),
+            base_unit=format_pint_unit(base.units),
+            success=True
+        )
+    except Exception as e:
+        return ConversionResult(
+            original_value=value,
+            original_unit=unit,
+            base_value=value,
+            base_unit=unit,
+            success=False,
+            error=str(e)
+        )
+
+
+def format_pint_unit(unit: pint.Unit) -> str:
+    """
+    Format a Pint unit to a clean string representation.
+
+    Args:
+        unit: A Pint Unit object.
+
+    Returns:
+        A string representation of the unit.
+
+    Examples:
+        >>> ureg = get_unit_registry()
+        >>> format_pint_unit((5 * ureg.kilowatt).to_base_units().units)
+        'kilogram * meter ** 2 / second ** 3'
+    """
+    if unit.dimensionless:
+        return None
+
+    # Get Pint's default string representation
+    unit_str = str(unit)
+
+    return unit_str if unit_str else None
+
+
+@dataclass
+class FormulaEvalResult:
+    """Result of evaluating a formula with units."""
+
+    original_value: float
+    original_unit: Optional[str]
+    base_value: float
+    base_unit: Optional[str]
+    success: bool
+    error: Optional[str] = None
+
+
+def evaluate_formula_with_units(
+    expression: str,
+    symbol_values: dict[str, tuple[float, Optional[str]]]
+) -> FormulaEvalResult:
+    """
+    Evaluate a formula expression using original units.
+
+    This evaluates the formula with the original units of each symbol,
+    then converts the result to base units. This preserves user-friendly
+    unit representations in the original output.
+
+    Args:
+        expression: Formula using clean IDs (e.g., "v1 * v2 / v3")
+        symbol_values: Dict mapping clean ID to (value, unit) tuple
+
+    Returns:
+        FormulaEvalResult with both original and base representations.
+
+    Example:
+        >>> symbol_values = {
+        ...     "v1": (5.0, "L"),
+        ...     "v2": (10.0, "min")
+        ... }
+        >>> result = evaluate_formula_with_units("v1 / v2", symbol_values)
+        >>> result.original_unit  # 'L / min'
+        >>> result.base_unit      # 'm³ / s'
+    """
+    ureg = get_unit_registry()
+
+    try:
+        # Build namespace with Pint quantities
+        namespace = {}
+        for sym_id, (val, unit) in symbol_values.items():
+            if unit:
+                namespace[sym_id] = val * ureg(unit)
+            else:
+                namespace[sym_id] = val
+
+        # Safe evaluation (only basic arithmetic)
+        # Note: In production, use a proper expression parser
+        allowed_builtins = {
+            'abs': abs,
+            'max': max,
+            'min': min,
+            'pow': pow,
+            'round': round,
+        }
+        result = eval(expression, {"__builtins__": allowed_builtins}, namespace)
+
+        # Extract original and base representations
+        if hasattr(result, 'magnitude'):
+            orig_val = float(result.magnitude)
+            orig_unit = format_pint_unit(result.units)
+            base = result.to_base_units()
+            base_val = float(base.magnitude)
+            base_unit = format_pint_unit(base.units)
+        else:
+            orig_val = base_val = float(result)
+            orig_unit = base_unit = None
+
+        return FormulaEvalResult(
+            original_value=orig_val,
+            original_unit=orig_unit,
+            base_value=base_val,
+            base_unit=base_unit,
+            success=True
+        )
+
+    except Exception as e:
+        return FormulaEvalResult(
+            original_value=0.0,
+            original_unit=None,
+            base_value=0.0,
+            base_unit=None,
+            success=False,
+            error=str(e)
+        )
