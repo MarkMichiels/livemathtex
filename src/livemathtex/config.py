@@ -59,7 +59,7 @@ class LivemathConfig:
     # Tier 1: Core settings
     digits: int = 4
     format: FormatType = "general"
-    exponential_threshold: int = 3
+    exponential_threshold: int = 9  # Switch to scientific at 10^9 (billion+)
     trailing_zeros: bool = False
     unit_system: UnitSystem = "SI"
     timeout: int = 5

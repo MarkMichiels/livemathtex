@@ -43,7 +43,7 @@ $$time := 8\ h$$
 
 **Default (SI base units):**
 
-$$energy\_si := power \cdot time == 1.440e+08\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$
+$$energy\_si := power \cdot time == 144000000\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$
 
 **In custom unit (kW·h):**
 
@@ -73,11 +73,11 @@ $$factor := 2$$
 
 **Default (SI = Pascal):**
 
-$$pressure\_si := pressure\_atm \cdot factor == 2.026e+05\ \text{kg}/\text{(m} \cdot \text{s}^{2)}$$
+$$pressure\_si := pressure\_atm \cdot factor == 202600\ \text{kg}/\text{(m} \cdot \text{s}^{2)}$$
 
 **In custom unit (mbar):**
 
-$$pressure\_mbar := pressure\_atm \cdot factor == 2.026e+03\ \text{mbar}$$ <!-- [mbar] digits:4 -->
+$$pressure\_mbar := pressure\_atm \cdot factor == 2026\ \text{mbar}$$ <!-- [mbar] digits:4 -->
 
 **Expected:**
 - SI: 202600 Pa (or 2.026e+05 kg/(m·s²))
@@ -123,11 +123,11 @@ $$large\_number := 1234567$$
 
 **Default:**
 
-$$result\_default := large\_number == 1.235e+06$$
+$$result\_default := large\_number == 1235000$$
 
 **With 2 significant digits:**
 
-$$result\_2dig := large\_number == 1.2e+06$$ <!-- digits:2 -->
+$$result\_2dig := large\_number == 1200000$$ <!-- digits:2 -->
 
 **With scientific notation:**
 
@@ -168,4 +168,4 @@ $x ==$ <!-- digits:4 [mbar] -->
 
 ---
 
-> *livemathtex: 2026-01-07 01:40:46 | 23 definitions, 12 evaluations | no errors | 0.21s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:42:39 | 23 definitions, 12 evaluations | no errors | 0.21s* <!-- livemathtex-meta -->

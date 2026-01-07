@@ -997,7 +997,7 @@ class Evaluator:
             return result
         else:  # "general" - auto-choose based on threshold
             # trailing_zeros=False means we should strip trailing zeros
-            return self._format_general(value, digits, cfg.exponential_threshold, 
+            return self._format_general(value, digits, cfg.exponential_threshold,
                                         strip_trailing=not cfg.trailing_zeros)
 
     def _format_scientific(self, value: float, digits: int) -> str:
@@ -1052,7 +1052,7 @@ class Evaluator:
 
     def _format_significant(self, value: float, sig_figs: int, strip_trailing: bool = True) -> str:
         """Format a number with the specified number of significant figures.
-        
+
         Args:
             value: The numeric value to format
             sig_figs: Number of significant figures
@@ -1069,22 +1069,20 @@ class Evaluator:
         # Round to significant figures
         rounded = round(value, sig_figs - 1 - magnitude)
 
-        # Format appropriately
-        if abs(magnitude) >= 4:
-            # Scientific notation for very large/small numbers
-            result = f"{rounded:.{sig_figs-1}e}"
-        elif magnitude >= sig_figs - 1:
+        # Format appropriately - always use decimal format here
+        # (scientific notation threshold is handled by _format_general)
+        if magnitude >= sig_figs - 1:
             # Integer-like (no decimals needed)
             result = f"{rounded:.0f}"
         else:
             # Decimal format
             decimals = max(0, sig_figs - 1 - magnitude)
             result = f"{rounded:.{decimals}f}"
-        
+
         # Strip trailing zeros if requested: 40.00 → 40, 40.10 → 40.1
         if strip_trailing and '.' in result:
             result = result.rstrip('0').rstrip('.')
-        
+
         return result
 
     # Common SI units that need protection from being split by latex2sympy
