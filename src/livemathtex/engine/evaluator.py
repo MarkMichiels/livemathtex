@@ -1082,7 +1082,44 @@ class Evaluator:
         # Strip trailing zeros if requested: 40.00 → 40, 40.10 → 40.1
         if strip_trailing and '.' in result:
             result = result.rstrip('0').rstrip('.')
+        
+        # Add thousands separators (thin space \, in LaTeX)
+        result = self._add_thousands_separator(result)
 
+        return result
+    
+    def _add_thousands_separator(self, number_str: str) -> str:
+        """Add thin space (\\,) as thousands separator for readability.
+        
+        144000000 → 144\\,000\\,000
+        1234.5678 → 1\\,234.5678
+        """
+        if '.' in number_str:
+            integer_part, decimal_part = number_str.split('.')
+        else:
+            integer_part = number_str
+            decimal_part = None
+        
+        # Handle negative numbers
+        negative = integer_part.startswith('-')
+        if negative:
+            integer_part = integer_part[1:]
+        
+        # Only add separators if >= 5 digits (10000+)
+        if len(integer_part) >= 5:
+            # Insert thin space every 3 digits from the right
+            parts = []
+            while len(integer_part) > 3:
+                parts.insert(0, integer_part[-3:])
+                integer_part = integer_part[:-3]
+            parts.insert(0, integer_part)
+            integer_part = r'\,'.join(parts)
+        
+        # Reconstruct
+        result = ('-' if negative else '') + integer_part
+        if decimal_part is not None:
+            result += '.' + decimal_part
+        
         return result
 
     # Common SI units that need protection from being split by latex2sympy
