@@ -398,41 +398,259 @@ def reset_unit_registry():
 # Helper Functions
 # =============================================================================
 
-def strip_unit_from_value(latex: str) -> Tuple[str, Optional[str]]:
+def strip_unit_from_value(latex: str) -> Tuple[str, Optional[str], Optional[Any]]:
     """
-    Strip the unit from a value expression.
+    Strip the unit from a value expression and parse it.
 
-    Example:
-        "100\\ \\text{kg}" -> ("100", "kg")
-        "5.5\\ \\text{m/s}" -> ("5.5", "m/s")
-        "42" -> ("42", None)
+    Handles multiple patterns:
+        "0.139\\ €/kWh"         -> ("0.139", "€/kWh", euro/(kilo*watt*hour))
+        "100\\ \\text{kg}"      -> ("100", "kg", kilogram)
+        "5.5\\ \\text{m/s}"     -> ("5.5", "m/s", meter/second)
+        "1500\\ kWh"            -> ("1500", "kWh", kilo*watt*hour)
+        "42"                    -> ("42", None, None)
 
     Returns:
-        Tuple of (value_latex, unit_string or None)
+        Tuple of (value_latex, unit_string or None, sympy_unit or None)
     """
-    # Pattern: number followed by \text{...} or \mathrm{...}
+    latex = latex.strip()
+
+    # Pattern 1: number followed by \text{...} or \mathrm{...}
+    # Example: "100\ \text{kg}" or "5.5 \text{m/s}"
     match = re.match(
         r'^(.+?)\s*\\?\s*\\(?:text|mathrm)\{([^}]+)\}\s*$',
-        latex.strip()
+        latex
     )
-
     if match:
         value_part = match.group(1).strip()
         unit_part = match.group(2).strip()
-        return value_part, unit_part
+        sympy_unit = _parse_unit_string(unit_part)
+        return value_part, unit_part, sympy_unit
+
+    # Pattern 2: number followed by backslash-space and unit
+    # Example: "0.139\ €/kWh" or "1500\ kWh"
+    match = re.match(
+        r'^([\d.]+(?:[eE][+-]?\d+)?)\s*\\\s+(.+)$',
+        latex
+    )
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        sympy_unit = _parse_unit_string(unit_part)
+        return value_part, unit_part, sympy_unit
+
+    # Pattern 3: number followed by direct unit (no backslash)
+    # Example: "100 kg" or "5.5 m/s"
+    # Be careful: only match if unit looks like a unit (not a variable)
+    match = re.match(
+        r'^([\d.]+(?:[eE][+-]?\d+)?)\s+([€$]?[a-zA-Z][a-zA-Z0-9/\*\^³²]*)\s*$',
+        latex
+    )
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        # Only accept if it parses as a known unit
+        sympy_unit = _parse_unit_string(unit_part)
+        if sympy_unit is not None:
+            return value_part, unit_part, sympy_unit
+
+    # Pattern 4: number with unit symbol directly attached (currency)
+    # Example: "0.139€/kWh"
+    match = re.match(
+        r'^([\d.]+(?:[eE][+-]?\d+)?)\s*([€$][a-zA-Z0-9/\*\^³²]*)\s*$',
+        latex
+    )
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        sympy_unit = _parse_unit_string(unit_part)
+        if sympy_unit is not None:
+            return value_part, unit_part, sympy_unit
 
     # No unit found
-    return latex.strip(), None
+    return latex, None, None
 
 
-def format_unit_latex(unit: Any) -> str:
+def _parse_unit_string(unit_str: str) -> Optional[Any]:
+    """
+    Parse a unit string into a SymPy unit expression.
+
+    Handles:
+        - Simple units: "kg", "m", "s", "€"
+        - Compound units: "m/s", "€/kWh", "mg/L/dag"
+        - Powers: "m²", "m^2", "m³", "m^3"
+        - Products: "kWh", "kg·m/s²"
+
+    Returns:
+        SymPy unit expression or None if not recognized
+    """
+    if not unit_str:
+        return None
+
+    # Clean the unit string
+    unit_str = unit_str.strip()
+
+    # Replace Unicode superscripts
+    unit_str = unit_str.replace('²', '^2').replace('³', '^3')
+
+    # Replace · with *
+    unit_str = unit_str.replace('·', '*').replace('\\cdot', '*')
+
+    # Get the global registry
+    registry = get_unit_registry()
+
+    # Try direct lookup first (handles custom units like €)
+    result = registry.get_unit(unit_str)
+    if result is not None:
+        return result
+
+    # Try parsing as compound unit
+    result = registry.parse_unit_from_latex(unit_str)
+    if result is not None:
+        return result
+
+    # Try parsing compound expressions manually
+    return _parse_compound_unit_expr(unit_str, registry)
+
+
+def _parse_compound_unit_expr(unit_str: str, registry: 'UnitRegistry') -> Optional[Any]:
+    """
+    Parse compound unit expressions like "€/kWh" or "mg/L/dag".
+
+    Handles:
+        - Division: a/b/c = a / (b * c)
+        - Multiplication: a*b or ab (for known units)
+        - Powers: a^2, a^3
+    """
+    import sympy
+
+    # Split by / for division
+    if '/' in unit_str:
+        parts = unit_str.split('/')
+
+        # First part is numerator
+        numerator = _parse_single_unit(parts[0], registry)
+        if numerator is None:
+            return None
+
+        # Rest are denominators
+        result = numerator
+        for denom_str in parts[1:]:
+            denom = _parse_single_unit(denom_str, registry)
+            if denom is None:
+                return None
+            result = result / denom
+
+        return result
+
+    # No division, try single unit
+    return _parse_single_unit(unit_str, registry)
+
+
+def _parse_single_unit(unit_str: str, registry: 'UnitRegistry') -> Optional[Any]:
+    """
+    Parse a single unit (possibly with power).
+
+    Examples:
+        "kg" -> kilogram
+        "m^2" -> meter**2
+        "kWh" -> kilo*watt*hour
+    """
+    import sympy
+
+    unit_str = unit_str.strip()
+    if not unit_str:
+        return None
+
+    # Handle powers: m^2, s^-1
+    if '^' in unit_str:
+        base, exp = unit_str.split('^', 1)
+        base_unit = _parse_single_unit(base.strip(), registry)
+        if base_unit is None:
+            return None
+        try:
+            exp_val = int(exp.strip())
+            return base_unit ** exp_val
+        except ValueError:
+            return None
+
+    # Try direct lookup
+    result = registry.get_unit(unit_str)
+    if result is not None:
+        return result
+
+    # Try built-in abbreviations
+    if unit_str in UNIT_ABBREVIATIONS:
+        return UNIT_ABBREVIATIONS[unit_str]
+
+    # Try compound patterns
+    if unit_str in COMPOUND_UNIT_PATTERNS:
+        return COMPOUND_UNIT_PATTERNS[unit_str]
+
+    # Try with SI prefixes
+    prefixed = _try_prefixed_unit(unit_str)
+    if prefixed is not None:
+        return prefixed
+
+    return None
+
+
+def _try_prefixed_unit(unit_str: str) -> Optional[Any]:
+    """
+    Try to parse a unit with SI prefix (k, M, m, µ, n, c).
+
+    Examples:
+        "kW" -> kilo * watt
+        "mm" -> milli * meter
+        "MHz" -> mega * hertz
+    """
+    from sympy.physics.units.prefixes import kilo, mega, giga, milli, micro, nano, centi
+
+    if len(unit_str) < 2:
+        return None
+
+    # SI prefix mapping (first char)
+    prefix_map = {
+        'k': kilo,
+        'M': mega,
+        'G': giga,
+        'c': centi,
+        'µ': micro,
+        'u': micro,
+        'n': nano,
+    }
+
+    # Try prefix + base unit
+    first_char = unit_str[0]
+    if first_char in prefix_map:
+        base_str = unit_str[1:]
+
+        # Check if base is a known unit
+        if base_str in UNIT_ABBREVIATIONS:
+            return prefix_map[first_char] * UNIT_ABBREVIATIONS[base_str]
+
+    # Special case: mm (milli-meter, not mega-meter)
+    if unit_str == 'mm':
+        return milli * meter
+
+    return None
+
+
+def format_unit_latex(unit: Any, original_latex: Optional[str] = None) -> str:
     """
     Format a SymPy unit as LaTeX.
+
+    If original_latex is provided, uses that for display (preserves user's notation).
+    Otherwise, converts SymPy unit to readable abbreviation.
 
     Example:
         kilogram -> "kg"
         meter/second -> "m/s"
+        euro/(kilowatt*hour) -> "€/kWh" (or original_latex if provided)
     """
+    # Prefer original LaTeX if provided (preserves user notation)
+    if original_latex:
+        return original_latex
+
     if unit is None:
         return ""
 
@@ -443,23 +661,45 @@ def format_unit_latex(unit: Any) -> str:
     reverse_map = {
         'kilogram': 'kg',
         'gram': 'g',
+        'milligram': 'mg',
         'meter': 'm',
+        'millimeter': 'mm',
+        'centimeter': 'cm',
+        'kilometer': 'km',
         'second': 's',
+        'millisecond': 'ms',
+        'minute': 'min',
         'hour': 'h',
         'day': 'dag',
         'liter': 'L',
+        'milliliter': 'mL',
         'watt': 'W',
+        'kilowatt': 'kW',
+        'megawatt': 'MW',
         'joule': 'J',
+        'kilojoule': 'kJ',
         'newton': 'N',
         'pascal': 'Pa',
+        'kilopascal': 'kPa',
+        'bar': 'bar',
+        'millibar': 'mbar',
         'volt': 'V',
         'ampere': 'A',
+        'milliampere': 'mA',
         'kelvin': 'K',
+        'hertz': 'Hz',
+        'kilohertz': 'kHz',
+        'megahertz': 'MHz',
+        'mole': 'mol',
         'euro': '€',
         'dollar': '$',
     }
 
     for full, abbrev in reverse_map.items():
         unit_str = unit_str.replace(full, abbrev)
+
+    # Clean up SymPy artifacts
+    unit_str = unit_str.replace('**', '^')
+    unit_str = unit_str.replace('*', '·')
 
     return unit_str

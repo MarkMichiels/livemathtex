@@ -237,7 +237,7 @@ F = m * a
   = 10 N
 ```
 
-#### Custom Unit Definitions (`===` Syntax) - TASK-007
+#### Custom Unit Definitions (`===` Syntax)
 
 LiveMathTeX supports custom unit definitions using the `===` operator:
 
@@ -269,6 +269,50 @@ $$ dag === day $$                <!-- Alias for existing unit -->
 - Currency (euro, dollar)
 - Non-standard abbreviations (dag → day)
 - Domain-specific units
+
+#### Unit-Aware Calculations
+
+Units attached to values are automatically parsed, stored, and propagated through calculations:
+
+```markdown
+$$ prijs := 0.139\ €/kWh $$      <!-- Unit stripped and stored with value -->
+$$ energie := 1500\ kWh $$       <!-- Unit stored separately -->
+$$ kosten := prijs \cdot energie == 208.5\ € $$  <!-- Units propagate! -->
+```
+
+**Unit parsing patterns:**
+
+| Pattern | Example | Value | Unit |
+|---------|---------|-------|------|
+| `number\ unit` | `0.139\ €/kWh` | `0.139` | `€/kWh` |
+| `number \text{unit}` | `100\ \text{kg}` | `100` | `kg` |
+| `number unit` | `5 kg` | `5` | `kg` |
+
+**Unit propagation flow:**
+
+```mermaid
+graph TB
+    A["prijs := 0.139\ €/kWh"] --> B[SymbolTable]
+    C["energie := 1500\ kWh"] --> B
+    B --> D["_compute with propagate_units=True"]
+    D --> E["prijs = 0.139 * (€/(kW*h))"]
+    D --> F["energie = 1500 * (kW*h)"]
+    E --> G["0.139 * (€/(kW*h)) * 1500 * (kW*h)"]
+    F --> G
+    G --> H["208.5 * €"]
+    H --> I["_format_result: 208.5\ €"]
+```
+
+**Key components:**
+
+| Component | Role |
+|-----------|------|
+| `strip_unit_from_value()` | Parse unit from RHS of assignment |
+| `SymbolValue.unit` | Store SymPy unit expression |
+| `SymbolValue.unit_latex` | Original unit string for display |
+| `SymbolValue.value_with_unit` | Property returning `value * unit` |
+| `_compute(propagate_units=True)` | Substitute values WITH units |
+| `_format_unit_part()` | Format unit for output display |
 
 #### Error Handling
 

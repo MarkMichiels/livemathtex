@@ -20,6 +20,7 @@ livemathtex process examples/playground.md
 | `engineering-units/` | Pump sizing with unit conversions |
 | `settings/` | **Configuration settings demo** (digits, format) |
 | `custom-units/` | **Custom unit definitions** (`===` syntax) |
+| `unit-library/` | **Common industrial units** (currency, flow, concentration) |
 | `playground.md` | **Editable** - experiment here! |
 
 ## Static Examples (input → output)
@@ -37,6 +38,7 @@ livemathtex process examples/engineering/input.md
 livemathtex process examples/engineering-units/input.md
 livemathtex process examples/settings/input.md
 livemathtex process examples/custom-units/input.md
+livemathtex process examples/unit-library/input.md
 ```
 
 ## Operators Reference

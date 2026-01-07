@@ -8,7 +8,7 @@ This roadmap outlines the phased development of LiveMathTeX from MVP to full-fea
 
 ```
 Phase 1: Foundation     ████████████████████ 100%  [COMPLETE]
-Phase 2: Core Features  ████████████████░░░░  80%  [Current]
+Phase 2: Core Features  ██████████████████░░  90%  [Current]
 Phase 3: Advanced       ░░░░░░░░░░░░░░░░░░░░   0%
 Phase 4: Ecosystem      ░░░░░░░░░░░░░░░░░░░░   0%
 ```
@@ -83,11 +83,11 @@ $z := x + y == 8$
 
 **Goal:** Full numeric calculation with units, IR layer.
 
-**Status:** 80% complete
+**Status:** 90% complete
 
 ### Deliverables
 
-- [ ] **2.1 Unit Support** (TASK-007 partial)
+- [x] **2.1 Unit Support** (TASK-007 - COMPLETE)
   - [x] Integrate SymPy physics.units (not Pint - simpler)
   - [x] Parse units in expressions (basic)
   - [x] Automatic dimension checking
@@ -96,8 +96,9 @@ $z := x + y == 8$
   - [x] **Custom unit definitions** (`===` syntax)
   - [x] Unit abbreviation mappings (L→liter, h→hour, dag→day)
   - [x] Currency units (euro, dollar)
-  - [ ] **Strip units from values** (e.g., `0.139\ \text{€/kWh}` → 0.139 + unit metadata)
-  - [ ] **Special character handling** (€ symbol in unit expressions)
+  - [x] **Strip units from values** (`strip_unit_from_value()`)
+  - [x] **Unit propagation through calculations** (`propagate_units=True`)
+  - [x] **Unit display in output** (`_format_unit_part()`)
 
 - [x] **2.2 LaTeX Parsing**
   - [x] Integrate latex2sympy2

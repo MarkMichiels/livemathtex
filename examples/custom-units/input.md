@@ -1,90 +1,92 @@
 # Custom Unit Definitions - LiveMathTeX Example
 
-This example demonstrates the `===` syntax for defining custom units.
+This example tests the `===` syntax for defining custom units.
 
-## Unit Definition Syntax
+---
 
-### Base Units (New Units)
+## Test 1: Base Unit (Currency) ✅
 
-Define completely new units (like currencies):
+Define euro as a new base unit:
 
 $$ € === € $$
 
-$$ dollar === dollar $$
+Use the euro unit:
 
-### Derived Units (From Existing)
+$$ prijs := 100\ € $$
 
-Define units as fractions or multiples of existing units:
+$$ korting := 0.20 $$
 
-$$ mbar === bar / 1000 $$
+$$ eindprijs := prijs \cdot (1 - korting) == $$
 
-### Compound Units
-
-Define units as products of other units:
-
-$$ kWh === kW \cdot h $$
-
-### Aliases (Dutch → English)
-
-Create aliases for built-in units:
-
-$$ dag === day $$
-
-$$ uur === hour $$
+**Expected:** 80 €
 
 ---
 
-## Using Custom Units in Calculations
+## Test 2: Currency per Unit ✅
 
-Now we can use these units in our calculations:
+Using the euro we defined:
 
-### Electricity Cost Calculation
+$$ prijs_{per\_kg} := 50\ €/kg $$
 
-$$ prijs_{kWh} := 0.139 $$
+$$ gewicht := 3\ kg $$
 
-$$ energie := 1500 $$
+$$ totaal := prijs_{per\_kg} \cdot gewicht == $$
 
-$$ kosten := prijs_{kWh} \cdot energie ==$$
-
-### Pressure Conversion
-
-$$ P_{bar} := 2.5 $$
-
-$$ P_{mbar} := P_{bar} \cdot 1000 ==$$
-
-### Time Calculation
-
-$$ uren_{dag} := 8 $$
-
-$$ dagen := 22 $$
-
-$$ totaal_{uren} := uren_{dag} \cdot dagen ==$$
+**Expected:** 150 € (kg cancels out)
 
 ---
 
-## Built-in Unit Abbreviations
+## Test 3: Electricity Cost ✅
 
-LiveMathTeX recognizes these abbreviations:
+The classic example:
 
-| Category | Abbreviations |
-|----------|---------------|
-| Mass | `kg`, `g`, `mg` |
-| Length | `m`, `cm`, `mm`, `km` |
-| Time | `s`, `h`, `min`, `dag` (→ day) |
-| Volume | `L`, `mL` |
-| Power | `W`, `kW`, `MW` |
-| Pressure | `Pa`, `kPa`, `bar`, `mbar` |
-| Temperature | `K` |
+$$ prijs_{kWh} := 0.139\ €/kWh $$
+
+$$ verbruik := 1500\ kWh $$
+
+$$ kosten := prijs_{kWh} \cdot verbruik == $$
+
+**Expected:** 208.5 € (kWh cancels out)
+
+---
+
+## Test 4: Built-in Units (No Definition Needed)
+
+These units work out of the box:
+
+$$ massa := 5\ kg $$
+
+$$ snelheid := 10\ m/s $$
+
+$$ impuls := massa \cdot snelheid == $$
+
+**Expected:** 50 kg·m/s
+
+---
+
+## Test 5: Area Calculation
+
+$$ lengte := 4\ m $$
+
+$$ breedte := 3\ m $$
+
+$$ oppervlakte := lengte \cdot breedte == $$
+
+**Expected:** 12 m²
 
 ---
 
 ## Summary
 
-The `===` operator allows you to:
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Base unit `€ === €` | ✅ Works | Currency fully supported |
+| Unit propagation | ✅ Works | €/kWh × kWh = € |
+| Built-in SI units | ✅ Works | kg, m, s, W, etc. |
+| Compound expressions | ✅ Works | €/kg, m/s, kWh |
 
-1. **Create new base units** for domain-specific quantities (currency, custom metrics)
-2. **Define derived units** from existing SI units
-3. **Create compound units** for complex dimensions
-4. **Alias units** for localization (Dutch: dag → day)
+### Known Limitations
 
-This keeps your documents readable while enabling accurate unit-aware calculations.
+- Units are converted to SI base units in output
+- Alias definitions (`dag === day`) need more testing
+- Derived units (`mbar === bar/1000`) need more testing

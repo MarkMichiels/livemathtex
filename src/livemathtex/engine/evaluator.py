@@ -15,7 +15,7 @@ The NameGenerator in symbols.py manages the bidirectional mapping:
 See ARCHITECTURE.md for full documentation.
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 import sympy
 import sympy.physics.units as u
 from sympy.parsing.latex import parse_latex
@@ -275,9 +275,6 @@ class Evaluator:
             lhs = lhs_part.strip()
             # If '==' is present (shouldn't be in this handler usually, but safety check)
             rhs_raw = rhs_part.split("==")[0].strip() if "==" in rhs_part else rhs_part.strip()
-
-            # Normalize input
-            rhs_normalized = self._normalize_latex(rhs_raw)
         else:
              lhs = None # Should not happen
 
@@ -288,6 +285,7 @@ class Evaluator:
         # e.g., \Delta_h -> Delta_h, \theta_1 -> theta_1
         target = self._normalize_symbol_name(calc.target)
         import re
+        from .units import strip_unit_from_value
 
         # NOTE: Variable names CAN overlap with SI unit names (like g, m, s, K, L)
         # The symbol table takes priority over unit lookup in _compute()
@@ -310,10 +308,23 @@ class Evaluator:
             assignment_latex = f"{original_target} := {rhs_raw}"
 
         elif target:
-            value = self._compute(rhs_raw)
-            # Store with normalized name (e.g., D_{pipe} -> D_pipe)
+            # Try to strip unit from the RHS (e.g., "0.139\ €/kWh" -> "0.139", "€/kWh")
+            value_latex, unit_latex, sympy_unit = strip_unit_from_value(rhs_raw)
+
+            # Compute the numeric value (without unit)
+            value = self._compute(value_latex)
+
+            # Store with normalized name, including unit metadata
             normalized_target = self._normalize_symbol_name(target)
-            self.symbols.set(normalized_target, value, raw_latex=rhs_raw, latex_name=original_target)
+            self.symbols.set(
+                normalized_target,
+                value,
+                unit=sympy_unit,
+                raw_latex=rhs_raw,
+                latex_name=original_target,
+                unit_latex=unit_latex or ""
+            )
+
             # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
             # User explicitly requested: "Als het een definitie is, moet je gewoon laten staan"
             assignment_latex = f"{original_target} := {rhs_raw}"
@@ -330,7 +341,8 @@ class Evaluator:
         lhs_part, result_part = content.split("==", 1)
         lhs = lhs_part.strip()
 
-        value = self._compute(lhs)
+        # Compute with unit propagation - units from variables will be included
+        value = self._compute(lhs, propagate_units=True)
 
         # Check for undefined variables (symbols that weren't substituted)
         self._check_undefined_symbols(value, lhs)
@@ -356,21 +368,52 @@ class Evaluator:
         rhs_part, result_part = part2.split("==", 1)
         rhs = rhs_part.strip()
 
-        value = self._compute(rhs)
+        from .units import strip_unit_from_value
+
+        # Try to strip unit from RHS (in case it's a simple value with unit)
+        value_latex, unit_latex, sympy_unit = strip_unit_from_value(rhs)
+
+        # If unit was found, compute value without unit
+        if sympy_unit is not None:
+            value = self._compute(value_latex)
+        else:
+            # No unit stripped - compute entire expression (may include unit propagation)
+            value = self._compute(rhs, propagate_units=True)
 
         # Check for undefined variables (symbols that weren't substituted)
         self._check_undefined_symbols(value, rhs)
 
         # Store with normalized name (e.g., \Delta T_h -> Delta_T_h)
         normalized_lhs = self._normalize_symbol_name(lhs)
-        self.symbols.set(normalized_lhs, value, raw_latex=rhs, latex_name=lhs)
+
+        # Extract unit from computed result if it has units
+        result_unit = None
+        result_unit_latex = unit_latex or ""
+        if sympy_unit is None:
+            # No explicit unit - extract from computed value
+            result_unit, result_unit_latex = self._extract_unit_from_value(value)
+            if result_unit is not None:
+                # Store just the numeric part
+                value = self._extract_numeric_value(value)
+        else:
+            result_unit = sympy_unit
+
+        self.symbols.set(
+            normalized_lhs,
+            value,
+            unit=result_unit,
+            raw_latex=rhs,
+            latex_name=lhs,
+            unit_latex=result_unit_latex
+        )
 
         # Use unit_comment for display conversion
         # If unit_comment is specified, don't auto-convert to SI in _format_result
-        value, suffix = self._apply_conversion(value, calc.unit_comment)
+        display_value = value * result_unit if result_unit else value
+        display_value, suffix = self._apply_conversion(display_value, calc.unit_comment)
         skip_si_conversion = bool(calc.unit_comment)
 
-        result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion, config=cfg)
+        result_latex = self._format_result(display_value, skip_si_conversion=skip_si_conversion, config=cfg)
 
         # IMPORTANT: Keep original RHS LaTeX for definitions
         # Don't re-format it - user's notation should be preserved
@@ -411,6 +454,34 @@ class Evaluator:
 
         if undefined:
             raise EvaluationError(f"Undefined variable(s): {', '.join(sorted(undefined))}")
+
+    def _extract_unit_from_value(self, value: Any) -> Tuple[Optional[Any], str]:
+        """
+        Extract the unit from a computed value (e.g., 208.5*euro -> (euro, "€")).
+
+        Returns:
+            Tuple of (sympy_unit or None, unit_latex_string)
+        """
+        from sympy.physics.units import Quantity
+        from .units import format_unit_latex
+
+        if not hasattr(value, 'as_coeff_Mul'):
+            return None, ""
+
+        try:
+            coeff, rest = value.as_coeff_Mul()
+
+            # Check if rest contains unit Quantities
+            if hasattr(rest, 'atoms'):
+                quantities = rest.atoms(Quantity)
+                if quantities:
+                    # This has units - rest is the unit expression
+                    unit_latex = format_unit_latex(rest)
+                    return rest, unit_latex
+        except:
+            pass
+
+        return None, ""
 
     def _normalize_unit_string(self, unit_str: str) -> str:
         """
@@ -1088,7 +1159,7 @@ class Evaluator:
 
         return result
 
-    def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None, force_units: bool = False) -> Any:
+    def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None, force_units: bool = False, propagate_units: bool = False) -> Any:
         r"""
         Parse and compute a LaTeX expression.
 
@@ -1102,6 +1173,7 @@ class Evaluator:
             expression_latex: LaTeX expression to parse
             local_overrides: Optional dict of symbol -> value overrides
             force_units: If True, treat single letters as SI units (for unit parsing)
+            propagate_units: If True, substitute values WITH their units for unit propagation
         """
         import re
 
@@ -1209,7 +1281,8 @@ class Evaluator:
                     for name in self.symbols.all_names():
                         entry = self.symbols.get(name)
                         if entry and entry.latex_name == latex_name:
-                            subs_dict[sym] = entry.value
+                            # Use value_with_unit for unit propagation, otherwise just value
+                            subs_dict[sym] = entry.value_with_unit if propagate_units else entry.value
                             break
                     if sym in subs_dict:
                         continue
@@ -1221,7 +1294,8 @@ class Evaluator:
                 # Try with backslash prefix (for Greek letters stored as \Delta_h)
                 known = self.symbols.get('\\' + clean_name)
             if known:
-                subs_dict[sym] = known.value
+                # Use value_with_unit for unit propagation, otherwise just value
+                subs_dict[sym] = known.value_with_unit if propagate_units else known.value
                 continue
 
             # 2. Check in SymPy Units (with common abbreviation mapping)
@@ -1534,13 +1608,38 @@ class Evaluator:
 
             # If coeff is 1, it's just units/symbols
             if coeff == 1:
-                return self._simplify_subscripts(sympy.latex(rest, mul_symbol='dot'))
+                return self._format_unit_part(rest)
 
-            # Mixed
+            # Mixed: number + unit
             c_str = fmt_num(coeff)
-            r_str = self._simplify_subscripts(sympy.latex(rest, mul_symbol='dot'))
+            r_str = self._format_unit_part(rest)
 
-            # User request: No dot between numeric and unit. Use space.
-            return f"{c_str} {r_str}"
+            # Format as "number\ unit" for proper LaTeX spacing
+            return f"{c_str}\\ {r_str}"
 
         return self._simplify_subscripts(sympy.latex(value, mul_symbol='dot'))
+
+    def _format_unit_part(self, unit_expr: Any) -> str:
+        """
+        Format the unit part of a result for display.
+
+        Converts SymPy unit expressions to readable LaTeX:
+        - euro -> €
+        - kilogram -> kg
+        - meter/second -> m/s
+        - euro/(kilowatt*hour) -> €/kWh
+        """
+        from .units import format_unit_latex
+        from sympy.physics.units import Quantity
+
+        # Check if this contains unit Quantities
+        if hasattr(unit_expr, 'atoms'):
+            quantities = unit_expr.atoms(Quantity)
+            if quantities:
+                # Use our custom formatter
+                formatted = format_unit_latex(unit_expr)
+                if formatted:
+                    return f"\\text{{{formatted}}}"
+
+        # Fallback: use SymPy's latex
+        return self._simplify_subscripts(sympy.latex(unit_expr, mul_symbol='dot'))

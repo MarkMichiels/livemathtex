@@ -135,6 +135,49 @@ $$ uur === hour $$
 - Non-standard abbreviations (dag → day)
 - Domain-specific units
 
+### Using Units in Calculations
+
+Units can be attached to values and will propagate through calculations automatically:
+
+```latex
+$$ € === € $$                           <!-- Define euro as a unit -->
+$$ kWh === kW \cdot h $$                <!-- Define kWh as compound unit -->
+
+$$ prijs := 0.139\ €/kWh $$             <!-- Unit attached with backslash-space -->
+$$ energie := 1500\ kWh $$
+
+$$ kosten := prijs \cdot energie == $$  <!-- Units propagate automatically! -->
+```
+
+**Output:**
+```latex
+$$ kosten := prijs \cdot energie == 208.5\ \text{€} $$
+```
+
+**Unit attachment patterns:**
+
+| Pattern | Example | Note |
+|---------|---------|------|
+| `number\ unit` | `0.139\ €/kWh` | Backslash-space (recommended) |
+| `number \text{unit}` | `100\ \text{kg}` | Explicit text wrapper |
+| `number unit` | `5 kg` | Direct (works for simple units) |
+
+**Unit propagation rules:**
+
+- **Multiplication:** `€/kWh * kWh = €` (kWh cancels)
+- **Division:** `m / s = m/s` (creates compound unit)
+- **SI conversion:** Results are simplified to SI base units when possible
+
+**Example with area calculation:**
+
+```latex
+$$ hoogte := 2\ m $$
+$$ breedte := 3\ m $$
+$$ oppervlakte := hoogte \cdot breedte == $$  <!-- 6.0 m² -->
+```
+
+**See also:** `examples/custom-units/` and `examples/unit-library/` for complete examples.
+
 ---
 
 ## Variables
