@@ -41,7 +41,7 @@ $$ L/h === L / h $$
 
 $$ m³/h === m^3 / h $$
 
-$$ m³/dag === m^3 / day $$
+$$ m³/day === m^3 / day $$
 
 ---
 
@@ -61,43 +61,33 @@ $$ kPa === Pa \cdot 1000 $$
 
 ---
 
-## Dutch Time Aliases
-
-$$ dag === day $$
-
-$$ uur === hour $$
-
-$$ minuut === minute $$
-
----
-
 ## Example Calculations
 
 ### Energy Cost (Electricity)
 
-$$ prijs_{elektriciteit} := 0.139\ €/kWh $$
+$$ electricity\_price := 0.139\ €/kWh $$
 
-$$ verbruik := 24000\ kWh $$
+$$ consumption := 24000\ kWh $$
 
-$$ kosten := prijs_{elektriciteit} \cdot verbruik == $$
+$$ cost := electricity\_price \cdot consumption == $$
 
 ### Biomass Production
 
-$$ productie := 5\ g/L $$
+$$ productivity := 5\ g/L $$
 
-$$ volume_{reactor} := 100\ L $$
+$$ reactor\_volume := 100\ L $$
 
-$$ totaal := productie \cdot volume_{reactor} == $$
+$$ total := productivity \cdot reactor\_volume == $$
 
 ### Working Hours
 
-$$ uren_{dag} := 8 $$
+$$ hours\_per\_day := 8 $$
 
-$$ dagen_{week} := 5 $$
+$$ days\_per\_week := 5 $$
 
-$$ weken_{jaar} := 48 $$
+$$ weeks\_per\_year := 48 $$
 
-$$ totaal_{uren} := uren_{dag} \cdot dagen_{week} \cdot weken_{jaar} == $$
+$$ total\_hours := hours\_per\_day \cdot days\_per\_week \cdot weeks\_per\_year == $$
 
 ---
 
