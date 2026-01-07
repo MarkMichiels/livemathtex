@@ -821,6 +821,9 @@ class Evaluator:
         """
         Attempts to convert value to the target unit defined by latex string.
         Returns (new_value, suffix_string)
+
+        Raises:
+            ValueError: If the target unit is not recognized
         """
         if not target_unit_latex:
             return value, ""
@@ -843,7 +846,29 @@ class Evaluator:
                 target_unit = self._compute(normalized_unit, force_units=True)
 
             from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
+            from sympy.physics.units import Quantity
             import sympy
+
+            # Validate that we actually got a unit (not just an undefined symbol)
+            # A valid unit should contain Quantity atoms (physical units)
+            if target_unit is None:
+                raise ValueError(
+                    f"Unrecognized unit in comment: '{target_unit_latex}'. "
+                    f"Define it first with '$$ {target_unit_latex} === ... $$'"
+                )
+
+            # Check if the result contains any actual units (Quantity objects)
+            has_units = False
+            if hasattr(target_unit, 'atoms'):
+                has_units = bool(target_unit.atoms(Quantity))
+            elif isinstance(target_unit, Quantity):
+                has_units = True
+
+            if not has_units:
+                raise ValueError(
+                    f"Unrecognized unit in comment: '{target_unit_latex}'. "
+                    f"Define it first with '$$ {target_unit_latex} === ... $$'"
+                )
 
             # Strategy for unit conversion:
             # 1. Calculate ratio: value / target_unit (gives dimensionless number)
@@ -875,8 +900,11 @@ class Evaluator:
             new_value = numeric_value * unit_symbol
 
             return new_value, "" # No suffix needed, renderer handles comment
+        except ValueError:
+            # Re-raise ValueError for unrecognized units
+            raise
         except Exception as e:
-            # Fallback if conversion fails
+            # Fallback if conversion fails for other reasons
             return value, ""
 
     def _handle_symbolic(self, calc: Calculation) -> str:
