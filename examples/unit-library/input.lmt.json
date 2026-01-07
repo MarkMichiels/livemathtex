@@ -1,159 +1,236 @@
 {
-  "version": "2.0",
-  "source": "examples/unit-library/input.md",
+  "version": "3.0",
+  "source": "/home/mark/Repositories/livemathtex/examples/unit-library/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
   "custom_units": {
-    "€": "€",
-    "dollar": "dollar",
-    "cent": "€ / 100",
-    "mL": "mL",
-    "m³": "m^3",
-    "mg/L": "mg / L",
-    "g/L": "g / L",
-    "L/h": "L / h",
-    "m³/h": "m^3 / h",
-    "m³/day": "m^3 / day",
-    "kWh": "kW \\cdot h",
-    "MWh": "MW \\cdot h",
-    "mbar": "bar / 1000",
-    "kPa": "Pa \\cdot 1000"
+    "€": {
+      "latex": "€",
+      "type": "base",
+      "pint_definition": "€ = [€]",
+      "line": 0
+    },
+    "dollar": {
+      "latex": "dollar",
+      "type": "base",
+      "pint_definition": "dollar = [dollar]",
+      "line": 0
+    },
+    "cent": {
+      "latex": "cent",
+      "type": "compound",
+      "pint_definition": "cent = € / 100",
+      "line": 0
+    },
+    "mL": {
+      "latex": "mL",
+      "type": "base",
+      "pint_definition": "mL = [ml]",
+      "line": 0
+    },
+    "m³": {
+      "latex": "m³",
+      "type": "alias",
+      "pint_definition": "m³ = m^3",
+      "line": 0
+    },
+    "mg/L": {
+      "latex": "mg/L",
+      "type": "compound",
+      "pint_definition": "mg/L = mg / L",
+      "line": 0
+    },
+    "g/L": {
+      "latex": "g/L",
+      "type": "compound",
+      "pint_definition": "g/L = g / L",
+      "line": 0
+    },
+    "L/h": {
+      "latex": "L/h",
+      "type": "compound",
+      "pint_definition": "L/h = L / h",
+      "line": 0
+    },
+    "m³/h": {
+      "latex": "m³/h",
+      "type": "compound",
+      "pint_definition": "m³/h = m^3 / h",
+      "line": 0
+    },
+    "m³/day": {
+      "latex": "m³/day",
+      "type": "compound",
+      "pint_definition": "m³/day = m^3 / day",
+      "line": 0
+    },
+    "kWh": {
+      "latex": "kWh",
+      "type": "alias",
+      "pint_definition": "kWh = kW \\cdot h",
+      "line": 0
+    },
+    "MWh": {
+      "latex": "MWh",
+      "type": "alias",
+      "pint_definition": "MWh = MW \\cdot h",
+      "line": 0
+    },
+    "mbar": {
+      "latex": "mbar",
+      "type": "compound",
+      "pint_definition": "mbar = bar / 1000",
+      "line": 0
+    },
+    "kPa": {
+      "latex": "kPa",
+      "type": "alias",
+      "pint_definition": "kPa = Pa \\cdot 1000",
+      "line": 0
+    }
   },
   "symbols": {
-    "electricity\\_price": {
-      "id": "v_{0}",
+    "v_{0}": {
+      "latex_name": "electricity\\_price",
       "original": {
         "value": 0.139,
         "unit": "€/kWh"
       },
-      "si": {
-        "value": 3.861111111111111e-08,
-        "unit": "\\frac{\\text{EUR} \\text{s}^{2}}{\\text{kg} \\text{m}^{2}}"
+      "base": {
+        "value": 0.139,
+        "unit": "€/kWh"
       },
-      "valid": true,
-      "line": 70
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
     },
-    "consumption": {
-      "id": "v_{1}",
+    "v_{1}": {
+      "latex_name": "consumption",
       "original": {
         "value": 24000.0,
         "unit": "kWh"
       },
-      "si": {
+      "base": {
         "value": 86400000000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter ** 2 / second ** 2"
       },
-      "valid": true,
-      "line": 72
+      "conversion_ok": true,
+      "line": 0
     },
-    "cost": {
-      "id": "v_{2}",
+    "v_{2}": {
+      "latex_name": "cost",
       "original": {
         "value": 3335.9999999999995,
         "unit": "€"
       },
-      "si": {
+      "base": {
         "value": 3335.9999999999995,
-        "unit": "\\text{EUR}"
+        "unit": "€"
       },
-      "valid": true,
-      "line": 74
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
     },
-    "productivity": {
-      "id": "v_{3}",
+    "v_{3}": {
+      "latex_name": "productivity",
       "original": {
         "value": 5.0,
         "unit": "g/L"
       },
-      "si": {
-        "value": 5.0,
-        "unit": "\\frac{\\text{kg}}{\\text{m}^{3}}"
+      "base": {
+        "value": 4.999999999999999,
+        "unit": "kilogram / meter ** 3"
       },
-      "valid": true,
-      "line": 78
+      "conversion_ok": true,
+      "line": 0
     },
-    "reactor\\_volume": {
-      "id": "v_{4}",
+    "v_{4}": {
+      "latex_name": "reactor\\_volume",
       "original": {
         "value": 100.0,
         "unit": "L"
       },
-      "si": {
-        "value": 0.1,
-        "unit": "\\text{m}^{3}"
+      "base": {
+        "value": 0.10000000000000002,
+        "unit": "meter ** 3"
       },
-      "valid": true,
-      "line": 80
+      "conversion_ok": true,
+      "line": 0
     },
-    "total": {
-      "id": "v_{5}",
+    "v_{5}": {
+      "latex_name": "total",
       "original": {
         "value": 0.5,
         "unit": "kg"
       },
-      "si": {
+      "base": {
         "value": 0.5,
-        "unit": "\\text{kg}"
+        "unit": "kilogram"
       },
-      "valid": true,
-      "line": 82
+      "conversion_ok": true,
+      "line": 0
     },
-    "hours\\_per\\_day": {
-      "id": "v_{6}",
+    "v_{6}": {
+      "latex_name": "hours\\_per\\_day",
       "original": {
         "value": 8.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 8.0,
         "unit": null
       },
-      "valid": true,
-      "line": 86
+      "conversion_ok": true,
+      "line": 0
     },
-    "days\\_per\\_week": {
-      "id": "v_{7}",
+    "v_{7}": {
+      "latex_name": "days\\_per\\_week",
       "original": {
         "value": 5.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 5.0,
         "unit": null
       },
-      "valid": true,
-      "line": 88
+      "conversion_ok": true,
+      "line": 0
     },
-    "weeks\\_per\\_year": {
-      "id": "v_{8}",
+    "v_{8}": {
+      "latex_name": "weeks\\_per\\_year",
       "original": {
         "value": 48.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 48.0,
         "unit": null
       },
-      "valid": true,
-      "line": 90
+      "conversion_ok": true,
+      "line": 0
     },
-    "total\\_hours": {
-      "id": "v_{9}",
+    "v_{9}": {
+      "latex_name": "total\\_hours",
       "original": {
         "value": 1920.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1920.0,
         "unit": null
       },
-      "valid": true,
-      "line": 92
+      "conversion_ok": true,
+      "line": 0
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:55:48",
-    "duration": "0.12s",
+    "last_run": "2026-01-07 14:44:02",
+    "duration": "0.07s",
     "symbols": 10,
+    "custom_units": 14,
     "definitions": 10,
     "evaluations": 3,
     "symbolic": 0,

@@ -1,153 +1,149 @@
 {
-  "version": "2.0",
-  "source": "examples/simple-units/input.md",
+  "version": "3.0",
+  "source": "/home/mark/Repositories/livemathtex/examples/simple-units/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
   "custom_units": {},
   "symbols": {
-    "m_1": {
-      "id": "v_{0}",
+    "v_{0}": {
+      "latex_name": "m_1",
       "original": {
         "value": 10.0,
         "unit": null
       },
-      "si": {
-        "value": null,
+      "base": {
+        "value": 10.0,
         "unit": null
       },
-      "valid": true,
-      "line": 25
+      "conversion_ok": true,
+      "line": 0
     },
-    "a_1": {
-      "id": "v_{1}",
+    "v_{1}": {
+      "latex_name": "a_1",
       "original": {
         "value": 9.81,
         "unit": null
       },
-      "si": {
-        "value": null,
+      "base": {
+        "value": 9.81,
         "unit": null
       },
-      "valid": true,
-      "line": 26
+      "conversion_ok": true,
+      "line": 0
     },
-    "F_1": {
-      "id": "v_{2}",
+    "v_{2}": {
+      "latex_name": "F_1",
       "original": {
         "value": 98.1,
         "unit": "kg·m/s^2"
       },
-      "si": {
-        "value": 98.10000000000001,
-        "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
+      "base": {
+        "value": 98.1,
+        "unit": "kilogram * meter / second ** 2"
       },
-      "valid": true,
-      "line": 29
+      "conversion_ok": true,
+      "line": 0
     },
-    "mass": {
-      "id": "v_{3}",
+    "v_{3}": {
+      "latex_name": "mass_{obj}",
       "original": {
         "value": 25.0,
         "unit": null
       },
-      "si": {
-        "value": null,
+      "base": {
+        "value": 25.0,
         "unit": null
       },
-      "valid": true,
-      "line": 33
+      "conversion_ok": true,
+      "line": 0
     },
-    "accel": {
-      "id": "v_{4}",
+    "v_{4}": {
+      "latex_name": "accel_{g}",
       "original": {
         "value": 9.81,
         "unit": null
       },
-      "si": {
-        "value": null,
+      "base": {
+        "value": 9.81,
         "unit": null
       },
-      "valid": true,
-      "line": 34
+      "conversion_ok": true,
+      "line": 0
     },
-    "F_2": {
-      "id": "v_{5}",
+    "v_{5}": {
+      "latex_name": "F_2",
       "original": {
         "value": 245.25,
         "unit": "kg·m/s^2"
       },
-      "si": {
+      "base": {
         "value": 245.25,
-        "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter / second ** 2"
       },
-      "valid": true,
-      "line": 37
+      "conversion_ok": true,
+      "line": 0
     },
-    "F_2N": {
-      "id": "v_{6}",
+    "v_{6}": {
+      "latex_name": "F_2N",
       "original": {
         "value": 245.25,
         "unit": "kg·m/s^2"
       },
-      "si": {
+      "base": {
         "value": 245.25,
-        "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter / second ** 2"
       },
-      "valid": true,
-      "line": 40
+      "conversion_ok": true,
+      "line": 0
     },
-    "F_2kN": {
-      "id": "v_{7}",
+    "v_{7}": {
+      "latex_name": "F_2kN",
       "original": {
         "value": 245.25,
         "unit": "kg·m/s^2"
       },
-      "si": {
+      "base": {
         "value": 245.25,
-        "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter / second ** 2"
       },
-      "valid": true,
-      "line": 43
+      "conversion_ok": true,
+      "line": 0
     },
-    "ratio": {
-      "id": "v_{8}",
+    "v_{8}": {
+      "latex_name": "ratio",
       "original": {
         "value": 2.5,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 2.5,
         "unit": null
       },
-      "valid": true,
-      "line": 47
+      "conversion_ok": true,
+      "line": 0
     },
-    "h_{drop}": {
-      "id": "v_{9}",
+    "v_{9}": {
+      "latex_name": "h_{drop}",
       "original": {
         "value": 100.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 100.0,
         "unit": null
       },
-      "valid": true,
-      "line": 66
+      "conversion_ok": true,
+      "line": 0
     }
   },
-  "errors": [
-    {
-      "line": 59,
-      "message": "Evaluation error in: m := 10 \\cdot kg..."
-    },
-    {
-      "line": 67,
-      "message": "Evaluation error in: t_{fall} := \\sqrt{\\frac{2 \\cdot h_{drop}}{g}} ==..."
-    }
-  ],
+  "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:55:45",
-    "duration": "0.24s",
+    "last_run": "2026-01-07 14:44:02",
+    "duration": "0.13s",
     "symbols": 10,
+    "custom_units": 0,
     "definitions": 12,
     "evaluations": 6,
     "symbolic": 0,

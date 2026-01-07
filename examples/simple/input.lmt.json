@@ -1,101 +1,97 @@
 {
-  "version": "2.0",
-  "source": "examples/simple/input.md",
+  "version": "3.0",
+  "source": "/home/mark/Repositories/livemathtex/examples/simple/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
   "custom_units": {},
   "symbols": {
-    "x": {
-      "id": "v_{0}",
+    "v_{0}": {
+      "latex_name": "x",
       "original": {
         "value": 5.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 5.0,
         "unit": null
       },
-      "valid": true,
-      "line": 21
+      "conversion_ok": true,
+      "line": 0
     },
-    "a": {
-      "id": "v_{1}",
+    "v_{1}": {
+      "latex_name": "a_1",
       "original": {
         "value": 10.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 10.0,
         "unit": null
       },
-      "valid": true,
-      "line": 36
+      "conversion_ok": true,
+      "line": 0
     },
-    "b": {
-      "id": "v_{2}",
+    "v_{2}": {
+      "latex_name": "b_1",
       "original": {
         "value": 5.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 5.0,
         "unit": null
       },
-      "valid": true,
-      "line": 37
+      "conversion_ok": true,
+      "line": 0
     },
-    "total": {
-      "id": "v_{3}",
+    "v_{3}": {
+      "latex_name": "total",
       "original": {
         "value": 15.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 15.0,
         "unit": null
       },
-      "valid": true,
-      "line": 43
+      "conversion_ok": true,
+      "line": 0
     },
-    "product": {
-      "id": "v_{4}",
+    "v_{4}": {
+      "latex_name": "product",
       "original": {
         "value": 50.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 50.0,
         "unit": null
       },
-      "valid": true,
-      "line": 45
+      "conversion_ok": true,
+      "line": 0
     },
-    "ratio": {
-      "id": "v_{5}",
+    "v_{5}": {
+      "latex_name": "ratio",
       "original": {
         "value": 2.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 2.0,
         "unit": null
       },
-      "valid": true,
-      "line": 49
+      "conversion_ok": true,
+      "line": 0
     }
   },
-  "errors": [
-    {
-      "line": 21,
-      "message": "Evaluation error in: y = x + 3..."
-    },
-    {
-      "line": 28,
-      "message": "Evaluation error in: result := z + 5 ==..."
-    }
-  ],
+  "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:55:44",
-    "duration": "0.15s",
+    "last_run": "2026-01-07 14:44:02",
+    "duration": "0.04s",
     "symbols": 6,
+    "custom_units": 0,
     "definitions": 7,
     "evaluations": 5,
     "symbolic": 0,

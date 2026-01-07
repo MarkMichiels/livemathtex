@@ -1,760 +1,791 @@
 {
-  "version": "2.0",
-  "source": "examples/custom-units/input.md",
+  "version": "3.0",
+  "source": "/home/mark/Repositories/livemathtex/examples/custom-units/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
   "custom_units": {
-    "€": "€",
-    "kW": "kilo \\cdot W",
-    "mbar": "milli \\cdot bar",
-    "kWh": "kilo \\cdot W \\cdot hour"
+    "€": {
+      "latex": "€",
+      "type": "base",
+      "pint_definition": "€ = [€]",
+      "line": 0
+    },
+    "kW": {
+      "latex": "kW",
+      "type": "alias",
+      "pint_definition": "kW = kilo \\cdot W",
+      "line": 0
+    },
+    "mbar": {
+      "latex": "mbar",
+      "type": "alias",
+      "pint_definition": "mbar = milli \\cdot bar",
+      "line": 0
+    },
+    "kWh": {
+      "latex": "kWh",
+      "type": "alias",
+      "pint_definition": "kWh = kilo \\cdot W \\cdot hour",
+      "line": 0
+    }
   },
   "symbols": {
-    "price": {
-      "id": "v_{0}",
+    "v_{0}": {
+      "latex_name": "price",
       "original": {
         "value": 100.0,
         "unit": "€"
       },
-      "si": {
+      "base": {
         "value": 100.0,
-        "unit": "\\text{EUR}"
+        "unit": "€"
       },
-      "valid": true,
-      "line": 26
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
     },
-    "discount": {
-      "id": "v_{1}",
+    "v_{1}": {
+      "latex_name": "discount",
       "original": {
         "value": 0.2,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 0.2,
         "unit": null
       },
-      "valid": true,
-      "line": 28
+      "conversion_ok": true,
+      "line": 0
     },
-    "final\\_price": {
-      "id": "v_{2}",
+    "v_{2}": {
+      "latex_name": "final\\_price",
       "original": {
         "value": 80.0,
         "unit": "€"
       },
-      "si": {
+      "base": {
         "value": 80.0,
-        "unit": "\\text{EUR}"
+        "unit": "€"
       },
-      "valid": true,
-      "line": 30
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
     },
-    "power": {
-      "id": "v_{3}",
+    "v_{3}": {
+      "latex_name": "power",
       "original": {
         "value": 5.0,
         "unit": "kW"
       },
-      "si": {
+      "base": {
         "value": 5000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{3}}"
+        "unit": "kilogram * meter ** 2 / second ** 3"
       },
-      "valid": true,
-      "line": 42
+      "conversion_ok": true,
+      "line": 0
     },
-    "time": {
-      "id": "v_{4}",
+    "v_{4}": {
+      "latex_name": "time",
       "original": {
         "value": 8.0,
         "unit": "h"
       },
-      "si": {
+      "base": {
         "value": 28800.0,
-        "unit": "\\text{s}"
+        "unit": "second"
       },
-      "valid": true,
-      "line": 44
+      "conversion_ok": true,
+      "line": 0
     },
-    "energy\\_si": {
-      "id": "v_{5}",
+    "v_{5}": {
+      "latex_name": "energy\\_si",
       "original": {
         "value": 144000000.0,
         "unit": "kg·m^2/s^2"
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter ** 2 / second ** 2"
       },
-      "valid": true,
-      "line": 49
+      "conversion_ok": true,
+      "line": 0
     },
-    "energy\\_kWh": {
-      "id": "v_{6}",
+    "v_{6}": {
+      "latex_name": "energy\\_kWh",
       "original": {
         "value": 144000000.0,
         "unit": "kg·m^2/s^2"
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter ** 2 / second ** 2"
       },
-      "valid": true,
-      "line": 54
+      "conversion_ok": true,
+      "line": 0
     },
-    "energy\\_decimal": {
-      "id": "v_{7}",
+    "v_{7}": {
+      "latex_name": "energy\\_decimal",
       "original": {
         "value": 144000000.0,
         "unit": "kg·m^2/s^2"
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter ** 2 / second ** 2"
       },
-      "valid": true,
-      "line": 58
+      "conversion_ok": true,
+      "line": 0
     },
-    "pressure\\_atm": {
-      "id": "v_{8}",
+    "v_{8}": {
+      "latex_name": "pressure\\_atm",
       "original": {
         "value": 1013.0,
         "unit": "mbar"
       },
-      "si": {
+      "base": {
         "value": 101300.0,
-        "unit": "\\frac{\\text{kg}}{\\text{m} \\text{s}^{2}}"
+        "unit": "kilogram / meter / second ** 2"
       },
-      "valid": true,
-      "line": 73
+      "conversion_ok": true,
+      "line": 0
     },
-    "factor": {
-      "id": "v_{9}",
+    "v_{9}": {
+      "latex_name": "factor",
       "original": {
         "value": 2.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 2.0,
         "unit": null
       },
-      "valid": true,
-      "line": 75
+      "conversion_ok": true,
+      "line": 0
     },
-    "pressure\\_si": {
-      "id": "v_{10}",
+    "v_{10}": {
+      "latex_name": "pressure\\_si",
       "original": {
         "value": 202600.0,
         "unit": "kg/(m·s^2)"
       },
-      "si": {
+      "base": {
         "value": 202600.0,
-        "unit": "\\frac{\\text{kg}}{\\text{m} \\text{s}^{2}}"
+        "unit": "kilogram / meter / second ** 2"
       },
-      "valid": true,
-      "line": 79
+      "conversion_ok": true,
+      "line": 0
     },
-    "pressure\\_mbar": {
-      "id": "v_{11}",
+    "v_{11}": {
+      "latex_name": "pressure\\_mbar",
       "original": {
         "value": 202600.0,
         "unit": "kg/(m·s^2)"
       },
-      "si": {
+      "base": {
         "value": 202600.0,
-        "unit": "\\frac{\\text{kg}}{\\text{m} \\text{s}^{2}}"
+        "unit": "kilogram / meter / second ** 2"
       },
-      "valid": true,
-      "line": 83
+      "conversion_ok": true,
+      "line": 0
     },
-    "electricity\\_price": {
-      "id": "v_{12}",
+    "v_{12}": {
+      "latex_name": "electricity\\_price",
       "original": {
         "value": 0.139,
         "unit": "€/kWh"
       },
-      "si": {
-        "value": 3.861111111111111e-08,
-        "unit": "\\frac{\\text{EUR} \\text{s}^{2}}{\\text{kg} \\text{m}^{2}}"
+      "base": {
+        "value": 0.139,
+        "unit": "€/kWh"
       },
-      "valid": true,
-      "line": 97
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
     },
-    "consumption": {
-      "id": "v_{13}",
+    "v_{13}": {
+      "latex_name": "consumption",
       "original": {
         "value": 1500.0,
         "unit": "kWh"
       },
-      "si": {
+      "base": {
         "value": 5400000000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter ** 2 / second ** 2"
       },
-      "valid": true,
-      "line": 99
+      "conversion_ok": true,
+      "line": 0
     },
-    "cost": {
-      "id": "v_{14}",
+    "v_{14}": {
+      "latex_name": "cost",
       "original": {
         "value": 208.49999999999997,
         "unit": "€"
       },
-      "si": {
+      "base": {
         "value": 208.49999999999997,
-        "unit": "\\text{EUR}"
+        "unit": "€"
       },
-      "valid": true,
-      "line": 101
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
     },
-    "cost\\_per\\_kg": {
-      "id": "v_{15}",
+    "v_{15}": {
+      "latex_name": "cost\\_per\\_kg",
       "original": {
         "value": 25.0,
         "unit": "€/kg"
       },
-      "si": {
+      "base": {
         "value": 25.0,
-        "unit": "\\frac{\\text{EUR}}{\\text{kg}}"
+        "unit": "€/kg"
       },
-      "valid": true,
-      "line": 111
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
     },
-    "weight": {
-      "id": "v_{16}",
+    "v_{16}": {
+      "latex_name": "weight",
       "original": {
         "value": 4.0,
         "unit": "kg"
       },
-      "si": {
+      "base": {
         "value": 4.0,
-        "unit": "\\text{kg}"
+        "unit": "kilogram"
       },
-      "valid": true,
-      "line": 113
+      "conversion_ok": true,
+      "line": 0
     },
-    "total": {
-      "id": "v_{17}",
+    "v_{17}": {
+      "latex_name": "total",
       "original": {
         "value": 100.0,
         "unit": "€"
       },
-      "si": {
+      "base": {
         "value": 100.0,
-        "unit": "\\text{EUR}"
+        "unit": "€"
       },
-      "valid": true,
-      "line": 115
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
     },
-    "big": {
-      "id": "v_{18}",
+    "v_{18}": {
+      "latex_name": "big",
       "original": {
         "value": 144000000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 127
+      "conversion_ok": true,
+      "line": 0
     },
-    "medium": {
-      "id": "v_{19}",
+    "v_{19}": {
+      "latex_name": "medium",
       "original": {
         "value": 12345.6789,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 12345.6789,
         "unit": null
       },
-      "valid": true,
-      "line": 128
+      "conversion_ok": true,
+      "line": 0
     },
-    "small": {
-      "id": "v_{20}",
+    "v_{20}": {
+      "latex_name": "small",
       "original": {
         "value": 1.2345e-05,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1.2345e-05,
         "unit": null
       },
-      "valid": true,
-      "line": 129
+      "conversion_ok": true,
+      "line": 0
     },
-    "integer": {
-      "id": "v_{21}",
+    "v_{21}": {
+      "latex_name": "integer",
       "original": {
         "value": 40.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 40.0,
         "unit": null
       },
-      "valid": true,
-      "line": 130
+      "conversion_ok": true,
+      "line": 0
     },
-    "pi\\_val": {
-      "id": "v_{22}",
+    "v_{22}": {
+      "latex_name": "pi\\_val",
       "original": {
         "value": 3.14159265359,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 3.14159265359,
         "unit": null
       },
-      "valid": true,
-      "line": 131
+      "conversion_ok": true,
+      "line": 0
     },
-    "fmt\\_general": {
-      "id": "v_{23}",
+    "v_{23}": {
+      "latex_name": "fmt\\_general",
       "original": {
         "value": 144000000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 139
+      "conversion_ok": true,
+      "line": 0
     },
-    "fmt\\_general\\_med": {
-      "id": "v_{24}",
+    "v_{24}": {
+      "latex_name": "fmt\\_general\\_med",
       "original": {
         "value": 12345.6789,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 12345.6789,
         "unit": null
       },
-      "valid": true,
-      "line": 141
+      "conversion_ok": true,
+      "line": 0
     },
-    "fmt\\_decimal": {
-      "id": "v_{25}",
+    "v_{25}": {
+      "latex_name": "fmt\\_decimal",
       "original": {
         "value": 144000000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 145
+      "conversion_ok": true,
+      "line": 0
     },
-    "fmt\\_sci": {
-      "id": "v_{26}",
+    "v_{26}": {
+      "latex_name": "fmt\\_sci",
       "original": {
         "value": 144000000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 149
+      "conversion_ok": true,
+      "line": 0
     },
-    "fmt\\_sci\\_small": {
-      "id": "v_{27}",
+    "v_{27}": {
+      "latex_name": "fmt\\_sci\\_small",
       "original": {
         "value": 1.2345e-05,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1.2345e-05,
         "unit": null
       },
-      "valid": true,
-      "line": 151
+      "conversion_ok": true,
+      "line": 0
     },
-    "fmt\\_eng": {
-      "id": "v_{28}",
+    "v_{28}": {
+      "latex_name": "fmt\\_eng",
       "original": {
         "value": 144000000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 155
+      "conversion_ok": true,
+      "line": 0
     },
-    "fmt\\_eng\\_small": {
-      "id": "v_{29}",
+    "v_{29}": {
+      "latex_name": "fmt\\_eng\\_small",
       "original": {
         "value": 1.2345e-05,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1.2345e-05,
         "unit": null
       },
-      "valid": true,
-      "line": 157
+      "conversion_ok": true,
+      "line": 0
     },
-    "dig\\_default": {
-      "id": "v_{30}",
+    "v_{30}": {
+      "latex_name": "dig\\_default",
       "original": {
         "value": 3.14159265359,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 3.14159265359,
         "unit": null
       },
-      "valid": true,
-      "line": 165
+      "conversion_ok": true,
+      "line": 0
     },
-    "dig\\_2": {
-      "id": "v_{31}",
+    "v_{31}": {
+      "latex_name": "dig\\_2",
       "original": {
         "value": 3.14159265359,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 3.14159265359,
         "unit": null
       },
-      "valid": true,
-      "line": 167
+      "conversion_ok": true,
+      "line": 0
     },
-    "dig\\_4": {
-      "id": "v_{32}",
+    "v_{32}": {
+      "latex_name": "dig\\_4",
       "original": {
         "value": 3.14159265359,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 3.14159265359,
         "unit": null
       },
-      "valid": true,
-      "line": 169
+      "conversion_ok": true,
+      "line": 0
     },
-    "dig\\_8": {
-      "id": "v_{33}",
+    "v_{33}": {
+      "latex_name": "dig\\_8",
       "original": {
         "value": 3.14159265359,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 3.14159265359,
         "unit": null
       },
-      "valid": true,
-      "line": 171
+      "conversion_ok": true,
+      "line": 0
     },
-    "dig\\_sci\\_3": {
-      "id": "v_{34}",
-      "original": {
-        "value": 144000000.0,
-        "unit": null
-      },
-      "si": {
-        "value": 144000000.0,
-        "unit": null
-      },
-      "valid": true,
-      "line": 175
-    },
-    "dig\\_eng\\_4": {
-      "id": "v_{35}",
+    "v_{34}": {
+      "latex_name": "dig\\_sci\\_3",
       "original": {
         "value": 144000000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 177
+      "conversion_ok": true,
+      "line": 0
     },
-    "thou\\_1": {
-      "id": "v_{36}",
+    "v_{35}": {
+      "latex_name": "dig\\_eng\\_4",
+      "original": {
+        "value": 144000000.0,
+        "unit": null
+      },
+      "base": {
+        "value": 144000000.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{36}": {
+      "latex_name": "thou\\_1",
       "original": {
         "value": 1234.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1234.0,
         "unit": null
       },
-      "valid": true,
-      "line": 185
+      "conversion_ok": true,
+      "line": 0
     },
-    "thou\\_2": {
-      "id": "v_{37}",
+    "v_{37}": {
+      "latex_name": "thou\\_2",
       "original": {
         "value": 12345.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 12345.0,
         "unit": null
       },
-      "valid": true,
-      "line": 187
+      "conversion_ok": true,
+      "line": 0
     },
-    "thou\\_3": {
-      "id": "v_{38}",
+    "v_{38}": {
+      "latex_name": "thou\\_3",
       "original": {
         "value": 1234567.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1234567.0,
         "unit": null
       },
-      "valid": true,
-      "line": 189
+      "conversion_ok": true,
+      "line": 0
     },
-    "thou\\_4": {
-      "id": "v_{39}",
+    "v_{39}": {
+      "latex_name": "thou\\_4",
       "original": {
         "value": 123456789.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 123456789.0,
         "unit": null
       },
-      "valid": true,
-      "line": 191
+      "conversion_ok": true,
+      "line": 0
     },
-    "thou\\_5": {
-      "id": "v_{40}",
+    "v_{40}": {
+      "latex_name": "thou\\_5",
       "original": {
         "value": 1234567890.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1234567890.0,
         "unit": null
       },
-      "valid": true,
-      "line": 193
+      "conversion_ok": true,
+      "line": 0
     },
-    "trail\\_1": {
-      "id": "v_{41}",
+    "v_{41}": {
+      "latex_name": "trail\\_1",
       "original": {
         "value": 40.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 40.0,
         "unit": null
       },
-      "valid": true,
-      "line": 201
+      "conversion_ok": true,
+      "line": 0
     },
-    "trail\\_2": {
-      "id": "v_{42}",
+    "v_{42}": {
+      "latex_name": "trail\\_2",
       "original": {
         "value": 3.14,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 3.14,
         "unit": null
       },
-      "valid": true,
-      "line": 203
+      "conversion_ok": true,
+      "line": 0
     },
-    "trail\\_3": {
-      "id": "v_{43}",
+    "v_{43}": {
+      "latex_name": "trail\\_3",
       "original": {
         "value": 40.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 40.0,
         "unit": null
       },
-      "valid": true,
-      "line": 205
+      "conversion_ok": true,
+      "line": 0
     },
-    "combo\\_power": {
-      "id": "v_{44}",
+    "v_{44}": {
+      "latex_name": "combo\\_power",
       "original": {
         "value": 5.0,
         "unit": "kW"
       },
-      "si": {
+      "base": {
         "value": 5000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{3}}"
+        "unit": "kilogram * meter ** 2 / second ** 3"
       },
-      "valid": true,
-      "line": 213
+      "conversion_ok": true,
+      "line": 0
     },
-    "combo\\_hours": {
-      "id": "v_{45}",
+    "v_{45}": {
+      "latex_name": "combo\\_hours",
       "original": {
         "value": 8.0,
         "unit": "h"
       },
-      "si": {
+      "base": {
         "value": 28800.0,
-        "unit": "\\text{s}"
+        "unit": "second"
       },
-      "valid": true,
-      "line": 214
+      "conversion_ok": true,
+      "line": 0
     },
-    "combo\\_energy": {
-      "id": "v_{46}",
+    "v_{46}": {
+      "latex_name": "combo\\_energy",
       "original": {
         "value": 144000000.0,
         "unit": "kg·m^2/s^2"
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter ** 2 / second ** 2"
       },
-      "valid": true,
-      "line": 216
+      "conversion_ok": true,
+      "line": 0
     },
-    "combo\\_kwh": {
-      "id": "v_{47}",
+    "v_{47}": {
+      "latex_name": "combo\\_kwh",
       "original": {
         "value": 144000000.0,
         "unit": "kg·m^2/s^2"
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter ** 2 / second ** 2"
       },
-      "valid": true,
-      "line": 218
+      "conversion_ok": true,
+      "line": 0
     },
-    "combo\\_sci": {
-      "id": "v_{48}",
+    "v_{48}": {
+      "latex_name": "combo\\_sci",
       "original": {
         "value": 144000000.0,
         "unit": "kg·m^2/s^2"
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter ** 2 / second ** 2"
       },
-      "valid": true,
-      "line": 220
+      "conversion_ok": true,
+      "line": 0
     },
-    "combo\\_full": {
-      "id": "v_{49}",
+    "v_{49}": {
+      "latex_name": "combo\\_full",
       "original": {
         "value": 144000000.0,
         "unit": "kg·m^2/s^2"
       },
-      "si": {
+      "base": {
         "value": 144000000.0,
-        "unit": "\\frac{\\text{kg} \\text{m}^{2}}{\\text{s}^{2}}"
+        "unit": "kilogram * meter ** 2 / second ** 2"
       },
-      "valid": true,
-      "line": 222
+      "conversion_ok": true,
+      "line": 0
     },
-    "zero": {
-      "id": "v_{50}",
+    "v_{50}": {
+      "latex_name": "zero",
       "original": {
         "value": 0.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 0.0,
         "unit": null
       },
-      "valid": true,
-      "line": 230
+      "conversion_ok": true,
+      "line": 0
     },
-    "neg": {
-      "id": "v_{51}",
+    "v_{51}": {
+      "latex_name": "neg",
       "original": {
         "value": -12345678.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": -12345678.0,
         "unit": null
       },
-      "valid": true,
-      "line": 234
+      "conversion_ok": true,
+      "line": 0
     },
-    "tiny": {
-      "id": "v_{52}",
+    "v_{52}": {
+      "latex_name": "tiny",
       "original": {
         "value": 1e-09,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1e-09,
         "unit": null
       },
-      "valid": true,
-      "line": 238
+      "conversion_ok": true,
+      "line": 0
     },
-    "tiny\\_sci": {
-      "id": "v_{53}",
+    "v_{53}": {
+      "latex_name": "tiny\\_sci",
       "original": {
         "value": 1e-09,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1e-09,
         "unit": null
       },
-      "valid": true,
-      "line": 242
+      "conversion_ok": true,
+      "line": 0
     },
-    "huge": {
-      "id": "v_{54}",
+    "v_{54}": {
+      "latex_name": "huge",
       "original": {
         "value": 1000000000000000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1000000000000000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 246
+      "conversion_ok": true,
+      "line": 0
     },
-    "huge\\_eng": {
-      "id": "v_{55}",
+    "v_{55}": {
+      "latex_name": "huge\\_eng",
       "original": {
         "value": 1000000000000000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1000000000000000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 250
+      "conversion_ok": true,
+      "line": 0
     },
-    "huge\\_dec": {
-      "id": "v_{56}",
+    "v_{56}": {
+      "latex_name": "huge\\_dec",
       "original": {
         "value": 1000000000000000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1000000000000000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 254
+      "conversion_ok": true,
+      "line": 0
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:55:47",
-    "duration": "0.47s",
+    "last_run": "2026-01-07 14:44:01",
+    "duration": "0.65s",
     "symbols": 57,
+    "custom_units": 4,
     "definitions": 59,
     "evaluations": 42,
     "symbolic": 0,

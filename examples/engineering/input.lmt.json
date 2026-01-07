@@ -1,356 +1,309 @@
 {
-  "version": "2.0",
-  "source": "examples/engineering/input.md",
+  "version": "3.0",
+  "source": "/home/mark/Repositories/livemathtex/examples/engineering/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
   "custom_units": {},
   "symbols": {
-    "T_{h,in}": {
-      "id": "v_{0}",
+    "v_{0}": {
+      "latex_name": "T_{h,in}",
       "original": {
         "value": 90.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 90.0,
         "unit": null
       },
-      "valid": true,
-      "line": 28
+      "conversion_ok": true,
+      "line": 0
     },
-    "T_{c,in}": {
-      "id": "v_{1}",
+    "v_{1}": {
+      "latex_name": "T_{c,in}",
       "original": {
         "value": 20.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 20.0,
         "unit": null
       },
-      "valid": true,
-      "line": 29
+      "conversion_ok": true,
+      "line": 0
     },
-    "m_h": {
-      "id": "v_{2}",
+    "v_{2}": {
+      "latex_name": "m_h",
       "original": {
         "value": 2.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 2.0,
         "unit": null
       },
-      "valid": true,
-      "line": 32
+      "conversion_ok": true,
+      "line": 0
     },
-    "m_c": {
-      "id": "v_{3}",
+    "v_{3}": {
+      "latex_name": "m_c",
       "original": {
         "value": 3.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 3.0,
         "unit": null
       },
-      "valid": true,
-      "line": 33
+      "conversion_ok": true,
+      "line": 0
     },
-    "c_p": {
-      "id": "v_{4}",
+    "v_{4}": {
+      "latex_name": "c_p",
       "original": {
         "value": 4186.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 4186.0,
         "unit": null
       },
-      "valid": true,
-      "line": 37
+      "conversion_ok": true,
+      "line": 0
     },
-    "Q": {
-      "id": "v_{5}",
+    "v_{5}": {
+      "latex_name": "Q",
       "original": {
         "value": 150000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 150000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 41
+      "conversion_ok": true,
+      "line": 0
     },
-    "U": {
-      "id": "v_{6}",
-      "original": {
-        "value": 500.0,
-        "unit": null
-      },
-      "si": {
-        "value": 500.0,
-        "unit": null
-      },
-      "valid": true,
-      "line": 44
-    },
-    "\\Delta T_h": {
-      "id": "v_{7}",
+    "v_{6}": {
+      "latex_name": "\\Delta T_h",
       "original": {
         "value": 17.916865742952698,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 17.916865742952698,
         "unit": null
       },
-      "valid": true,
-      "line": 54
+      "conversion_ok": true,
+      "line": 0
     },
-    "T_{h,out}": {
-      "id": "v_{8}",
+    "v_{7}": {
+      "latex_name": "T_{h,out}",
       "original": {
         "value": 72.0831342570473,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 72.0831342570473,
         "unit": null
       },
-      "valid": true,
-      "line": 57
+      "conversion_ok": true,
+      "line": 0
     },
-    "\\Delta T_c": {
-      "id": "v_{9}",
+    "v_{8}": {
+      "latex_name": "\\Delta T_c",
       "original": {
         "value": 11.944577161968466,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 11.944577161968466,
         "unit": null
       },
-      "valid": true,
-      "line": 61
+      "conversion_ok": true,
+      "line": 0
     },
-    "T_{c,out}": {
-      "id": "v_{10}",
+    "v_{9}": {
+      "latex_name": "T_{c,out}",
       "original": {
         "value": 31.944577161968468,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 31.944577161968468,
         "unit": null
       },
-      "valid": true,
-      "line": 64
+      "conversion_ok": true,
+      "line": 0
     },
-    "\\Delta T_1": {
-      "id": "v_{11}",
+    "v_{10}": {
+      "latex_name": "\\Delta T_1",
       "original": {
         "value": 58.05542283803153,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 58.05542283803153,
         "unit": null
       },
-      "valid": true,
-      "line": 72
+      "conversion_ok": true,
+      "line": 0
     },
-    "\\Delta T_2": {
-      "id": "v_{12}",
+    "v_{11}": {
+      "latex_name": "\\Delta T_2",
       "original": {
         "value": 52.083134257047305,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 52.083134257047305,
         "unit": null
       },
-      "valid": true,
-      "line": 74
+      "conversion_ok": true,
+      "line": 0
     },
-    "ratio": {
-      "id": "v_{13}",
+    "v_{12}": {
+      "latex_name": "ratio",
       "original": {
         "value": 1.1146683790477936,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1.1146683790477936,
         "unit": null
       },
-      "valid": true,
-      "line": 77
+      "conversion_ok": true,
+      "line": 0
     },
-    "LMTD": {
-      "id": "v_{14}",
+    "v_{13}": {
+      "latex_name": "LMTD",
       "original": {
         "value": 55.015261373689036,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 55.015261373689036,
         "unit": null
       },
-      "valid": true,
-      "line": 79
+      "conversion_ok": true,
+      "line": 0
     },
-    "A": {
-      "id": "v_{15}",
-      "original": {
-        "value": 5.453032349737677,
-        "unit": null
-      },
-      "si": {
-        "value": 5.453032349737677,
-        "unit": null
-      },
-      "valid": true,
-      "line": 87
-    },
-    "C_h": {
-      "id": "v_{16}",
+    "v_{14}": {
+      "latex_name": "C_h",
       "original": {
         "value": 8372.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 8372.0,
         "unit": null
       },
-      "valid": true,
-      "line": 94
+      "conversion_ok": true,
+      "line": 0
     },
-    "C_c": {
-      "id": "v_{17}",
+    "v_{15}": {
+      "latex_name": "C_c",
       "original": {
         "value": 12558.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 12558.0,
         "unit": null
       },
-      "valid": true,
-      "line": 96
+      "conversion_ok": true,
+      "line": 0
     },
-    "Cmin": {
-      "id": "v_{18}",
+    "v_{16}": {
+      "latex_name": "Cmin",
       "original": {
         "value": 8372.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 8372.0,
         "unit": null
       },
-      "valid": true,
-      "line": 99
+      "conversion_ok": true,
+      "line": 0
     },
-    "Cmax": {
-      "id": "v_{19}",
+    "v_{17}": {
+      "latex_name": "Cmax",
       "original": {
         "value": 12558.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 12558.0,
         "unit": null
       },
-      "valid": true,
-      "line": 100
+      "conversion_ok": true,
+      "line": 0
     },
-    "C_r": {
-      "id": "v_{20}",
+    "v_{18}": {
+      "latex_name": "C_r",
       "original": {
         "value": 0.6666666666666666,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 0.6666666666666666,
         "unit": null
       },
-      "valid": true,
-      "line": 103
+      "conversion_ok": true,
+      "line": 0
     },
-    "Qmax": {
-      "id": "v_{21}",
+    "v_{19}": {
+      "latex_name": "Qmax",
       "original": {
         "value": 586040.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 586040.0,
         "unit": null
       },
-      "valid": true,
-      "line": 106
+      "conversion_ok": true,
+      "line": 0
     },
-    "\\varepsilon": {
-      "id": "v_{22}",
+    "v_{20}": {
+      "latex_name": "\\varepsilon",
       "original": {
         "value": 0.2559552248993243,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 0.2559552248993243,
         "unit": null
       },
-      "valid": true,
-      "line": 109
+      "conversion_ok": true,
+      "line": 0
     },
-    "NTU": {
-      "id": "v_{23}",
-      "original": {
-        "value": 0.3256708283407595,
-        "unit": null
-      },
-      "si": {
-        "value": 0.3256708283407595,
-        "unit": null
-      },
-      "valid": true,
-      "line": 112
-    },
-    "length": {
-      "id": "v_{24}",
+    "v_{21}": {
+      "latex_name": "length",
       "original": {
         "value": 2.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 2.0,
         "unit": null
       },
-      "valid": true,
-      "line": 132
-    },
-    "A_m": {
-      "id": "v_{25}",
-      "original": {
-        "value": 2.7265161748688387,
-        "unit": null
-      },
-      "si": {
-        "value": 2.7265161748688387,
-        "unit": null
-      },
-      "valid": true,
-      "line": 135
+      "conversion_ok": true,
+      "line": 0
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:55:45",
-    "duration": "0.39s",
-    "symbols": 26,
+    "last_run": "2026-01-07 14:44:01",
+    "duration": "0.30s",
+    "symbols": 22,
+    "custom_units": 0,
     "definitions": 26,
     "evaluations": 16,
     "symbolic": 0,
     "value_refs": 6,
-    "errors": 0
+    "errors": 6
   }
 }

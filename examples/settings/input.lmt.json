@@ -1,131 +1,136 @@
 {
-  "version": "2.0",
-  "source": "examples/settings/input.md",
+  "version": "3.0",
+  "source": "/home/mark/Repositories/livemathtex/examples/settings/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
   "custom_units": {},
   "symbols": {
-    "\\pi_{approx}": {
-      "id": "v_{0}",
+    "v_{0}": {
+      "latex_name": "\\pi_{approx}",
       "original": {
         "value": 3.141592653589793,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 3.141592653589793,
         "unit": null
       },
-      "valid": true,
-      "line": 13
+      "conversion_ok": true,
+      "line": 0
     },
-    "large": {
-      "id": "v_{1}",
+    "v_{1}": {
+      "latex_name": "large",
       "original": {
         "value": 123456789.123456,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 123456789.123456,
         "unit": null
       },
-      "valid": true,
-      "line": 14
+      "conversion_ok": true,
+      "line": 0
     },
-    "small": {
-      "id": "v_{2}",
+    "v_{2}": {
+      "latex_name": "small",
       "original": {
         "value": 1.23456789e-06,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1.23456789e-06,
         "unit": null
       },
-      "valid": true,
-      "line": 15
+      "conversion_ok": true,
+      "line": 0
     },
-    "medium": {
-      "id": "v_{3}",
+    "v_{3}": {
+      "latex_name": "medium",
       "original": {
         "value": 42.5,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 42.5,
         "unit": null
       },
-      "valid": true,
-      "line": 16
+      "conversion_ok": true,
+      "line": 0
     },
-    "price": {
-      "id": "v_{4}",
+    "v_{4}": {
+      "latex_name": "price",
       "original": {
         "value": 1299.99,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1299.99,
         "unit": null
       },
-      "valid": true,
-      "line": 119
+      "conversion_ok": true,
+      "line": 0
     },
-    "tax_rate": {
-      "id": "v_{5}",
+    "v_{5}": {
+      "latex_name": "tax_rate",
       "original": {
         "value": 0.21,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 0.21,
         "unit": null
       },
-      "valid": true,
-      "line": 120
+      "conversion_ok": true,
+      "line": 0
     },
-    "total": {
-      "id": "v_{6}",
+    "v_{6}": {
+      "latex_name": "total",
       "original": {
         "value": 1572.9879,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 1572.9879,
         "unit": null
       },
-      "valid": true,
-      "line": 121
+      "conversion_ok": true,
+      "line": 0
     },
-    "wavelength": {
-      "id": "v_{7}",
+    "v_{7}": {
+      "latex_name": "wavelength",
       "original": {
         "value": 5.319999999999999e-07,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 5.319999999999999e-07,
         "unit": null
       },
-      "valid": true,
-      "line": 125
+      "conversion_ok": true,
+      "line": 0
     },
-    "power": {
-      "id": "v_{8}",
+    "v_{8}": {
+      "latex_name": "power",
       "original": {
         "value": 2500000.0,
         "unit": null
       },
-      "si": {
+      "base": {
         "value": 2500000.0,
         "unit": null
       },
-      "valid": true,
-      "line": 130
+      "conversion_ok": true,
+      "line": 0
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:55:48",
-    "duration": "0.27s",
+    "last_run": "2026-01-07 14:44:02",
+    "duration": "0.23s",
     "symbols": 9,
+    "custom_units": 0,
     "definitions": 9,
     "evaluations": 22,
     "symbolic": 0,
