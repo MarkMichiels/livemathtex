@@ -3,10 +3,17 @@ Core processing pipeline for livemathtex.
 
 Pipeline: Read -> Parse -> Build IR -> Evaluate -> Render -> Write
 
-Version 2.0 changes:
+Version 2.0:
 - Simplified IR population (no blocks array)
 - Symbols store original + SI values
 - Custom units extracted from document
+
+Version 3.0:
+- IR as central state throughout processing
+- Clean IDs (v1, f1, x1)
+- Full custom unit metadata
+- Pint-based unit conversions
+- Formula dependency tracking
 """
 
 from pathlib import Path
@@ -19,6 +26,7 @@ from .parser.models import MathBlock
 from .engine.evaluator import Evaluator
 from .render.markdown import MarkdownRenderer
 from .ir import IRBuilder, LivemathIR, SymbolEntry, ValueWithUnit
+from .ir.schema import LivemathIRV3, SymbolEntryV3, FormulaInfo, CustomUnitEntry
 from .config import LivemathConfig
 
 
@@ -340,3 +348,203 @@ def process_text(
     new_doc_content = renderer.render(document, results, metadata=metadata)
 
     return new_doc_content, ir
+
+
+# =============================================================================
+# IR v3.0 Processing Functions
+# =============================================================================
+
+
+def process_text_v3(
+    content: str,
+    source: str = "<string>",
+) -> tuple[str, LivemathIRV3]:
+    """
+    Process markdown content using IR v3.0 schema.
+
+    Uses clean IDs (v1, f1, x1), Pint-based units, and full custom unit
+    metadata. The IR serves as central state throughout processing.
+
+    Args:
+        content: Markdown content with livemathtex calculations
+        source: Source identifier for the IR
+
+    Returns:
+        Tuple of (rendered_markdown, ir_v3)
+    """
+    start_time = time.time()
+
+    # 1. Parse document structure
+    lexer = Lexer()
+    document = lexer.parse(content)
+
+    # 2. Parse document directives and create config
+    doc_directives = lexer.parse_document_directives(content)
+    config = LivemathConfig().with_overrides(doc_directives) if doc_directives else LivemathConfig()
+
+    # 3. Build IR v3.0 (extracts custom units with full metadata)
+    builder = IRBuilder()
+    ir = builder.build_v3(document, source=source)
+
+    # 4. Evaluate with v3.0 mode
+    # Note: For now we still use the existing evaluator but collect v3.0 data
+    evaluator = Evaluator(config=config)
+    results = {}
+
+    error_count = 0
+    assign_count = 0
+    eval_count = 0
+    symbolic_count = 0
+    value_count = 0
+
+    for block in document.children:
+        if isinstance(block, MathBlock):
+            calculations = lexer.extract_calculations(block)
+            block_calcs_results = []
+
+            if not calculations:
+                continue
+
+            expr_overrides = lexer.extract_config_from_comment(block)
+
+            for calc in calculations:
+                if calc.operation == ':=':
+                    assign_count += 1
+                elif calc.operation == '==':
+                    eval_count += 1
+                elif calc.operation == ':=_==':
+                    assign_count += 1
+                    eval_count += 1
+                elif calc.operation == '=>':
+                    symbolic_count += 1
+                elif calc.operation == 'value':
+                    value_count += 1
+
+                try:
+                    result_latex = evaluator.evaluate(calc, config_overrides=expr_overrides)
+                    if '\\color{red}' in result_latex:
+                        error_count += 1
+                    block_calcs_results.append(result_latex)
+                except Exception as e:
+                    error_count += 1
+                    block_calcs_results.append(f"{calc.latex} \\quad \\text{{(Error: {e})}}")
+
+            results[block] = "\n".join(block_calcs_results)
+
+    duration = time.time() - start_time
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # 5. Populate IR v3.0 symbols
+    _populate_ir_symbols_v3(ir, evaluator)
+
+    ir.stats = {
+        "last_run": now_str,
+        "duration": f"{duration:.2f}s",
+        "symbols": len(ir.symbols),
+        "custom_units": len(ir.custom_units),
+        "definitions": assign_count,
+        "evaluations": eval_count,
+        "symbolic": symbolic_count,
+        "value_refs": value_count,
+        "errors": error_count,
+    }
+
+    # 6. Render
+    metadata = {
+        "last_run": now_str,
+        "duration": f"{duration:.2f}s",
+        "assigns": assign_count,
+        "evals": eval_count,
+        "symbolics": symbolic_count,
+        "values": value_count,
+        "errors": error_count
+    }
+
+    renderer = MarkdownRenderer()
+    new_doc_content = renderer.render(document, results, metadata=metadata)
+
+    return new_doc_content, ir
+
+
+def _populate_ir_symbols_v3(ir: LivemathIRV3, evaluator: Evaluator) -> None:
+    """
+    Populate IR v3.0 symbols from the evaluator's symbol table.
+
+    Creates SymbolEntryV3 for each defined symbol with:
+    - Clean ID as key (v1, f1, etc.)
+    - latex_name: Original LaTeX name
+    - original: User's input value and unit
+    - base: SI-converted value and unit (using Pint)
+    - conversion_ok: Validation flag
+    - formula: Expression, dependencies, parameters (if applicable)
+    """
+    from .engine.pint_backend import convert_to_base_units
+
+    for name in evaluator.symbols.all_names():
+        entry = evaluator.symbols.get(name)
+        if not entry:
+            continue
+
+        # Get or generate clean ID
+        internal_id = entry.internal_id or ""
+
+        # For v3.0, we need clean IDs like v1, f1
+        # The current system may still use v_{0} format
+        # We'll use the internal_id as-is for now (the NameGenerator handles the format)
+
+        # Create original value struct
+        original = ValueWithUnit(
+            value=entry.original_value,
+            unit=entry.original_unit
+        )
+
+        # Convert to base units using Pint
+        if entry.original_value is not None and entry.original_unit:
+            conversion = convert_to_base_units(entry.original_value, entry.original_unit)
+            base = ValueWithUnit(
+                value=conversion.base_value,
+                unit=conversion.base_unit
+            )
+            conversion_ok = conversion.success
+            conversion_error = conversion.error if not conversion.success else None
+        else:
+            # No unit or no value - use original as base
+            base_value = None
+            if entry.si_value is not None:
+                try:
+                    if hasattr(entry.si_value, 'evalf'):
+                        base_value = float(entry.si_value.evalf())
+                    elif isinstance(entry.si_value, (int, float)):
+                        base_value = float(entry.si_value)
+                except Exception:
+                    pass
+            base = ValueWithUnit(
+                value=base_value if base_value is not None else entry.original_value,
+                unit=None
+            )
+            conversion_ok = entry.valid
+            conversion_error = None
+
+        # Create formula info if this is a formula
+        formula_info = None
+        if entry.is_formula:
+            formula_info = FormulaInfo(
+                expression=entry.formula_expression,
+                depends_on=entry.depends_on,
+                parameters=entry.parameters if entry.parameters else None,
+                parameter_latex=entry.parameter_latex if entry.parameter_latex else None,
+            )
+
+        # Create symbol entry
+        symbol_entry = SymbolEntryV3(
+            latex_name=entry.latex_name if entry.latex_name else name,
+            original=original,
+            base=base,
+            conversion_ok=conversion_ok,
+            formula=formula_info,
+            line=entry.line,
+            conversion_error=conversion_error,
+        )
+
+        # Use clean ID as key (or internal_id)
+        ir.set_symbol(internal_id if internal_id else name, symbol_entry)
