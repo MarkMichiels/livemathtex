@@ -103,16 +103,46 @@ From `examples/engineering-units/input.lmt.json`:
 - LaTeX names in `latex_name` field
 - Formulas have `expression`, `depends_on`, and optional `parameters`
 - Function formulas (with `parameters`) use `x1, x2...` for local variables
+- Custom units with full metadata (type, Pint definition, line number)
 
 ```json
 {
   "version": "3.0",
-  "source": "examples/engineering-units/input.md",
+  "source": "examples/custom-units/input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.23"
   },
-  "custom_units": {},
+  "custom_units": {
+    "EUR": {
+      "latex": "€",
+      "definition": "€",
+      "type": "base",
+      "pint_definition": "EUR = [currency]",
+      "line": 24
+    },
+    "kW": {
+      "latex": "kW",
+      "definition": "kilo * W",
+      "type": "derived",
+      "pint_definition": "kilowatt = 1000 * watt",
+      "line": 40
+    },
+    "mbar": {
+      "latex": "mbar",
+      "definition": "milli * bar",
+      "type": "derived",
+      "pint_definition": "millibar = 0.001 * bar",
+      "line": 71
+    },
+    "kWh": {
+      "latex": "kWh",
+      "definition": "kilo * W * hour",
+      "type": "compound",
+      "pint_definition": "kilowatt_hour = kilowatt * hour",
+      "line": 95
+    }
+  },
   "symbols": {
     "v1": {
       "latex_name": "L_{pipe}",
@@ -243,6 +273,7 @@ From `examples/engineering-units/input.lmt.json`:
     "value_definitions": 12,
     "computed_formulas": 7,
     "function_formulas": 1,
+    "custom_units": 4,
     "evaluations": 11,
     "errors": 0
   }
@@ -550,11 +581,165 @@ flow_base = flow.to_base_units()  # → 1.67e-05 m³/s
   "value_definitions": 35,
   "computed_formulas": 20,
   "function_formulas": 4,
+  "custom_units": 4,
   "evaluations": 42
 }
 ```
 
-**Rationale:** Explicit count of values, computed formulas, and functions.
+**Rationale:** Explicit count of values, computed formulas, functions, and custom units.
+
+### 3.7 Custom Unit Definitions
+
+Custom units are defined in LiveMathTeX using the `===` syntax and stored in the `custom_units` field.
+
+#### Markdown Syntax
+
+```latex
+$$ € === € $$                      <!-- Base unit (new dimension) -->
+$$ kW === kilo \cdot W $$          <!-- Derived unit (scaled) -->
+$$ mbar === milli \cdot bar $$     <!-- Derived unit (scaled) -->
+$$ kWh === kilo \cdot W \cdot hour $$  <!-- Compound unit (multiple) -->
+```
+
+#### Unit Types
+
+| Type | Syntax | Meaning | Pint Dimension |
+|------|--------|---------|----------------|
+| **base** | `€ === €` | New dimension (currency, custom) | `[currency]` |
+| **derived** | `kW === kilo * W` | Scaled existing unit | Same as parent |
+| **compound** | `kWh === kW * hour` | Product of units | Combined |
+| **alias** | `dag === day` | Rename existing | Same as target |
+
+#### Schema Structure (v3.0)
+
+```json
+"custom_units": {
+  "EUR": {
+    "latex": "€",
+    "definition": "€",
+    "type": "base",
+    "pint_definition": "EUR = [currency]",
+    "line": 24
+  },
+  "kW": {
+    "latex": "kW",
+    "definition": "kilo * W",
+    "type": "derived",
+    "pint_definition": "kilowatt = 1000 * watt",
+    "line": 40
+  },
+  "kWh": {
+    "latex": "kWh",
+    "definition": "kilo * W * hour",
+    "type": "compound",
+    "pint_definition": "kilowatt_hour = kilowatt * hour",
+    "line": 95
+  }
+}
+```
+
+#### Field Descriptions
+
+| Field | Description |
+|-------|-------------|
+| **Key** | Pint-compatible unit name (e.g., `EUR`, `kW`) |
+| `latex` | Display name for rendering (e.g., `€`, `kW`) |
+| `definition` | User-provided definition (cleaned LaTeX) |
+| `type` | Classification: `base`, `derived`, `compound`, `alias` |
+| `pint_definition` | Exact Pint registry definition string |
+| `line` | Source line number for error reporting |
+
+#### Processing Flow
+
+```mermaid
+graph LR
+    A["$$ € === € $$"] --> B[Parser]
+    B --> C{Type?}
+    C -->|"X === X"| D[Base Unit]
+    C -->|"X === Y * Z"| E[Compound]
+    C -->|"X === prefix * Y"| F[Derived]
+    C -->|"X === existing"| G[Alias]
+    
+    D --> H[Pint: EUR = currency]
+    E --> H
+    F --> H
+    G --> H
+    
+    H --> I[Unit Registry]
+```
+
+#### Usage in Symbols
+
+Custom units can be used like built-in units:
+
+```json
+// Value using custom currency
+"v1": {
+  "latex_name": "price",
+  "original": { "value": 100.0, "unit": "EUR" },
+  "base": { "value": 100.0, "unit": "EUR" },
+  "conversion_ok": true,
+  "line": 26
+}
+
+// Value using custom derived unit
+"v2": {
+  "latex_name": "power",
+  "original": { "value": 5.0, "unit": "kW" },
+  "base": { "value": 5000.0, "unit": "W" },
+  "conversion_ok": true,
+  "line": 42
+}
+
+// Formula result with custom unit (Pint calculates)
+"f1": {
+  "latex_name": "energy",
+  "formula": {
+    "expression": "v2 * v3",
+    "depends_on": ["v2", "v3"]
+  },
+  "original": { "value": 40.0, "unit": "kWh" },
+  "base": { "value": 144000000.0, "unit": "J" },
+  "conversion_ok": true,
+  "line": 53
+}
+```
+
+#### Comparison v2.0 vs v3.0
+
+**Before (v2.0):**
+```json
+"custom_units": {
+  "€": "€",
+  "kW": "kilo \\cdot W"
+}
+```
+
+**After (v3.0):**
+```json
+"custom_units": {
+  "EUR": {
+    "latex": "€",
+    "definition": "€",
+    "type": "base",
+    "pint_definition": "EUR = [currency]",
+    "line": 24
+  },
+  "kW": {
+    "latex": "kW",
+    "definition": "kilo * W",
+    "type": "derived",
+    "pint_definition": "kilowatt = 1000 * watt",
+    "line": 40
+  }
+}
+```
+
+**Benefits:**
+- **Traceability**: Line numbers for debugging
+- **Type classification**: Know how unit is defined
+- **Pint integration**: Exact definition for registry
+- **LaTeX preservation**: Display name separate from key
 
 ---
 
@@ -564,11 +749,14 @@ flow_base = flow.to_base_units()  # → 1.67e-05 m³/s
 
 | File | Changes |
 |------|---------|
-| `src/livemathtex/ir/schema.py` | New dataclasses for v3.0 |
-| `src/livemathtex/engine/evaluator.py` | Use Pint for SI conversion |
-| `src/livemathtex/engine/units.py` | Simplify or remove (Phase 4) |
-| `src/livemathtex/core.py` | Update `_populate_ir_symbols()` |
-| `tests/test_examples.py` | Update IR structure tests |
+| `src/livemathtex/ir/schema.py` | New dataclasses: `FormulaInfo`, `CustomUnitEntry`, `SymbolEntryV3`, `LivemathIRV3` |
+| `src/livemathtex/ir/builder.py` | Extract custom unit metadata (type, Pint definition) |
+| `src/livemathtex/engine/evaluator.py` | Use Pint for SI conversion, classification logic |
+| `src/livemathtex/engine/pint_backend.py` | Enhanced `define_custom_unit()` with type detection |
+| `src/livemathtex/engine/symbols.py` | Update `NameGenerator` for clean IDs (`v1`, `f1`, `x1`) |
+| `src/livemathtex/engine/units.py` | Simplify or remove (legacy SymPy code) |
+| `src/livemathtex/core.py` | Update `_populate_ir_symbols()` for v3.0 |
+| `tests/test_examples.py` | Update IR structure tests for v3.0 schema |
 
 ### 4.2 Backward Compatibility
 
@@ -589,25 +777,27 @@ All `examples/*/input.lmt.json` files will be regenerated with:
 - Formulas with `expression`, `depends_on`, and optional `parameters`
 - `base` block with Pint `unit` (dimensionality computed on-the-fly)
 - `conversion_ok` flag for validation
-- Updated stats with `computed_formulas` and `function_formulas`
+- Custom units with full metadata (type, Pint definition, line)
+- Updated stats with `computed_formulas`, `function_formulas`, and `custom_units`
 
 ---
 
 ## 5. Implementation Plan
 
-### Phase 4a: Update IR Schema
+### Phase 5a: Update IR Schema
 1. Create new dataclasses in `ir/schema.py`:
    - `FormulaInfo` with `expression`, `depends_on`, `parameters` (optional)
+   - `CustomUnitEntry` with `latex`, `definition`, `type`, `pint_definition`, `line`
    - `SymbolEntryV3` with `latex_name`, `formula` (optional), `original`, `base`
-   - `LivemathIRV3` with `unit_backend` field
+   - `LivemathIRV3` with `unit_backend` field, `custom_units: Dict[str, CustomUnitEntry]`
 2. Update version to `"3.0"`
 
-### Phase 4b: Pint for SI Conversion
+### Phase 5b: Pint for SI Conversion
 1. Replace `_convert_to_si()` in evaluator to use Pint's `to_base_units()`
 2. Generate `base` block with `value` and `unit`
 3. Set `conversion_ok` flag based on success/failure
 
-### Phase 4c: Add Classification Logic
+### Phase 5c: Add Classification Logic
 1. Implement ID assignment in evaluator:
    - `v1, v2...` for value definitions
    - `f1, f2...` for formula definitions
@@ -615,13 +805,22 @@ All `examples/*/input.lmt.json` files will be regenerated with:
 2. Detect computed formulas vs functions (presence of `parameters`)
 3. Track `expression` and `depends_on` for all formulas
 
-### Phase 4d: Update Renderer
+### Phase 5d: Custom Unit Processing
+1. Update `IRBuilder` to extract full custom unit metadata:
+   - Parse `===` syntax to determine type (base/derived/compound/alias)
+   - Generate Pint-compatible definition string
+   - Track line numbers for error reporting
+2. Update `pint_backend.define_custom_unit()` to return structured result
+3. Store in `custom_units: Dict[str, CustomUnitEntry]`
+
+### Phase 5e: Update Renderer
 1. Use `latex_name` for display (LaTeX rendering on-the-fly)
 2. Use clean IDs (`v1`, `f2`) for all internal references
+3. Use `custom_units[name].latex` for custom unit display
 
-### Phase 4e: Regenerate Examples
+### Phase 5f: Regenerate Examples
 1. Run all examples through updated pipeline
-2. Verify tests still pass
+2. Verify tests still pass (including `custom-units` example)
 3. Commit new `.lmt.json` files
 
 ---
