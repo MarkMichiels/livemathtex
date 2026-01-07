@@ -5,6 +5,8 @@
 **Branch:** `feature/pint-backend`
 **Document purpose:** One place to understand (1) why LiveMathTeX exists, (2) how it works today, (3) where fragility lives, and (4) what a Pint-based unit backend would change—without losing the preprocessor rules and error checks that make the tool reliable.
 
+**Status:** Phase 1-3 complete. See [IR_SCHEMA_V3_PROPOSAL.md](IR_SCHEMA_V3_PROPOSAL.md) for the next evolution.
+
 ---
 
 ## 1. Why LiveMathTeX exists (problem statement)
@@ -55,12 +57,11 @@ The real pipeline is implemented in `src/livemathtex/core.py::process_file()`:
 - **Render**: `MarkdownRenderer.render()` reconstructs output and preserves comments
 
 Key code entry points:
-- `<repository-root>/src/livemathtex/core.py`
-- `<repository-root>/src/livemathtex/parser/lexer.py`
-- `<repository-root>/src/livemathtex/engine/evaluator.py`
-- `<repository-root>/src/livemathtex/engine/units.py`
-
-- `<repository-root>/src/livemathtex/engine/units.py`
+- `src/livemathtex/core.py`
+- `src/livemathtex/parser/lexer.py`
+- `src/livemathtex/engine/evaluator.py`
+- `src/livemathtex/engine/units.py`
+- `src/livemathtex/engine/pint_backend.py` *(new)*
 
 ### 2.3 Code-Level Bottlenecks (Identified)
 
@@ -70,14 +71,16 @@ Deep analysis of `src/livemathtex` reveals specific fragilities:
     -   Relies on regex patterns like `r'^(-?[\d.]+...)\s+([a-zA-Z]...)'`.
     -   Can easily misclassify a variable `x` as a unit if it appears after a number (e.g., `2 x`).
     -   Manual handling of LaTeX formatting (`\text{...}`, `\frac{...}`) is brittle and duplicates logic Pint already solves.
+    -   **Status:** To be refactored in Phase 4/5.
 
 2.  **Manual Conflict Checking** (`engine/evaluator.py:_check_unit_name_conflict`):
-    -   Relies on `UNIT_ABBREVIATIONS` list which must be manually maintained.
-    -   Runtime checks against `dir(sympy.physics.units)` are dangerous as they include non-unit objects.
-    -   **Pint Fix:** Pint exposes `ureg.is_compatible_with(unit)` and a countable registry, making this check 100% deterministic.
+    -   ~~Relies on `UNIT_ABBREVIATIONS` list which must be manually maintained.~~
+    -   ~~Runtime checks against `dir(sympy.physics.units)` are dangerous as they include non-unit objects.~~
+    -   **✅ RESOLVED:** Now uses `pint_backend.check_variable_name_conflict()` with strict detection of ALL Pint-recognized units.
 
 3.  **SI Conversion** (`engine/evaluator.py:_convert_to_si`):
     -   Uses `sympy.physics.units.convert_to`, which can be slow and fails on some complex compound units without explicit help.
+    -   **Status:** `pint_backend.to_si_base()` available, full integration in Phase 5.
 
 ---
 
@@ -229,10 +232,11 @@ This matters because the migration document must not assume features that don’
 
 ### 9.1 Tests
 
-**Status: CRITICAL GAP**
-- The `tests/` directory **does not exist**.
-- We rely entirely on manual verification of `examples/`.
-- **Action Item:** We cannot migrate without a safety net. Creating a regression test suite that runs all `examples/` and compares output is the absolute first step.
+**Status: ✅ RESOLVED**
+- Created `tests/` directory with comprehensive test coverage
+- `test_examples.py`: Snapshot tests for all 7 examples
+- `test_pint_backend.py`: 29 unit tests for Pint backend
+- Total: 52 tests, all passing
 
 ### 9.2 Watch mode
 
@@ -430,47 +434,56 @@ Notes:
 - Syntax contract: [USAGE.md](USAGE.md)
 - Intended architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
 - Roadmap: [ROADMAP.md](ROADMAP.md)
-- Examples (current “fixtures”): [examples/README.md](../examples/README.md)
+- Examples (current "fixtures"): [examples/README.md](../examples/README.md)
+- **IR v3.0 Proposal**: [IR_SCHEMA_V3_PROPOSAL.md](IR_SCHEMA_V3_PROPOSAL.md)
 
 Key code:
-- `<repository-root>/src/livemathtex/core.py`
-- `<repository-root>/src/livemathtex/parser/lexer.py`
-- `<repository-root>/src/livemathtex/engine/evaluator.py`
-- `<repository-root>/src/livemathtex/engine/units.py`
+- `src/livemathtex/core.py`
+- `src/livemathtex/parser/lexer.py`
+- `src/livemathtex/engine/evaluator.py`
+- `src/livemathtex/engine/units.py`
+- `src/livemathtex/engine/pint_backend.py` *(new)*
 
 ---
 
 ## 17. Detailed Implementation Roadmap
 
-### Phase 1: Test Scaffold (Critical Pre-requisite)
-Since `tests/` does not exist, we must create a safety net.
-1.  Create `tests/` directory.
-2.  Implement a **Snapshot Runner** that:
-    -   Reads `examples/*/input.md`.
-    -   Runs the current pipeline.
-    -   Compares output against `examples/*/output.md`.
-3.  Ensure 100% green on current examples before touching code.
+### Phase 1: Test Scaffold ✅ COMPLETE
+Created a comprehensive test scaffold:
+- `tests/conftest.py` - pytest fixtures for examples
+- `tests/test_examples.py` - snapshot tests for all 7 examples
+- `tests/test_pint_backend.py` - 29 unit tests for Pint backend
+- All 52 tests passing
 
-### Phase 2: Pint Integration (Parallel)
-1.  Add `pint` to dependencies.
-2.  Create `engine/pint_backend.py`:
-    -   Initialize `pint.UnitRegistry`.
-    -   Configure it to be case-sensitive (to distinguish `m` (meter) vs `M` (constant?)).
-    -   Implement `is_unit(token)` using Pint's registry to replace manual lists.
+### Phase 2: Pint Integration ✅ COMPLETE
+1. Added `pint>=0.23` to `pyproject.toml`
+2. Created `engine/pint_backend.py`:
+   - `get_unit_registry()` - case-sensitive Pint registry with custom units
+   - `is_unit_token(token)` - strict unit detection
+   - `check_variable_name_conflict()` - prevents variable names that match ANY unit
+   - `parse_value_with_unit()` - parses "value unit" strings
+   - `convert_quantity()` - unit conversion
+   - `to_si_base()` - SI base unit conversion
 
-### Phase 3: The Swap (Hybrid Approach)
-1.  **Refactor `strip_unit_from_value`**:
-    -   Instead of Regex Pattern 3 (`value unit`), parse the string.
-    -   Query `pint_backend.is_unit(token)`.
-    -   If yes → `VALUE_DEFINITION`.
-    -   If no → `FORMULA_DEFINITION`.
-2.  **Replace `SymbolTable` values**:
-    -   Store `pint.Quantity` objects instead of `(float, sympy_unit)` tuples.
-3.  **Update `Evaluator`**:
-    -   Wrap `latex2sympy` output (SymPy expr) into Pint evaluation where keys are variables.
-    -   Use `pint_obj.to_base_units()` for SI conversion.
+### Phase 3: The Swap ✅ COMPLETE
+1. **Integrated Pint for unit name validation**:
+   - `_check_unit_name_conflict()` now uses `pint_backend.check_variable_name_conflict()`
+   - Strict policy: ALL Pint-recognized units are blocked (e.g., `a`=year, `b`=barn, `mass`=milliarcsecond)
+2. **Updated examples** to use subscripted names (`mass_obj`, `a_1`, `b_1`)
+3. **Regenerated all output files**
 
-### Phase 4: Cleanup
-1.  Remove `engine/units.py` (custom parsing logic).
-2.  Remove `UNIT_ABBREVIATIONS` manual list.
-3.  Verify `=>` symbolic mode still works (requires un-wrapping Pint quantities back to SymPy if needed, or keeping them separate).
+### Phase 4: Cleanup (pending)
+1. Remove redundant code from `engine/units.py`
+2. Remove `UNIT_ABBREVIATIONS` manual list
+3. Verify `=>` symbolic mode still works
+
+### Phase 5: IR v3.0 Implementation (planned)
+See [IR_SCHEMA_V3_PROPOSAL.md](IR_SCHEMA_V3_PROPOSAL.md) for the complete proposal.
+
+Key changes:
+- **Clean IDs**: `v1`, `f1`, `x1` for values, formulas, parameters
+- **Both original + base units** for values AND formulas
+- **Formulas calculated with original units** (user-friendly: L/min instead of m³/s)
+- **Function parameters** with `parameter_latex` for display
+- **Dependency tracking** with clean IDs
+- **`conversion_ok` flag** for error handling
