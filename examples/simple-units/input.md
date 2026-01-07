@@ -13,7 +13,7 @@ Single-letter names like `m`, `s`, `t` that conflict with SI units will
 
 Writing `m := 10 · kg` produces:
 
-> Error: Variable name 'm' conflicts with unit 'm' (meter). 
+> Error: Variable name 'm' conflicts with unit 'm' (meter).
 > Use a subscript like m_{var} or m_{0} to disambiguate.
 
 **Solution:** Use subscripts or descriptive names to avoid conflicts.
@@ -47,3 +47,23 @@ $F_2kN := F_2 ==$ <!-- [kN] -->
 $ratio := \frac{mass}{m_1} == $
 
 The ratio should be 2.5 (25 kg / 10 kg).
+
+---
+
+## ❌ Intentional Errors (for demonstration)
+
+### Error 1: Variable name conflicts with unit
+
+This line tries to define `m` which conflicts with the SI unit meter:
+
+$m := 10 \cdot kg$
+
+### Error 2: Undefined variable in formula
+
+This formula uses `g` (gravitational acceleration) which is NOT defined.
+The tool correctly reports it as undefined:
+
+$h_{drop} := 100$
+$t_{fall} := \sqrt{\frac{2 \cdot h_{drop}}{g}} ==$
+
+**Fix:** Define `g_{acc}` first (with subscript to avoid conflict with gram unit).

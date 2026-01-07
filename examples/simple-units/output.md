@@ -13,7 +13,7 @@ Single-letter names like `m`, `s`, `t` that conflict with SI units will
 
 Writing `m := 10 · kg` produces:
 
-> Error: Variable name 'm' conflicts with unit 'm' (meter). 
+> Error: Variable name 'm' conflicts with unit 'm' (meter).
 > Use a subscript like m_{var} or m_{0} to disambiguate.
 
 **Solution:** Use subscripts or descriptive names to avoid conflicts.
@@ -50,4 +50,28 @@ The ratio should be 2.5 (25 kg / 10 kg).
 
 ---
 
-> *livemathtex: 2026-01-07 03:19:09 | 9 definitions, 5 evaluations | no errors | 0.21s* <!-- livemathtex-meta -->
+## ❌ Intentional Errors (for demonstration)
+
+### Error 1: Variable name conflicts with unit
+
+This line tries to define `m` which conflicts with the SI unit meter:
+
+$m := 10 \cdot kg
+\\ \color{red}{\text{
+    Error: Variable name 'm' conflicts with unit 'm' (meter). Use a subscript like m\_\{var\} or m\_\{0\} to disambiguate.}}$
+
+### Error 2: Undefined variable in formula
+
+This formula uses `g` (gravitational acceleration) which is NOT defined.
+The tool correctly reports it as undefined:
+
+$h_{drop} := 100$
+$t_{fall} := \sqrt{\frac{2 \cdot h_{drop}}{g}} ==
+\\ \color{red}{\text{
+    Error: Undefined variable 'g' in formula. Note: 'g' is also a unit (gram), but formulas cannot mix variables and units. Define 'g' first with a subscript like g\_\{0\} or g\_\{acc\}.}}$
+
+**Fix:** Define `g_{acc}` first (with subscript to avoid conflict with gram unit).
+
+---
+
+> *livemathtex: 2026-01-07 03:20:20 | 12 definitions, 6 evaluations | 2 errors | 0.22s* <!-- livemathtex-meta -->
