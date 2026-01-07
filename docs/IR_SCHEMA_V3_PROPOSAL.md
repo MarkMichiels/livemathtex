@@ -398,6 +398,38 @@ for dep_id in deps:
 - **`conversion_ok`**: Critical flag — if `false`, variable is invalid!
 - **No `dimensionality`**: Computed by Pint from `unit` when needed
 
+#### How `original` works for Formulas
+
+**🚨 IMPORTANT:** Pint preserves input units in calculations!
+
+```python
+volume = 5 * ureg.liter
+time = 5 * ureg.minute
+flow_rate = volume / time
+
+print(flow_rate)              # → 1.0 liter / minute
+print(flow_rate.to_base_units())  # → 1.67e-05 m³/s
+```
+
+**For values:** `original` = user input, `base` = SI conversion  
+**For formulas:** `original` = Pint result (preserves input units), `base` = SI conversion
+
+Example formula with L/min result:
+```json
+"f6": {
+  "latex_name": "Q_{flow}",
+  "formula": {
+    "expression": "v10 / v11",
+    "depends_on": ["v10", "v11"]
+  },
+  "original": { "value": 1.0, "unit": "L/min" },
+  "base": { "value": 1.67e-05, "unit": "m³/s" },
+  "conversion_ok": true
+}
+```
+
+This preserves user-friendly units for display while having SI for calculations.
+
 ### 3.5 Conversion Status Flag
 
 **🚨 CRITICAL:** `conversion_ok` indicates whether unit conversion succeeded.
