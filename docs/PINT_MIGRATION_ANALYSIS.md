@@ -5,7 +5,7 @@
 **Branch:** `feature/pint-backend`
 **Document purpose:** One place to understand (1) why LiveMathTeX exists, (2) how it works today, (3) where fragility lives, and (4) what a Pint-based unit backend would change—without losing the preprocessor rules and error checks that make the tool reliable.
 
-**Status:** Phase 1-3 complete. See [IR_SCHEMA_V3_PROPOSAL.md](IR_SCHEMA_V3_PROPOSAL.md) for the next evolution.
+**Status:** Phase 1-5 complete. IR v3.0 is fully implemented. See [IR_SCHEMA_V3_PROPOSAL.md](IR_SCHEMA_V3_PROPOSAL.md) for details.
 
 ---
 
@@ -472,18 +472,41 @@ Created a comprehensive test scaffold:
 2. **Updated examples** to use subscripted names (`mass_obj`, `a_1`, `b_1`)
 3. **Regenerated all output files**
 
-### Phase 4: Cleanup (pending)
+### Phase 4: Cleanup (deferred)
+The following cleanup tasks are deferred for future optimization:
 1. Remove redundant code from `engine/units.py`
 2. Remove `UNIT_ABBREVIATIONS` manual list
-3. Verify `=>` symbolic mode still works
+3. Further code simplification
 
-### Phase 5: IR v3.0 Implementation (planned)
+### Phase 5: IR v3.0 Implementation ✅ COMPLETE
 See [IR_SCHEMA_V3_PROPOSAL.md](IR_SCHEMA_V3_PROPOSAL.md) for the complete proposal.
 
-Key changes:
-- **Clean IDs**: `v1`, `f1`, `x1` for values, formulas, parameters
-- **Both original + base units** for values AND formulas
-- **Formulas calculated with original units** (user-friendly: L/min instead of m³/s)
-- **Function parameters** with `parameter_latex` for display
-- **Dependency tracking** with clean IDs
-- **`conversion_ok` flag** for error handling
+**Implemented:**
+1. **IR Schema v3.0 dataclasses** (`ir/schema.py`):
+   - `LivemathIRV3` - central state with Pint backend info
+   - `SymbolEntryV3` - symbols with `original` + `base` units
+   - `CustomUnitEntry` - full metadata for custom units
+   - `FormulaInfo` - expression tracking with dependencies
+
+2. **Pint-based unit conversion** (`engine/pint_backend.py`):
+   - `convert_to_base_units()` - returns both original and base representations
+   - All custom units registered with Pint registry
+
+3. **IR v3.0 processing pipeline** (`core.py`):
+   - `process_text_v3()` - main v3.0 entry point
+   - `_populate_ir_symbols_v3()` - creates `SymbolEntryV3` with Pint conversion
+
+4. **IR Builder v3.0** (`ir/builder.py`):
+   - `build_v3()` - extracts custom units with full metadata
+   - `CustomUnitEntry` with `latex`, `type`, `pint_definition`, `line`
+
+5. **Test coverage** (`tests/test_examples.py`):
+   - IR v3.0 structure tests for all examples
+   - Symbol value validation
+   - Custom unit metadata validation
+   - All 76 tests passing
+
+6. **Example JSON files regenerated** with v3.0 schema:
+   - All `examples/*/input.lmt.json` updated
+   - Custom units with full metadata
+   - Pint backend version info

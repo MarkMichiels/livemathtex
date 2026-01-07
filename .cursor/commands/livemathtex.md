@@ -110,9 +110,34 @@ Display just the numeric value of a variable (useful for summary tables):
 LiveMathTeX shows errors inline:
 - Undefined variable → `$x ==$ \color{red}{\textbf{Error:} \text{Undefined: x}}`
 - Invalid syntax → `$y = 5$ \color{red}{\textbf{Error:} \text{Use := or ==}}`
+- Unit conflict → `Variable name 'a' conflicts with unit 'year' (annum)`
+
+## Reserved Variable Names
+
+All unit names recognized by Pint are reserved. Use subscripts:
+
+```markdown
+$m_{rock} := 5\ kg$     <!-- OK: not 'm' -->
+$a_1 := 10$             <!-- OK: not 'a' -->
+$mass_{obj} := 2\ kg$   <!-- OK: not 'mass' -->
+```
+
+## Debug Mode (IR v3.0)
+
+```bash
+livemathtex process input.md --verbose
+```
+
+Creates `input.lmt.json` with:
+- **version**: "3.0"
+- **unit_backend**: Pint version info
+- **custom_units**: Full metadata for `===` definitions
+- **symbols**: All variables with original + base units
+- **stats**: Processing statistics
 
 ## More Information
 
 - **[USAGE.md](../../docs/USAGE.md)** - Complete syntax reference
+- **[ARCHITECTURE.md](../../docs/ARCHITECTURE.md)** - IR schema details
 - **[Examples](../../examples/)** - Working examples
 - **`/livemathtex-setup`** - Installation guide

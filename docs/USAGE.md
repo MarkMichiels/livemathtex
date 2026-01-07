@@ -698,7 +698,7 @@ Console also reports errors with line numbers.
 
 ## Debugging
 
-### IR JSON Output (v2.0)
+### IR JSON Output
 
 Use `--verbose` to generate a JSON file containing the Intermediate Representation:
 
@@ -712,63 +712,98 @@ Or use the `json=true` document directive:
 <!-- livemathtex: output=output.md, json=true -->
 ```
 
-This creates `input.lmt.json` with:
+This creates `input.lmt.json`.
+
+### IR Schema v3.0 (Current)
+
+Version 3.0 uses Pint for unit handling and includes full custom unit metadata:
 
 ```json
 {
-  "version": "2.0",
+  "version": "3.0",
   "source": "input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
 
   "custom_units": {
-    "euro": "euro",
-    "kWh": "kilo*watt*hour"
+    "€": {
+      "latex": "€",
+      "type": "base",
+      "pint_definition": "€ = [€]",
+      "line": 5
+    },
+    "kWh": {
+      "latex": "kWh",
+      "type": "alias",
+      "pint_definition": "kWh = kW * hour",
+      "line": 6
+    }
   },
 
   "symbols": {
-    "Q": {
-      "id": "v_{0}",
+    "v_{0}": {
+      "latex_name": "Q",
       "original": { "value": 50.0, "unit": "m³/h" },
-      "si": { "value": 0.01389, "unit": "meter**3/second" },
-      "valid": true,
+      "base": { "value": 0.01389, "unit": "meter ** 3 / second" },
+      "conversion_ok": true,
       "line": 31
     },
-    "rho": {
-      "id": "v_{1}",
+    "v_{1}": {
+      "latex_name": "\\rho",
       "original": { "value": 1000.0, "unit": "kg/m³" },
-      "si": { "value": 1000.0, "unit": "kilogram/meter**3" },
-      "valid": true,
+      "base": { "value": 1000.0, "unit": "kilogram / meter ** 3" },
+      "conversion_ok": true,
       "line": 32
     }
   },
 
-  "errors": [
-    { "line": 99, "message": "Undefined variable: x" }
-  ]
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-07 14:30:00",
+    "symbols": 2,
+    "custom_units": 2
+  }
 }
 ```
 
-### IR Schema v2.0 Structure
+### IR v3.0 Schema Structure
 
 | Field | Description |
 |-------|-------------|
-| `version` | Schema version ("2.0") |
+| `version` | Schema version ("3.0") |
 | `source` | Input file path |
-| `custom_units` | User-defined units from `===` |
-| `symbols` | All defined variables with original and SI values |
+| `unit_backend` | Unit library info (`{name, version}`) |
+| `custom_units` | User-defined units with full metadata |
+| `symbols` | All defined variables (keyed by internal ID) |
 | `errors` | List of errors with line numbers |
+| `stats` | Processing statistics |
 
-### Symbol Entry Fields
+### Symbol Entry Fields (v3.0)
 
 Each symbol in `symbols` contains:
 
 | Field | Description |
 |-------|-------------|
-| `id` | Internal name (v_{0}, v_{1}, f_{0}, etc.) |
+| `latex_name` | Original LaTeX name (e.g., `P_{LED,out}`) |
 | `original.value` | Numeric value as entered |
 | `original.unit` | Unit as entered (e.g., "m³/h") |
-| `si.value` | SI-converted numeric value |
-| `si.unit` | SymPy SI unit expression |
-| `valid` | Whether SI conversion succeeded |
+| `base.value` | SI-converted numeric value (Pint) |
+| `base.unit` | Pint base unit expression |
+| `conversion_ok` | Whether unit conversion succeeded |
+| `line` | Source line number |
+| `formula` | (optional) Formula info for computed values |
+
+### Custom Unit Entry Fields (v3.0)
+
+Each custom unit in `custom_units` contains:
+
+| Field | Description |
+|-------|-------------|
+| `latex` | LaTeX representation |
+| `type` | Unit type: "base", "derived", "compound", or "alias" |
+| `pint_definition` | Pint-compatible definition string |
 | `line` | Source line number |
 
 ### Symbol Mapping
@@ -780,16 +815,16 @@ LiveMathTeX uses a simple `v_{n}` / `f_{n}` naming scheme for reliable parsing:
 | **Variables** | `v_{n}` | `P_{LED,out}` | `v_{0}` |
 | **Functions** | `f_{n}` | `\eta_{PSU}(x)` | `f_{0}` |
 
-The key in `symbols` is the **original LaTeX name**, and `id` is the internal name:
+The key in `symbols` is the **internal ID**, and `latex_name` is the display name:
 
 ```json
 {
   "symbols": {
-    "P_{LED,out}": {
-      "id": "v_{0}",
+    "v_{0}": {
+      "latex_name": "P_{LED,out}",
       "original": { "value": 123.45, "unit": "W" },
-      "si": { "value": 123.45, "unit": "watt" },
-      "valid": true,
+      "base": { "value": 123.45, "unit": "watt" },
+      "conversion_ok": true,
       "line": 15
     }
   }
@@ -799,7 +834,8 @@ The key in `symbols` is the **original LaTeX name**, and `id` is the internal na
 This approach ensures:
 - **100% parsing success** - `v_{0}` always parses correctly
 - **Any LaTeX supported** - Greek, subscripts, commas, slashes all work
-- **Debugging clarity** - IR shows the full mapping with both original and SI values
+- **Debugging clarity** - IR shows full mapping with original and base units
+- **Pint integration** - Unit conversion validated by Pint
 
 ### Inspecting Results
 
@@ -808,6 +844,10 @@ livemathtex inspect input.lmt.json
 ```
 
 Shows all symbols, their values, and any errors in a human-readable format.
+
+### IR Schema v2.0 (Legacy)
+
+Version 2.0 is still supported for backward compatibility. See [ARCHITECTURE.md](ARCHITECTURE.md) for details.
 
 ---
 
@@ -973,6 +1013,8 @@ $c := a + b == 8$
 
 Cannot be used as variable names:
 
+### Mathematical Functions
+
 ```
 sin, cos, tan, asin, acos, atan
 sinh, cosh, tanh
@@ -981,9 +1023,41 @@ abs, floor, ceil, round
 min, max, sum, prod
 diff, integrate, solve, simplify
 det, inv, transpose
+```
+
+### Constants
+
+```
 pi, e, i
 true, false
 ```
+
+### Unit Names (Pint Registry)
+
+**Important:** All unit names recognized by Pint are reserved. This includes:
+
+- **SI base units:** `m`, `kg`, `s`, `A`, `K`, `mol`, `cd`
+- **SI derived units:** `N`, `J`, `W`, `Pa`, `V`, `F`, `ohm`, etc.
+- **Prefixed units:** `km`, `mm`, `MHz`, `kW`, `mg`, etc.
+- **Common abbreviations:** `L` (liter), `h` (hour), `min`, `bar`, etc.
+- **Legacy units:** `a` (year/annum), `b` (barn), etc.
+
+To check if a name conflicts with a unit:
+
+```bash
+livemathtex process input.md
+# Error: Variable name 'a' conflicts with unit 'year' (annum)
+```
+
+**Best practice:** Use descriptive names with subscripts:
+
+```latex
+$m_{rock} := 5\ kg$        <!-- OK: not 'm' but 'm_rock' -->
+$a_1 := 10$                <!-- OK: not 'a' but 'a_1' -->
+$mass_{obj} := 2\ kg$      <!-- OK: not 'mass' but 'mass_obj' -->
+```
+
+See also: [PINT_MIGRATION_ANALYSIS.md](PINT_MIGRATION_ANALYSIS.md) for details on unit validation.
 
 ---
 

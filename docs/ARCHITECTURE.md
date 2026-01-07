@@ -17,7 +17,7 @@ LiveMathTeX follows a modular pipeline architecture with an **Intermediate Repre
                    └─────────────┘
 ```
 
-### Intermediate Representation (IR) v2.0
+### Intermediate Representation (IR)
 
 The IR layer provides:
 
@@ -25,67 +25,108 @@ The IR layer provides:
 2. **Debugging** - Write IR to JSON with `--verbose` or `json=true` directive
 3. **Traceability** - Track all calculations with original and SI values
 4. **Import System** - Load symbols from other Markdown files via their IR JSON
+5. **Central State** - IR serves as the authoritative state throughout processing
 
-#### IR v2.0 Schema
+#### IR v3.0 Schema (Current)
 
-The IR JSON is a minimal, flat structure optimized for debugging:
+Version 3.0 introduces **Pint integration** for unit handling and **full custom unit metadata**:
 
 ```json
 {
-  "version": "2.0",
-  "source": "input.md",
+  "version": "3.0",
+  "source": "examples/engineering-units/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
 
   "custom_units": {
-    "euro": "euro",
-    "kWh": "kilo*watt*hour"
+    "€": {
+      "latex": "€",
+      "type": "base",
+      "pint_definition": "€ = [€]",
+      "line": 5
+    },
+    "kWh": {
+      "latex": "kWh",
+      "type": "alias",
+      "pint_definition": "kWh = kW * hour",
+      "line": 6
+    }
   },
 
   "symbols": {
-    "Q": {
-      "id": "v_{0}",
+    "v_{0}": {
+      "latex_name": "Q",
       "original": { "value": 50.0, "unit": "m³/h" },
-      "si": { "value": 0.01389, "unit": "meter**3/second" },
-      "valid": true,
+      "base": { "value": 0.01389, "unit": "meter ** 3 / second" },
+      "conversion_ok": true,
       "line": 31
     },
-    "rho": {
-      "id": "v_{1}",
+    "v_{1}": {
+      "latex_name": "\\rho",
       "original": { "value": 1000.0, "unit": "kg/m³" },
-      "si": { "value": 1000.0, "unit": "kilogram/meter**3" },
-      "valid": true,
+      "base": { "value": 1000.0, "unit": "kilogram / meter ** 3" },
+      "conversion_ok": true,
       "line": 32
     }
   },
 
-  "errors": [
-    { "line": 99, "message": "Undefined variable: x" }
-  ]
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-07 14:30:00",
+    "duration": "0.15s",
+    "symbols": 2,
+    "custom_units": 2,
+    "definitions": 2,
+    "evaluations": 0,
+    "errors": 0
+  }
 }
 ```
 
-#### Schema Structure
+#### Schema Structure (v3.0)
 
 | Field | Description |
 |-------|-------------|
-| `version` | Schema version ("2.0") |
+| `version` | Schema version ("3.0") |
 | `source` | Input file path |
-| `custom_units` | User-defined units from `===` syntax |
-| `symbols` | All defined variables with original and SI values |
+| `unit_backend` | Unit library info (`{name: "pint", version: "X.X"}`) |
+| `custom_units` | User-defined units with full metadata |
+| `symbols` | All defined variables (keyed by internal ID) |
 | `errors` | List of errors with line numbers |
+| `stats` | Processing statistics |
 
-#### Symbol Entry Fields
+#### Symbol Entry Fields (v3.0)
 
 Each symbol in `symbols` contains:
 
 | Field | Description |
 |-------|-------------|
-| `id` | Internal name (v_{0}, v_{1}, f_{0}, etc.) |
+| `latex_name` | Original LaTeX name (e.g., `P_{LED,out}`) |
 | `original.value` | Numeric value as entered by user |
 | `original.unit` | Unit string as entered (e.g., "m³/h") |
-| `si.value` | SI-converted numeric value |
-| `si.unit` | SymPy SI unit expression |
-| `valid` | Whether SI conversion succeeded |
+| `base.value` | SI-converted numeric value (using Pint) |
+| `base.unit` | Pint base unit expression |
+| `conversion_ok` | Whether unit conversion succeeded |
 | `line` | Source line number |
+| `formula` | (optional) Formula info for computed values |
+| `conversion_error` | (optional) Error message if conversion failed |
+
+#### Custom Unit Entry Fields (v3.0)
+
+Each custom unit in `custom_units` contains:
+
+| Field | Description |
+|-------|-------------|
+| `latex` | LaTeX representation |
+| `type` | Unit type: "base", "derived", "compound", or "alias" |
+| `pint_definition` | Pint-compatible definition string |
+| `line` | Source line number |
+
+#### IR v2.0 Schema (Legacy)
+
+Version 2.0 is maintained for backward compatibility. See [IR Schema v3.0 Proposal](IR_SCHEMA_V3_PROPOSAL.md) for migration details.
 
 #### Symbol Normalization Architecture
 
@@ -599,7 +640,7 @@ output = "inplace"  # Power user preference
 | Component | Library |
 |-----------|---------|
 | Operators | `regex` (`:=`, `==`, `=>` detection) |
-| Units | `sympy.physics.units` |
+| Units | `pint>=0.23` (with SymPy fallback for symbolic math) |
 | Numeric | `numpy` |
 | Symbolic | `sympy` |
 | LaTeX parsing | `latex2sympy2` (our fork) |
@@ -610,7 +651,14 @@ output = "inplace"  # Power user preference
 
 **Why Python:** Rich math ecosystem (SymPy), rapid development, easy distribution via pip.
 
-**Why SymPy units:** Simpler integration than Pint - units are SymPy expressions, already using SymPy for symbolic math.
+**Why Pint for units (v3.0):** Pint provides:
+- Complete SI unit registry out of the box
+- Robust unit validation (prevents variable names conflicting with units)
+- Clean unit string formatting
+- Automatic base unit conversion
+- Easy custom unit registration
+
+See [Pint Migration Analysis](PINT_MIGRATION_ANALYSIS.md) for background.
 
 ---
 
@@ -633,8 +681,10 @@ livemathtex/
 │       │   └── builder.py   # Build IR from parsed AST
 │       ├── engine/
 │       │   ├── __init__.py
-│       │   ├── evaluator.py # Main evaluation logic + IR integration
-│       │   └── symbols.py   # Symbol table
+│       │   ├── evaluator.py    # Main evaluation logic + IR integration
+│       │   ├── pint_backend.py # Pint unit registry + validation
+│       │   ├── symbols.py      # Symbol table
+│       │   └── units.py        # Legacy SymPy unit support
 │       ├── render/
 │       │   ├── __init__.py
 │       │   └── markdown.py  # MD output (only output format)
