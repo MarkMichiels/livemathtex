@@ -202,6 +202,37 @@ From `examples/engineering-units/input.lmt.json`:
         "depends_on": ["v3"]
       },
       "line": 130
+    },
+    "f6": {
+      "latex_name": "double",
+      "formula": {
+        "expression": "2 * x1",
+        "parameters": ["x1"],
+        "parameter_latex": ["x"],
+        "depends_on": []
+      },
+      "line": 135
+    },
+    "f7": {
+      "latex_name": "triple_plus",
+      "formula": {
+        "expression": "f6(x1) + 3",
+        "parameters": ["x1"],
+        "parameter_latex": ["x"],
+        "depends_on": ["f6"]
+      },
+      "line": 140
+    },
+    "f8": {
+      "latex_name": "result",
+      "formula": {
+        "expression": "f7(5) + f5(10, v1)",
+        "depends_on": ["f7", "f5", "v1"]
+      },
+      "original": { "value": 1013.0, "unit": null },
+      "base": { "value": 1013.0, "unit": null },
+      "conversion_ok": true,
+      "line": 145
     }
   },
   "errors": [],
@@ -360,6 +391,35 @@ def is_function(symbol):
 **Processing is identical:** Substitute IDs with values.
 - Computed formula: substitute `v*`, `f*` with their values
 - Function formula: substitute `v*`, `f*` + `x*` with values/arguments
+
+#### Function Call Scenarios
+
+**Scenario 1: Function calls another function, passing parameter through**
+```
+f6(x) = 2 * x
+f7(x) = f6(x) + 3
+```
+When evaluating `f7(5)`:
+1. Substitute `x1=5` in f7's expression → `f6(5) + 3`
+2. Evaluate `f6(5)`: substitute `x1=5` → `2 * 5 = 10`
+3. Result: `10 + 3 = 13`
+
+**Scenario 2: Computed formula calls function with constants**
+```
+result = f7(5) + f5(10, v1)
+```
+When evaluating `f8`:
+1. Evaluate `f7(5)` → `13` (see above)
+2. Evaluate `f5(10, v1)` → `10 * 1000 + 100 = 1100` (v1=100m, v3=ρ=1000)
+3. Result: `13 + 1100 = 1113`
+
+**Scenario 3: Function calls function with mixed args**
+```
+g(x, y) = f6(x) + f6(y)
+```
+Expression: `f6(x1) + f6(x2)` with `parameters: ["x1", "x2"]`
+
+**Key rule:** Parameters (`x1`, `x2`) are substituted first, then function calls are evaluated recursively.
 
 **Fast dependency resolution:**
 ```python
