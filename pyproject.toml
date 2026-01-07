@@ -34,6 +34,10 @@ dependencies = [
     # See: https://github.com/MarkMichiels/latex2sympy
     "latex2sympy2 @ git+https://github.com/MarkMichiels/latex2sympy.git",
 
+    # Unit handling - Pint provides robust unit registry and conversion
+    # Pint is used as the primary unit backend (hybrid with SymPy for symbolic math)
+    "pint>=0.23",
+
     # Numeric
     "numpy>=1.24",
 
