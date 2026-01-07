@@ -990,9 +990,15 @@ class Evaluator:
         elif cfg.format == "engineering":
             return self._format_engineering(value, digits)
         elif cfg.format == "decimal":
-            return f"{value:.{digits}f}"
+            result = f"{value:.{digits}f}"
+            # Strip trailing zeros unless explicitly requested
+            if not cfg.trailing_zeros and '.' in result:
+                result = result.rstrip('0').rstrip('.')
+            return result
         else:  # "general" - auto-choose based on threshold
-            return self._format_general(value, digits, cfg.exponential_threshold)
+            # trailing_zeros=False means we should strip trailing zeros
+            return self._format_general(value, digits, cfg.exponential_threshold, 
+                                        strip_trailing=not cfg.trailing_zeros)
 
     def _format_scientific(self, value: float, digits: int) -> str:
         """Format number in scientific notation (e.g., 1.234e5)."""
@@ -1023,11 +1029,12 @@ class Evaluator:
         else:
             return f"{mantissa_str}e{eng_exp}"
 
-    def _format_general(self, value: float, digits: int, threshold: int) -> str:
+    def _format_general(self, value: float, digits: int, threshold: int, strip_trailing: bool = True) -> str:
         """
         Format number in general notation.
 
         Uses scientific notation when magnitude exceeds threshold.
+        Strips trailing zeros by default: 40.00 → 40, 40.10 → 40.1
         """
         if value == 0:
             return "0"
@@ -1040,11 +1047,17 @@ class Evaluator:
         if abs(magnitude) >= threshold:
             return self._format_scientific(value, digits)
 
-        # Otherwise use significant figures format
-        return self._format_significant(value, digits)
+        # Otherwise use significant figures format (strip trailing zeros)
+        return self._format_significant(value, digits, strip_trailing=strip_trailing)
 
-    def _format_significant(self, value: float, sig_figs: int) -> str:
-        """Format a number with the specified number of significant figures."""
+    def _format_significant(self, value: float, sig_figs: int, strip_trailing: bool = True) -> str:
+        """Format a number with the specified number of significant figures.
+        
+        Args:
+            value: The numeric value to format
+            sig_figs: Number of significant figures
+            strip_trailing: If True, remove trailing zeros (40.00 → 40)
+        """
         if value == 0:
             return "0"
 
@@ -1059,14 +1072,20 @@ class Evaluator:
         # Format appropriately
         if abs(magnitude) >= 4:
             # Scientific notation for very large/small numbers
-            return f"{rounded:.{sig_figs-1}e}"
+            result = f"{rounded:.{sig_figs-1}e}"
         elif magnitude >= sig_figs - 1:
             # Integer-like (no decimals needed)
-            return f"{rounded:.0f}"
+            result = f"{rounded:.0f}"
         else:
             # Decimal format
             decimals = max(0, sig_figs - 1 - magnitude)
-            return f"{rounded:.{decimals}f}"
+            result = f"{rounded:.{decimals}f}"
+        
+        # Strip trailing zeros if requested: 40.00 → 40, 40.10 → 40.1
+        if strip_trailing and '.' in result:
+            result = result.rstrip('0').rstrip('.')
+        
+        return result
 
     # Common SI units that need protection from being split by latex2sympy
     SI_UNITS = [

@@ -25,7 +25,7 @@ $$price := 100\ €$$
 
 $$discount := 0.20$$
 
-$$final\_price := price \cdot (1 - discount) == 80.00\ \text{€}$$
+$$final\_price := price \cdot (1 - discount) == 80\ \text{€}$$
 
 **Expected:** 80 €
 
@@ -47,11 +47,12 @@ $$energy\_si := power \cdot time == 1.440e+08\ \text{kg} \cdot \text{m}^{2}/\tex
 
 **In custom unit (kW·h):**
 
-$$energy\_kWh := power \cdot time == 40.00\ \text{kWh}$$ <!-- [kWh] -->
+$$energy\_kWh := power \cdot time == 40\ \text{kW*h}$$ <!-- [kW*h] -->
+$$energy\_kWh := power \cdot time == 40\ \text{kWh}$$ <!-- [kWh] -->
 
 **In decimal format (no scientific notation):**
 
-$$energy\_decimal := power \cdot time == 40.0000\ \text{kWh}$$ <!-- [kWh] format:decimal -->
+$$energy\_decimal := power \cdot time == 40\ \text{kWh}$$ <!-- [kWh] format:decimal -->
 
 **Expected:**
 - SI: 1.44e+08 kg·m²/s²
@@ -108,7 +109,7 @@ $$cost\_per\_kg := 25\ €/kg$$
 
 $$weight := 4\ kg$$
 
-$$total := cost\_per\_kg \cdot weight == 100.0\ \text{€}$$
+$$total := cost\_per\_kg \cdot weight == 100\ \text{€}$$
 
 **Expected:** 100 € (kg cancels out)
 
@@ -167,4 +168,4 @@ $x ==$ <!-- digits:4 [mbar] -->
 
 ---
 
-> *livemathtex: 2026-01-07 01:37:17 | 22 definitions, 11 evaluations | no errors | 0.20s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:40:46 | 23 definitions, 12 evaluations | no errors | 0.21s* <!-- livemathtex-meta -->

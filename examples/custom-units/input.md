@@ -47,6 +47,7 @@ $$ energy\_si := power \cdot time == $$
 
 **In custom unit (kW·h):**
 
+$$ energy\_kWh := power \cdot time == $$ <!-- [kW*h] -->
 $$ energy\_kWh := power \cdot time == $$ <!-- [kWh] -->
 
 **In decimal format (no scientific notation):**
