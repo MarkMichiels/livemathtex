@@ -1,29 +1,48 @@
 """
-IR Schema - Dataclasses for the Intermediate Representation.
+IR Schema v2.0 - Simplified Intermediate Representation.
 
-Inspired by Cortex-JS MathJSON patterns, this provides a clean
-separation between LaTeX notation and internal computation names.
+This schema provides a minimal, debuggable JSON structure:
+- Symbols with original and SI-converted values
+- Custom unit definitions
+- Errors array with line numbers
+
+No redundant fields, no blocks array - just what's needed for lookup.
 """
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 import json
 
 
 @dataclass
-class SymbolMapping:
+class ValueWithUnit:
     """
-    Maps between different representations of a symbol.
+    A numeric value with optional unit.
 
     Attributes:
-        latex_original: The exact LaTeX as written by user (e.g., "\\Delta T_h")
-        latex_display: KaTeX-safe LaTeX for rendering (e.g., "\\Delta_{T_h}")
-        internal_name: Python/SymPy-safe name (e.g., "Delta_T_h")
+        value: The numeric value (None if evaluation failed)
+        unit: The unit string (None for dimensionless)
     """
-    latex_original: str
-    latex_display: str
-    internal_name: str
+    value: Optional[float] = None
+    unit: Optional[str] = None
+
+    def to_dict(self) -> dict:
+        """Convert to JSON-serializable dict."""
+        return {
+            "value": self.value,
+            "unit": self.unit,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'ValueWithUnit':
+        """Create from dict."""
+        if data is None:
+            return cls()
+        return cls(
+            value=data.get("value"),
+            unit=data.get("unit"),
+        )
 
 
 @dataclass
@@ -32,79 +51,72 @@ class SymbolEntry:
     Complete information about a defined symbol.
 
     Attributes:
-        mapping: The symbol name mappings
-        value: Computed numeric value (if evaluated)
-        unit: Unit string (e.g., "kilogram", "meter/second")
-        unit_latex: Original LaTeX unit string (e.g., "kg", "m/s")
-        expression_latex: The RHS expression in LaTeX
+        id: Internal ID for latex2sympy (e.g., "v_{0}")
+        original: User's input value and unit (for display)
+        si: SI-converted value and unit (for calculations)
+        valid: Whether the unit conversion was successful
         line: Line number where defined
+        error: Error message if conversion failed
     """
-    mapping: SymbolMapping
-    value: Optional[float] = None
-    unit: Optional[str] = None
-    unit_latex: Optional[str] = None
-    expression_latex: Optional[str] = None
+    id: str = ""
+    original: ValueWithUnit = field(default_factory=ValueWithUnit)
+    si: ValueWithUnit = field(default_factory=ValueWithUnit)
+    valid: bool = True
     line: int = 0
+    error: Optional[str] = None
 
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
-        return {
-            "mapping": asdict(self.mapping),
-            "value": self.value,
-            "unit": self.unit,
-            "unit_latex": self.unit_latex,
-            "expression_latex": self.expression_latex,
+        result = {
+            "id": self.id,
+            "original": self.original.to_dict(),
+            "si": self.si.to_dict(),
+            "valid": self.valid,
             "line": self.line,
         }
+        if self.error:
+            result["error"] = self.error
+        return result
 
     @classmethod
     def from_dict(cls, data: dict) -> 'SymbolEntry':
         """Create from dict."""
         return cls(
-            mapping=SymbolMapping(**data["mapping"]),
-            value=data.get("value"),
-            unit=data.get("unit"),
-            unit_latex=data.get("unit_latex"),
-            expression_latex=data.get("expression_latex"),
+            id=data.get("id", ""),
+            original=ValueWithUnit.from_dict(data.get("original", {})),
+            si=ValueWithUnit.from_dict(data.get("si", {})),
+            valid=data.get("valid", True),
             line=data.get("line", 0),
+            error=data.get("error"),
         )
 
 
 @dataclass
-class BlockResult:
+class IRError:
     """
-    Result of processing a single math block.
+    An error that occurred during processing.
 
     Attributes:
-        line: Line number in source
-        latex_input: Original LaTeX input
-        latex_output: Processed LaTeX output (with results)
-        operation: The operation type (":=", "==", "=>", ":= ==")
-        target: The target symbol's internal_name (if assignment)
-        error: Error message if evaluation failed
+        line: Line number where error occurred
+        message: Error description
     """
     line: int
-    latex_input: str
-    latex_output: str
-    operation: str
-    target: Optional[str] = None
-    error: Optional[str] = None
+    message: str
 
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
         return {
             "line": self.line,
-            "latex_input": self.latex_input,
-            "latex_output": self.latex_output,
-            "operation": self.operation,
-            "target": self.target,
-            "error": self.error,
+            "message": self.message,
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'BlockResult':
+    def from_dict(cls, data: dict) -> 'IRError':
         """Create from dict."""
-        return cls(**data)
+        return cls(
+            line=data.get("line", 0),
+            message=data.get("message", ""),
+        )
 
 
 @dataclass
@@ -112,48 +124,44 @@ class LivemathIR:
     """
     Complete Intermediate Representation for a livemathtex document.
 
-    This is the central data structure that flows through the pipeline:
-    Parser -> IR Builder -> Evaluator -> Renderer
+    Version 2.0 - Simplified schema with:
+    - symbols: Dict of LaTeX name -> SymbolEntry
+    - custom_units: Dict of unit name -> definition
+    - errors: List of processing errors
+    - stats: Summary statistics
 
-    Can be serialized to JSON for debugging (--verbose flag).
+    Can be serialized to JSON for debugging (json=true directive).
     """
-    version: str = "1.0"
+    version: str = "2.0"
     source: str = ""
+    custom_units: Dict[str, str] = field(default_factory=dict)
     symbols: Dict[str, SymbolEntry] = field(default_factory=dict)
-    blocks: List[BlockResult] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
+    errors: List[IRError] = field(default_factory=list)
     stats: Dict[str, Any] = field(default_factory=dict)
 
-    def get_symbol(self, internal_name: str) -> Optional[SymbolEntry]:
-        """Get a symbol by its internal name."""
-        return self.symbols.get(internal_name)
+    def get_symbol(self, name: str) -> Optional[SymbolEntry]:
+        """Get a symbol by its LaTeX name."""
+        return self.symbols.get(name)
 
-    def set_symbol(self, entry: SymbolEntry) -> None:
+    def set_symbol(self, name: str, entry: SymbolEntry) -> None:
         """Add or update a symbol entry."""
-        self.symbols[entry.mapping.internal_name] = entry
+        self.symbols[name] = entry
 
-    def get_value(self, internal_name: str) -> Optional[float]:
-        """Get the numeric value of a symbol."""
-        entry = self.symbols.get(internal_name)
-        return entry.value if entry else None
-
-    def add_block(self, result: BlockResult) -> None:
-        """Add a processed block result."""
-        self.blocks.append(result)
-        if result.error:
-            self.errors.append(f"Line {result.line}: {result.error}")
+    def add_error(self, line: int, message: str) -> None:
+        """Add a processing error."""
+        self.errors.append(IRError(line=line, message=message))
 
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
         return {
             "version": self.version,
             "source": self.source,
+            "custom_units": self.custom_units,
             "symbols": {
                 name: entry.to_dict()
                 for name, entry in self.symbols.items()
             },
-            "blocks": [block.to_dict() for block in self.blocks],
-            "errors": self.errors,
+            "errors": [err.to_dict() for err in self.errors],
             "stats": self.stats,
         }
 
@@ -166,9 +174,9 @@ class LivemathIR:
     def from_dict(cls, data: dict) -> 'LivemathIR':
         """Create IR from dict."""
         ir = cls(
-            version=data.get("version", "1.0"),
+            version=data.get("version", "2.0"),
             source=data.get("source", ""),
-            errors=data.get("errors", []),
+            custom_units=data.get("custom_units", {}),
             stats=data.get("stats", {}),
         )
 
@@ -176,9 +184,9 @@ class LivemathIR:
         for name, entry_data in data.get("symbols", {}).items():
             ir.symbols[name] = SymbolEntry.from_dict(entry_data)
 
-        # Load blocks
-        for block_data in data.get("blocks", []):
-            ir.blocks.append(BlockResult.from_dict(block_data))
+        # Load errors
+        for error_data in data.get("errors", []):
+            ir.errors.append(IRError.from_dict(error_data))
 
         return ir
 

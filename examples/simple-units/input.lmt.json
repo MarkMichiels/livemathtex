@@ -1,198 +1,135 @@
 {
-  "version": "1.0",
-  "source": "input.md",
+  "version": "2.0",
+  "source": "examples/simple-units/input.md",
+  "custom_units": {},
   "symbols": {
     "m_1": {
-      "mapping": {
-        "latex_original": "m_1",
-        "latex_display": "m_1",
-        "internal_name": "m_1"
+      "id": "v_{0}",
+      "original": {
+        "value": 10.0,
+        "unit": null
       },
-      "value": null,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "10 \\cdot kg",
-      "line": 23
+      "si": {
+        "value": null,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "a_1": {
-      "mapping": {
-        "latex_original": "a_1",
-        "latex_display": "a_1",
-        "internal_name": "v_{0}"
+      "id": "v_{1}",
+      "original": {
+        "value": 9.81,
+        "unit": null
       },
-      "value": 9.81,
-      "unit": "\\frac{\\text{m}}{\\text{s}^{2}}",
-      "unit_latex": null,
-      "expression_latex": "9.81 \\cdot \\frac{m}{s^2}",
-      "line": 24
+      "si": {
+        "value": null,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "F_1": {
-      "mapping": {
-        "latex_original": "F_1",
-        "latex_display": "F_1",
-        "internal_name": "F_1"
+      "id": "v_{2}",
+      "original": {
+        "value": 98.1,
+        "unit": "kg·m/s^2"
       },
-      "value": null,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "m_1 \\cdot a_1",
-      "line": 27
+      "si": {
+        "value": 98.10000000000001,
+        "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
+      },
+      "valid": true,
+      "line": 0
     },
     "mass": {
-      "mapping": {
-        "latex_original": "mass",
-        "latex_display": "mass",
-        "internal_name": "mass"
+      "id": "v_{3}",
+      "original": {
+        "value": 25.0,
+        "unit": null
       },
-      "value": null,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "25 \\cdot kg",
-      "line": 31
+      "si": {
+        "value": null,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "accel": {
-      "mapping": {
-        "latex_original": "accel",
-        "latex_display": "accel",
-        "internal_name": "v_{1}"
+      "id": "v_{4}",
+      "original": {
+        "value": 9.81,
+        "unit": null
       },
-      "value": 9.81,
-      "unit": "\\frac{\\text{m}}{\\text{s}^{2}}",
-      "unit_latex": null,
-      "expression_latex": "9.81 \\cdot \\frac{m}{s^2}",
-      "line": 32
+      "si": {
+        "value": null,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "F_2": {
-      "mapping": {
-        "latex_original": "F_2",
-        "latex_display": "F_2",
-        "internal_name": "F_2"
+      "id": "v_{5}",
+      "original": {
+        "value": 245.25,
+        "unit": "kg·m/s^2"
       },
-      "value": null,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "mass \\cdot accel",
-      "line": 35
+      "si": {
+        "value": 245.25,
+        "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
+      },
+      "valid": true,
+      "line": 0
     },
     "F_2N": {
-      "mapping": {
-        "latex_original": "F_2N",
-        "latex_display": "F_2N",
-        "internal_name": "F_2N"
+      "id": "v_{6}",
+      "original": {
+        "value": 245.25,
+        "unit": "kg·m/s^2"
       },
-      "value": null,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "F_2",
-      "line": 38
+      "si": {
+        "value": 245.25,
+        "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
+      },
+      "valid": true,
+      "line": 0
     },
     "F_2kN": {
-      "mapping": {
-        "latex_original": "F_2kN",
-        "latex_display": "F_2kN",
-        "internal_name": "F_2kN"
+      "id": "v_{7}",
+      "original": {
+        "value": 245.25,
+        "unit": "kg·m/s^2"
       },
-      "value": null,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "F_2",
-      "line": 41
+      "si": {
+        "value": 245.25,
+        "unit": "\\frac{\\text{kg} \\text{m}}{\\text{s}^{2}}"
+      },
+      "valid": true,
+      "line": 0
     },
     "ratio": {
-      "mapping": {
-        "latex_original": "ratio",
-        "latex_display": "ratio",
-        "internal_name": "ratio"
+      "id": "v_{8}",
+      "original": {
+        "value": 2.5,
+        "unit": null
       },
-      "value": null,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{mass}{m_1}",
-      "line": 45
+      "si": {
+        "value": 2.5,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     }
   },
-  "blocks": [
-    {
-      "line": 23,
-      "latex_input": "m_1 := 10 \\cdot kg",
-      "latex_output": "m_1 := 10 \\cdot kg",
-      "operation": ":=",
-      "target": "m_1",
-      "error": null
-    },
-    {
-      "line": 24,
-      "latex_input": "a_1 := 9.81 \\cdot \\frac{m}{s^2}",
-      "latex_output": "a_1 := 9.81 \\cdot \\frac{m}{s^2}",
-      "operation": ":=",
-      "target": "a_1",
-      "error": null
-    },
-    {
-      "line": 27,
-      "latex_input": "F_1 := m_1 \\cdot a_1 ==",
-      "latex_output": "    Error: Undefined variable(s): m\\_1}}",
-      "operation": ":=_==",
-      "target": "F_1",
-      "error": null
-    },
-    {
-      "line": 31,
-      "latex_input": "mass := 25 \\cdot kg",
-      "latex_output": "mass := 25 \\cdot kg",
-      "operation": ":=",
-      "target": "mass",
-      "error": null
-    },
-    {
-      "line": 32,
-      "latex_input": "accel := 9.81 \\cdot \\frac{m}{s^2}",
-      "latex_output": "accel := 9.81 \\cdot \\frac{m}{s^2}",
-      "operation": ":=",
-      "target": "accel",
-      "error": null
-    },
-    {
-      "line": 35,
-      "latex_input": "F_2 := mass \\cdot accel ==",
-      "latex_output": "F_2 := mass \\cdot accel ==",
-      "operation": ":=_==",
-      "target": "F_2",
-      "error": null
-    },
-    {
-      "line": 38,
-      "latex_input": "F_2N := F_2 ==",
-      "latex_output": "F_2N := F_2 ==",
-      "operation": ":=_==",
-      "target": "F_2N",
-      "error": null
-    },
-    {
-      "line": 41,
-      "latex_input": "F_2kN := F_2 ==",
-      "latex_output": "F_2kN := F_2 ==",
-      "operation": ":=_==",
-      "target": "F_2kN",
-      "error": null
-    },
-    {
-      "line": 45,
-      "latex_input": "ratio := \\frac{mass}{m_1} ==",
-      "latex_output": "ratio := \\frac{mass}{m_1} ==",
-      "operation": ":=_==",
-      "target": "ratio",
-      "error": null
-    }
-  ],
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 02:40:49",
+    "last_run": "2026-01-07 03:13:48",
     "duration": "0.21s",
+    "symbols": 9,
     "definitions": 9,
     "evaluations": 5,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 7
+    "errors": 0
   }
 }

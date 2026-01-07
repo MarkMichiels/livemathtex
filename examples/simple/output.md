@@ -63,4 +63,4 @@ $\text{total} == 15$
 
 ---
 
-> *livemathtex: 2026-01-07 02:40:49 | 7 definitions, 5 evaluations | 2 errors | 0.15s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 03:13:47 | 7 definitions, 5 evaluations | 2 errors | 0.15s* <!-- livemathtex-meta -->

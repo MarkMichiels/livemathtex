@@ -1,474 +1,261 @@
 {
-  "version": "1.0",
-  "source": "input.md",
+  "version": "2.0",
+  "source": "examples/engineering-units/input.md",
+  "custom_units": {},
   "symbols": {
     "Q": {
-      "mapping": {
-        "latex_original": "Q",
-        "latex_display": "Q",
-        "internal_name": "v_{0}"
+      "id": "v_{0}",
+      "original": {
+        "value": 50.0,
+        "unit": null
       },
-      "value": 0.013888888888888888,
-      "unit": "\\frac{\\text{m}^{3}}{\\text{s}}",
-      "unit_latex": null,
-      "expression_latex": "50 \\frac{m^{3}}{h}",
-      "line": 129
+      "si": {
+        "value": null,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "h_s": {
-      "mapping": {
-        "latex_original": "h_s",
-        "latex_display": "h_s",
-        "internal_name": "v_{1}"
+      "id": "v_{1}",
+      "original": {
+        "value": -2.0,
+        "unit": "m"
       },
-      "value": -2.0,
-      "unit": null,
-      "unit_latex": "m",
-      "expression_latex": "-2\\ \\text{m}",
-      "line": 41
+      "si": {
+        "value": -2.0,
+        "unit": "\\text{m}"
+      },
+      "valid": true,
+      "line": 0
     },
     "h_d": {
-      "mapping": {
-        "latex_original": "h_d",
-        "latex_display": "h_d",
-        "internal_name": "v_{2}"
+      "id": "v_{2}",
+      "original": {
+        "value": 15.0,
+        "unit": "m"
       },
-      "value": 15.0,
-      "unit": null,
-      "unit_latex": "m",
-      "expression_latex": "15\\ \\text{m}",
-      "line": 44
+      "si": {
+        "value": 15.0,
+        "unit": "\\text{m}"
+      },
+      "valid": true,
+      "line": 0
     },
     "L_{pipe}": {
-      "mapping": {
-        "latex_original": "L_{pipe}",
-        "latex_display": "L_{pipe}",
-        "internal_name": "v_{3}"
+      "id": "v_{3}",
+      "original": {
+        "value": 100.0,
+        "unit": "m"
       },
-      "value": 100.0,
-      "unit": null,
-      "unit_latex": "m",
-      "expression_latex": "100\\ \\text{m}",
-      "line": 47
+      "si": {
+        "value": 100.0,
+        "unit": "\\text{m}"
+      },
+      "valid": true,
+      "line": 0
     },
     "D_{pipe}": {
-      "mapping": {
-        "latex_original": "D_{pipe}",
-        "latex_display": "D_{pipe}",
-        "internal_name": "v_{4}"
+      "id": "v_{4}",
+      "original": {
+        "value": 0.1,
+        "unit": "m"
       },
-      "value": 0.1,
-      "unit": null,
-      "unit_latex": "m",
-      "expression_latex": "0.1\\ \\text{m}",
-      "line": 50
+      "si": {
+        "value": 0.1,
+        "unit": "\\text{m}"
+      },
+      "valid": true,
+      "line": 0
     },
     "\\rho": {
-      "mapping": {
-        "latex_original": "\\rho",
-        "latex_display": "\\rho",
-        "internal_name": "v_{5}"
+      "id": "v_{5}",
+      "original": {
+        "value": 1000.0,
+        "unit": null
       },
-      "value": 1000.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "1000",
-      "line": 55
+      "si": {
+        "value": 1000.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "g_{acc}": {
-      "mapping": {
-        "latex_original": "g_{acc}",
-        "latex_display": "g_{acc}",
-        "internal_name": "v_{6}"
+      "id": "v_{6}",
+      "original": {
+        "value": 9.81,
+        "unit": null
       },
-      "value": 9.81,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "9.81",
-      "line": 58
+      "si": {
+        "value": 9.81,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "f_d": {
-      "mapping": {
-        "latex_original": "f_d",
-        "latex_display": "f_d",
-        "internal_name": "v_{7}"
+      "id": "v_{7}",
+      "original": {
+        "value": 0.02,
+        "unit": null
       },
-      "value": 0.02,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "0.02",
-      "line": 63
+      "si": {
+        "value": 0.02,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "A_{pipe}": {
-      "mapping": {
-        "latex_original": "A_{pipe}",
-        "latex_display": "A_{pipe}",
-        "internal_name": "v_{8}"
+      "id": "v_{8}",
+      "original": {
+        "value": 0.0025000000000000005,
+        "unit": "pi·m^2"
       },
-      "value": 0.0025,
-      "unit": null,
-      "unit_latex": "pi·m^2",
-      "expression_latex": "\\frac{\\pi \\cdot D_{pipe}^2}{4}",
-      "line": 70
+      "si": {
+        "value": 0.0025000000000000005,
+        "unit": "\\pi \\text{m}^{2}"
+      },
+      "valid": true,
+      "line": 0
     },
     "vel": {
-      "mapping": {
-        "latex_original": "vel",
-        "latex_display": "vel",
-        "internal_name": "v_{9}"
+      "id": "v_{9}",
+      "original": {
+        "value": 19999.999999999996,
+        "unit": "m/(pi·h)"
       },
-      "value": 20000.0,
-      "unit": null,
-      "unit_latex": "m/(pi·h)",
-      "expression_latex": "\\frac{Q}{A_{pipe}}",
-      "line": 130
+      "si": {
+        "value": 5.5555555555555545,
+        "unit": "\\frac{\\text{m}}{\\pi \\text{s}}"
+      },
+      "valid": true,
+      "line": 0
     },
     "H_{static}": {
-      "mapping": {
-        "latex_original": "H_{static}",
-        "latex_display": "H_{static}",
-        "internal_name": "v_{10}"
+      "id": "v_{10}",
+      "original": {
+        "value": 17.0,
+        "unit": "m"
       },
-      "value": 17.0,
-      "unit": null,
-      "unit_latex": "m",
-      "expression_latex": "h_d - h_s",
-      "line": 131
+      "si": {
+        "value": 17.0,
+        "unit": "\\text{m}"
+      },
+      "valid": true,
+      "line": 0
     },
     "H_f": {
-      "mapping": {
-        "latex_original": "H_f",
-        "latex_display": "H_f",
-        "internal_name": "v_{11}"
+      "id": "v_{11}",
+      "original": {
+        "value": 31.46197505694616,
+        "unit": "m^2/(pi^2·s^2)"
       },
-      "value": 407747196.7380224,
-      "unit": null,
-      "unit_latex": "m^2/(pi^2·h^2)",
-      "expression_latex": "f_d \\cdot \\frac{L_{pipe}}{D_{pipe}} \\cdot \\frac{vel^2}{2 \\cdot g_{acc}}",
-      "line": 132
+      "si": {
+        "value": 31.46197505694616,
+        "unit": "\\frac{\\text{m}^{2}}{\\pi^{2} \\text{s}^{2}}"
+      },
+      "valid": true,
+      "line": 0
     },
     "K_{fit}": {
-      "mapping": {
-        "latex_original": "K_{fit}",
-        "latex_display": "K_{fit}",
-        "internal_name": "v_{12}"
+      "id": "v_{12}",
+      "original": {
+        "value": 5.0,
+        "unit": null
       },
-      "value": 5.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "5",
-      "line": 93
+      "si": {
+        "value": 5.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "H_m": {
-      "mapping": {
-        "latex_original": "H_m",
-        "latex_display": "H_m",
-        "internal_name": "v_{13}"
+      "id": "v_{13}",
+      "original": {
+        "value": 7.86549376423654,
+        "unit": "m^2/(pi^2·s^2)"
       },
-      "value": 101936799.18450561,
-      "unit": null,
-      "unit_latex": "m^2/(pi^2·h^2)",
-      "expression_latex": "K_{fit} \\cdot \\frac{vel^2}{2 \\cdot g_{acc}}",
-      "line": 95
+      "si": {
+        "value": 7.86549376423654,
+        "unit": "\\frac{\\text{m}^{2}}{\\pi^{2} \\text{s}^{2}}"
+      },
+      "valid": true,
+      "line": 0
     },
     "TDH": {
-      "mapping": {
-        "latex_original": "TDH",
-        "latex_display": "TDH",
-        "internal_name": "v_{14}"
+      "id": "v_{14}",
+      "original": {
+        "value": 1.0,
+        "unit": "39.3274688211827·m^2/(pi^2·s^2) + 17.0·m"
       },
-      "value": 1.0,
-      "unit": null,
-      "unit_latex": "17.0·m + 509683995.922528·m^2/(pi^2·h^2)",
-      "expression_latex": "H_{static} + H_f + H_m",
-      "line": 133
+      "si": {
+        "value": 1.0,
+        "unit": "\\frac{39.3274688211827 \\text{m}^{2}}{\\pi^{2} \\text{s}^{2}} + 17.0 \\text{m}"
+      },
+      "valid": true,
+      "line": 0
     },
     "P_{hyd}": {
-      "mapping": {
-        "latex_original": "P_{hyd}",
-        "latex_display": "P_{hyd}",
-        "internal_name": "v_{15}"
+      "id": "v_{15}",
+      "original": {
+        "value": 490500.0,
+        "unit": "m^3·(39.3274688211827·m^2/(pi^2·s^2) + 17.0·m)/h"
       },
-      "value": 490500.0,
-      "unit": null,
-      "unit_latex": "m^3·(17.0·m + 509683995.922528·m^2/(pi^2·h^2))/h",
-      "expression_latex": "\\rho \\cdot g_{acc} \\cdot Q \\cdot TDH",
-      "line": 134
+      "si": {
+        "value": 1.0,
+        "unit": "\\frac{\\left(\\frac{5358.36762688614 \\text{m}^{2}}{\\pi^{2} \\text{s}^{2}} + 2316.25 \\text{m}\\right) \\text{m}^{4}}{\\text{s}}"
+      },
+      "valid": false,
+      "line": 0
     },
     "eta_p": {
-      "mapping": {
-        "latex_original": "eta_p",
-        "latex_display": "eta_p",
-        "internal_name": "v_{16}"
+      "id": "v_{16}",
+      "original": {
+        "value": 0.75,
+        "unit": null
       },
-      "value": 0.75,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "0.75",
-      "line": 115
+      "si": {
+        "value": 0.75,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "eta_m": {
-      "mapping": {
-        "latex_original": "eta_m",
-        "latex_display": "eta_m",
-        "internal_name": "v_{17}"
+      "id": "v_{17}",
+      "original": {
+        "value": 0.9,
+        "unit": null
       },
-      "value": 0.9,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "0.90",
-      "line": 118
+      "si": {
+        "value": 0.9,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "P_{motor}": {
-      "mapping": {
-        "latex_original": "P_{motor}",
-        "latex_display": "P_{motor}",
-        "internal_name": "v_{18}"
+      "id": "v_{18}",
+      "original": {
+        "value": 1.4814814814814814,
+        "unit": "m^4·(5358.36762688614·m^2/(pi^2·s^2) + 2316.25·m)/s"
       },
-      "value": 726666.6666666667,
-      "unit": null,
-      "unit_latex": "m^3·(17.0·m + 509683995.922528·m^2/(pi^2·h^2))/h",
-      "expression_latex": "\\frac{P_{hyd}}{eta_p \\cdot eta_m}",
-      "line": 135
+      "si": {
+        "value": 1.0,
+        "unit": "\\frac{\\left(\\frac{7938.32241020169 \\text{m}^{2}}{\\pi^{2} \\text{s}^{2}} + 3431.48148148148 \\text{m}\\right) \\text{m}^{5}}{\\text{s}}"
+      },
+      "valid": false,
+      "line": 0
     }
   },
-  "blocks": [
-    {
-      "line": 31,
-      "latex_input": "Q := 50 \\frac{m^{3}}{h}",
-      "latex_output": "Q := 50 \\frac{m^{3}}{h}",
-      "operation": ":=",
-      "target": "Q",
-      "error": null
-    },
-    {
-      "line": 34,
-      "latex_input": "Q ==",
-      "latex_output": "Q ==",
-      "operation": "==",
-      "target": null,
-      "error": null
-    },
-    {
-      "line": 35,
-      "latex_input": "Q ==",
-      "latex_output": "Q ==",
-      "operation": "==",
-      "target": null,
-      "error": null
-    },
-    {
-      "line": 36,
-      "latex_input": "Q ==",
-      "latex_output": "Q ==",
-      "operation": "==",
-      "target": null,
-      "error": null
-    },
-    {
-      "line": 41,
-      "latex_input": "h_s := -2\\ \\text{m}",
-      "latex_output": "h_s := -2\\ \\text{m}",
-      "operation": ":=",
-      "target": "h_s",
-      "error": null
-    },
-    {
-      "line": 44,
-      "latex_input": "h_d := 15\\ \\text{m}",
-      "latex_output": "h_d := 15\\ \\text{m}",
-      "operation": ":=",
-      "target": "h_d",
-      "error": null
-    },
-    {
-      "line": 47,
-      "latex_input": "L_{pipe} := 100\\ \\text{m}",
-      "latex_output": "L_{pipe} := 100\\ \\text{m}",
-      "operation": ":=",
-      "target": "L_{pipe}",
-      "error": null
-    },
-    {
-      "line": 50,
-      "latex_input": "D_{pipe} := 0.1\\ \\text{m}",
-      "latex_output": "D_{pipe} := 0.1\\ \\text{m}",
-      "operation": ":=",
-      "target": "D_{pipe}",
-      "error": null
-    },
-    {
-      "line": 55,
-      "latex_input": "\\rho := 1000",
-      "latex_output": "\\rho := 1000",
-      "operation": ":=",
-      "target": "\\rho",
-      "error": null
-    },
-    {
-      "line": 58,
-      "latex_input": "g_{acc} := 9.81",
-      "latex_output": "g_{acc} := 9.81",
-      "operation": ":=",
-      "target": "g_{acc}",
-      "error": null
-    },
-    {
-      "line": 63,
-      "latex_input": "f_d := 0.02",
-      "latex_output": "f_d := 0.02",
-      "operation": ":=",
-      "target": "f_d",
-      "error": null
-    },
-    {
-      "line": 70,
-      "latex_input": "A_{pipe} := \\frac{\\pi \\cdot D_{pipe}^2}{4} ==",
-      "latex_output": "A_{pipe} := \\frac{\\pi \\cdot D_{pipe}^2}{4} ==",
-      "operation": ":=_==",
-      "target": "A_{pipe}",
-      "error": null
-    },
-    {
-      "line": 73,
-      "latex_input": "vel := \\frac{Q}{A_{pipe}} ==",
-      "latex_output": "vel := \\frac{Q}{A_{pipe}} ==",
-      "operation": ":=_==",
-      "target": "vel",
-      "error": null
-    },
-    {
-      "line": 82,
-      "latex_input": "H_{static} := h_d - h_s ==",
-      "latex_output": "H_{static} := h_d - h_s ==",
-      "operation": ":=_==",
-      "target": "H_{static}",
-      "error": null
-    },
-    {
-      "line": 88,
-      "latex_input": "H_f := f_d \\cdot \\frac{L_{pipe}}{D_{pipe}} \\cdot \\frac{vel^2}{2 \\cdot g_{acc}} ==",
-      "latex_output": "H_f := f_d \\cdot \\frac{L_{pipe}}{D_{pipe}} \\cdot \\frac{vel^2}{2 \\cdot g_{acc}} ==",
-      "operation": ":=_==",
-      "target": "H_f",
-      "error": null
-    },
-    {
-      "line": 93,
-      "latex_input": "K_{fit} := 5",
-      "latex_output": "K_{fit} := 5",
-      "operation": ":=",
-      "target": "K_{fit}",
-      "error": null
-    },
-    {
-      "line": 95,
-      "latex_input": "H_m := K_{fit} \\cdot \\frac{vel^2}{2 \\cdot g_{acc}} ==",
-      "latex_output": "H_m := K_{fit} \\cdot \\frac{vel^2}{2 \\cdot g_{acc}} ==",
-      "operation": ":=_==",
-      "target": "H_m",
-      "error": null
-    },
-    {
-      "line": 101,
-      "latex_input": "TDH := H_{static} + H_f + H_m ==",
-      "latex_output": "TDH := H_{static} + H_f + H_m ==",
-      "operation": ":=_==",
-      "target": "TDH",
-      "error": null
-    },
-    {
-      "line": 108,
-      "latex_input": "P_{hyd} := \\rho \\cdot g_{acc} \\cdot Q \\cdot TDH ==",
-      "latex_output": "P_{hyd} := \\rho \\cdot g_{acc} \\cdot Q \\cdot TDH ==",
-      "operation": ":=_==",
-      "target": "P_{hyd}",
-      "error": null
-    },
-    {
-      "line": 115,
-      "latex_input": "eta_p := 0.75",
-      "latex_output": "eta_p := 0.75",
-      "operation": ":=",
-      "target": "eta_p",
-      "error": null
-    },
-    {
-      "line": 118,
-      "latex_input": "eta_m := 0.90",
-      "latex_output": "eta_m := 0.90",
-      "operation": ":=",
-      "target": "eta_m",
-      "error": null
-    },
-    {
-      "line": 121,
-      "latex_input": "P_{motor} := \\frac{P_{hyd}}{eta_p \\cdot eta_m} ==",
-      "latex_output": "P_{motor} := \\frac{P_{hyd}}{eta_p \\cdot eta_m} ==",
-      "operation": ":=_==",
-      "target": "P_{motor}",
-      "error": null
-    },
-    {
-      "line": 129,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "Q",
-      "error": null
-    },
-    {
-      "line": 130,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "vel",
-      "error": null
-    },
-    {
-      "line": 131,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "H_{static}",
-      "error": null
-    },
-    {
-      "line": 132,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "H_f",
-      "error": null
-    },
-    {
-      "line": 133,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "TDH",
-      "error": null
-    },
-    {
-      "line": 134,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "P_{hyd}",
-      "error": null
-    },
-    {
-      "line": 135,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "P_{motor}",
-      "error": null
-    }
-  ],
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 02:40:48",
-    "duration": "0.43s",
+    "last_run": "2026-01-07 03:13:49",
+    "duration": "0.47s",
+    "symbols": 19,
     "definitions": 19,
     "evaluations": 11,
     "symbolic": 0,

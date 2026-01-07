@@ -105,7 +105,7 @@ $$TDH := H_{static} + H_f + H_m == \text{3.98470569061937} \cdot \text{m}^{2}/\t
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := \rho \cdot g_{acc} \cdot Q \cdot TDH == 490\,500\ \text{m}^{3} \cdot \text{(17.0} \cdot \text{m + 51641785.750427} \cdot \text{m}^{2}/\text{h}^{2)}/\text{h}$$ <!-- [kW] -->
+$$P_{hyd} := \rho \cdot g_{acc} \cdot Q \cdot TDH == 490\,500\ \text{m}^{3} \cdot \text{(3.98470569061937} \cdot \text{m}^{2}/\text{s}^{2 + 17.0} \cdot \text{m)}/\text{h}$$ <!-- [kW] -->
 
 ---
 
@@ -118,7 +118,7 @@ Motor efficiency (assumed, dimensionless):
 $eta_m := 0.90$
 
 Required motor power:
-$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 726\,700\ \text{m}^{3} \cdot \text{(17.0} \cdot \text{m + 51641785.750427} \cdot \text{m}^{2}/\text{h}^{2)}/\text{h}$$ <!-- [kW] -->
+$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 1.481\ \text{m}^{4} \cdot \text{(542.916150346889} \cdot \text{m}^{2}/\text{s}^{2 + 2316.25} \cdot \text{m)}/\text{s}$$ <!-- [kW] -->
 
 ---
 
@@ -127,12 +127,12 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 726\,700\ \text{m}^{3} \cdot
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
 | Flow rate | $Q$ | $50$ <!-- value:Q [m³/h] --> | m³/h |
-| Flow velocity | $vel$ | $20\,000$ <!-- value:vel [m/s] :2 --> | m/s |
+| Flow velocity | $vel$ | $5.6$ <!-- value:vel [m/s] :2 --> | m/s |
 | Static head | $H_{static}$ | $20$ <!-- value:H_{static} [m] :1 --> | m |
-| Friction loss | $H_f$ | $410\,000\,000$ <!-- value:H_f [m] :2 --> | m |
+| Friction loss | $H_f$ | $31$ <!-- value:H_f [m] :2 --> | m |
 | Total head | $TDH$ | $1$ <!-- value:TDH [m] :1 --> | m |
-| Hydraulic power | $P_{hyd}$ | $490$ <!-- value:P_{hyd} [kW] :2 --> | kW |
-| Motor power | $P_{motor}$ | $730$ <!-- value:P_{motor} [kW] :2 --> | kW |
+| Hydraulic power | $P_{hyd}$ | $0.001$ <!-- value:P_{hyd} [kW] :2 --> | kW |
+| Motor power | $P_{motor}$ | $0.001$ <!-- value:P_{motor} [kW] :2 --> | kW |
 
 ---
 
@@ -144,4 +144,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 726\,700\ \text{m}^{3} \cdot
 
 ---
 
-> *livemathtex: 2026-01-07 02:40:48 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.43s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 03:13:49 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.47s* <!-- livemathtex-meta -->

@@ -20,46 +20,32 @@ acceleration formula becomes `10 kg` instead of `meter`!
 
 ### Option 1: Subscript notation (m_1, t_1, etc.)
 
-$m_1 := 10 \cdot kg
-\\ \color{red}{\text{
-    Error: Undefined variable 'g' in formula. Note: 'g' is also a unit (gram), but formulas cannot mix variables and units. Define 'g' first with a subscript like g\_\{0\} or g\_\{acc\}.}}$
+$m_1 := 10 \cdot kg$
 $a_1 := 9.81 \cdot \frac{m}{s^2}$
 
 Calculate force:
-$F_1 := m_1 \cdot a_1 ==
-\\ \color{red}{\text{
-    Error: Undefined variable(s): m\_1}}$
+$F_1 := m_1 \cdot a_1 == 98.1\ \text{kg} \cdot \text{m}/\text{s}^{2}$
 
 ### Option 2: Descriptive names
 
-$mass := 25 \cdot kg
-\\ \color{red}{\text{
-    Error: Undefined variable 'g' in formula. Note: 'g' is also a unit (gram), but formulas cannot mix variables and units. Define 'g' first with a subscript like g\_\{0\} or g\_\{acc\}.}}$
+$mass := 25 \cdot kg$
 $accel := 9.81 \cdot \frac{m}{s^2}$
 
 Calculate force:
-$F_2 := mass \cdot accel ==
-\\ \color{red}{\text{
-    Error: Undefined variable 'm' in formula. Note: 'm' is also a unit (meter), but formulas cannot mix variables and units. Define 'm' first with a subscript like m\_\{0\} or m\_\{acc\}.}}$
+$F_2 := mass \cdot accel == 245.2\ \text{kg} \cdot \text{m}/\text{s}^{2}$
 
 Convert to Newtons:
-$F_2N := F_2 ==
-\\ \color{red}{\text{
-    Error: Undefined variable(s): F\_2}}$ <!-- [N] -->
+$F_2N := F_2 == 245.2\ \text{N}$ <!-- [N] -->
 
 Convert to kilonewtons:
-$F_2kN := F_2 ==
-\\ \color{red}{\text{
-    Error: Undefined variable(s): F\_2}}$ <!-- [kN] -->
+$F_2kN := F_2 == 0.2452\ \text{kN}$ <!-- [kN] -->
 
 ## Compare Results
 
-$ratio := \frac{mass}{m_1} ==
-\\ \color{red}{\text{
-    Error: Undefined variable 'm' in formula. Note: 'm' is also a unit (meter), but formulas cannot mix variables and units. Define 'm' first with a subscript like m\_\{0\} or m\_\{acc\}.}}$
+$ratio := \frac{mass}{m_1} == 2.5$
 
 The ratio should be 2.5 (25 kg / 10 kg).
 
 ---
 
-> *livemathtex: 2026-01-07 02:40:49 | 9 definitions, 5 evaluations | 7 errors | 0.21s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 03:13:48 | 9 definitions, 5 evaluations | no errors | 0.21s* <!-- livemathtex-meta -->

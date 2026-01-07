@@ -1,3 +1,14 @@
+"""
+Core processing pipeline for livemathtex.
+
+Pipeline: Read -> Parse -> Build IR -> Evaluate -> Render -> Write
+
+Version 2.0 changes:
+- Simplified IR population (no blocks array)
+- Symbols store original + SI values
+- Custom units extracted from document
+"""
+
 from pathlib import Path
 import time
 from datetime import datetime
@@ -7,13 +18,8 @@ from .parser.lexer import Lexer
 from .parser.models import MathBlock
 from .engine.evaluator import Evaluator
 from .render.markdown import MarkdownRenderer
-from .ir import IRBuilder, LivemathIR
+from .ir import IRBuilder, LivemathIR, SymbolEntry, ValueWithUnit
 from .config import LivemathConfig
-
-try:
-    from .utils.errors import livemathtexError
-except ImportError:
-    pass
 
 
 def process_file(
@@ -63,27 +69,25 @@ def process_file(
     # 5. Parse document structure
     document = lexer.parse(content)
 
-    # 6. Build IR
+    # 6. Build IR (extracts custom units)
     builder = IRBuilder()
     ir = builder.build(document, source=str(input_path))
 
-    # 7. Extract calculations and evaluate (with config)
+    # 7. Evaluate all calculations
     evaluator = Evaluator(config=config)
-    results = {}  # Map MathBlock -> Resulting LaTeX string (full block content)
-    all_calculations = []  # Flat list for IR evaluation
+    results = {}  # Map MathBlock -> Resulting LaTeX string
 
     error_count = 0
-    assign_count = 0  # :=
-    eval_count = 0    # ==
-    symbolic_count = 0  # =>
-    value_count = 0   # <!-- value -->
+    assign_count = 0
+    eval_count = 0
+    symbolic_count = 0
+    value_count = 0
 
     for block in document.children:
         if isinstance(block, MathBlock):
             calculations = lexer.extract_calculations(block)
             block_calcs_results = []
 
-            # If no calculations in block, we don't put it in results dict (renderer uses original)
             if not calculations:
                 continue
 
@@ -91,8 +95,6 @@ def process_file(
             expr_overrides = lexer.extract_config_from_comment(block)
 
             for calc in calculations:
-                all_calculations.append(calc)
-
                 # Count by operation type
                 if calc.operation == ':=':
                     assign_count += 1
@@ -107,26 +109,32 @@ def process_file(
                     value_count += 1
 
                 try:
-                    # Pass expression-level overrides to evaluator
                     result_latex = evaluator.evaluate(calc, config_overrides=expr_overrides)
-                    # Check if the evaluator returned an error (contains \color{red})
                     if '\\color{red}' in result_latex:
                         error_count += 1
+                        # Add to IR errors
+                        line = block.location.start_line if block.location else 0
+                        ir.add_error(line, f"Evaluation error in: {calc.latex[:50]}...")
                     block_calcs_results.append(result_latex)
                 except Exception as e:
                     error_count += 1
+                    line = block.location.start_line if block.location else 0
+                    ir.add_error(line, str(e))
                     block_calcs_results.append(f"{calc.latex} \\quad \\text{{(Error: {e})}}")
 
-            # Join multiple calculations in one block with newline to preserve structure
             results[block] = "\n".join(block_calcs_results)
 
     duration = time.time() - start_time
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # 8. Update IR with symbol values from evaluator
+    _populate_ir_symbols(ir, evaluator)
+
     # Update IR stats
     ir.stats = {
         "last_run": now_str,
         "duration": f"{duration:.2f}s",
+        "symbols": len(ir.symbols),
         "definitions": assign_count,
         "evaluations": eval_count,
         "symbolic": symbolic_count,
@@ -134,90 +142,7 @@ def process_file(
         "errors": error_count,
     }
 
-    # Update IR blocks with results
-    block_idx = 0
-    for block in document.children:
-        if isinstance(block, MathBlock):
-            calculations = lexer.extract_calculations(block)
-            for calc in calculations:
-                if block_idx < len(ir.blocks):
-                    result_key = block
-                    if result_key in results:
-                        # Split results back to individual calculations
-                        result_parts = results[result_key].split('\n')
-                        if block_idx < len(result_parts):
-                            ir.blocks[block_idx].latex_output = result_parts[block_idx % len(result_parts)]
-                block_idx += 1
-
-    # Update IR symbols with computed values from evaluator
-    from sympy.physics.units import convert_to
-    from sympy.physics import units as u
-    import sympy
-
-    si_base = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
-
-    for name in evaluator.symbols.all_names():
-        entry = evaluator.symbols.get(name)
-        if not entry:
-            continue
-
-        # IR stores original LaTeX names (L_{pipe}), SymbolTable stores normalized (L_pipe)
-        # Look up by original latex_name if available
-        ir_key = entry.latex_name if entry.latex_name else name
-
-        if ir_key not in ir.symbols:
-            # Try normalized name as fallback
-            ir_key = name
-
-        if ir_key in ir.symbols:
-            ir_entry = ir.symbols[ir_key]
-
-            # Update internal_name in mapping to v_{n} format
-            if entry.internal_id:
-                ir_entry.mapping.internal_name = entry.internal_id
-
-            # Update unit_latex from SymbolValue
-            if entry.unit_latex:
-                ir_entry.unit_latex = entry.unit_latex
-
-            try:
-                value = entry.value
-
-                # First convert to SI base units for consistent storage
-                try:
-                    value_si = convert_to(value, si_base)
-                except:
-                    value_si = value
-
-                # Simplify and evaluate any remaining symbolic constants (like pi)
-                if hasattr(value_si, 'simplify'):
-                    value_si = value_si.simplify()
-                if hasattr(value_si, 'evalf'):
-                    value_si = value_si.evalf()
-
-                # Extract numeric value and unit using as_coeff_Mul
-                if hasattr(value_si, 'as_coeff_Mul'):
-                    coeff, unit_part = value_si.as_coeff_Mul()
-
-                    # Store numeric coefficient
-                    if hasattr(coeff, 'is_number') and coeff.is_number:
-                        ir_entry.value = float(coeff)
-                    elif hasattr(coeff, 'evalf'):
-                        ir_entry.value = float(coeff.evalf())
-                    else:
-                        ir_entry.value = float(coeff)
-
-                    # Store unit as simplified SI string
-                    if unit_part != 1:
-                        ir_entry.unit = sympy.latex(unit_part)
-
-                elif isinstance(value, (int, float)):
-                    ir_entry.value = float(value)
-
-            except Exception:
-                pass  # Skip symbols that can't be converted
-
-    # 8. Render
+    # 9. Render
     metadata = {
         "last_run": now_str,
         "duration": f"{duration:.2f}s",
@@ -231,11 +156,11 @@ def process_file(
     renderer = MarkdownRenderer()
     new_doc_content = renderer.render(document, results, metadata=metadata)
 
-    # 9. Write output markdown (using resolved path from config)
+    # 10. Write output markdown
     with open(resolved_output, 'w') as f:
         f.write(new_doc_content)
 
-    # 10. Optionally write IR JSON for debugging
+    # 11. Optionally write IR JSON for debugging
     if verbose:
         if ir_output_path:
             ir_path = Path(ir_output_path)
@@ -244,6 +169,70 @@ def process_file(
         ir.to_json(ir_path)
 
     return ir
+
+
+def _populate_ir_symbols(ir: LivemathIR, evaluator: Evaluator) -> None:
+    """
+    Populate IR symbols from the evaluator's symbol table.
+
+    Creates SymbolEntry for each defined symbol with:
+    - id: Internal v_{n} ID
+    - original: User's input value and unit
+    - si: SI-converted value and unit
+    - valid: Conversion validation flag
+    - line: Line number (if available)
+    """
+    import sympy
+    from sympy.physics.units import convert_to
+    from sympy.physics import units as u
+
+    si_base = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
+
+    for name in evaluator.symbols.all_names():
+        entry = evaluator.symbols.get(name)
+        if not entry:
+            continue
+
+        # Use the LaTeX name as the key (user's original notation)
+        symbol_key = entry.latex_name if entry.latex_name else name
+
+        # Create original value struct
+        original = ValueWithUnit(
+            value=entry.original_value,
+            unit=entry.original_unit
+        )
+
+        # Create SI value struct
+        si_value = None
+        si_unit_str = None
+
+        try:
+            # Get the SI value
+            if entry.si_value is not None:
+                if hasattr(entry.si_value, 'evalf'):
+                    si_value = float(entry.si_value.evalf())
+                elif isinstance(entry.si_value, (int, float)):
+                    si_value = float(entry.si_value)
+
+            # Get the SI unit as string
+            if entry.si_unit is not None:
+                si_unit_str = sympy.latex(entry.si_unit)
+        except Exception:
+            pass
+
+        si = ValueWithUnit(
+            value=si_value,
+            unit=si_unit_str
+        )
+
+        # Create symbol entry
+        ir.set_symbol(symbol_key, SymbolEntry(
+            id=entry.internal_id or "",
+            original=original,
+            si=si,
+            valid=entry.valid,
+            line=0,  # Line tracking not fully implemented yet
+        ))
 
 
 def process_text(
@@ -274,7 +263,7 @@ def process_text(
     builder = IRBuilder()
     ir = builder.build(document, source=source)
 
-    # 4. Evaluate (with config)
+    # 4. Evaluate
     evaluator = Evaluator(config=config)
     results = {}
 
@@ -292,7 +281,6 @@ def process_text(
             if not calculations:
                 continue
 
-            # Extract expression-level config overrides from block comment
             expr_overrides = lexer.extract_config_from_comment(block)
 
             for calc in calculations:
@@ -309,7 +297,6 @@ def process_text(
                     value_count += 1
 
                 try:
-                    # Pass expression-level overrides to evaluator
                     result_latex = evaluator.evaluate(calc, config_overrides=expr_overrides)
                     if '\\color{red}' in result_latex:
                         error_count += 1
@@ -323,9 +310,13 @@ def process_text(
     duration = time.time() - start_time
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # Populate IR symbols
+    _populate_ir_symbols(ir, evaluator)
+
     ir.stats = {
         "last_run": now_str,
         "duration": f"{duration:.2f}s",
+        "symbols": len(ir.symbols),
         "definitions": assign_count,
         "evaluations": eval_count,
         "symbolic": symbolic_count,
@@ -333,7 +324,7 @@ def process_text(
         "errors": error_count,
     }
 
-    # 4. Render
+    # Render
     metadata = {
         "last_run": now_str,
         "duration": f"{duration:.2f}s",

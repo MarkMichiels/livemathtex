@@ -1,23 +1,66 @@
+"""
+Symbol management for livemathtex.
+
+This module provides:
+- SymbolValue: Stores both original and SI-converted values
+- NameGenerator: Creates unique v_{n} IDs for latex2sympy
+- SymbolTable: Manages variable state during evaluation
+"""
+
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
 
 
 @dataclass
 class SymbolValue:
-    """Holds the value and metadata of a variable."""
-    value: Any  # SymPy object or number (numeric part, without unit)
-    unit: Optional[Any] = None  # SymPy unit expression (e.g., kilogram, meter/second)
-    raw_latex: str = ""  # The latex string of the RHS (definition expression)
-    latex_name: str = ""  # The original LaTeX form of the variable name (LHS)
-    internal_id: str = ""  # Internal ID for latex2sympy (e.g., "v_{0}")
-    unit_latex: str = ""  # Original unit LaTeX for display (e.g., "€/kWh", "kg")
+    """
+    Holds the value and metadata of a variable.
+
+    Stores both original (user-input) and SI-converted values for:
+    - Display: Show user's original units
+    - Calculation: Use SI units internally
+    - Validation: Check conversion round-trip
+
+    Attributes:
+        original_value: User's input value (numeric part)
+        original_unit: User's input unit string (e.g., "m³/h", "kW")
+        si_value: SI-converted value (numeric part)
+        si_unit: SI unit (SymPy unit expression)
+        valid: Whether conversion was successful
+        raw_latex: The LaTeX string of the RHS (definition expression)
+        latex_name: The original LaTeX form of the variable name (LHS)
+        internal_id: Internal ID for latex2sympy (e.g., "v_{0}")
+    """
+    original_value: Optional[float] = None
+    original_unit: Optional[str] = None
+    si_value: Any = None  # SymPy object or number
+    si_unit: Optional[Any] = None  # SymPy unit expression
+    valid: bool = True
+    raw_latex: str = ""
+    latex_name: str = ""
+    internal_id: str = ""
+
+    @property
+    def value(self) -> Any:
+        """Get the SI value (for calculations). Backwards compatible."""
+        return self.si_value
+
+    @property
+    def unit(self) -> Optional[Any]:
+        """Get the SI unit (for calculations). Backwards compatible."""
+        return self.si_unit
+
+    @property
+    def unit_latex(self) -> str:
+        """Get the original unit string for display. Backwards compatible."""
+        return self.original_unit or ""
 
     @property
     def value_with_unit(self) -> Any:
-        """Get the full value including unit (for calculations)."""
-        if self.unit is not None:
-            return self.value * self.unit
-        return self.value
+        """Get the full SI value including unit (for calculations)."""
+        if self.si_unit is not None:
+            return self.si_value * self.si_unit
+        return self.si_value
 
 
 class NameGenerator:
@@ -102,6 +145,7 @@ class SymbolTable:
     Architecture:
     - Each variable has an original LaTeX name (e.g., "P_{LED,out}")
     - Each variable gets an internal ID (e.g., "v_{0}") for latex2sympy
+    - Stores both original and SI-converted values
     - The mapping is stored for output conversion back to LaTeX
     """
 
@@ -109,27 +153,52 @@ class SymbolTable:
         self._symbols: Dict[str, SymbolValue] = {}
         self._names = NameGenerator()
 
-    def set(self, name: str, value: Any, unit=None, raw_latex="", latex_name="", unit_latex=""):
-        """Define a variable.
+    def set(
+        self,
+        name: str,
+        value: Any = None,
+        unit: Any = None,
+        raw_latex: str = "",
+        latex_name: str = "",
+        unit_latex: str = "",
+        original_value: Optional[float] = None,
+        original_unit: Optional[str] = None,
+        valid: bool = True,
+    ):
+        """
+        Define a variable with both original and SI values.
 
         Args:
             name: Internal normalized name (e.g., "P_LED_out") - for backwards compat
-            value: The computed value (SymPy object or number) - numeric part only
-            unit: Optional SymPy unit expression (e.g., kilogram, meter/second)
+            value: The SI-converted value (SymPy object or number) - numeric part only
+            unit: Optional SymPy unit expression (SI unit)
             raw_latex: The LaTeX string of the RHS expression
             latex_name: The original LaTeX form of the variable name
                        (e.g., "P_{LED,out}"). Used for expression rewriting.
             unit_latex: The original unit string for display (e.g., "€/kWh")
+                       (backwards compat, prefer original_unit)
+            original_value: User's input value (numeric, before SI conversion)
+            original_unit: User's input unit string (e.g., "m³/h")
+            valid: Whether the unit conversion was successful
         """
         # Generate internal ID for latex2sympy
         internal_id = ""
         if latex_name:
             internal_id = self._names.get_or_create_var(latex_name)
 
+        # Handle backwards compatibility: use unit_latex as original_unit if not provided
+        if original_unit is None and unit_latex:
+            original_unit = unit_latex
+
         self._symbols[name] = SymbolValue(
-            value=value, unit=unit, raw_latex=raw_latex,
-            latex_name=latex_name, internal_id=internal_id,
-            unit_latex=unit_latex
+            original_value=original_value,
+            original_unit=original_unit,
+            si_value=value,
+            si_unit=unit,
+            valid=valid,
+            raw_latex=raw_latex,
+            latex_name=latex_name,
+            internal_id=internal_id,
         )
 
     def get(self, name: str) -> Optional[SymbolValue]:

@@ -33,7 +33,7 @@ from .symbols import SymbolTable
 from .units import get_unit_registry, UnitRegistry
 from ..parser.models import Calculation
 from ..utils.errors import EvaluationError, UndefinedVariableError
-from ..ir.schema import LivemathIR, SymbolEntry, BlockResult
+from ..ir.schema import LivemathIR, SymbolEntry
 from ..config import LivemathConfig
 
 # Greek letter mappings for display purposes
@@ -387,7 +387,13 @@ class Evaluator:
             # Use local override to prevent variable substitution during definition
             expr = self._compute(rhs_raw, local_overrides={arg_name: arg_sym})
             func_obj = sympy.Lambda(arg_sym, expr)
-            self.symbols.set(func_name, func_obj, raw_latex=rhs_raw, latex_name=original_target)
+            self.symbols.set(
+                func_name,
+                value=func_obj,
+                raw_latex=rhs_raw,
+                latex_name=original_target,
+                valid=True
+            )
 
             # Use original target for display (preserves \Delta etc.)
             # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
@@ -400,15 +406,23 @@ class Evaluator:
             # Compute the numeric value (without unit)
             value = self._compute(value_latex)
 
-            # Store with normalized name, including unit metadata
+            # Extract numeric original value
+            original_value = self._extract_numeric_value(value) if value is not None else None
+
+            # Convert to SI if there's a unit
+            si_value, si_unit, valid = self._convert_to_si(value, sympy_unit)
+
+            # Store with normalized name, including both original and SI values
             normalized_target = self._normalize_symbol_name(target)
             self.symbols.set(
                 normalized_target,
-                value,
-                unit=sympy_unit,
+                value=si_value,
+                unit=si_unit,
                 raw_latex=rhs_raw,
                 latex_name=original_target,
-                unit_latex=unit_latex or ""
+                original_value=original_value,
+                original_unit=unit_latex or None,
+                valid=valid
             )
 
             # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
@@ -484,13 +498,21 @@ class Evaluator:
         else:
             result_unit = sympy_unit
 
+        # Extract numeric original value
+        original_value = self._extract_numeric_value(value) if value is not None else None
+
+        # Convert to SI if there's a unit
+        si_value, si_unit, valid = self._convert_to_si(value, result_unit)
+
         self.symbols.set(
             normalized_lhs,
-            value,
-            unit=result_unit,
+            value=si_value,
+            unit=si_unit,
             raw_latex=rhs,
             latex_name=lhs,
-            unit_latex=result_unit_latex
+            original_value=original_value,
+            original_unit=result_unit_latex or None,
+            valid=valid
         )
 
         # Use unit_comment for display conversion
@@ -577,6 +599,98 @@ class Evaluator:
             pass
 
         return None, ""
+
+    def _convert_to_si(self, value: Any, unit: Any) -> Tuple[Any, Any, bool]:
+        """
+        Convert a value with its unit to SI base units.
+
+        Args:
+            value: The numeric value (without unit)
+            unit: The SymPy unit expression
+
+        Returns:
+            Tuple of (si_value, si_unit, valid)
+            - si_value: Numeric value in SI
+            - si_unit: SI unit expression (or None if dimensionless)
+            - valid: True if conversion was successful and round-trip validated
+        """
+        from sympy.physics.units import convert_to
+        import sympy.physics.units as u
+
+        if unit is None:
+            # No unit - dimensionless value
+            return value, None, True
+
+        try:
+            # Combine value and unit for conversion
+            full_value = value * unit
+
+            # Convert to SI base units
+            si_base = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
+            converted = convert_to(full_value, si_base)
+
+            # Extract coefficient and unit part
+            if hasattr(converted, 'as_coeff_Mul'):
+                si_coeff, si_unit_part = converted.as_coeff_Mul()
+
+                # Evaluate coefficient to float
+                if hasattr(si_coeff, 'evalf'):
+                    si_coeff = si_coeff.evalf()
+                si_value = float(si_coeff) if si_coeff != 1 else float(value)
+
+                # Unit part (may be 1 for dimensionless)
+                si_unit = si_unit_part if si_unit_part != 1 else None
+
+                # Round-trip validation: convert back and check
+                valid = self._validate_round_trip(value, unit, si_value, si_unit)
+
+                return si_value, si_unit, valid
+            else:
+                # No clear separation - use original
+                return value, unit, True
+
+        except Exception:
+            # Conversion failed - keep original
+            return value, unit, False
+
+    def _validate_round_trip(
+        self, orig_value: Any, orig_unit: Any, si_value: float, si_unit: Any
+    ) -> bool:
+        """
+        Validate that SI conversion is reversible (round-trip check).
+
+        Returns True if converting back gives approximately the same value.
+        """
+        from sympy.physics.units import convert_to
+
+        try:
+            if si_unit is None or orig_unit is None:
+                return True
+
+            # Convert SI back to original unit
+            si_full = si_value * si_unit
+            back = convert_to(si_full, orig_unit)
+
+            # Extract numeric value
+            if hasattr(back, 'as_coeff_Mul'):
+                back_coeff, _ = back.as_coeff_Mul()
+                if hasattr(back_coeff, 'evalf'):
+                    back_coeff = float(back_coeff.evalf())
+                else:
+                    back_coeff = float(back_coeff)
+
+                # Check relative error
+                orig_num = float(orig_value) if not hasattr(orig_value, 'evalf') else float(orig_value.evalf())
+                if abs(orig_num) > 1e-10:
+                    rel_error = abs(back_coeff - orig_num) / abs(orig_num)
+                    return rel_error < 0.001  # 0.1% tolerance
+                else:
+                    return abs(back_coeff - orig_num) < 1e-10
+
+            return True
+        except Exception:
+            # If validation fails, assume conversion is OK
+            return True
 
     def _normalize_unit_string(self, unit_str: str) -> str:
         """
@@ -1358,6 +1472,36 @@ class Evaluator:
         # 1b. Special character substitution
         modified_latex = modified_latex.replace('€', 'EUR')
 
+        # 1c. Protect multi-letter units from being split by latex2sympy
+        # E.g., "kg" → "\text{kg}" so it becomes a single symbol
+        # Must do this BEFORE latex2sympy parses "kg" as "k*g"
+        protected_units = [
+            # Mass
+            'kg', 'mg', 'ug', 'ng',
+            # Length
+            'km', 'cm', 'mm', 'um', 'nm', 'pm',
+            # Time
+            'ms', 'us', 'ns', 'ps', 'min', 'hour',
+            # Power/Energy
+            'kW', 'MW', 'GW', 'mW', 'kJ', 'MJ', 'GJ', 'mJ', 'kWh', 'MWh',
+            # Pressure
+            'kPa', 'MPa', 'mPa', 'mbar', 'hPa',
+            # Frequency
+            'kHz', 'MHz', 'GHz', 'THz',
+            # Electrical
+            'kV', 'mV', 'uV', 'mA', 'uA', 'nA',
+            # Volume
+            'mL', 'uL', 'nL',
+            # Other
+            'mol', 'bar', 'Pa', 'Hz',
+        ]
+        # Sort by length descending to avoid partial matches
+        for unit in sorted(protected_units, key=len, reverse=True):
+            # Only replace if not already protected (not inside \text{})
+            # Use word boundaries to avoid partial matches
+            pattern = rf'(?<!\\text\{{)(?<![a-zA-Z]){re.escape(unit)}(?![a-zA-Z_{{}}])'
+            modified_latex = re.sub(pattern, rf'\\text{{{unit}}}', modified_latex)
+
         # 1c. Normalize subscript separators (for NEW variables not yet in symbol table)
         def normalize_subscript(m):
             content = m.group(1)
@@ -1409,13 +1553,22 @@ class Evaluator:
         # - "100 m" - simple number + single letter unit
         # - "-2 m" - negative number + unit
         # - "50 L/min" - unit with division
+        # - "10 \cdot kg" - number with cdot followed by unit
+        # - "25 · kg" - number with Unicode middle dot followed by unit
         has_number_unit_pattern = bool(re.search(
-            r'-?\d+\s*(\\frac|\\text|[a-zA-Z]{1,3}[/\^]|kg|kW|mbar|Pa|Hz|[a-zA-Z]$|[a-zA-Z]\s*$)',
+            r'-?\d+\s*(\\frac|\\text|[a-zA-Z]{1,3}[/\^]|kg|kW|kJ|kPa|mbar|Pa|Hz|mol|[a-zA-Z]$|[a-zA-Z]\s*$)',
+            expression_latex
+        ))
+
+        # Also check for \cdot patterns with multi-letter units (these are definitions)
+        # e.g., "10 \cdot kg", "25 · kg"
+        has_cdot_unit_pattern = bool(re.search(
+            r'\d+\s*(\\cdot|·|\*)\s*(kg|kW|kJ|kPa|mbar|mol|bar|Pa|Hz|mm|cm|km|ms|min|hour)',
             expression_latex
         ))
 
         # It's a "definition with units" if it has decimals OR number+unit patterns
-        is_definition_with_units = (has_decimal or has_number_unit_pattern) and not force_units
+        is_definition_with_units = (has_decimal or has_number_unit_pattern or has_cdot_unit_pattern) and not force_units
         is_pure_formula = not is_definition_with_units and not force_units
 
         # 1. Handle Symbols (Variables + Units)

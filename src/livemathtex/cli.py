@@ -51,6 +51,7 @@ def process(input_file, output, verbose, ir_output):
         # Show summary
         stats = ir.stats
         click.echo(f"✓ Processed {input_file}")
+        click.echo(f"  Symbols: {stats.get('symbols', 0)}")
         click.echo(f"  Definitions (:=): {stats.get('definitions', 0)}")
         click.echo(f"  Evaluations (==): {stats.get('evaluations', 0)}")
         click.echo(f"  Symbolic (=>):    {stats.get('symbolic', 0)}")
@@ -75,9 +76,9 @@ def process(input_file, output, verbose, ir_output):
 @main.command()
 @click.argument('ir_file', type=click.Path(exists=True))
 def inspect(ir_file):
-    """Inspect a livemathtex IR JSON file.
+    """Inspect a livemathtex IR JSON file (v2.0 schema).
 
-    Shows symbols, their values, and any errors.
+    Shows symbols with their original and SI values.
     """
     from .ir import LivemathIR
 
@@ -88,20 +89,54 @@ def inspect(ir_file):
         click.echo(f"Version: {ir.version}")
         click.echo()
 
+        # Custom units
+        if ir.custom_units:
+            click.echo("Custom Units:")
+            for name, definition in ir.custom_units.items():
+                click.echo(f"  {name} = {definition}")
+            click.echo()
+
+        # Symbols
         if ir.symbols:
             click.echo("Symbols:")
             for name, entry in ir.symbols.items():
-                value_str = f"= {entry.value}" if entry.value is not None else "(no value)"
-                unit_str = f" [{entry.unit}]" if entry.unit else ""
-                click.echo(f"  {entry.mapping.latex_display}: {value_str}{unit_str}")
+                # Format original value
+                orig = entry.original
+                orig_str = ""
+                if orig.value is not None:
+                    orig_str = f"{orig.value}"
+                    if orig.unit:
+                        orig_str += f" {orig.unit}"
+
+                # Format SI value
+                si = entry.si
+                si_str = ""
+                if si.value is not None:
+                    si_str = f"{si.value}"
+                    if si.unit:
+                        si_str += f" [{si.unit}]"
+
+                # Validation status
+                valid_mark = "✓" if entry.valid else "✗"
+
+                # Display
+                click.echo(f"  {name}:")
+                click.echo(f"    id: {entry.id}")
+                if orig_str:
+                    click.echo(f"    original: {orig_str}")
+                if si_str:
+                    click.echo(f"    SI: {si_str}")
+                click.echo(f"    valid: {valid_mark}")
             click.echo()
 
+        # Errors
         if ir.errors:
             click.echo(click.style("Errors:", fg='red'))
             for error in ir.errors:
-                click.echo(f"  - {error}")
+                click.echo(f"  Line {error.line}: {error.message}")
             click.echo()
 
+        # Stats
         if ir.stats:
             click.echo("Stats:")
             for key, value in ir.stats.items():

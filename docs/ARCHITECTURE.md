@@ -17,14 +17,75 @@ LiveMathTeX follows a modular pipeline architecture with an **Intermediate Repre
                    └─────────────┘
 ```
 
-### Intermediate Representation (IR)
+### Intermediate Representation (IR) v2.0
 
 The IR layer provides:
 
 1. **Symbol Normalization** - Simple `v_{n}` / `f_{n}` naming for reliable parsing
-2. **Debugging** - Write IR to JSON with `--verbose` flag
-3. **Traceability** - Track all calculations and their results
+2. **Debugging** - Write IR to JSON with `--verbose` or `json=true` directive
+3. **Traceability** - Track all calculations with original and SI values
 4. **Import System** - Load symbols from other Markdown files via their IR JSON
+
+#### IR v2.0 Schema
+
+The IR JSON is a minimal, flat structure optimized for debugging:
+
+```json
+{
+  "version": "2.0",
+  "source": "input.md",
+
+  "custom_units": {
+    "euro": "euro",
+    "kWh": "kilo*watt*hour"
+  },
+
+  "symbols": {
+    "Q": {
+      "id": "v_{0}",
+      "original": { "value": 50.0, "unit": "m³/h" },
+      "si": { "value": 0.01389, "unit": "meter**3/second" },
+      "valid": true,
+      "line": 31
+    },
+    "rho": {
+      "id": "v_{1}",
+      "original": { "value": 1000.0, "unit": "kg/m³" },
+      "si": { "value": 1000.0, "unit": "kilogram/meter**3" },
+      "valid": true,
+      "line": 32
+    }
+  },
+
+  "errors": [
+    { "line": 99, "message": "Undefined variable: x" }
+  ]
+}
+```
+
+#### Schema Structure
+
+| Field | Description |
+|-------|-------------|
+| `version` | Schema version ("2.0") |
+| `source` | Input file path |
+| `custom_units` | User-defined units from `===` syntax |
+| `symbols` | All defined variables with original and SI values |
+| `errors` | List of errors with line numbers |
+
+#### Symbol Entry Fields
+
+Each symbol in `symbols` contains:
+
+| Field | Description |
+|-------|-------------|
+| `id` | Internal name (v_{0}, v_{1}, f_{0}, etc.) |
+| `original.value` | Numeric value as entered by user |
+| `original.unit` | Unit string as entered (e.g., "m³/h") |
+| `si.value` | SI-converted numeric value |
+| `si.unit` | SymPy SI unit expression |
+| `valid` | Whether SI conversion succeeded |
+| `line` | Source line number |
 
 #### Symbol Normalization Architecture
 
@@ -49,29 +110,12 @@ The `latex2sympy2` library has strict parsing requirements. Complex LaTeX like `
 - ✅ **100% parsing success** - `v_{0}` always parses correctly
 - ✅ **Simple implementation** - No complex regex rules
 - ✅ **Handles any LaTeX** - Greek, subscripts, commas, slashes all work
-- ✅ **Debugging** - IR JSON shows the mapping
-
-```json
-{
-  "symbols": {
-    "v_{0}": {
-      "latex_name": "P_{LED,out}",
-      "value": 123.45,
-      "unit": "W"
-    },
-    "v_{1}": {
-      "latex_name": "\\eta_{PSU}",
-      "value": 0.92,
-      "unit": null
-    }
-  }
-}
-```
+- ✅ **Debugging** - IR JSON shows the full mapping
 
 **What's NOT normalized (handled by SymPy/latex2sympy2):**
 
 - Constants: `\pi`, `e` → SymPy built-ins
-- Units: `kg`, `m`, `W` → SymPy units / Pint
+- Units: `kg`, `m`, `W` → SymPy units
 - Operators: `+`, `\cdot`, `\frac` → latex2sympy2
 
 ### Import System (Future)
@@ -403,14 +447,15 @@ livemathtex inspect input.lmt.json                # View symbols and results
 pandoc output.md -o output.pdf
 ```
 
-#### IR Debug Output (`--verbose`)
+#### IR Debug Output (`--verbose` or `json=true`)
 
-When using `--verbose`, livemathtex writes a JSON file containing:
+When using `--verbose` or the `json=true` document directive, livemathtex writes a JSON file containing:
 
-- **symbols**: All defined variables with their values and LaTeX mappings
-- **blocks**: Each calculation block with input/output LaTeX
+- **version**: IR schema version (2.0)
+- **source**: Input file path
+- **custom_units**: User-defined units from `===` syntax
+- **symbols**: All variables with original and SI values
 - **errors**: List of any errors encountered
-- **stats**: Timing and operation counts
 
 ```bash
 $ livemathtex process engineering.md --verbose
@@ -421,6 +466,11 @@ $ livemathtex process engineering.md --verbose
   Errors: 0
   Duration: 0.50s
   IR written to: engineering.lmt.json
+```
+
+Or using a document directive:
+```markdown
+<!-- livemathtex: output=output.md, json=true -->
 ```
 
 #### Configuration
@@ -447,11 +497,12 @@ LiveMathTeX uses a hierarchical configuration system inspired by Mathcad. The ke
 |---------|------|---------|-------------|
 | `digits` | int | 4 | Significant figures (1-15) |
 | `format` | enum | "general" | general/decimal/scientific/engineering |
-| `exponential_threshold` | int | 3 | Magnitude for scientific notation |
+| `exponential_threshold` | int | 9 | Magnitude for scientific notation |
 | `trailing_zeros` | bool | false | Show zeros to fill precision |
 | `unit_system` | enum | "SI" | SI/imperial/CGS |
 | `timeout` | int | 5 | Seconds per expression |
 | `output` | string | "timestamped" | Output mode (see below) |
+| `json` | bool | false | Generate `.lmt.json` IR file |
 
 ##### Output Modes
 

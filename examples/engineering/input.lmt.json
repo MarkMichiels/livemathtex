@@ -1,582 +1,352 @@
 {
-  "version": "1.0",
-  "source": "input.md",
+  "version": "2.0",
+  "source": "examples/engineering/input.md",
+  "custom_units": {},
   "symbols": {
     "T_{h,in}": {
-      "mapping": {
-        "latex_original": "T_{h,in}",
-        "latex_display": "T_{h,in}",
-        "internal_name": "v_{0}"
+      "id": "v_{0}",
+      "original": {
+        "value": 90.0,
+        "unit": null
       },
-      "value": 90.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "90",
-      "line": 28
+      "si": {
+        "value": 90.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "T_{c,in}": {
-      "mapping": {
-        "latex_original": "T_{c,in}",
-        "latex_display": "T_{c,in}",
-        "internal_name": "v_{1}"
+      "id": "v_{1}",
+      "original": {
+        "value": 20.0,
+        "unit": null
       },
-      "value": 20.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "20",
-      "line": 29
+      "si": {
+        "value": 20.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "m_h": {
-      "mapping": {
-        "latex_original": "m_h",
-        "latex_display": "m_h",
-        "internal_name": "v_{2}"
+      "id": "v_{2}",
+      "original": {
+        "value": 2.0,
+        "unit": null
       },
-      "value": 2.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "2.0",
-      "line": 32
+      "si": {
+        "value": 2.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "m_c": {
-      "mapping": {
-        "latex_original": "m_c",
-        "latex_display": "m_c",
-        "internal_name": "v_{3}"
+      "id": "v_{3}",
+      "original": {
+        "value": 3.0,
+        "unit": null
       },
-      "value": 3.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "3.0",
-      "line": 33
+      "si": {
+        "value": 3.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "c_p": {
-      "mapping": {
-        "latex_original": "c_p",
-        "latex_display": "c_p",
-        "internal_name": "v_{4}"
+      "id": "v_{4}",
+      "original": {
+        "value": 4186.0,
+        "unit": null
       },
-      "value": 4186.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "4186",
-      "line": 37
+      "si": {
+        "value": 4186.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "Q": {
-      "mapping": {
-        "latex_original": "Q",
-        "latex_display": "Q",
-        "internal_name": "v_{5}"
+      "id": "v_{5}",
+      "original": {
+        "value": 150000.0,
+        "unit": null
       },
-      "value": 150000.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "150000",
-      "line": 41
+      "si": {
+        "value": 150000.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "U": {
-      "mapping": {
-        "latex_original": "U",
-        "latex_display": "U",
-        "internal_name": "v_{6}"
+      "id": "v_{6}",
+      "original": {
+        "value": 500.0,
+        "unit": null
       },
-      "value": 500.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "500",
-      "line": 44
+      "si": {
+        "value": 500.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "\\Delta T_h": {
-      "mapping": {
-        "latex_original": "\\Delta T_h",
-        "latex_display": "\\Delta T_h",
-        "internal_name": "v_{7}"
+      "id": "v_{7}",
+      "original": {
+        "value": 17.916865742952698,
+        "unit": null
       },
-      "value": 17.916865742952698,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{Q}{m_h \\cdot c_p}",
-      "line": 54
+      "si": {
+        "value": 17.916865742952698,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "T_{h,out}": {
-      "mapping": {
-        "latex_original": "T_{h,out}",
-        "latex_display": "T_{h,out}",
-        "internal_name": "v_{8}"
+      "id": "v_{8}",
+      "original": {
+        "value": 72.0831342570473,
+        "unit": null
       },
-      "value": 72.0831342570473,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "T_{h,in} - \\Delta T_h",
-      "line": 121
+      "si": {
+        "value": 72.0831342570473,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "\\Delta T_c": {
-      "mapping": {
-        "latex_original": "\\Delta T_c",
-        "latex_display": "\\Delta T_c",
-        "internal_name": "v_{9}"
+      "id": "v_{9}",
+      "original": {
+        "value": 11.944577161968466,
+        "unit": null
       },
-      "value": 11.944577161968466,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{Q}{m_c \\cdot c_p}",
-      "line": 61
+      "si": {
+        "value": 11.944577161968466,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "T_{c,out}": {
-      "mapping": {
-        "latex_original": "T_{c,out}",
-        "latex_display": "T_{c,out}",
-        "internal_name": "v_{10}"
+      "id": "v_{10}",
+      "original": {
+        "value": 31.944577161968468,
+        "unit": null
       },
-      "value": 31.944577161968468,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "T_{c,in} + \\Delta T_c",
-      "line": 122
+      "si": {
+        "value": 31.944577161968468,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "\\Delta T_1": {
-      "mapping": {
-        "latex_original": "\\Delta T_1",
-        "latex_display": "\\Delta T_1",
-        "internal_name": "v_{11}"
+      "id": "v_{11}",
+      "original": {
+        "value": 58.05542283803153,
+        "unit": null
       },
-      "value": 58.05542283803153,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "T_{h,in} - T_{c,out}",
-      "line": 72
+      "si": {
+        "value": 58.05542283803153,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "\\Delta T_2": {
-      "mapping": {
-        "latex_original": "\\Delta T_2",
-        "latex_display": "\\Delta T_2",
-        "internal_name": "v_{12}"
+      "id": "v_{12}",
+      "original": {
+        "value": 52.0831342570473,
+        "unit": null
       },
-      "value": 52.0831342570473,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "T_{h,out} - T_{c,in}",
-      "line": 74
+      "si": {
+        "value": 52.0831342570473,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "ratio": {
-      "mapping": {
-        "latex_original": "ratio",
-        "latex_display": "ratio",
-        "internal_name": "v_{13}"
+      "id": "v_{13}",
+      "original": {
+        "value": 1.1146683790477938,
+        "unit": null
       },
-      "value": 1.1146683790477938,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{\\Delta T_1}{\\Delta T_2}",
-      "line": 77
+      "si": {
+        "value": 1.1146683790477938,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "LMTD": {
-      "mapping": {
-        "latex_original": "LMTD",
-        "latex_display": "LMTD",
-        "internal_name": "v_{14}"
+      "id": "v_{14}",
+      "original": {
+        "value": 55.01526137368901,
+        "unit": null
       },
-      "value": 55.01526137368901,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{\\Delta T_1 - \\Delta T_2}{\\ln(ratio)}",
-      "line": 123
+      "si": {
+        "value": 55.01526137368901,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "A": {
-      "mapping": {
-        "latex_original": "A",
-        "latex_display": "A",
-        "internal_name": "v_{15}"
+      "id": "v_{15}",
+      "original": {
+        "value": 5.45303234973768,
+        "unit": null
       },
-      "value": 5.45303234973768,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{Q}{U \\cdot LMTD}",
-      "line": 120
+      "si": {
+        "value": 5.45303234973768,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "C_h": {
-      "mapping": {
-        "latex_original": "C_h",
-        "latex_display": "C_h",
-        "internal_name": "v_{16}"
+      "id": "v_{16}",
+      "original": {
+        "value": 8372.0,
+        "unit": null
       },
-      "value": 8372.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "m_h \\cdot c_p",
-      "line": 94
+      "si": {
+        "value": 8372.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "C_c": {
-      "mapping": {
-        "latex_original": "C_c",
-        "latex_display": "C_c",
-        "internal_name": "v_{17}"
+      "id": "v_{17}",
+      "original": {
+        "value": 12558.0,
+        "unit": null
       },
-      "value": 12558.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "m_c \\cdot c_p",
-      "line": 96
+      "si": {
+        "value": 12558.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "Cmin": {
-      "mapping": {
-        "latex_original": "Cmin",
-        "latex_display": "Cmin",
-        "internal_name": "v_{18}"
+      "id": "v_{18}",
+      "original": {
+        "value": 8372.0,
+        "unit": null
       },
-      "value": 8372.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "C_h",
-      "line": 99
+      "si": {
+        "value": 8372.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "Cmax": {
-      "mapping": {
-        "latex_original": "Cmax",
-        "latex_display": "Cmax",
-        "internal_name": "v_{19}"
+      "id": "v_{19}",
+      "original": {
+        "value": 12558.0,
+        "unit": null
       },
-      "value": 12558.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "C_c",
-      "line": 100
+      "si": {
+        "value": 12558.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "C_r": {
-      "mapping": {
-        "latex_original": "C_r",
-        "latex_display": "C_r",
-        "internal_name": "v_{20}"
+      "id": "v_{20}",
+      "original": {
+        "value": 0.6666666666666666,
+        "unit": null
       },
-      "value": 0.6666666666666666,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{Cmin}{Cmax}",
-      "line": 103
+      "si": {
+        "value": 0.6666666666666666,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "Qmax": {
-      "mapping": {
-        "latex_original": "Qmax",
-        "latex_display": "Qmax",
-        "internal_name": "v_{21}"
+      "id": "v_{21}",
+      "original": {
+        "value": 586040.0,
+        "unit": null
       },
-      "value": 586040.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "Cmin \\cdot (T_{h,in} - T_{c,in})",
-      "line": 106
+      "si": {
+        "value": 586040.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "\\varepsilon": {
-      "mapping": {
-        "latex_original": "\\varepsilon",
-        "latex_display": "\\varepsilon",
-        "internal_name": "v_{22}"
+      "id": "v_{22}",
+      "original": {
+        "value": 0.25595522489932426,
+        "unit": null
       },
-      "value": 0.25595522489932426,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{Q}{Qmax}",
-      "line": 124
+      "si": {
+        "value": 0.25595522489932426,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "NTU": {
-      "mapping": {
-        "latex_original": "NTU",
-        "latex_display": "NTU",
-        "internal_name": "v_{23}"
+      "id": "v_{23}",
+      "original": {
+        "value": 0.32567082834075967,
+        "unit": null
       },
-      "value": 0.32567082834075967,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{U \\cdot A}{Cmin}",
-      "line": 125
+      "si": {
+        "value": 0.32567082834075967,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "length": {
-      "mapping": {
-        "latex_original": "length",
-        "latex_display": "length",
-        "internal_name": "v_{24}"
+      "id": "v_{24}",
+      "original": {
+        "value": 2.0,
+        "unit": null
       },
-      "value": 2.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "2",
-      "line": 132
+      "si": {
+        "value": 2.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "A_m": {
-      "mapping": {
-        "latex_original": "A_m",
-        "latex_display": "A_m",
-        "internal_name": "v_{25}"
+      "id": "v_{25}",
+      "original": {
+        "value": 2.72651617486884,
+        "unit": null
       },
-      "value": 2.72651617486884,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{A}{length}",
-      "line": 135
+      "si": {
+        "value": 2.72651617486884,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     }
   },
-  "blocks": [
-    {
-      "line": 28,
-      "latex_input": "T_{h,in} := 90",
-      "latex_output": "T_{h,in} := 90",
-      "operation": ":=",
-      "target": "T_{h,in}",
-      "error": null
-    },
-    {
-      "line": 29,
-      "latex_input": "T_{c,in} := 20",
-      "latex_output": "T_{c,in} := 20",
-      "operation": ":=",
-      "target": "T_{c,in}",
-      "error": null
-    },
-    {
-      "line": 32,
-      "latex_input": "m_h := 2.0",
-      "latex_output": "m_h := 2.0",
-      "operation": ":=",
-      "target": "m_h",
-      "error": null
-    },
-    {
-      "line": 33,
-      "latex_input": "m_c := 3.0",
-      "latex_output": "m_c := 3.0",
-      "operation": ":=",
-      "target": "m_c",
-      "error": null
-    },
-    {
-      "line": 37,
-      "latex_input": "c_p := 4186",
-      "latex_output": "c_p := 4186",
-      "operation": ":=",
-      "target": "c_p",
-      "error": null
-    },
-    {
-      "line": 41,
-      "latex_input": "Q := 150000",
-      "latex_output": "Q := 150000",
-      "operation": ":=",
-      "target": "Q",
-      "error": null
-    },
-    {
-      "line": 44,
-      "latex_input": "U := 500",
-      "latex_output": "U := 500",
-      "operation": ":=",
-      "target": "U",
-      "error": null
-    },
-    {
-      "line": 54,
-      "latex_input": "\\Delta T_h := \\frac{Q}{m_h \\cdot c_p} ==",
-      "latex_output": "\\Delta T_h := \\frac{Q}{m_h \\cdot c_p} ==",
-      "operation": ":=_==",
-      "target": "\\Delta T_h",
-      "error": null
-    },
-    {
-      "line": 57,
-      "latex_input": "T_{h,out} := T_{h,in} - \\Delta T_h ==",
-      "latex_output": "T_{h,out} := T_{h,in} - \\Delta T_h ==",
-      "operation": ":=_==",
-      "target": "T_{h,out}",
-      "error": null
-    },
-    {
-      "line": 61,
-      "latex_input": "\\Delta T_c := \\frac{Q}{m_c \\cdot c_p} ==",
-      "latex_output": "\\Delta T_c := \\frac{Q}{m_c \\cdot c_p} ==",
-      "operation": ":=_==",
-      "target": "\\Delta T_c",
-      "error": null
-    },
-    {
-      "line": 64,
-      "latex_input": "T_{c,out} := T_{c,in} + \\Delta T_c ==",
-      "latex_output": "T_{c,out} := T_{c,in} + \\Delta T_c ==",
-      "operation": ":=_==",
-      "target": "T_{c,out}",
-      "error": null
-    },
-    {
-      "line": 72,
-      "latex_input": "\\Delta T_1 := T_{h,in} - T_{c,out} ==",
-      "latex_output": "\\Delta T_1 := T_{h,in} - T_{c,out} ==",
-      "operation": ":=_==",
-      "target": "\\Delta T_1",
-      "error": null
-    },
-    {
-      "line": 74,
-      "latex_input": "\\Delta T_2 := T_{h,out} - T_{c,in} ==",
-      "latex_output": "\\Delta T_2 := T_{h,out} - T_{c,in} ==",
-      "operation": ":=_==",
-      "target": "\\Delta T_2",
-      "error": null
-    },
-    {
-      "line": 77,
-      "latex_input": "ratio := \\frac{\\Delta T_1}{\\Delta T_2} ==",
-      "latex_output": "ratio := \\frac{\\Delta T_1}{\\Delta T_2} ==",
-      "operation": ":=_==",
-      "target": "ratio",
-      "error": null
-    },
-    {
-      "line": 79,
-      "latex_input": "LMTD := \\frac{\\Delta T_1 - \\Delta T_2}{\\ln(ratio)} ==",
-      "latex_output": "LMTD := \\frac{\\Delta T_1 - \\Delta T_2}{\\ln(ratio)} ==",
-      "operation": ":=_==",
-      "target": "LMTD",
-      "error": null
-    },
-    {
-      "line": 87,
-      "latex_input": "A := \\frac{Q}{U \\cdot LMTD} ==",
-      "latex_output": "A := \\frac{Q}{U \\cdot LMTD} ==",
-      "operation": ":=_==",
-      "target": "A",
-      "error": null
-    },
-    {
-      "line": 94,
-      "latex_input": "C_h := m_h \\cdot c_p ==",
-      "latex_output": "C_h := m_h \\cdot c_p ==",
-      "operation": ":=_==",
-      "target": "C_h",
-      "error": null
-    },
-    {
-      "line": 96,
-      "latex_input": "C_c := m_c \\cdot c_p ==",
-      "latex_output": "C_c := m_c \\cdot c_p ==",
-      "operation": ":=_==",
-      "target": "C_c",
-      "error": null
-    },
-    {
-      "line": 99,
-      "latex_input": "Cmin := C_h",
-      "latex_output": "Cmin := C_h",
-      "operation": ":=",
-      "target": "Cmin",
-      "error": null
-    },
-    {
-      "line": 100,
-      "latex_input": "Cmax := C_c",
-      "latex_output": "Cmax := C_c",
-      "operation": ":=",
-      "target": "Cmax",
-      "error": null
-    },
-    {
-      "line": 103,
-      "latex_input": "C_r := \\frac{Cmin}{Cmax} ==",
-      "latex_output": "C_r := \\frac{Cmin}{Cmax} ==",
-      "operation": ":=_==",
-      "target": "C_r",
-      "error": null
-    },
-    {
-      "line": 106,
-      "latex_input": "Qmax := Cmin \\cdot (T_{h,in} - T_{c,in}) ==",
-      "latex_output": "Qmax := Cmin \\cdot (T_{h,in} - T_{c,in}) ==",
-      "operation": ":=_==",
-      "target": "Qmax",
-      "error": null
-    },
-    {
-      "line": 109,
-      "latex_input": "\\varepsilon := \\frac{Q}{Qmax} ==",
-      "latex_output": "\\varepsilon := \\frac{Q}{Qmax} ==",
-      "operation": ":=_==",
-      "target": "\\varepsilon",
-      "error": null
-    },
-    {
-      "line": 112,
-      "latex_input": "NTU := \\frac{U \\cdot A}{Cmin} ==",
-      "latex_output": "NTU := \\frac{U \\cdot A}{Cmin} ==",
-      "operation": ":=_==",
-      "target": "NTU",
-      "error": null
-    },
-    {
-      "line": 120,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "A",
-      "error": null
-    },
-    {
-      "line": 121,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "T_{h,out}",
-      "error": null
-    },
-    {
-      "line": 122,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "T_{c,out}",
-      "error": null
-    },
-    {
-      "line": 123,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "LMTD",
-      "error": null
-    },
-    {
-      "line": 124,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "\\varepsilon",
-      "error": null
-    },
-    {
-      "line": 125,
-      "latex_input": "",
-      "latex_output": "",
-      "operation": "value",
-      "target": "NTU",
-      "error": null
-    },
-    {
-      "line": 132,
-      "latex_input": "length := 2",
-      "latex_output": "length := 2",
-      "operation": ":=",
-      "target": "length",
-      "error": null
-    },
-    {
-      "line": 135,
-      "latex_input": "A_m := \\frac{A}{length} ==",
-      "latex_output": "A_m := \\frac{A}{length} ==",
-      "operation": ":=_==",
-      "target": "A_m",
-      "error": null
-    }
-  ],
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 02:40:47",
-    "duration": "0.37s",
+    "last_run": "2026-01-07 03:13:48",
+    "duration": "0.39s",
+    "symbols": 26,
     "definitions": 26,
     "evaluations": 16,
     "symbolic": 0,

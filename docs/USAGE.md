@@ -500,7 +500,7 @@ From highest to lowest priority:
 |---------|------|---------|-------------|
 | `digits` | int | 4 | Significant figures (1-15) |
 | `format` | enum | "general" | general/decimal/scientific/engineering |
-| `exponential_threshold` | int | 9 | Magnitude for scientific notation |
+| `exponential_threshold` | int | 9 | Exponent threshold for scientific notation (10^9 = billion) |
 | `trailing_zeros` | bool | false | Show zeros to fill precision |
 | `unit_system` | enum | "SI" | SI/imperial/CGS |
 | `timeout` | int | 5 | Seconds per expression |
@@ -698,43 +698,78 @@ Console also reports errors with line numbers.
 
 ## Debugging
 
-### IR JSON Output
+### IR JSON Output (v2.0)
 
-Use `--verbose` to generate a JSON file containing the full intermediate representation:
+Use `--verbose` to generate a JSON file containing the Intermediate Representation:
 
 ```bash
 livemathtex process input.md --verbose
+```
+
+Or use the `json=true` document directive:
+
+```markdown
+<!-- livemathtex: output=output.md, json=true -->
 ```
 
 This creates `input.lmt.json` with:
 
 ```json
 {
-  "version": "1.0",
+  "version": "2.0",
   "source": "input.md",
+
+  "custom_units": {
+    "euro": "euro",
+    "kWh": "kilo*watt*hour"
+  },
+
   "symbols": {
-    "v_{0}": {
-      "latex_name": "\\Delta T_h",
-      "value": 17.92,
-      "unit": "K",
-      "line": 52
+    "Q": {
+      "id": "v_{0}",
+      "original": { "value": 50.0, "unit": "m³/h" },
+      "si": { "value": 0.01389, "unit": "meter**3/second" },
+      "valid": true,
+      "line": 31
     },
-    "v_{1}": {
-      "latex_name": "T_{h,out}",
-      "value": 72.08,
-      "unit": null,
-      "line": 55
+    "rho": {
+      "id": "v_{1}",
+      "original": { "value": 1000.0, "unit": "kg/m³" },
+      "si": { "value": 1000.0, "unit": "kilogram/meter**3" },
+      "valid": true,
+      "line": 32
     }
   },
-  "blocks": [...],
-  "errors": [],
-  "stats": {
-    "definitions": 26,
-    "evaluations": 16,
-    "errors": 0
-  }
+
+  "errors": [
+    { "line": 99, "message": "Undefined variable: x" }
+  ]
 }
 ```
+
+### IR Schema v2.0 Structure
+
+| Field | Description |
+|-------|-------------|
+| `version` | Schema version ("2.0") |
+| `source` | Input file path |
+| `custom_units` | User-defined units from `===` |
+| `symbols` | All defined variables with original and SI values |
+| `errors` | List of errors with line numbers |
+
+### Symbol Entry Fields
+
+Each symbol in `symbols` contains:
+
+| Field | Description |
+|-------|-------------|
+| `id` | Internal name (v_{0}, v_{1}, f_{0}, etc.) |
+| `original.value` | Numeric value as entered |
+| `original.unit` | Unit as entered (e.g., "m³/h") |
+| `si.value` | SI-converted numeric value |
+| `si.unit` | SymPy SI unit expression |
+| `valid` | Whether SI conversion succeeded |
+| `line` | Source line number |
 
 ### Symbol Mapping
 
@@ -745,13 +780,18 @@ LiveMathTeX uses a simple `v_{n}` / `f_{n}` naming scheme for reliable parsing:
 | **Variables** | `v_{n}` | `P_{LED,out}` | `v_{0}` |
 | **Functions** | `f_{n}` | `\eta_{PSU}(x)` | `f_{0}` |
 
-The IR tracks the mapping between internal names and original LaTeX:
+The key in `symbols` is the **original LaTeX name**, and `id` is the internal name:
 
 ```json
 {
-  "v_{0}": {
-    "latex_name": "P_{LED,out}",
-    "value": 123.45
+  "symbols": {
+    "P_{LED,out}": {
+      "id": "v_{0}",
+      "original": { "value": 123.45, "unit": "W" },
+      "si": { "value": 123.45, "unit": "watt" },
+      "valid": true,
+      "line": 15
+    }
   }
 }
 ```
@@ -759,7 +799,7 @@ The IR tracks the mapping between internal names and original LaTeX:
 This approach ensures:
 - **100% parsing success** - `v_{0}` always parses correctly
 - **Any LaTeX supported** - Greek, subscripts, commas, slashes all work
-- **Debugging clarity** - IR shows the full mapping
+- **Debugging clarity** - IR shows the full mapping with both original and SI values
 
 ### Inspecting Results
 

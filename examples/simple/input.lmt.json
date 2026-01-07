@@ -1,172 +1,101 @@
 {
-  "version": "1.0",
-  "source": "input.md",
+  "version": "2.0",
+  "source": "examples/simple/input.md",
+  "custom_units": {},
   "symbols": {
     "x": {
-      "mapping": {
-        "latex_original": "x",
-        "latex_display": "x",
-        "internal_name": "v_{0}"
+      "id": "v_{0}",
+      "original": {
+        "value": 5.0,
+        "unit": null
       },
-      "value": 5.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "5",
-      "line": 21
-    },
-    "result": {
-      "mapping": {
-        "latex_original": "result",
-        "latex_display": "result",
-        "internal_name": "result"
+      "si": {
+        "value": 5.0,
+        "unit": null
       },
-      "value": null,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "z + 5",
-      "line": 28
+      "valid": true,
+      "line": 0
     },
     "a": {
-      "mapping": {
-        "latex_original": "a",
-        "latex_display": "a",
-        "internal_name": "v_{1}"
+      "id": "v_{1}",
+      "original": {
+        "value": 10.0,
+        "unit": null
       },
-      "value": 10.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "10",
-      "line": 36
+      "si": {
+        "value": 10.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "b": {
-      "mapping": {
-        "latex_original": "b",
-        "latex_display": "b",
-        "internal_name": "v_{2}"
+      "id": "v_{2}",
+      "original": {
+        "value": 5.0,
+        "unit": null
       },
-      "value": 5.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "5",
-      "line": 37
+      "si": {
+        "value": 5.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "total": {
-      "mapping": {
-        "latex_original": "total",
-        "latex_display": "total",
-        "internal_name": "v_{3}"
+      "id": "v_{3}",
+      "original": {
+        "value": 15.0,
+        "unit": null
       },
-      "value": 15.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "a + b",
-      "line": 43
+      "si": {
+        "value": 15.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "product": {
-      "mapping": {
-        "latex_original": "product",
-        "latex_display": "product",
-        "internal_name": "v_{4}"
+      "id": "v_{4}",
+      "original": {
+        "value": 50.0,
+        "unit": null
       },
-      "value": 50.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "a \\cdot b",
-      "line": 45
+      "si": {
+        "value": 50.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     },
     "ratio": {
-      "mapping": {
-        "latex_original": "ratio",
-        "latex_display": "ratio",
-        "internal_name": "v_{5}"
+      "id": "v_{5}",
+      "original": {
+        "value": 2.0,
+        "unit": null
       },
-      "value": 2.0,
-      "unit": null,
-      "unit_latex": null,
-      "expression_latex": "\\frac{a}{b}",
-      "line": 49
+      "si": {
+        "value": 2.0,
+        "unit": null
+      },
+      "valid": true,
+      "line": 0
     }
   },
-  "blocks": [
+  "errors": [
     {
       "line": 21,
-      "latex_input": "x := 5",
-      "latex_output": "x := 5",
-      "operation": ":=",
-      "target": "x",
-      "error": null
-    },
-    {
-      "line": 21,
-      "latex_input": "y = x + 3",
-      "latex_output": "y = x + 3",
-      "operation": "ERROR",
-      "target": null,
-      "error": "Invalid operator '='. Use ':=' for definition or '==' for evaluation."
+      "message": "Evaluation error in: y = x + 3..."
     },
     {
       "line": 28,
-      "latex_input": "result := z + 5 ==",
-      "latex_output": "    Error: Undefined variable(s): z}}",
-      "operation": ":=_==",
-      "target": "result",
-      "error": null
-    },
-    {
-      "line": 36,
-      "latex_input": "a := 10",
-      "latex_output": "a := 10",
-      "operation": ":=",
-      "target": "a",
-      "error": null
-    },
-    {
-      "line": 37,
-      "latex_input": "b := 5",
-      "latex_output": "b := 5",
-      "operation": ":=",
-      "target": "b",
-      "error": null
-    },
-    {
-      "line": 43,
-      "latex_input": "total := a + b ==",
-      "latex_output": "total := a + b ==",
-      "operation": ":=_==",
-      "target": "total",
-      "error": null
-    },
-    {
-      "line": 45,
-      "latex_input": "product := a \\cdot b ==",
-      "latex_output": "product := a \\cdot b ==",
-      "operation": ":=_==",
-      "target": "product",
-      "error": null
-    },
-    {
-      "line": 49,
-      "latex_input": "ratio := \\frac{a}{b} ==",
-      "latex_output": "ratio := \\frac{a}{b} ==",
-      "operation": ":=_==",
-      "target": "ratio",
-      "error": null
-    },
-    {
-      "line": 53,
-      "latex_input": "total ==",
-      "latex_output": "total ==",
-      "operation": "==",
-      "target": null,
-      "error": null
+      "message": "Evaluation error in: result := z + 5 ==..."
     }
   ],
-  "errors": [
-    "Line 21: Invalid operator '='. Use ':=' for definition or '==' for evaluation."
-  ],
   "stats": {
-    "last_run": "2026-01-07 02:40:49",
+    "last_run": "2026-01-07 03:13:47",
     "duration": "0.15s",
+    "symbols": 6,
     "definitions": 7,
     "evaluations": 5,
     "symbolic": 0,

@@ -1,8 +1,10 @@
 """
 Intermediate Representation (IR) module for livemathtex.
 
-Provides a JSON-serializable intermediate representation between
-parsing and evaluation.
+Version 2.0 - Simplified schema:
+- Symbols with original and SI-converted values
+- Custom unit definitions
+- Errors array with line numbers
 
 Symbol normalization uses the v_{n}/f_{n} architecture:
 - Variables: v_{0}, v_{1}, v_{2}, ...
@@ -12,17 +14,17 @@ See symbols.py NameGenerator for the implementation.
 """
 
 from .schema import (
-    SymbolMapping,
+    ValueWithUnit,
     SymbolEntry,
-    BlockResult,
+    IRError,
     LivemathIR,
 )
 from .builder import IRBuilder
 
 __all__ = [
-    "SymbolMapping",
+    "ValueWithUnit",
     "SymbolEntry",
-    "BlockResult",
+    "IRError",
     "LivemathIR",
     "IRBuilder",
 ]
