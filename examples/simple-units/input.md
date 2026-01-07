@@ -28,13 +28,17 @@ $a_1 := 9.81 \cdot \frac{m}{s^2}$
 Calculate force:
 $F_1 := m_1 \cdot a_1 ==$
 
-### Option 2: Descriptive names
+### Option 2: Descriptive names (with subscripts)
 
-$mass := 25 \cdot kg$
-$accel := 9.81 \cdot \frac{m}{s^2}$
+Note: Even descriptive names can conflict with Pint's unit database.
+For example, `mass` is recognized as "milliarcsecond" (astronomy unit).
+Always use subscripts to be safe.
+
+$mass_{obj} := 25 \cdot kg$
+$accel_{g} := 9.81 \cdot \frac{m}{s^2}$
 
 Calculate force:
-$F_2 := mass \cdot accel ==$
+$F_2 := mass_{obj} \cdot accel_{g} ==$
 
 Convert to Newtons:
 $F_2N := F_2 ==$ <!-- [N] -->
@@ -44,7 +48,7 @@ $F_2kN := F_2 ==$ <!-- [kN] -->
 
 ## Compare Results
 
-$ratio := \frac{mass}{m_1} == $
+$ratio := \frac{mass_{obj}}{m_1} == $
 
 The ratio should be 2.5 (25 kg / 10 kg).
 

@@ -28,13 +28,17 @@ $a_1 := 9.81 \cdot \frac{m}{s^2}$
 Calculate force:
 $F_1 := m_1 \cdot a_1 == 98.1\ \text{kg} \cdot \text{m}/\text{s}^{2}$
 
-### Option 2: Descriptive names
+### Option 2: Descriptive names (with subscripts)
 
-$mass := 25 \cdot kg$
-$accel := 9.81 \cdot \frac{m}{s^2}$
+Note: Even descriptive names can conflict with Pint's unit database.
+For example, `mass` is recognized as "milliarcsecond" (astronomy unit).
+Always use subscripts to be safe.
+
+$mass_{obj} := 25 \cdot kg$
+$accel_{g} := 9.81 \cdot \frac{m}{s^2}$
 
 Calculate force:
-$F_2 := mass \cdot accel == 245.2\ \text{kg} \cdot \text{m}/\text{s}^{2}$
+$F_2 := mass_{obj} \cdot accel_{g} == 245.2\ \text{kg} \cdot \text{m}/\text{s}^{2}$
 
 Convert to Newtons:
 $F_2N := F_2 == 245.2\ \text{N}$ <!-- [N] -->
@@ -44,7 +48,7 @@ $F_2kN := F_2 == 0.2452\ \text{kN}$ <!-- [kN] -->
 
 ## Compare Results
 
-$ratio := \frac{mass}{m_1} == 2.5$
+$ratio := \frac{mass_{obj}}{m_1} == 2.5$
 
 The ratio should be 2.5 (25 kg / 10 kg).
 
@@ -58,7 +62,7 @@ This line tries to define `m` which conflicts with the SI unit meter:
 
 $m := 10 \cdot kg
 \\ \color{red}{\text{
-    Error: Variable name 'm' conflicts with unit 'm' (meter). Use a subscript like m\_\{var\} or m\_\{0\} to disambiguate.}}$
+    Error: Variable name 'm' conflicts with unit 'meter'. Use a subscript like 'm\_1' or 'm\_var' to disambiguate.}}$
 
 ### Error 2: Undefined variable in formula
 
@@ -74,4 +78,4 @@ $t_{fall} := \sqrt{\frac{2 \cdot h_{drop}}{g}} ==
 
 ---
 
-> *livemathtex: 2026-01-07 03:55:45 | 12 definitions, 6 evaluations | 2 errors | 0.24s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 12:14:11 | 12 definitions, 6 evaluations | 2 errors | 0.38s* <!-- livemathtex-meta -->

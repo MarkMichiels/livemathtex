@@ -288,4 +288,4 @@ $x ==$ <!-- digits:4 [mbar] -->
 
 ---
 
-> *livemathtex: 2026-01-07 03:55:47 | 59 definitions, 42 evaluations | no errors | 0.47s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 12:14:07 | 59 definitions, 42 evaluations | no errors | 0.63s* <!-- livemathtex-meta -->

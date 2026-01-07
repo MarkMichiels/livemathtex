@@ -33,22 +33,23 @@ $result := z + 5 ==
 
 ## Definitions (:=)
 
-Define some variables:
+Define some variables (note: single letters like 'a', 'b' conflict with
+Pint units like "year" and "barn", so we use subscripts):
 
-$a := 10$
-$b := 5$
+$a_1 := 10$
+$b_1 := 5$
 
 ## Evaluation (==)
 
 Calculate sum and product:
 
-$total := a + b == 15$
+$total := a_1 + b_1 == 15$
 
-$product := a \cdot b == 50$
+$product := a_1 \cdot b_1 == 50$
 
 ## Combined Definition + Evaluation
 
-$ratio := \frac{a}{b} == 2$
+$ratio := \frac{a_1}{b_1} == 2$
 
 ## Re-evaluate existing variable
 
@@ -63,4 +64,4 @@ $\text{total} == 15$
 
 ---
 
-> *livemathtex: 2026-01-07 03:55:44 | 7 definitions, 5 evaluations | 2 errors | 0.15s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 12:14:10 | 7 definitions, 5 evaluations | 2 errors | 0.29s* <!-- livemathtex-meta -->

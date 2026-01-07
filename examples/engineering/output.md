@@ -41,7 +41,9 @@ Heat duty (W):
 $Q := 150000$
 
 Overall heat transfer coefficient (W/m²·K):
-$U := 500$
+$U := 500
+\\ \color{red}{\text{
+    Error: Variable name 'U' conflicts with unit 'enzyme\_unit'. Use a subscript like 'U\_1' or 'U\_var' to disambiguate.}}$
 
 ---
 
@@ -84,7 +86,9 @@ $$LMTD := \frac{\Delta T_1 - \Delta T_2}{\ln(ratio)} == 55.02$$
 
 From heat exchanger equation: $Q = U \cdot A \cdot LMTD$
 
-$$A := \frac{Q}{U \cdot LMTD} == 5.453$$
+$$A := \frac{Q}{U \cdot LMTD} ==
+\\ \color{red}{\text{
+    Error: Undefined variable(s): U}}$$
 
 ---
 
@@ -109,7 +113,9 @@ $Qmax := Cmin \cdot (T_{h,in} - T_{c,in}) == 586\,000$
 $$\varepsilon := \frac{Q}{Qmax} == 0.256$$
 
 ### Number of Transfer Units (NTU)
-$$NTU := \frac{U \cdot A}{Cmin} == 0.3257$$
+$$NTU := \frac{U \cdot A}{Cmin} ==
+\\ \color{red}{\text{
+    Error: Undefined variable 'A' in formula. Note: 'A' is also a unit (ampere), but formulas cannot mix variables and units. Define 'A' first with a subscript like A\_\{0\} or A\_\{acc\}.}}$$
 
 ---
 
@@ -117,12 +123,16 @@ $$NTU := \frac{U \cdot A}{Cmin} == 0.3257$$
 
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
-| Heat transfer area | $A$ | $5.5$ <!-- value:A :2 --> | m² |
+| Heat transfer area | $A$ | $
+\\ \color{red}{\text{
+    Error: Undefined variable: A}}$ <!-- value:A :2 --> | m² |
 | Hot outlet temp | $T_{h,out}$ | $70$ <!-- value:T_{h,out} :1 --> | °C |
 | Cold outlet temp | $T_{c,out}$ | $30$ <!-- value:T_{c,out} :1 --> | °C |
 | LMTD | $LMTD$ | $55$ <!-- value:LMTD :2 --> | K |
 | Effectiveness | $\varepsilon$ | $0.256$ <!-- value:\varepsilon :3 --> | - |
-| NTU | $NTU$ | $0.326$ <!-- value:NTU :3 --> | - |
+| NTU | $NTU$ | $
+\\ \color{red}{\text{
+    Error: Undefined variable: NTU}}$ <!-- value:NTU :3 --> | - |
 
 ---
 
@@ -132,10 +142,12 @@ Tube length (m):
 $length := 2$
 
 Area per meter:
-$A_m := \frac{A}{length} == 2.727$
+$A_m := \frac{A}{length} ==
+\\ \color{red}{\text{
+    Error: Undefined variable 'A' in formula. Note: 'A' is also a unit (ampere), but formulas cannot mix variables and units. Define 'A' first with a subscript like A\_\{0\} or A\_\{acc\}.}}$
 
 **Conclusion:** The design meets thermal requirements with calculated effectiveness.
 
 ---
 
-> *livemathtex: 2026-01-07 03:55:45 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.39s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 12:14:08 | 26 definitions, 16 evaluations, 6 value refs | 6 errors | 0.51s* <!-- livemathtex-meta -->

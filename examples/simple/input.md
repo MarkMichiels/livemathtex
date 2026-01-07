@@ -31,22 +31,23 @@ $result := z + 5 ==$
 
 ## Definitions (:=)
 
-Define some variables:
+Define some variables (note: single letters like 'a', 'b' conflict with
+Pint units like "year" and "barn", so we use subscripts):
 
-$a := 10$
-$b := 5$
+$a_1 := 10$
+$b_1 := 5$
 
 ## Evaluation (==)
 
 Calculate sum and product:
 
-$total := a + b ==$
+$total := a_1 + b_1 ==$
 
-$product := a \cdot b ==$
+$product := a_1 \cdot b_1 ==$
 
 ## Combined Definition + Evaluation
 
-$ratio := \frac{a}{b} ==$
+$ratio := \frac{a_1}{b_1} ==$
 
 ## Re-evaluate existing variable
 
