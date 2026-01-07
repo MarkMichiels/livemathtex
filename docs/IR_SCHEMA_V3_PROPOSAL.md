@@ -2,9 +2,9 @@
 
 # IR Schema v3.0 Proposal
 
-**Status:** APPROVED - Ready for implementation  
-**Author:** AI Assistant  
-**Date:** 2026-01-07  
+**Status:** APPROVED - Ready for implementation
+**Author:** AI Assistant
+**Date:** 2026-01-07
 **Reviewed:** 2026-01-07
 
 ---
@@ -117,35 +117,35 @@ From `examples/engineering-units/input.lmt.json`:
     "v1": {
       "latex_name": "L_{pipe}",
       "original": { "value": 100.0, "unit": "m" },
-      "base": { "value": 100.0, "unit": "m", "dimensionality": "[length]" },
+      "base": { "value": 100.0, "unit": "m" },
       "conversion_ok": true,
       "line": 47
     },
     "v2": {
       "latex_name": "D_{pipe}",
       "original": { "value": 100.0, "unit": "mm" },
-      "base": { "value": 0.1, "unit": "m", "dimensionality": "[length]" },
+      "base": { "value": 0.1, "unit": "m" },
       "conversion_ok": true,
       "line": 50
     },
     "v3": {
       "latex_name": "\\rho",
       "original": { "value": 1000.0, "unit": "kg/m³" },
-      "base": { "value": 1000.0, "unit": "kg/m³", "dimensionality": "[mass]/[length]³" },
+      "base": { "value": 1000.0, "unit": "kg/m³" },
       "conversion_ok": true,
       "line": 55
     },
     "v4": {
       "latex_name": "g_{acc}",
       "original": { "value": 9.81, "unit": "m/s²" },
-      "base": { "value": 9.81, "unit": "m/s²", "dimensionality": "[length]/[time]²" },
+      "base": { "value": 9.81, "unit": "m/s²" },
       "conversion_ok": true,
       "line": 58
     },
     "v5": {
       "latex_name": "f_d",
       "original": { "value": 0.02, "unit": null },
-      "base": { "value": 0.02, "unit": null, "dimensionality": null },
+      "base": { "value": 0.02, "unit": null },
       "conversion_ok": true,
       "line": 63
     },
@@ -156,7 +156,7 @@ From `examples/engineering-units/input.lmt.json`:
         "depends_on": ["v2"]
       },
       "original": { "value": 0.00785, "unit": "m²" },
-      "base": { "value": 0.00785, "unit": "m²", "dimensionality": "[length]²" },
+      "base": { "value": 0.00785, "unit": "m²" },
       "conversion_ok": true,
       "line": 70
     },
@@ -167,7 +167,7 @@ From `examples/engineering-units/input.lmt.json`:
         "depends_on": ["v0", "f1"]
       },
       "original": { "value": 1.768, "unit": "m/s" },
-      "base": { "value": 1.768, "unit": "m/s", "dimensionality": "[length]/[time]" },
+      "base": { "value": 1.768, "unit": "m/s" },
       "conversion_ok": true,
       "line": 73
     },
@@ -178,7 +178,7 @@ From `examples/engineering-units/input.lmt.json`:
         "depends_on": ["v5", "v1", "v2", "f2", "v4"]
       },
       "original": { "value": 3.188, "unit": "m" },
-      "base": { "value": 3.188, "unit": "m", "dimensionality": "[length]" },
+      "base": { "value": 3.188, "unit": "m" },
       "conversion_ok": true,
       "line": 88
     },
@@ -189,7 +189,7 @@ From `examples/engineering-units/input.lmt.json`:
         "depends_on": ["f5", "v6", "v7"]
       },
       "original": { "value": 4235.80, "unit": "W" },
-      "base": { "value": 4235.80, "unit": "W", "dimensionality": "[power]" },
+      "base": { "value": 4235.80, "unit": "W" },
       "conversion_ok": true,
       "line": 121
     },
@@ -387,12 +387,8 @@ for dep_id in deps:
 **After (v3.0):**
 ```json
 "original": { "value": 100.0, "unit": "m" },
-"base": {
-  "value": 100.0,
-  "unit": "m",                        // Short form (not "meter")
-  "dimensionality": "[length]"        // Pint dimensionality
-},
-"conversion_ok": true                 // Did conversion succeed?
+"base": { "value": 100.0, "unit": "m" },
+"conversion_ok": true
 ```
 
 **Key changes:**
@@ -400,7 +396,7 @@ for dep_id in deps:
 - **`si` → `base`**: Not everything converts to SI (EUR, custom units)
 - **Short unit names**: `m`, `kg/m³`, `W` (not `meter`, `kilogram / meter ** 3`)
 - **`conversion_ok`**: Critical flag — if `false`, variable is invalid!
-- **`dimensionality`** integrated into `base` (not separate `pint` block)
+- **No `dimensionality`**: Computed by Pint from `unit` when needed
 
 ### 3.5 Conversion Status Flag
 
@@ -410,14 +406,14 @@ for dep_id in deps:
 // Successful SI conversion
 "v3": {
   "original": { "value": 100, "unit": "mm" },
-  "base": { "value": 0.1, "unit": "m", "dimensionality": "[length]" },
+  "base": { "value": 0.1, "unit": "m" },
   "conversion_ok": true
 }
 
 // Non-SI base unit (currency)
 "v8": {
   "original": { "value": 150, "unit": "EUR" },
-  "base": { "value": 150, "unit": "EUR", "dimensionality": "[currency]" },
+  "base": { "value": 150, "unit": "EUR" },
   "conversion_ok": true   // Stayed in original form, but valid
 }
 
@@ -488,7 +484,7 @@ for dep_id in deps:
 All `examples/*/input.lmt.json` files will be regenerated with:
 - Clean IDs: `v1, v2...` for values, `f1, f2...` for formulas
 - Formulas with `expression`, `depends_on`, and optional `parameters`
-- `base` block with Pint `unit` and `dimensionality`
+- `base` block with Pint `unit` (dimensionality computed on-the-fly)
 - `conversion_ok` flag for validation
 - Updated stats with `computed_formulas` and `function_formulas`
 
@@ -505,7 +501,7 @@ All `examples/*/input.lmt.json` files will be regenerated with:
 
 ### Phase 4b: Pint for SI Conversion
 1. Replace `_convert_to_si()` in evaluator to use Pint's `to_base_units()`
-2. Generate `base` block with `value`, `unit`, `dimensionality`
+2. Generate `base` block with `value` and `unit`
 3. Set `conversion_ok` flag based on success/failure
 
 ### Phase 4c: Add Classification Logic
