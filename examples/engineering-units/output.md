@@ -144,4 +144,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4236\ \text{kg} \cdot \text{
 
 ---
 
-> *livemathtex: 2026-01-07 03:33:35 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.43s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 03:35:18 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.43s* <!-- livemathtex-meta -->

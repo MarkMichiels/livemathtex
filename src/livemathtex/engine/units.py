@@ -438,6 +438,10 @@ def strip_unit_from_value(latex: str) -> Tuple[str, Optional[str], Optional[Any]
             sympy_unit = _parse_unit_string(unit_latex)
             if sympy_unit is not None:
                 return value_part, unit_latex, sympy_unit
+            else:
+                # Unit pattern detected but not recognized - this is an error
+                raise ValueError(f"Unrecognized unit: \\frac{{{numerator}}}{{{denominator}}}. "
+                               f"Define it first with '$$ {unit_latex} === ... $$'")
 
     # Pattern 1: number followed by \text{...} or \mathrm{...}
     # Example: "100\ \text{kg}" or "5.5 \text{m/s}"
@@ -477,6 +481,12 @@ def strip_unit_from_value(latex: str) -> Tuple[str, Optional[str], Optional[Any]
         sympy_unit = _parse_unit_string(unit_part)
         if sympy_unit is not None:
             return value_part, unit_part, sympy_unit
+        else:
+            # Looks like a unit pattern but not recognized
+            # Only raise error if it really looks like a unit (not a single letter that could be a variable)
+            if len(unit_part) > 1 or unit_part in ['m', 's', 'g', 'A', 'K', 'N', 'J', 'W', 'V', 'L', 'h']:
+                raise ValueError(f"Unrecognized unit: '{unit_part}'. "
+                               f"Define it first with '$$ {unit_part} === ... $$'")
 
     # Pattern 4: number with unit symbol directly attached (currency)
     # Example: "0.139€/kWh"
