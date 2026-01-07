@@ -175,6 +175,27 @@ From `examples/engineering-units/input.lmt.json`:
       "conversion_ok": true,
       "line": 63
     },
+    "v6": {
+      "latex_name": "P_{rated}",
+      "original": { "value": 5.0, "unit": "kW" },
+      "base": { "value": 5000.0, "unit": "W" },
+      "conversion_ok": true,
+      "line": 98
+    },
+    "v7": {
+      "latex_name": "t_{run}",
+      "original": { "value": 8.0, "unit": "hour" },
+      "base": { "value": 28800.0, "unit": "s" },
+      "conversion_ok": true,
+      "line": 100
+    },
+    "v8": {
+      "latex_name": "price_{kWh}",
+      "original": { "value": 0.25, "unit": "EUR/kWh" },
+      "base": { "value": 6.944e-08, "unit": "EUR/J" },
+      "conversion_ok": true,
+      "line": 102
+    },
     "f1": {
       "latex_name": "A_{pipe}",
       "formula": {
@@ -259,18 +280,40 @@ From `examples/engineering-units/input.lmt.json`:
       "base": { "value": 1013.0, "unit": null },
       "conversion_ok": true,
       "line": 145
+    },
+    "f9": {
+      "latex_name": "E_{daily}",
+      "formula": {
+        "expression": "v6 * v7",
+        "depends_on": ["v6", "v7"]
+      },
+      "original": { "value": 40.0, "unit": "kWh" },
+      "base": { "value": 144000000.0, "unit": "J" },
+      "conversion_ok": true,
+      "line": 150
+    },
+    "f10": {
+      "latex_name": "cost_{daily}",
+      "formula": {
+        "expression": "f9 * v8",
+        "depends_on": ["f9", "v8"]
+      },
+      "original": { "value": 10.0, "unit": "EUR" },
+      "base": { "value": 10.0, "unit": "EUR" },
+      "conversion_ok": true,
+      "line": 155
     }
   },
   "errors": [],
   "stats": {
     "last_run": "2026-01-07 04:30:00",
     "duration": "0.52s",
-    "symbols": 20,
-    "value_definitions": 12,
-    "computed_formulas": 7,
+    "symbols": 25,
+    "value_definitions": 15,
+    "computed_formulas": 9,
     "function_formulas": 1,
     "custom_units": 4,
-    "evaluations": 11,
+    "evaluations": 14,
     "errors": 0
   }
 }
