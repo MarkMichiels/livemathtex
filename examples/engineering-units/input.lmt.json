@@ -7,11 +7,11 @@
       "id": "v_{0}",
       "original": {
         "value": 50.0,
-        "unit": null
+        "unit": "m³/h"
       },
       "si": {
-        "value": null,
-        "unit": null
+        "value": 0.013888888888888888,
+        "unit": "\\frac{\\text{m}^{3}}{\\text{s}}"
       },
       "valid": true,
       "line": 0
@@ -58,25 +58,25 @@
     "D_{pipe}": {
       "id": "v_{4}",
       "original": {
-        "value": 0.1,
-        "unit": "m"
+        "value": 100.0,
+        "unit": "mm"
       },
       "si": {
         "value": 0.1,
         "unit": "\\text{m}"
       },
-      "valid": true,
+      "valid": false,
       "line": 0
     },
     "\\rho": {
       "id": "v_{5}",
       "original": {
         "value": 1000.0,
-        "unit": null
+        "unit": "kg/m³"
       },
       "si": {
         "value": 1000.0,
-        "unit": null
+        "unit": "\\frac{\\text{kg}}{\\text{m}^{3}}"
       },
       "valid": true,
       "line": 0
@@ -85,11 +85,11 @@
       "id": "v_{6}",
       "original": {
         "value": 9.81,
-        "unit": null
+        "unit": "m/s²"
       },
       "si": {
         "value": 9.81,
-        "unit": null
+        "unit": "\\frac{\\text{m}}{\\text{s}^{2}}"
       },
       "valid": true,
       "line": 0
@@ -123,8 +123,8 @@
     "vel": {
       "id": "v_{9}",
       "original": {
-        "value": 19999.999999999996,
-        "unit": "m/(pi·h)"
+        "value": 5.5555555555555545,
+        "unit": "m/(pi·s)"
       },
       "si": {
         "value": 5.5555555555555545,
@@ -150,11 +150,11 @@
       "id": "v_{11}",
       "original": {
         "value": 31.46197505694616,
-        "unit": "m^2/(pi^2·s^2)"
+        "unit": "m/pi^2"
       },
       "si": {
         "value": 31.46197505694616,
-        "unit": "\\frac{\\text{m}^{2}}{\\pi^{2} \\text{s}^{2}}"
+        "unit": "\\frac{\\text{m}}{\\pi^{2}}"
       },
       "valid": true,
       "line": 0
@@ -176,11 +176,11 @@
       "id": "v_{13}",
       "original": {
         "value": 7.86549376423654,
-        "unit": "m^2/(pi^2·s^2)"
+        "unit": "m/pi^2"
       },
       "si": {
         "value": 7.86549376423654,
-        "unit": "\\frac{\\text{m}^{2}}{\\pi^{2} \\text{s}^{2}}"
+        "unit": "\\frac{\\text{m}}{\\pi^{2}}"
       },
       "valid": true,
       "line": 0
@@ -189,11 +189,11 @@
       "id": "v_{14}",
       "original": {
         "value": 1.0,
-        "unit": "39.3274688211827·m^2/(pi^2·s^2) + 17.0·m"
+        "unit": "39.3274688211827·m/pi^2 + 17.0·m"
       },
       "si": {
         "value": 1.0,
-        "unit": "\\frac{39.3274688211827 \\text{m}^{2}}{\\pi^{2} \\text{s}^{2}} + 17.0 \\text{m}"
+        "unit": "\\frac{39.3274688211827 \\text{m}}{\\pi^{2}} + 17.0 \\text{m}"
       },
       "valid": true,
       "line": 0
@@ -201,12 +201,12 @@
     "P_{hyd}": {
       "id": "v_{15}",
       "original": {
-        "value": 490500.0,
-        "unit": "m^3·(39.3274688211827·m^2/(pi^2·s^2) + 17.0·m)/h"
+        "value": 136.25,
+        "unit": "kg·m·(39.3274688211827·m/pi^2 + 17.0·m)/s^3"
       },
       "si": {
-        "value": 1.0,
-        "unit": "\\frac{\\left(\\frac{5358.36762688614 \\text{m}^{2}}{\\pi^{2} \\text{s}^{2}} + 2316.25 \\text{m}\\right) \\text{m}^{4}}{\\text{s}}"
+        "value": 0.001,
+        "unit": "\\frac{\\left(\\frac{5358367.62688614 \\text{m}}{\\pi^{2}} + 2316250.0 \\text{m}\\right) \\text{kg} \\text{m}^{2}}{\\text{s}^{3}}"
       },
       "valid": false,
       "line": 0
@@ -240,12 +240,12 @@
     "P_{motor}": {
       "id": "v_{18}",
       "original": {
-        "value": 1.4814814814814814,
-        "unit": "m^4·(5358.36762688614·m^2/(pi^2·s^2) + 2316.25·m)/s"
+        "value": 0.0014814814814814814,
+        "unit": "kg·m^2·(5358367.62688614·m/pi^2 + 2316250.0·m)/s^3"
       },
       "si": {
-        "value": 1.0,
-        "unit": "\\frac{\\left(\\frac{7938.32241020169 \\text{m}^{2}}{\\pi^{2} \\text{s}^{2}} + 3431.48148148148 \\text{m}\\right) \\text{m}^{5}}{\\text{s}}"
+        "value": 0.001,
+        "unit": "\\frac{\\left(\\frac{7938322.41020169 \\text{m}}{\\pi^{2}} + 3431481.48148148 \\text{m}\\right) \\text{kg} \\text{m}^{3}}{\\text{s}^{3}}"
       },
       "valid": false,
       "line": 0
@@ -253,8 +253,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 03:13:49",
-    "duration": "0.47s",
+    "last_run": "2026-01-07 03:33:35",
+    "duration": "0.43s",
     "symbols": 19,
     "definitions": 19,
     "evaluations": 11,

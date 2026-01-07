@@ -38,24 +38,24 @@ $Q == 13.89\ \text{L/s}$ <!-- [L/s] -->
 ### Geometry
 
 Suction head (negative = below pump):
-$h_s := -2\ \text{m}$
+$h_s := -2 m$
 
 Discharge head:
-$h_d := 15\ \text{m}$
+$h_d := 15 m$
 
 Pipe length:
-$L_{pipe} := 100\ \text{m}$
+$L_{pipe} := 100 m$
 
 Pipe diameter:
-$D_{pipe} := 0.1\ \text{m}$
+$D_{pipe} := 100 \text{mm}$
 
 ### Fluid Properties
 
-Water density (kg/m³):
-$\rho := 1000$
+Water density:
+$\rho := 1000 \frac{kg}{m^{3}}$
 
-Gravitational acceleration (m/s²):
-$g_{acc} := 9.81$
+Gravitational acceleration:
+$g_{acc} := 9.81 \frac{m}{s^{2}}$
 
 ### Friction Parameters
 
@@ -85,27 +85,27 @@ $H_{static} := h_d - h_s == 17\ \text{m}$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 3.188\ \text{m}^{2}/\text{s}^{2}$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 3.188\ \text{m}$$
 
 ### Minor Losses
 
 K-factor for fittings (dimensionless):
 $K_{fit} := 5$
 
-$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 0.7969\ \text{m}^{2}/\text{s}^{2}$$
+$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 0.7969\ \text{m}$$
 
 ---
 
 ## Step 3: Total Dynamic Head (TDH)
 
-$$TDH := H_{static} + H_f + H_m == \text{3.98470569061937} \cdot \text{m}^{2}/\text{s}^{2 + 17.0} \cdot \text{m}$$
+$$TDH := H_{static} + H_f + H_m == 20.98\ \text{m}$$
 
 ---
 
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := \rho \cdot g_{acc} \cdot Q \cdot TDH == 490\,500\ \text{m}^{3} \cdot \text{(3.98470569061937} \cdot \text{m}^{2}/\text{s}^{2 + 17.0} \cdot \text{m)}/\text{h}$$ <!-- [kW] -->
+$$P_{hyd} := \rho \cdot g_{acc} \cdot Q \cdot TDH == 2.859\ \text{kW}$$ <!-- [kW] -->
 
 ---
 
@@ -118,7 +118,7 @@ Motor efficiency (assumed, dimensionless):
 $eta_m := 0.90$
 
 Required motor power:
-$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 1.481\ \text{m}^{4} \cdot \text{(542.916150346889} \cdot \text{m}^{2}/\text{s}^{2 + 2316.25} \cdot \text{m)}/\text{s}$$ <!-- [kW] -->
+$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4236\ \text{kg} \cdot \text{m}^{3}/\text{s}^{3}$$ <!-- [kW] -->
 
 ---
 
@@ -131,8 +131,8 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 1.481\ \text{m}^{4} \cdot \t
 | Static head | $H_{static}$ | $20$ <!-- value:H_{static} [m] :1 --> | m |
 | Friction loss | $H_f$ | $31$ <!-- value:H_f [m] :2 --> | m |
 | Total head | $TDH$ | $1$ <!-- value:TDH [m] :1 --> | m |
-| Hydraulic power | $P_{hyd}$ | $0.001$ <!-- value:P_{hyd} [kW] :2 --> | kW |
-| Motor power | $P_{motor}$ | $0.001$ <!-- value:P_{motor} [kW] :2 --> | kW |
+| Hydraulic power | $P_{hyd}$ | $0.000001$ <!-- value:P_{hyd} [kW] :2 --> | kW |
+| Motor power | $P_{motor}$ | $0.000001$ <!-- value:P_{motor} [kW] :2 --> | kW |
 
 ---
 
@@ -144,4 +144,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 1.481\ \text{m}^{4} \cdot \t
 
 ---
 
-> *livemathtex: 2026-01-07 03:13:49 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.47s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 03:33:35 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.43s* <!-- livemathtex-meta -->

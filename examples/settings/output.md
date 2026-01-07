@@ -148,4 +148,4 @@ $\text{power} == 2.50e6$ <!-- format:engineering digits:3 -->
 
 ---
 
-> *livemathtex: 2026-01-07 03:13:50 | 9 definitions, 22 evaluations | no errors | 0.27s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 03:33:36 | 9 definitions, 22 evaluations | no errors | 0.27s* <!-- livemathtex-meta -->

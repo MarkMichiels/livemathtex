@@ -412,12 +412,32 @@ def strip_unit_from_value(latex: str) -> Tuple[str, Optional[str], Optional[Any]
         "100\\ \\text{kg}"      -> ("100", "kg", kilogram)
         "5.5\\ \\text{m/s}"     -> ("5.5", "m/s", meter/second)
         "1500\\ kWh"            -> ("1500", "kWh", kilo*watt*hour)
+        "50 \\frac{m^3}{h}"     -> ("50", "m³/h", meter**3/hour)
         "42"                    -> ("42", None, None)
 
     Returns:
         Tuple of (value_latex, unit_string or None, sympy_unit or None)
     """
     latex = latex.strip()
+
+    # Pattern 0: number followed by \frac{numerator}{denominator}
+    # Example: "50 \frac{m^{3}}{h}" or "1000 \frac{kg}{m^{3}}"
+    # Use helper to handle nested braces like {m^{3}}
+    frac_match = re.match(r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s*\\frac', latex)
+    if frac_match:
+        value_part = frac_match.group(1).strip()
+        rest = latex[frac_match.end():]
+        # Extract numerator and denominator handling nested braces
+        numerator, rest = _extract_braced_content(rest)
+        denominator, _ = _extract_braced_content(rest)
+        if numerator is not None and denominator is not None:
+            # Clean up LaTeX: m^{3} -> m³
+            numerator = _clean_unit_latex(numerator)
+            denominator = _clean_unit_latex(denominator)
+            unit_latex = f"{numerator}/{denominator}"
+            sympy_unit = _parse_unit_string(unit_latex)
+            if sympy_unit is not None:
+                return value_part, unit_latex, sympy_unit
 
     # Pattern 1: number followed by \text{...} or \mathrm{...}
     # Example: "100\ \text{kg}" or "5.5 \text{m/s}"
@@ -444,10 +464,10 @@ def strip_unit_from_value(latex: str) -> Tuple[str, Optional[str], Optional[Any]
         return value_part, unit_part, sympy_unit
 
     # Pattern 3: number followed by direct unit (no backslash)
-    # Example: "100 kg" or "5.5 m/s"
+    # Example: "100 kg" or "5.5 m/s" or "-2 m"
     # Be careful: only match if unit looks like a unit (not a variable)
     match = re.match(
-        r'^([\d.]+(?:[eE][+-]?\d+)?)\s+([€$]?[a-zA-Z][a-zA-Z0-9/\*\^³²]*)\s*$',
+        r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s+([€$]?[a-zA-Z][a-zA-Z0-9/\*\^³²]*)\s*$',
         latex
     )
     if match:
@@ -473,6 +493,59 @@ def strip_unit_from_value(latex: str) -> Tuple[str, Optional[str], Optional[Any]
 
     # No unit found
     return latex, None, None
+
+
+def _extract_braced_content(s: str) -> Tuple[Optional[str], str]:
+    """
+    Extract content from balanced braces, handling nesting.
+
+    Example:
+        "{m^{3}}rest" -> ("m^{3}", "rest")
+        "{kg}{m^{3}}" -> ("kg", "{m^{3}}")
+
+    Returns:
+        Tuple of (content or None, remaining string)
+    """
+    s = s.strip()
+    if not s or s[0] != '{':
+        return None, s
+
+    depth = 0
+    start = 0
+    for i, c in enumerate(s):
+        if c == '{':
+            if depth == 0:
+                start = i + 1
+            depth += 1
+        elif c == '}':
+            depth -= 1
+            if depth == 0:
+                return s[start:i], s[i+1:]
+
+    return None, s
+
+
+def _clean_unit_latex(unit_latex: str) -> str:
+    """
+    Clean LaTeX unit notation to simple format.
+
+    Converts:
+        "m^{3}" -> "m³"
+        "m^3"   -> "m³"
+        "m^{2}" -> "m²"
+        "s^{2}" -> "s²"
+
+    Returns:
+        Cleaned unit string
+    """
+    # Replace LaTeX power notation with Unicode
+    # Note: braces need to be escaped in regex
+    result = unit_latex
+    result = re.sub(r'\^\{3\}', '³', result)
+    result = re.sub(r'\^3', '³', result)
+    result = re.sub(r'\^\{2\}', '²', result)
+    result = re.sub(r'\^2', '²', result)
+    return result
 
 
 def _parse_unit_string(unit_str: str) -> Optional[Any]:

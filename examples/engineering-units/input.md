@@ -38,24 +38,24 @@ $Q ==$ <!-- [L/s] -->
 ### Geometry
 
 Suction head (negative = below pump):
-$h_s := -2\ \text{m}$
+$h_s := -2 m$
 
 Discharge head:
-$h_d := 15\ \text{m}$
+$h_d := 15 m$
 
 Pipe length:
-$L_{pipe} := 100\ \text{m}$
+$L_{pipe} := 100 m$
 
 Pipe diameter:
-$D_{pipe} := 0.1\ \text{m}$
+$D_{pipe} := 100 \text{mm}$
 
 ### Fluid Properties
 
-Water density (kg/m³):
-$\rho := 1000$
+Water density:
+$\rho := 1000 \frac{kg}{m^{3}}$
 
-Gravitational acceleration (m/s²):
-$g_{acc} := 9.81$
+Gravitational acceleration:
+$g_{acc} := 9.81 \frac{m}{s^{2}}$
 
 ### Friction Parameters
 
