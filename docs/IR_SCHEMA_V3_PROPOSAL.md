@@ -116,30 +116,26 @@ From `examples/engineering-units/input.lmt.json`:
   "custom_units": {
     "EUR": {
       "latex": "€",
-      "definition": "€",
       "type": "base",
       "pint_definition": "EUR = [currency]",
       "line": 24
     },
     "kW": {
       "latex": "kW",
-      "definition": "kilo * W",
       "type": "derived",
-      "pint_definition": "kilowatt = 1000 * watt",
+      "pint_definition": "kW = 1000 * watt",
       "line": 40
     },
     "mbar": {
       "latex": "mbar",
-      "definition": "milli * bar",
       "type": "derived",
-      "pint_definition": "millibar = 0.001 * bar",
+      "pint_definition": "mbar = 0.001 * bar",
       "line": 71
     },
     "kWh": {
       "latex": "kWh",
-      "definition": "kilo * W * hour",
       "type": "compound",
-      "pint_definition": "kilowatt_hour = kilowatt * hour",
+      "pint_definition": "kWh = kW * hour",
       "line": 95
     }
   },
@@ -616,23 +612,20 @@ $$ kWh === kilo \cdot W \cdot hour $$  <!-- Compound unit (multiple) -->
 "custom_units": {
   "EUR": {
     "latex": "€",
-    "definition": "€",
     "type": "base",
     "pint_definition": "EUR = [currency]",
     "line": 24
   },
   "kW": {
     "latex": "kW",
-    "definition": "kilo * W",
     "type": "derived",
-    "pint_definition": "kilowatt = 1000 * watt",
+    "pint_definition": "kW = 1000 * watt",
     "line": 40
   },
   "kWh": {
     "latex": "kWh",
-    "definition": "kilo * W * hour",
     "type": "compound",
-    "pint_definition": "kilowatt_hour = kilowatt * hour",
+    "pint_definition": "kWh = kW * hour",
     "line": 95
   }
 }
@@ -642,11 +635,10 @@ $$ kWh === kilo \cdot W \cdot hour $$  <!-- Compound unit (multiple) -->
 
 | Field | Description |
 |-------|-------------|
-| **Key** | Pint-compatible unit name (e.g., `EUR`, `kW`) |
-| `latex` | Display name for rendering (e.g., `€`, `kW`) |
-| `definition` | User-provided definition (cleaned LaTeX) |
+| **Key** | Unit name used in Pint registry and symbols (e.g., `EUR`, `kW`) |
+| `latex` | Display name for LaTeX rendering (e.g., `€`, `kW`) |
 | `type` | Classification: `base`, `derived`, `compound`, `alias` |
-| `pint_definition` | Exact Pint registry definition string |
+| `pint_definition` | Pint registry definition (key = expression) |
 | `line` | Source line number for error reporting |
 
 #### Processing Flow
@@ -659,12 +651,12 @@ graph LR
     C -->|"X === Y * Z"| E[Compound]
     C -->|"X === prefix * Y"| F[Derived]
     C -->|"X === existing"| G[Alias]
-    
+
     D --> H[Pint: EUR = currency]
     E --> H
     F --> H
     G --> H
-    
+
     H --> I[Unit Registry]
 ```
 
@@ -720,26 +712,29 @@ Custom units can be used like built-in units:
 "custom_units": {
   "EUR": {
     "latex": "€",
-    "definition": "€",
     "type": "base",
     "pint_definition": "EUR = [currency]",
     "line": 24
   },
   "kW": {
     "latex": "kW",
-    "definition": "kilo * W",
     "type": "derived",
-    "pint_definition": "kilowatt = 1000 * watt",
+    "pint_definition": "kW = 1000 * watt",
     "line": 40
   }
 }
 ```
 
+**Key insight:** The **key** (e.g., `kW`) IS the unit name used everywhere:
+- In Pint registry: `kW = 1000 * watt`
+- In symbol units: `"unit": "kW"`
+- For lookups: `custom_units["kW"]`
+
 **Benefits:**
+- **Consistency**: Key = Pint name = symbol unit name
 - **Traceability**: Line numbers for debugging
 - **Type classification**: Know how unit is defined
-- **Pint integration**: Exact definition for registry
-- **LaTeX preservation**: Display name separate from key
+- **LaTeX preservation**: Display name separate from key (for `€` vs `EUR`)
 
 ---
 
