@@ -155,6 +155,7 @@ From `examples/engineering-units/input.lmt.json`:
         "expression": "pi * (v2 / 2)**2",
         "depends_on": ["v2"]
       },
+      "original": { "value": 0.00785, "unit": "m²" },
       "base": { "value": 0.00785, "unit": "m²" },
       "conversion_ok": true,
       "line": 70
@@ -165,6 +166,7 @@ From `examples/engineering-units/input.lmt.json`:
         "expression": "v0 / f1",
         "depends_on": ["v0", "f1"]
       },
+      "original": { "value": 1.768, "unit": "m/s" },
       "base": { "value": 1.768, "unit": "m/s" },
       "conversion_ok": true,
       "line": 73
@@ -175,6 +177,7 @@ From `examples/engineering-units/input.lmt.json`:
         "expression": "v5 * v1 / v2 * f2**2 / (2 * v4)",
         "depends_on": ["v5", "v1", "v2", "f2", "v4"]
       },
+      "original": { "value": 3.188, "unit": "m" },
       "base": { "value": 3.188, "unit": "m" },
       "conversion_ok": true,
       "line": 88
@@ -185,6 +188,7 @@ From `examples/engineering-units/input.lmt.json`:
         "expression": "f5 / (v6 * v7)",
         "depends_on": ["f5", "v6", "v7"]
       },
+      "original": { "value": 4235.80, "unit": "W" },
       "base": { "value": 4235.80, "unit": "W" },
       "conversion_ok": true,
       "line": 121
@@ -394,41 +398,40 @@ for dep_id in deps:
 - **`conversion_ok`**: Critical flag — if `false`, variable is invalid!
 - **No `dimensionality`**: Computed by Pint from `unit` when needed
 
-#### Values vs Formulas: Different Structure
+#### Calculation Strategy: Use Original Units
 
-**Values** have both `original` (user input) and `base` (SI):
+**🚨 IMPORTANT:** We calculate formulas using `original` values, NOT `base`!
+
+```python
+# Calculate with ORIGINAL values - Pint preserves units
+volume = 5 * ureg.liter      # original
+time = 5 * ureg.minute       # original
+flow = volume / time         # → 1.0 L/min (user-friendly!)
+
+# Then convert to base for internal use
+flow_base = flow.to_base_units()  # → 1.67e-05 m³/s
+```
+
+**Why?**
+- User sees familiar units (L/min, not m³/s)
+- Pint automatically tracks and simplifies units
+- `base` is available for internal calculations when needed
+
+**Both values AND formulas have `original` + `base`:**
+
 ```json
 "v1": {
   "latex_name": "V_{tank}",
   "original": { "value": 5.0, "unit": "L" },
-  "base": { "value": 0.005, "unit": "m³" },
-  ...
+  "base": { "value": 0.005, "unit": "m³" }
 }
-```
 
-**Formulas** only have `base` — we calculate with SI values:
-```json
 "f1": {
   "latex_name": "Q_{flow}",
-  "formula": {
-    "expression": "v1 / v2",
-    "depends_on": ["v1", "v2"]
-  },
-  "base": { "value": 1.67e-05, "unit": "m³/s" },
-  ...
+  "formula": { "expression": "v1 / v2", "depends_on": ["v1", "v2"] },
+  "original": { "value": 1.0, "unit": "L/min" },
+  "base": { "value": 1.67e-05, "unit": "m³/s" }
 }
-```
-
-**Why?**
-- Formulas are computed using `base` values of dependencies
-- This ensures consistent SI units throughout calculations
-- No ambiguity about which units were used
-
-```python
-# We calculate with base (SI) values:
-volume_base = 0.005  # m³ (was 5 L)
-time_base = 300      # s (was 5 min)
-flow_base = volume_base / time_base  # → 1.67e-05 m³/s
 ```
 
 **Summary:**
@@ -436,7 +439,7 @@ flow_base = volume_base / time_base  # → 1.67e-05 m³/s
 | Type | `original` | `base` |
 |------|------------|--------|
 | Value (`v`) | ✅ User input | ✅ SI conversion |
-| Formula (`f`) | ❌ Not needed | ✅ Computed in SI |
+| Formula (`f`) | ✅ Computed (user-friendly) | ✅ SI conversion |
 
 ### 3.5 Conversion Status Flag
 
