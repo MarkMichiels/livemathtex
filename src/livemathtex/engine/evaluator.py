@@ -270,6 +270,9 @@ class Evaluator:
         This prevents ambiguity where 'g' could mean both 'gram' (unit) and
         'gravitational acceleration' (variable).
 
+        Uses Pint's comprehensive unit database for detection, which covers
+        thousands of units including prefixes and aliases.
+
         Args:
             normalized_name: Internal normalized name (e.g., 'g', 'L_pipe')
             display_name: LaTeX display name (e.g., 'g', 'L_{pipe}')
@@ -277,7 +280,7 @@ class Evaluator:
         Raises:
             EvaluationError: If the name conflicts with a known unit
         """
-        from .units import get_unit_registry, UNIT_ABBREVIATIONS
+        from .pint_backend import check_variable_name_conflict
 
         # Check the full name first (e.g., 'L_pipe', 'g_acc')
         # These are OK because they have subscripts that distinguish them
@@ -293,24 +296,11 @@ class Evaluator:
             # LaTeX subscript like 'L_{pipe}' - also disambiguated
             return
 
-        # Check if this name is a known unit
-        unit_registry = get_unit_registry()
-
-        # Check built-in abbreviations
-        if normalized_name in UNIT_ABBREVIATIONS:
-            unit_type = self._get_unit_description(normalized_name)
-            raise EvaluationError(
-                f"Variable name '{display_name}' conflicts with unit '{normalized_name}' ({unit_type}). "
-                f"Use a subscript like {display_name}_{{var}} or {display_name}_{{0}} to disambiguate."
-            )
-
-        # Check custom-defined units in registry
-        custom_unit = unit_registry.get_unit(normalized_name)
-        if custom_unit is not None:
-            raise EvaluationError(
-                f"Variable name '{display_name}' conflicts with defined unit '{normalized_name}'. "
-                f"Use a subscript like {display_name}_{{var}} to disambiguate."
-            )
+        # Use Pint backend for comprehensive unit detection
+        error = check_variable_name_conflict(normalized_name)
+        if error is not None:
+            # Convert the error message to an exception
+            raise EvaluationError(error)
 
     def _get_unit_description(self, unit_name: str) -> str:
         """Get a human-readable description of a unit."""
