@@ -90,6 +90,17 @@ class Lexer:
             unit_comment = match.group(2)  # Optional unit from <!-- [unit] -->
             value_comment = match.group(3)  # Optional value from <!-- value... -->
             config_comment = match.group(4)  # Optional config from <!-- key:value -->
+            
+            # Handle combined format: <!-- digits:4 [mbar] --> or <!-- [mbar] digits:4 -->
+            # If config_comment contains [unit], extract it
+            if config_comment and not unit_comment:
+                unit_in_config = re.search(r'\[([^\]]+)\]', config_comment)
+                if unit_in_config:
+                    unit_comment = unit_in_config.group(1)
+                    # Remove the unit part from config_comment
+                    config_comment = re.sub(r'\s*\[[^\]]+\]\s*', ' ', config_comment).strip()
+                    if not config_comment:
+                        config_comment = None
 
             is_display = full_math_str.startswith('$$')
             inner_content = full_math_str[2:-2] if is_display else full_math_str[1:-1]

@@ -288,6 +288,7 @@ class UnitRegistry:
         1. Custom units (including currency)
         2. Built-in abbreviations
         3. Compound unit patterns
+        4. Parse compound expressions (kW*h, m/s, etc.)
         """
         # Clean the name
         clean_name = self._clean_unit_name(name)
@@ -303,6 +304,10 @@ class UnitRegistry:
         # Check compound patterns
         if clean_name in COMPOUND_UNIT_PATTERNS:
             return COMPOUND_UNIT_PATTERNS[clean_name]
+        
+        # Try to parse compound expressions like kW*h, m/s, etc.
+        if '*' in clean_name or '/' in clean_name:
+            return self._parse_compound_unit(clean_name)
 
         return None
 

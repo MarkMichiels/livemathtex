@@ -490,6 +490,7 @@ class Evaluator:
         Converts:
         - Unicode superscripts: ² → ^2, ³ → ^3
         - Unicode subscripts: ₀ → _0, ₁ → _1
+        - Unicode middle dot: · → * (multiplication)
         - Common unit symbols: µ → micro (for parsing)
         """
         # Unicode superscripts to LaTeX
@@ -503,11 +504,18 @@ class Evaluator:
             '₀': '_0', '₁': '_1', '₂': '_2', '₃': '_3', '₄': '_4',
             '₅': '_5', '₆': '_6', '₇': '_7', '₈': '_8', '₉': '_9',
         }
+        # Unicode operators
+        operator_map = {
+            '·': '*',  # Middle dot to multiplication
+            '×': '*',  # Multiplication sign to asterisk
+        }
 
         for unicode_char, latex in superscript_map.items():
             unit_str = unit_str.replace(unicode_char, latex)
         for unicode_char, latex in subscript_map.items():
             unit_str = unit_str.replace(unicode_char, latex)
+        for unicode_char, replacement in operator_map.items():
+            unit_str = unit_str.replace(unicode_char, replacement)
 
         return unit_str
 
@@ -579,11 +587,16 @@ class Evaluator:
             return value, ""
 
         try:
-            # Normalize Unicode characters (e.g., m³/s → m^3/s)
+            # Normalize Unicode characters (e.g., m³/s → m^3/s, · → *)
             normalized_unit = self._normalize_unit_string(target_unit_latex)
 
-            # First try to parse as a prefixed unit (kW, MHz, etc.)
-            target_unit = self._parse_unit_with_prefix(normalized_unit)
+            # First check the unit registry for custom units (mbar, kWh, €, etc.)
+            registry = get_unit_registry()
+            target_unit = registry.get_unit(normalized_unit)
+            
+            # If not in registry, try to parse as a prefixed unit (kW, MHz, etc.)
+            if target_unit is None:
+                target_unit = self._parse_unit_with_prefix(normalized_unit)
 
             # If that didn't work, try _compute for complex expressions
             # Use force_units=True to ensure single letters like m, s are units

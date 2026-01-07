@@ -39,18 +39,18 @@ $$kW === kilo \cdot W$$
 
 $$power := 5\ kW$$
 
-$$hours := 8$$
+$$time := 8\ h$$
 
 **Default (SI base units):**
 
-$$energy\_si := power \cdot hours == 4.000e+04\ \text{kg} \cdot \text{m}^{2}/\text{s}^{3}$$
+$$energy\_si := power \cdot time == 1.440e+08\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$
 
-**In custom unit (kW·h):** <!-- unit: kW·h -->
+**In custom unit (kW·h):**
 
-$$energy\_custom := power \cdot hours == 4.000e+04\ \text{kg} \cdot \text{m}^{2}/\text{s}^{3}$$ <!-- format: .0f, unit: kW·h -->
+$$energy\_custom := power \cdot time == 40.00\ \text{kW*h}$$ <!-- [kW*h] -->
 
 **Expected:**
-- SI: 144000000 J (or scientific notation)
+- SI: 144000000 J (or 1.44e+08 kg·m²/s²)
 - Custom: 40 kW·h
 
 ---
@@ -69,9 +69,9 @@ $$factor := 2$$
 
 $$pressure\_si := pressure\_atm \cdot factor == 2.026e+05\ \text{kg}/\text{(m} \cdot \text{s}^{2)}$$
 
-**In custom unit (mbar):** <!-- unit: mbar -->
+**In custom unit (mbar):**
 
-$$pressure\_mbar := pressure\_atm \cdot factor == 2.026e+05\ \text{kg}/\text{(m} \cdot \text{s}^{2)}$$ <!-- format: .0f, unit: mbar -->
+$$pressure\_mbar := pressure\_atm \cdot factor == 2.026e+03\ \text{mbar}$$ <!-- [mbar] digits:4 -->
 
 **Expected:**
 - SI: 202600 Pa (or 2.026e+05 kg/(m·s²))
@@ -119,13 +119,13 @@ $$large\_number := 1234567$$
 
 $$result\_default := large\_number == 1.235e+06$$
 
-**With format .2e (scientific):** <!-- format: .2e -->
+**With 2 significant digits:**
 
-$$result\_sci := large\_number == 1.235e+06$$ <!-- format: .2e -->
+$$result\_2dig := large\_number == 1.2e+06$$ <!-- digits:2 -->
 
-**With format .0f (no decimals):** <!-- format: .0f -->
+**With scientific notation:**
 
-$$result\_int := large\_number == 1.235e+06$$ <!-- format: .0f -->
+$$result\_sci := large\_number == 1.235e+06$$ <!-- format:sci -->
 
 ---
 
@@ -141,16 +141,25 @@ $$result\_int := large\_number == 1.235e+06$$ <!-- format: .0f -->
 | `kWh`, `MWh` | ❌ No | `kWh === kilo \cdot W \cdot hour` |
 | `€`, `$` | ❌ No | `€ === €` |
 
-## Output Control (Planned Features)
+## Output Control Syntax
 
-| Feature | Syntax | Status |
-|---------|--------|--------|
-| SI output (default) | `== ` | ✅ Works |
-| Unit cancellation | `€/kWh × kWh = €` | ✅ Works |
-| Custom unit output | `== <!-- unit: mbar -->` | 🔜 Planned |
-| Number format | `== <!-- format: .2f -->` | 🔜 Planned |
-| Thousands separator | `== <!-- format: ,.0f -->` | 🔜 Planned |
+```markdown
+# SI output (default) - no comment needed
+$x ==$
+
+# Custom unit - wrap in [brackets]
+$x ==$ <!-- [mbar] -->
+
+# Digits control
+$x ==$ <!-- digits:2 -->
+
+# Format control (sci, eng, decimal)
+$x ==$ <!-- format:sci -->
+
+# Combined: digits + unit
+$x ==$ <!-- digits:4 [mbar] -->
+```
 
 ---
 
-> *livemathtex: 2026-01-07 01:26:36 | 21 definitions, 10 evaluations | no errors | 0.19s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 01:34:49 | 21 definitions, 10 evaluations | no errors | 0.19s* <!-- livemathtex-meta -->
