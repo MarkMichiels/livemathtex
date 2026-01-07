@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Configuration Settings Demo
 
 This example demonstrates all livemathtex configuration settings using **expression-level overrides**. Each calculation shows the same value formatted differently to illustrate what each setting does.
@@ -146,4 +148,4 @@ $\text{power} == 2.50e6$ <!-- format:engineering digits:3 -->
 
 ---
 
-> *livemathtex: 2026-01-07 01:51:03 | 9 definitions, 22 evaluations | no errors | 0.27s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 02:40:48 | 9 definitions, 22 evaluations | no errors | 0.27s* <!-- livemathtex-meta -->

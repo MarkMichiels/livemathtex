@@ -64,6 +64,7 @@ class LivemathConfig:
     unit_system: UnitSystem = "SI"
     timeout: int = 5
     output: str = "timestamped"
+    json: bool = False  # Generate .lmt.json IR file for debugging
 
     # Tier 2: Advanced settings
     simplify_units: bool = True

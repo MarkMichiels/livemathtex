@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Newton's Second Law: F = m × a
 
 This example demonstrates SI units and variable naming.

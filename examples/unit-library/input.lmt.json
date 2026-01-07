@@ -1,0 +1,498 @@
+{
+  "version": "1.0",
+  "source": "input.md",
+  "symbols": {
+    "€": {
+      "mapping": {
+        "latex_original": "€",
+        "latex_display": "€",
+        "internal_name": "€"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 12
+    },
+    "dollar": {
+      "mapping": {
+        "latex_original": "dollar",
+        "latex_display": "dollar",
+        "internal_name": "dollar"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 14
+    },
+    "cent": {
+      "mapping": {
+        "latex_original": "cent",
+        "latex_display": "cent",
+        "internal_name": "cent"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 16
+    },
+    "mL": {
+      "mapping": {
+        "latex_original": "mL",
+        "latex_display": "mL",
+        "internal_name": "mL"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 24
+    },
+    "m³": {
+      "mapping": {
+        "latex_original": "m³",
+        "latex_display": "m³",
+        "internal_name": "m³"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 26
+    },
+    "mg/L": {
+      "mapping": {
+        "latex_original": "mg/L",
+        "latex_display": "mg/L",
+        "internal_name": "mg/L"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 34
+    },
+    "g/L": {
+      "mapping": {
+        "latex_original": "g/L",
+        "latex_display": "g/L",
+        "internal_name": "g/L"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 36
+    },
+    "L/h": {
+      "mapping": {
+        "latex_original": "L/h",
+        "latex_display": "L/h",
+        "internal_name": "L/h"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 42
+    },
+    "m³/h": {
+      "mapping": {
+        "latex_original": "m³/h",
+        "latex_display": "m³/h",
+        "internal_name": "m³/h"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 44
+    },
+    "m³/day": {
+      "mapping": {
+        "latex_original": "m³/day",
+        "latex_display": "m³/day",
+        "internal_name": "m³/day"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 46
+    },
+    "kWh": {
+      "mapping": {
+        "latex_original": "kWh",
+        "latex_display": "kWh",
+        "internal_name": "kWh"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 52
+    },
+    "MWh": {
+      "mapping": {
+        "latex_original": "MWh",
+        "latex_display": "MWh",
+        "internal_name": "MWh"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 54
+    },
+    "mbar": {
+      "mapping": {
+        "latex_original": "mbar",
+        "latex_display": "mbar",
+        "internal_name": "mbar"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 60
+    },
+    "kPa": {
+      "mapping": {
+        "latex_original": "kPa",
+        "latex_display": "kPa",
+        "internal_name": "kPa"
+      },
+      "value": null,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": null,
+      "line": 62
+    },
+    "electricity\\_price": {
+      "mapping": {
+        "latex_original": "electricity\\_price",
+        "latex_display": "electricity\\_price",
+        "internal_name": "v_{0}"
+      },
+      "value": 0.139,
+      "unit": null,
+      "unit_latex": "€/kWh",
+      "expression_latex": "0.139\\ €/kWh",
+      "line": 70
+    },
+    "consumption": {
+      "mapping": {
+        "latex_original": "consumption",
+        "latex_display": "consumption",
+        "internal_name": "v_{1}"
+      },
+      "value": 24000.0,
+      "unit": null,
+      "unit_latex": "kWh",
+      "expression_latex": "24000\\ kWh",
+      "line": 72
+    },
+    "cost": {
+      "mapping": {
+        "latex_original": "cost",
+        "latex_display": "cost",
+        "internal_name": "v_{2}"
+      },
+      "value": 3336.0,
+      "unit": null,
+      "unit_latex": "€",
+      "expression_latex": "electricity\\_price \\cdot consumption",
+      "line": 74
+    },
+    "productivity": {
+      "mapping": {
+        "latex_original": "productivity",
+        "latex_display": "productivity",
+        "internal_name": "v_{3}"
+      },
+      "value": 5.0,
+      "unit": null,
+      "unit_latex": "g/L",
+      "expression_latex": "5\\ g/L",
+      "line": 78
+    },
+    "reactor\\_volume": {
+      "mapping": {
+        "latex_original": "reactor\\_volume",
+        "latex_display": "reactor\\_volume",
+        "internal_name": "v_{4}"
+      },
+      "value": 100.0,
+      "unit": null,
+      "unit_latex": "L",
+      "expression_latex": "100\\ L",
+      "line": 80
+    },
+    "total": {
+      "mapping": {
+        "latex_original": "total",
+        "latex_display": "total",
+        "internal_name": "v_{5}"
+      },
+      "value": 500.0,
+      "unit": null,
+      "unit_latex": "g",
+      "expression_latex": "productivity \\cdot reactor\\_volume",
+      "line": 82
+    },
+    "hours\\_per\\_day": {
+      "mapping": {
+        "latex_original": "hours\\_per\\_day",
+        "latex_display": "hours\\_per\\_day",
+        "internal_name": "v_{6}"
+      },
+      "value": 8.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "8",
+      "line": 86
+    },
+    "days\\_per\\_week": {
+      "mapping": {
+        "latex_original": "days\\_per\\_week",
+        "latex_display": "days\\_per\\_week",
+        "internal_name": "v_{7}"
+      },
+      "value": 5.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "5",
+      "line": 88
+    },
+    "weeks\\_per\\_year": {
+      "mapping": {
+        "latex_original": "weeks\\_per\\_year",
+        "latex_display": "weeks\\_per\\_year",
+        "internal_name": "v_{8}"
+      },
+      "value": 48.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "48",
+      "line": 90
+    },
+    "total\\_hours": {
+      "mapping": {
+        "latex_original": "total\\_hours",
+        "latex_display": "total\\_hours",
+        "internal_name": "v_{9}"
+      },
+      "value": 1920.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "hours\\_per\\_day \\cdot days\\_per\\_week \\cdot weeks\\_per\\_year",
+      "line": 92
+    }
+  },
+  "blocks": [
+    {
+      "line": 12,
+      "latex_input": "€ === €",
+      "latex_output": "€ === €",
+      "operation": "===",
+      "target": "€",
+      "error": null
+    },
+    {
+      "line": 14,
+      "latex_input": "dollar === dollar",
+      "latex_output": "dollar === dollar",
+      "operation": "===",
+      "target": "dollar",
+      "error": null
+    },
+    {
+      "line": 16,
+      "latex_input": "cent === € / 100",
+      "latex_output": "cent === € / 100",
+      "operation": "===",
+      "target": "cent",
+      "error": null
+    },
+    {
+      "line": 24,
+      "latex_input": "mL === mL",
+      "latex_output": "mL === mL",
+      "operation": "===",
+      "target": "mL",
+      "error": null
+    },
+    {
+      "line": 26,
+      "latex_input": "m³ === m^3",
+      "latex_output": "m³ === m^3",
+      "operation": "===",
+      "target": "m³",
+      "error": null
+    },
+    {
+      "line": 34,
+      "latex_input": "mg/L === mg / L",
+      "latex_output": "mg/L === mg / L",
+      "operation": "===",
+      "target": "mg/L",
+      "error": null
+    },
+    {
+      "line": 36,
+      "latex_input": "g/L === g / L",
+      "latex_output": "g/L === g / L",
+      "operation": "===",
+      "target": "g/L",
+      "error": null
+    },
+    {
+      "line": 42,
+      "latex_input": "L/h === L / h",
+      "latex_output": "L/h === L / h",
+      "operation": "===",
+      "target": "L/h",
+      "error": null
+    },
+    {
+      "line": 44,
+      "latex_input": "m³/h === m^3 / h",
+      "latex_output": "m³/h === m^3 / h",
+      "operation": "===",
+      "target": "m³/h",
+      "error": null
+    },
+    {
+      "line": 46,
+      "latex_input": "m³/day === m^3 / day",
+      "latex_output": "m³/day === m^3 / day",
+      "operation": "===",
+      "target": "m³/day",
+      "error": null
+    },
+    {
+      "line": 52,
+      "latex_input": "kWh === kW \\cdot h",
+      "latex_output": "kWh === kW \\cdot h",
+      "operation": "===",
+      "target": "kWh",
+      "error": null
+    },
+    {
+      "line": 54,
+      "latex_input": "MWh === MW \\cdot h",
+      "latex_output": "MWh === MW \\cdot h",
+      "operation": "===",
+      "target": "MWh",
+      "error": null
+    },
+    {
+      "line": 60,
+      "latex_input": "mbar === bar / 1000",
+      "latex_output": "mbar === bar / 1000",
+      "operation": "===",
+      "target": "mbar",
+      "error": null
+    },
+    {
+      "line": 62,
+      "latex_input": "kPa === Pa \\cdot 1000",
+      "latex_output": "kPa === Pa \\cdot 1000",
+      "operation": "===",
+      "target": "kPa",
+      "error": null
+    },
+    {
+      "line": 70,
+      "latex_input": "electricity\\_price := 0.139\\ €/kWh",
+      "latex_output": "electricity\\_price := 0.139\\ €/kWh",
+      "operation": ":=",
+      "target": "electricity\\_price",
+      "error": null
+    },
+    {
+      "line": 72,
+      "latex_input": "consumption := 24000\\ kWh",
+      "latex_output": "consumption := 24000\\ kWh",
+      "operation": ":=",
+      "target": "consumption",
+      "error": null
+    },
+    {
+      "line": 74,
+      "latex_input": "cost := electricity\\_price \\cdot consumption ==",
+      "latex_output": "cost := electricity\\_price \\cdot consumption ==",
+      "operation": ":=_==",
+      "target": "cost",
+      "error": null
+    },
+    {
+      "line": 78,
+      "latex_input": "productivity := 5\\ g/L",
+      "latex_output": "productivity := 5\\ g/L",
+      "operation": ":=",
+      "target": "productivity",
+      "error": null
+    },
+    {
+      "line": 80,
+      "latex_input": "reactor\\_volume := 100\\ L",
+      "latex_output": "reactor\\_volume := 100\\ L",
+      "operation": ":=",
+      "target": "reactor\\_volume",
+      "error": null
+    },
+    {
+      "line": 82,
+      "latex_input": "total := productivity \\cdot reactor\\_volume ==",
+      "latex_output": "total := productivity \\cdot reactor\\_volume ==",
+      "operation": ":=_==",
+      "target": "total",
+      "error": null
+    },
+    {
+      "line": 86,
+      "latex_input": "hours\\_per\\_day := 8",
+      "latex_output": "hours\\_per\\_day := 8",
+      "operation": ":=",
+      "target": "hours\\_per\\_day",
+      "error": null
+    },
+    {
+      "line": 88,
+      "latex_input": "days\\_per\\_week := 5",
+      "latex_output": "days\\_per\\_week := 5",
+      "operation": ":=",
+      "target": "days\\_per\\_week",
+      "error": null
+    },
+    {
+      "line": 90,
+      "latex_input": "weeks\\_per\\_year := 48",
+      "latex_output": "weeks\\_per\\_year := 48",
+      "operation": ":=",
+      "target": "weeks\\_per\\_year",
+      "error": null
+    },
+    {
+      "line": 92,
+      "latex_input": "total\\_hours := hours\\_per\\_day \\cdot days\\_per\\_week \\cdot weeks\\_per\\_year ==",
+      "latex_output": "total\\_hours := hours\\_per\\_day \\cdot days\\_per\\_week \\cdot weeks\\_per\\_year ==",
+      "operation": ":=_==",
+      "target": "total\\_hours",
+      "error": null
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-07 02:40:49",
+    "duration": "0.09s",
+    "definitions": 10,
+    "evaluations": 3,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0
+  }
+}

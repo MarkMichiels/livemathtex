@@ -1,4 +1,0 @@
-# Livemathtex configuration for simple example
-# This ensures output always goes to output.md (not timestamped)
-
-output = "output.md"

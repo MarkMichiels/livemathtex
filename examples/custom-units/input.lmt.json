@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "source": "examples/custom-units/input.md",
+  "source": "input.md",
   "symbols": {
     "€": {
       "mapping": {
@@ -10,41 +10,45 @@
       },
       "value": null,
       "unit": null,
+      "unit_latex": null,
       "expression_latex": null,
-      "line": 22
+      "line": 24
     },
     "price": {
       "mapping": {
         "latex_original": "price",
         "latex_display": "price",
-        "internal_name": "price"
+        "internal_name": "v_{0}"
       },
       "value": 100.0,
       "unit": null,
+      "unit_latex": "€",
       "expression_latex": "100\\ €",
-      "line": 24
+      "line": 26
     },
     "discount": {
       "mapping": {
         "latex_original": "discount",
         "latex_display": "discount",
-        "internal_name": "discount"
+        "internal_name": "v_{1}"
       },
       "value": 0.2,
       "unit": null,
+      "unit_latex": null,
       "expression_latex": "0.20",
-      "line": 26
+      "line": 28
     },
     "final\\_price": {
       "mapping": {
         "latex_original": "final\\_price",
         "latex_display": "final\\_price",
-        "internal_name": "final\\_price"
+        "internal_name": "v_{2}"
       },
-      "value": null,
+      "value": 80.0,
       "unit": null,
+      "unit_latex": "€",
       "expression_latex": "price \\cdot (1 - discount)",
-      "line": 28
+      "line": 30
     },
     "kW": {
       "mapping": {
@@ -54,52 +58,69 @@
       },
       "value": null,
       "unit": null,
+      "unit_latex": null,
       "expression_latex": null,
-      "line": 38
+      "line": 40
     },
     "power": {
       "mapping": {
         "latex_original": "power",
         "latex_display": "power",
-        "internal_name": "power"
+        "internal_name": "v_{3}"
       },
       "value": 5.0,
       "unit": null,
+      "unit_latex": "kW",
       "expression_latex": "5\\ kW",
-      "line": 40
+      "line": 42
     },
-    "hours": {
+    "time": {
       "mapping": {
-        "latex_original": "hours",
-        "latex_display": "hours",
-        "internal_name": "hours"
+        "latex_original": "time",
+        "latex_display": "time",
+        "internal_name": "v_{4}"
       },
       "value": 8.0,
       "unit": null,
-      "expression_latex": "8",
-      "line": 42
+      "unit_latex": "h",
+      "expression_latex": "8\\ h",
+      "line": 44
     },
     "energy\\_si": {
       "mapping": {
         "latex_original": "energy\\_si",
         "latex_display": "energy\\_si",
-        "internal_name": "energy\\_si"
+        "internal_name": "v_{5}"
       },
-      "value": null,
+      "value": 40000.0,
       "unit": null,
-      "expression_latex": "power \\cdot hours",
-      "line": 46
+      "unit_latex": "h·W",
+      "expression_latex": "power \\cdot time",
+      "line": 49
     },
-    "energy\\_custom": {
+    "energy\\_kWh": {
       "mapping": {
-        "latex_original": "energy\\_custom",
-        "latex_display": "energy\\_custom",
-        "internal_name": "energy\\_custom"
+        "latex_original": "energy\\_kWh",
+        "latex_display": "energy\\_kWh",
+        "internal_name": "v_{6}"
       },
-      "value": null,
+      "value": 40000.0,
       "unit": null,
-      "expression_latex": "power \\cdot hours",
-      "line": 50
+      "unit_latex": "h·W",
+      "expression_latex": "power \\cdot time",
+      "line": 54
+    },
+    "energy\\_decimal": {
+      "mapping": {
+        "latex_original": "energy\\_decimal",
+        "latex_display": "energy\\_decimal",
+        "internal_name": "v_{7}"
+      },
+      "value": 40000.0,
+      "unit": null,
+      "unit_latex": "h·W",
+      "expression_latex": "power \\cdot time",
+      "line": 58
     },
     "mbar": {
       "mapping": {
@@ -109,52 +130,57 @@
       },
       "value": null,
       "unit": null,
+      "unit_latex": null,
       "expression_latex": null,
-      "line": 62
+      "line": 71
     },
     "pressure\\_atm": {
       "mapping": {
         "latex_original": "pressure\\_atm",
         "latex_display": "pressure\\_atm",
-        "internal_name": "pressure\\_atm"
+        "internal_name": "v_{8}"
       },
-      "value": null,
+      "value": 1013.0,
       "unit": null,
+      "unit_latex": "mbar",
       "expression_latex": "1013\\ mbar",
-      "line": 64
+      "line": 73
     },
     "factor": {
       "mapping": {
         "latex_original": "factor",
         "latex_display": "factor",
-        "internal_name": "factor"
+        "internal_name": "v_{9}"
       },
       "value": 2.0,
       "unit": null,
+      "unit_latex": null,
       "expression_latex": "2",
-      "line": 66
+      "line": 75
     },
     "pressure\\_si": {
       "mapping": {
         "latex_original": "pressure\\_si",
         "latex_display": "pressure\\_si",
-        "internal_name": "pressure\\_si"
+        "internal_name": "v_{10}"
       },
-      "value": null,
+      "value": 2.026,
       "unit": null,
+      "unit_latex": "bar",
       "expression_latex": "pressure\\_atm \\cdot factor",
-      "line": 70
+      "line": 79
     },
     "pressure\\_mbar": {
       "mapping": {
         "latex_original": "pressure\\_mbar",
         "latex_display": "pressure\\_mbar",
-        "internal_name": "pressure\\_mbar"
+        "internal_name": "v_{11}"
       },
-      "value": null,
+      "value": 2.026,
       "unit": null,
+      "unit_latex": "bar",
       "expression_latex": "pressure\\_atm \\cdot factor",
-      "line": 74
+      "line": 83
     },
     "kWh": {
       "mapping": {
@@ -164,123 +190,554 @@
       },
       "value": null,
       "unit": null,
+      "unit_latex": null,
       "expression_latex": null,
-      "line": 86
+      "line": 95
     },
     "electricity\\_price": {
       "mapping": {
         "latex_original": "electricity\\_price",
         "latex_display": "electricity\\_price",
-        "internal_name": "electricity\\_price"
+        "internal_name": "v_{12}"
       },
-      "value": null,
+      "value": 0.139,
       "unit": null,
+      "unit_latex": "€/kWh",
       "expression_latex": "0.139\\ €/kWh",
-      "line": 88
+      "line": 97
     },
     "consumption": {
       "mapping": {
         "latex_original": "consumption",
         "latex_display": "consumption",
-        "internal_name": "consumption"
+        "internal_name": "v_{13}"
       },
       "value": 1500.0,
       "unit": null,
+      "unit_latex": "kWh",
       "expression_latex": "1500\\ kWh",
-      "line": 90
+      "line": 99
     },
     "cost": {
       "mapping": {
         "latex_original": "cost",
         "latex_display": "cost",
-        "internal_name": "cost"
+        "internal_name": "v_{14}"
       },
       "value": 208.5,
       "unit": null,
+      "unit_latex": "€",
       "expression_latex": "electricity\\_price \\cdot consumption",
-      "line": 92
+      "line": 101
     },
     "cost\\_per\\_kg": {
       "mapping": {
         "latex_original": "cost\\_per\\_kg",
         "latex_display": "cost\\_per\\_kg",
-        "internal_name": "cost\\_per\\_kg"
+        "internal_name": "v_{15}"
       },
-      "value": null,
+      "value": 25.0,
       "unit": null,
+      "unit_latex": "€/kg",
       "expression_latex": "25\\ €/kg",
-      "line": 102
+      "line": 111
     },
     "weight": {
       "mapping": {
         "latex_original": "weight",
         "latex_display": "weight",
-        "internal_name": "weight"
+        "internal_name": "v_{16}"
       },
       "value": 4.0,
       "unit": null,
+      "unit_latex": "kg",
       "expression_latex": "4\\ kg",
-      "line": 104
+      "line": 113
     },
     "total": {
       "mapping": {
         "latex_original": "total",
         "latex_display": "total",
-        "internal_name": "total"
+        "internal_name": "v_{17}"
       },
       "value": 100.0,
       "unit": null,
+      "unit_latex": "€",
       "expression_latex": "cost\\_per\\_kg \\cdot weight",
-      "line": 106
+      "line": 115
     },
-    "large\\_number": {
+    "big": {
       "mapping": {
-        "latex_original": "large\\_number",
-        "latex_display": "large\\_number",
-        "internal_name": "large\\_number"
+        "latex_original": "big",
+        "latex_display": "big",
+        "internal_name": "v_{18}"
       },
-      "value": null,
+      "value": 144000000.0,
       "unit": null,
-      "expression_latex": "1234567",
-      "line": 116
+      "unit_latex": null,
+      "expression_latex": "144000000",
+      "line": 127
     },
-    "result\\_default": {
+    "medium": {
       "mapping": {
-        "latex_original": "result\\_default",
-        "latex_display": "result\\_default",
-        "internal_name": "result\\_default"
+        "latex_original": "medium",
+        "latex_display": "medium",
+        "internal_name": "v_{19}"
       },
-      "value": null,
+      "value": 12345.6789,
       "unit": null,
-      "expression_latex": "large\\_number",
-      "line": 120
-    },
-    "result\\_2dig": {
-      "mapping": {
-        "latex_original": "result\\_2dig",
-        "latex_display": "result\\_2dig",
-        "internal_name": "result\\_2dig"
-      },
-      "value": null,
-      "unit": null,
-      "expression_latex": "large\\_number",
-      "line": 124
-    },
-    "result\\_sci": {
-      "mapping": {
-        "latex_original": "result\\_sci",
-        "latex_display": "result\\_sci",
-        "internal_name": "result\\_sci"
-      },
-      "value": null,
-      "unit": null,
-      "expression_latex": "large\\_number",
+      "unit_latex": null,
+      "expression_latex": "12345.6789",
       "line": 128
+    },
+    "small": {
+      "mapping": {
+        "latex_original": "small",
+        "latex_display": "small",
+        "internal_name": "v_{20}"
+      },
+      "value": 1.2345e-05,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "0.000012345",
+      "line": 129
+    },
+    "integer": {
+      "mapping": {
+        "latex_original": "integer",
+        "latex_display": "integer",
+        "internal_name": "v_{21}"
+      },
+      "value": 40.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "40",
+      "line": 130
+    },
+    "pi\\_val": {
+      "mapping": {
+        "latex_original": "pi\\_val",
+        "latex_display": "pi\\_val",
+        "internal_name": "v_{22}"
+      },
+      "value": 3.14159265359,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "3.14159265359",
+      "line": 131
+    },
+    "fmt\\_general": {
+      "mapping": {
+        "latex_original": "fmt\\_general",
+        "latex_display": "fmt\\_general",
+        "internal_name": "v_{23}"
+      },
+      "value": 144000000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "big",
+      "line": 139
+    },
+    "fmt\\_general\\_med": {
+      "mapping": {
+        "latex_original": "fmt\\_general\\_med",
+        "latex_display": "fmt\\_general\\_med",
+        "internal_name": "v_{24}"
+      },
+      "value": 12345.6789,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "medium",
+      "line": 141
+    },
+    "fmt\\_decimal": {
+      "mapping": {
+        "latex_original": "fmt\\_decimal",
+        "latex_display": "fmt\\_decimal",
+        "internal_name": "v_{25}"
+      },
+      "value": 144000000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "big",
+      "line": 145
+    },
+    "fmt\\_sci": {
+      "mapping": {
+        "latex_original": "fmt\\_sci",
+        "latex_display": "fmt\\_sci",
+        "internal_name": "v_{26}"
+      },
+      "value": 144000000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "big",
+      "line": 149
+    },
+    "fmt\\_sci\\_small": {
+      "mapping": {
+        "latex_original": "fmt\\_sci\\_small",
+        "latex_display": "fmt\\_sci\\_small",
+        "internal_name": "v_{27}"
+      },
+      "value": 1.2345e-05,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "small",
+      "line": 151
+    },
+    "fmt\\_eng": {
+      "mapping": {
+        "latex_original": "fmt\\_eng",
+        "latex_display": "fmt\\_eng",
+        "internal_name": "v_{28}"
+      },
+      "value": 144000000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "big",
+      "line": 155
+    },
+    "fmt\\_eng\\_small": {
+      "mapping": {
+        "latex_original": "fmt\\_eng\\_small",
+        "latex_display": "fmt\\_eng\\_small",
+        "internal_name": "v_{29}"
+      },
+      "value": 1.2345e-05,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "small",
+      "line": 157
+    },
+    "dig\\_default": {
+      "mapping": {
+        "latex_original": "dig\\_default",
+        "latex_display": "dig\\_default",
+        "internal_name": "v_{30}"
+      },
+      "value": 3.14159265359,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "pi\\_val",
+      "line": 165
+    },
+    "dig\\_2": {
+      "mapping": {
+        "latex_original": "dig\\_2",
+        "latex_display": "dig\\_2",
+        "internal_name": "v_{31}"
+      },
+      "value": 3.14159265359,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "pi\\_val",
+      "line": 167
+    },
+    "dig\\_4": {
+      "mapping": {
+        "latex_original": "dig\\_4",
+        "latex_display": "dig\\_4",
+        "internal_name": "v_{32}"
+      },
+      "value": 3.14159265359,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "pi\\_val",
+      "line": 169
+    },
+    "dig\\_8": {
+      "mapping": {
+        "latex_original": "dig\\_8",
+        "latex_display": "dig\\_8",
+        "internal_name": "v_{33}"
+      },
+      "value": 3.14159265359,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "pi\\_val",
+      "line": 171
+    },
+    "dig\\_sci\\_3": {
+      "mapping": {
+        "latex_original": "dig\\_sci\\_3",
+        "latex_display": "dig\\_sci\\_3",
+        "internal_name": "v_{34}"
+      },
+      "value": 144000000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "big",
+      "line": 175
+    },
+    "dig\\_eng\\_4": {
+      "mapping": {
+        "latex_original": "dig\\_eng\\_4",
+        "latex_display": "dig\\_eng\\_4",
+        "internal_name": "v_{35}"
+      },
+      "value": 144000000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "big",
+      "line": 177
+    },
+    "thou\\_1": {
+      "mapping": {
+        "latex_original": "thou\\_1",
+        "latex_display": "thou\\_1",
+        "internal_name": "v_{36}"
+      },
+      "value": 1234.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "1234",
+      "line": 185
+    },
+    "thou\\_2": {
+      "mapping": {
+        "latex_original": "thou\\_2",
+        "latex_display": "thou\\_2",
+        "internal_name": "v_{37}"
+      },
+      "value": 12345.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "12345",
+      "line": 187
+    },
+    "thou\\_3": {
+      "mapping": {
+        "latex_original": "thou\\_3",
+        "latex_display": "thou\\_3",
+        "internal_name": "v_{38}"
+      },
+      "value": 1234567.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "1234567",
+      "line": 189
+    },
+    "thou\\_4": {
+      "mapping": {
+        "latex_original": "thou\\_4",
+        "latex_display": "thou\\_4",
+        "internal_name": "v_{39}"
+      },
+      "value": 123456789.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "123456789",
+      "line": 191
+    },
+    "thou\\_5": {
+      "mapping": {
+        "latex_original": "thou\\_5",
+        "latex_display": "thou\\_5",
+        "internal_name": "v_{40}"
+      },
+      "value": 1234567890.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "1234567890",
+      "line": 193
+    },
+    "trail\\_1": {
+      "mapping": {
+        "latex_original": "trail\\_1",
+        "latex_display": "trail\\_1",
+        "internal_name": "v_{41}"
+      },
+      "value": 40.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "40.0000",
+      "line": 201
+    },
+    "trail\\_2": {
+      "mapping": {
+        "latex_original": "trail\\_2",
+        "latex_display": "trail\\_2",
+        "internal_name": "v_{42}"
+      },
+      "value": 3.14,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "3.14000",
+      "line": 203
+    },
+    "trail\\_3": {
+      "mapping": {
+        "latex_original": "trail\\_3",
+        "latex_display": "trail\\_3",
+        "internal_name": "v_{43}"
+      },
+      "value": 40.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "integer",
+      "line": 205
+    },
+    "combo\\_power": {
+      "mapping": {
+        "latex_original": "combo\\_power",
+        "latex_display": "combo\\_power",
+        "internal_name": "v_{44}"
+      },
+      "value": 5.0,
+      "unit": null,
+      "unit_latex": "kW",
+      "expression_latex": "5\\ kW",
+      "line": 213
+    },
+    "combo\\_hours": {
+      "mapping": {
+        "latex_original": "combo\\_hours",
+        "latex_display": "combo\\_hours",
+        "internal_name": "v_{45}"
+      },
+      "value": 8.0,
+      "unit": null,
+      "unit_latex": "h",
+      "expression_latex": "8\\ h",
+      "line": 214
+    },
+    "combo\\_energy": {
+      "mapping": {
+        "latex_original": "combo\\_energy",
+        "latex_display": "combo\\_energy",
+        "internal_name": "v_{46}"
+      },
+      "value": 40000.0,
+      "unit": null,
+      "unit_latex": "h·W",
+      "expression_latex": "combo\\_power \\cdot combo\\_hours",
+      "line": 216
+    },
+    "combo\\_kwh": {
+      "mapping": {
+        "latex_original": "combo\\_kwh",
+        "latex_display": "combo\\_kwh",
+        "internal_name": "v_{47}"
+      },
+      "value": 40000.0,
+      "unit": null,
+      "unit_latex": "h·W",
+      "expression_latex": "combo\\_power \\cdot combo\\_hours",
+      "line": 218
+    },
+    "combo\\_sci": {
+      "mapping": {
+        "latex_original": "combo\\_sci",
+        "latex_display": "combo\\_sci",
+        "internal_name": "v_{48}"
+      },
+      "value": 40000.0,
+      "unit": null,
+      "unit_latex": "h·W",
+      "expression_latex": "combo\\_power \\cdot combo\\_hours",
+      "line": 220
+    },
+    "combo\\_full": {
+      "mapping": {
+        "latex_original": "combo\\_full",
+        "latex_display": "combo\\_full",
+        "internal_name": "v_{49}"
+      },
+      "value": 40000.0,
+      "unit": null,
+      "unit_latex": "h·W",
+      "expression_latex": "combo\\_power \\cdot combo\\_hours",
+      "line": 222
+    },
+    "zero": {
+      "mapping": {
+        "latex_original": "zero",
+        "latex_display": "zero",
+        "internal_name": "v_{50}"
+      },
+      "value": 0.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "0",
+      "line": 230
+    },
+    "neg": {
+      "mapping": {
+        "latex_original": "neg",
+        "latex_display": "neg",
+        "internal_name": "v_{51}"
+      },
+      "value": -12345678.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "-12345678",
+      "line": 234
+    },
+    "tiny": {
+      "mapping": {
+        "latex_original": "tiny",
+        "latex_display": "tiny",
+        "internal_name": "v_{52}"
+      },
+      "value": 1e-09,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "0.000000001",
+      "line": 238
+    },
+    "tiny\\_sci": {
+      "mapping": {
+        "latex_original": "tiny\\_sci",
+        "latex_display": "tiny\\_sci",
+        "internal_name": "v_{53}"
+      },
+      "value": 1e-09,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "0.000000001",
+      "line": 242
+    },
+    "huge": {
+      "mapping": {
+        "latex_original": "huge",
+        "latex_display": "huge",
+        "internal_name": "v_{54}"
+      },
+      "value": 1000000000000000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "1000000000000000",
+      "line": 246
+    },
+    "huge\\_eng": {
+      "mapping": {
+        "latex_original": "huge\\_eng",
+        "latex_display": "huge\\_eng",
+        "internal_name": "v_{55}"
+      },
+      "value": 1000000000000000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "1000000000000000",
+      "line": 250
+    },
+    "huge\\_dec": {
+      "mapping": {
+        "latex_original": "huge\\_dec",
+        "latex_display": "huge\\_dec",
+        "internal_name": "v_{56}"
+      },
+      "value": 1000000000000000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "1000000000000000",
+      "line": 254
     }
   },
   "blocks": [
     {
-      "line": 22,
+      "line": 24,
       "latex_input": "€ === €",
       "latex_output": "€ === €",
       "operation": "===",
@@ -288,7 +745,7 @@
       "error": null
     },
     {
-      "line": 24,
+      "line": 26,
       "latex_input": "price := 100\\ €",
       "latex_output": "price := 100\\ €",
       "operation": ":=",
@@ -296,7 +753,7 @@
       "error": null
     },
     {
-      "line": 26,
+      "line": 28,
       "latex_input": "discount := 0.20",
       "latex_output": "discount := 0.20",
       "operation": ":=",
@@ -304,7 +761,7 @@
       "error": null
     },
     {
-      "line": 28,
+      "line": 30,
       "latex_input": "final\\_price := price \\cdot (1 - discount) ==",
       "latex_output": "final\\_price := price \\cdot (1 - discount) ==",
       "operation": ":=_==",
@@ -312,7 +769,7 @@
       "error": null
     },
     {
-      "line": 38,
+      "line": 40,
       "latex_input": "kW === kilo \\cdot W",
       "latex_output": "kW === kilo \\cdot W",
       "operation": "===",
@@ -320,7 +777,7 @@
       "error": null
     },
     {
-      "line": 40,
+      "line": 42,
       "latex_input": "power := 5\\ kW",
       "latex_output": "power := 5\\ kW",
       "operation": ":=",
@@ -328,31 +785,55 @@
       "error": null
     },
     {
-      "line": 42,
-      "latex_input": "hours := 8",
-      "latex_output": "hours := 8",
+      "line": 44,
+      "latex_input": "time := 8\\ h",
+      "latex_output": "time := 8\\ h",
       "operation": ":=",
-      "target": "hours",
+      "target": "time",
       "error": null
     },
     {
-      "line": 46,
-      "latex_input": "energy\\_si := power \\cdot hours ==",
-      "latex_output": "energy\\_si := power \\cdot hours ==",
+      "line": 48,
+      "latex_input": "energy\\_si := power \\cdot time ==",
+      "latex_output": "energy\\_si := power \\cdot time ==",
       "operation": ":=_==",
       "target": "energy\\_si",
       "error": null
     },
     {
-      "line": 50,
-      "latex_input": "energy\\_custom := power \\cdot hours ==",
-      "latex_output": "energy\\_custom := power \\cdot hours ==",
+      "line": 49,
+      "latex_input": "energy\\_si := power \\cdot time ==",
+      "latex_output": "energy\\_si := power \\cdot time ==",
       "operation": ":=_==",
-      "target": "energy\\_custom",
+      "target": "energy\\_si",
       "error": null
     },
     {
-      "line": 62,
+      "line": 53,
+      "latex_input": "energy\\_kWh := power \\cdot time ==",
+      "latex_output": "energy\\_kWh := power \\cdot time ==",
+      "operation": ":=_==",
+      "target": "energy\\_kWh",
+      "error": null
+    },
+    {
+      "line": 54,
+      "latex_input": "energy\\_kWh := power \\cdot time ==",
+      "latex_output": "energy\\_kWh := power \\cdot time ==",
+      "operation": ":=_==",
+      "target": "energy\\_kWh",
+      "error": null
+    },
+    {
+      "line": 58,
+      "latex_input": "energy\\_decimal := power \\cdot time ==",
+      "latex_output": "energy\\_decimal := power \\cdot time ==",
+      "operation": ":=_==",
+      "target": "energy\\_decimal",
+      "error": null
+    },
+    {
+      "line": 71,
       "latex_input": "mbar === milli \\cdot bar",
       "latex_output": "mbar === milli \\cdot bar",
       "operation": "===",
@@ -360,7 +841,7 @@
       "error": null
     },
     {
-      "line": 64,
+      "line": 73,
       "latex_input": "pressure\\_atm := 1013\\ mbar",
       "latex_output": "pressure\\_atm := 1013\\ mbar",
       "operation": ":=",
@@ -368,7 +849,7 @@
       "error": null
     },
     {
-      "line": 66,
+      "line": 75,
       "latex_input": "factor := 2",
       "latex_output": "factor := 2",
       "operation": ":=",
@@ -376,7 +857,7 @@
       "error": null
     },
     {
-      "line": 70,
+      "line": 79,
       "latex_input": "pressure\\_si := pressure\\_atm \\cdot factor ==",
       "latex_output": "pressure\\_si := pressure\\_atm \\cdot factor ==",
       "operation": ":=_==",
@@ -384,7 +865,7 @@
       "error": null
     },
     {
-      "line": 74,
+      "line": 83,
       "latex_input": "pressure\\_mbar := pressure\\_atm \\cdot factor ==",
       "latex_output": "pressure\\_mbar := pressure\\_atm \\cdot factor ==",
       "operation": ":=_==",
@@ -392,7 +873,7 @@
       "error": null
     },
     {
-      "line": 86,
+      "line": 95,
       "latex_input": "kWh === kilo \\cdot W \\cdot hour",
       "latex_output": "kWh === kilo \\cdot W \\cdot hour",
       "operation": "===",
@@ -400,7 +881,7 @@
       "error": null
     },
     {
-      "line": 88,
+      "line": 97,
       "latex_input": "electricity\\_price := 0.139\\ €/kWh",
       "latex_output": "electricity\\_price := 0.139\\ €/kWh",
       "operation": ":=",
@@ -408,7 +889,7 @@
       "error": null
     },
     {
-      "line": 90,
+      "line": 99,
       "latex_input": "consumption := 1500\\ kWh",
       "latex_output": "consumption := 1500\\ kWh",
       "operation": ":=",
@@ -416,7 +897,7 @@
       "error": null
     },
     {
-      "line": 92,
+      "line": 101,
       "latex_input": "cost := electricity\\_price \\cdot consumption ==",
       "latex_output": "cost := electricity\\_price \\cdot consumption ==",
       "operation": ":=_==",
@@ -424,7 +905,7 @@
       "error": null
     },
     {
-      "line": 102,
+      "line": 111,
       "latex_input": "cost\\_per\\_kg := 25\\ €/kg",
       "latex_output": "cost\\_per\\_kg := 25\\ €/kg",
       "operation": ":=",
@@ -432,7 +913,7 @@
       "error": null
     },
     {
-      "line": 104,
+      "line": 113,
       "latex_input": "weight := 4\\ kg",
       "latex_output": "weight := 4\\ kg",
       "operation": ":=",
@@ -440,7 +921,7 @@
       "error": null
     },
     {
-      "line": 106,
+      "line": 115,
       "latex_input": "total := cost\\_per\\_kg \\cdot weight ==",
       "latex_output": "total := cost\\_per\\_kg \\cdot weight ==",
       "operation": ":=_==",
@@ -448,44 +929,324 @@
       "error": null
     },
     {
-      "line": 116,
-      "latex_input": "large\\_number := 1234567",
-      "latex_output": "large\\_number := 1234567",
+      "line": 127,
+      "latex_input": "big := 144000000",
+      "latex_output": "big := 144000000",
       "operation": ":=",
-      "target": "large\\_number",
-      "error": null
-    },
-    {
-      "line": 120,
-      "latex_input": "result\\_default := large\\_number ==",
-      "latex_output": "result\\_default := large\\_number ==",
-      "operation": ":=_==",
-      "target": "result\\_default",
-      "error": null
-    },
-    {
-      "line": 124,
-      "latex_input": "result\\_2dig := large\\_number ==",
-      "latex_output": "result\\_2dig := large\\_number ==",
-      "operation": ":=_==",
-      "target": "result\\_2dig",
+      "target": "big",
       "error": null
     },
     {
       "line": 128,
-      "latex_input": "result\\_sci := large\\_number ==",
-      "latex_output": "result\\_sci := large\\_number ==",
+      "latex_input": "medium := 12345.6789",
+      "latex_output": "medium := 12345.6789",
+      "operation": ":=",
+      "target": "medium",
+      "error": null
+    },
+    {
+      "line": 129,
+      "latex_input": "small := 0.000012345",
+      "latex_output": "small := 0.000012345",
+      "operation": ":=",
+      "target": "small",
+      "error": null
+    },
+    {
+      "line": 130,
+      "latex_input": "integer := 40",
+      "latex_output": "integer := 40",
+      "operation": ":=",
+      "target": "integer",
+      "error": null
+    },
+    {
+      "line": 131,
+      "latex_input": "pi\\_val := 3.14159265359",
+      "latex_output": "pi\\_val := 3.14159265359",
+      "operation": ":=",
+      "target": "pi\\_val",
+      "error": null
+    },
+    {
+      "line": 139,
+      "latex_input": "fmt\\_general := big ==",
+      "latex_output": "fmt\\_general := big ==",
       "operation": ":=_==",
-      "target": "result\\_sci",
+      "target": "fmt\\_general",
+      "error": null
+    },
+    {
+      "line": 141,
+      "latex_input": "fmt\\_general\\_med := medium ==",
+      "latex_output": "fmt\\_general\\_med := medium ==",
+      "operation": ":=_==",
+      "target": "fmt\\_general\\_med",
+      "error": null
+    },
+    {
+      "line": 145,
+      "latex_input": "fmt\\_decimal := big ==",
+      "latex_output": "fmt\\_decimal := big ==",
+      "operation": ":=_==",
+      "target": "fmt\\_decimal",
+      "error": null
+    },
+    {
+      "line": 149,
+      "latex_input": "fmt\\_sci := big ==",
+      "latex_output": "fmt\\_sci := big ==",
+      "operation": ":=_==",
+      "target": "fmt\\_sci",
+      "error": null
+    },
+    {
+      "line": 151,
+      "latex_input": "fmt\\_sci\\_small := small ==",
+      "latex_output": "fmt\\_sci\\_small := small ==",
+      "operation": ":=_==",
+      "target": "fmt\\_sci\\_small",
+      "error": null
+    },
+    {
+      "line": 155,
+      "latex_input": "fmt\\_eng := big ==",
+      "latex_output": "fmt\\_eng := big ==",
+      "operation": ":=_==",
+      "target": "fmt\\_eng",
+      "error": null
+    },
+    {
+      "line": 157,
+      "latex_input": "fmt\\_eng\\_small := small ==",
+      "latex_output": "fmt\\_eng\\_small := small ==",
+      "operation": ":=_==",
+      "target": "fmt\\_eng\\_small",
+      "error": null
+    },
+    {
+      "line": 165,
+      "latex_input": "dig\\_default := pi\\_val ==",
+      "latex_output": "dig\\_default := pi\\_val ==",
+      "operation": ":=_==",
+      "target": "dig\\_default",
+      "error": null
+    },
+    {
+      "line": 167,
+      "latex_input": "dig\\_2 := pi\\_val ==",
+      "latex_output": "dig\\_2 := pi\\_val ==",
+      "operation": ":=_==",
+      "target": "dig\\_2",
+      "error": null
+    },
+    {
+      "line": 169,
+      "latex_input": "dig\\_4 := pi\\_val ==",
+      "latex_output": "dig\\_4 := pi\\_val ==",
+      "operation": ":=_==",
+      "target": "dig\\_4",
+      "error": null
+    },
+    {
+      "line": 171,
+      "latex_input": "dig\\_8 := pi\\_val ==",
+      "latex_output": "dig\\_8 := pi\\_val ==",
+      "operation": ":=_==",
+      "target": "dig\\_8",
+      "error": null
+    },
+    {
+      "line": 175,
+      "latex_input": "dig\\_sci\\_3 := big ==",
+      "latex_output": "dig\\_sci\\_3 := big ==",
+      "operation": ":=_==",
+      "target": "dig\\_sci\\_3",
+      "error": null
+    },
+    {
+      "line": 177,
+      "latex_input": "dig\\_eng\\_4 := big ==",
+      "latex_output": "dig\\_eng\\_4 := big ==",
+      "operation": ":=_==",
+      "target": "dig\\_eng\\_4",
+      "error": null
+    },
+    {
+      "line": 185,
+      "latex_input": "thou\\_1 := 1234 ==",
+      "latex_output": "thou\\_1 := 1234 ==",
+      "operation": ":=_==",
+      "target": "thou\\_1",
+      "error": null
+    },
+    {
+      "line": 187,
+      "latex_input": "thou\\_2 := 12345 ==",
+      "latex_output": "thou\\_2 := 12345 ==",
+      "operation": ":=_==",
+      "target": "thou\\_2",
+      "error": null
+    },
+    {
+      "line": 189,
+      "latex_input": "thou\\_3 := 1234567 ==",
+      "latex_output": "thou\\_3 := 1234567 ==",
+      "operation": ":=_==",
+      "target": "thou\\_3",
+      "error": null
+    },
+    {
+      "line": 191,
+      "latex_input": "thou\\_4 := 123456789 ==",
+      "latex_output": "thou\\_4 := 123456789 ==",
+      "operation": ":=_==",
+      "target": "thou\\_4",
+      "error": null
+    },
+    {
+      "line": 193,
+      "latex_input": "thou\\_5 := 1234567890 ==",
+      "latex_output": "thou\\_5 := 1234567890 ==",
+      "operation": ":=_==",
+      "target": "thou\\_5",
+      "error": null
+    },
+    {
+      "line": 201,
+      "latex_input": "trail\\_1 := 40.0000 ==",
+      "latex_output": "trail\\_1 := 40.0000 ==",
+      "operation": ":=_==",
+      "target": "trail\\_1",
+      "error": null
+    },
+    {
+      "line": 203,
+      "latex_input": "trail\\_2 := 3.14000 ==",
+      "latex_output": "trail\\_2 := 3.14000 ==",
+      "operation": ":=_==",
+      "target": "trail\\_2",
+      "error": null
+    },
+    {
+      "line": 205,
+      "latex_input": "trail\\_3 := integer ==",
+      "latex_output": "trail\\_3 := integer ==",
+      "operation": ":=_==",
+      "target": "trail\\_3",
+      "error": null
+    },
+    {
+      "line": 213,
+      "latex_input": "combo\\_power := 5\\ kW",
+      "latex_output": "combo\\_power := 5\\ kW",
+      "operation": ":=",
+      "target": "combo\\_power",
+      "error": null
+    },
+    {
+      "line": 214,
+      "latex_input": "combo\\_hours := 8\\ h",
+      "latex_output": "combo\\_hours := 8\\ h",
+      "operation": ":=",
+      "target": "combo\\_hours",
+      "error": null
+    },
+    {
+      "line": 216,
+      "latex_input": "combo\\_energy := combo\\_power \\cdot combo\\_hours ==",
+      "latex_output": "combo\\_energy := combo\\_power \\cdot combo\\_hours ==",
+      "operation": ":=_==",
+      "target": "combo\\_energy",
+      "error": null
+    },
+    {
+      "line": 218,
+      "latex_input": "combo\\_kwh := combo\\_power \\cdot combo\\_hours ==",
+      "latex_output": "combo\\_kwh := combo\\_power \\cdot combo\\_hours ==",
+      "operation": ":=_==",
+      "target": "combo\\_kwh",
+      "error": null
+    },
+    {
+      "line": 220,
+      "latex_input": "combo\\_sci := combo\\_power \\cdot combo\\_hours ==",
+      "latex_output": "combo\\_sci := combo\\_power \\cdot combo\\_hours ==",
+      "operation": ":=_==",
+      "target": "combo\\_sci",
+      "error": null
+    },
+    {
+      "line": 222,
+      "latex_input": "combo\\_full := combo\\_power \\cdot combo\\_hours ==",
+      "latex_output": "combo\\_full := combo\\_power \\cdot combo\\_hours ==",
+      "operation": ":=_==",
+      "target": "combo\\_full",
+      "error": null
+    },
+    {
+      "line": 230,
+      "latex_input": "zero := 0 ==",
+      "latex_output": "zero := 0 ==",
+      "operation": ":=_==",
+      "target": "zero",
+      "error": null
+    },
+    {
+      "line": 234,
+      "latex_input": "neg := -12345678 ==",
+      "latex_output": "neg := -12345678 ==",
+      "operation": ":=_==",
+      "target": "neg",
+      "error": null
+    },
+    {
+      "line": 238,
+      "latex_input": "tiny := 0.000000001 ==",
+      "latex_output": "tiny := 0.000000001 ==",
+      "operation": ":=_==",
+      "target": "tiny",
+      "error": null
+    },
+    {
+      "line": 242,
+      "latex_input": "tiny\\_sci := 0.000000001 ==",
+      "latex_output": "tiny\\_sci := 0.000000001 ==",
+      "operation": ":=_==",
+      "target": "tiny\\_sci",
+      "error": null
+    },
+    {
+      "line": 246,
+      "latex_input": "huge := 1000000000000000 ==",
+      "latex_output": "huge := 1000000000000000 ==",
+      "operation": ":=_==",
+      "target": "huge",
+      "error": null
+    },
+    {
+      "line": 250,
+      "latex_input": "huge\\_eng := 1000000000000000 ==",
+      "latex_output": "huge\\_eng := 1000000000000000 ==",
+      "operation": ":=_==",
+      "target": "huge\\_eng",
+      "error": null
+    },
+    {
+      "line": 254,
+      "latex_input": "huge\\_dec := 1000000000000000 ==",
+      "latex_output": "huge\\_dec := 1000000000000000 ==",
+      "operation": ":=_==",
+      "target": "huge\\_dec",
       "error": null
     }
   ],
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 01:31:31",
-    "duration": "0.20s",
-    "definitions": 21,
-    "evaluations": 10,
+    "last_run": "2026-01-07 02:40:46",
+    "duration": "0.33s",
+    "definitions": 59,
+    "evaluations": 42,
     "symbolic": 0,
     "value_refs": 0,
     "errors": 0

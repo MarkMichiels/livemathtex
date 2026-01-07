@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Heat Exchanger Design Calculation
 
 This example demonstrates a complete engineering calculation for sizing a **shell-and-tube heat exchanger** using the LMTD (Log Mean Temperature Difference) method.

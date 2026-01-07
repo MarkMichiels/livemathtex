@@ -34,13 +34,15 @@ class SymbolEntry:
     Attributes:
         mapping: The symbol name mappings
         value: Computed numeric value (if evaluated)
-        unit: Unit string (e.g., "K", "m/s^2")
+        unit: Unit string (e.g., "kilogram", "meter/second")
+        unit_latex: Original LaTeX unit string (e.g., "kg", "m/s")
         expression_latex: The RHS expression in LaTeX
         line: Line number where defined
     """
     mapping: SymbolMapping
     value: Optional[float] = None
     unit: Optional[str] = None
+    unit_latex: Optional[str] = None
     expression_latex: Optional[str] = None
     line: int = 0
 
@@ -50,6 +52,7 @@ class SymbolEntry:
             "mapping": asdict(self.mapping),
             "value": self.value,
             "unit": self.unit,
+            "unit_latex": self.unit_latex,
             "expression_latex": self.expression_latex,
             "line": self.line,
         }
@@ -61,6 +64,7 @@ class SymbolEntry:
             mapping=SymbolMapping(**data["mapping"]),
             value=data.get("value"),
             unit=data.get("unit"),
+            unit_latex=data.get("unit_latex"),
             expression_latex=data.get("expression_latex"),
             line=data.get("line", 0),
         )

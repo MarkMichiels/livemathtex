@@ -132,6 +132,11 @@ class Evaluator:
             entry = self.symbols.get(name)
             if entry and name in ir.symbols:
                 ir_entry = ir.symbols[name]
+
+                # Update internal_name in mapping to v_{n} format
+                if entry.internal_id:
+                    ir_entry.mapping.internal_name = entry.internal_id
+
                 # Try to extract numeric value
                 try:
                     if hasattr(entry.value, 'evalf'):
@@ -141,6 +146,12 @@ class Evaluator:
                         ir_entry.value = float(entry.value)
                 except:
                     pass
+
+                # Update unit information
+                if entry.unit is not None:
+                    ir_entry.unit = str(entry.unit)
+                if entry.unit_latex:
+                    ir_entry.unit_latex = entry.unit_latex
 
         ir.stats = stats
         self._ir = None
@@ -245,6 +256,81 @@ class Evaluator:
 
         return result
 
+    def _check_unit_name_conflict(self, normalized_name: str, display_name: str) -> None:
+        """
+        Check if a variable name conflicts with a known unit.
+
+        This prevents ambiguity where 'g' could mean both 'gram' (unit) and
+        'gravitational acceleration' (variable).
+
+        Args:
+            normalized_name: Internal normalized name (e.g., 'g', 'L_pipe')
+            display_name: LaTeX display name (e.g., 'g', 'L_{pipe}')
+
+        Raises:
+            EvaluationError: If the name conflicts with a known unit
+        """
+        from .units import get_unit_registry, UNIT_ABBREVIATIONS
+
+        # Check the full name first (e.g., 'L_pipe', 'g_acc')
+        # These are OK because they have subscripts that distinguish them
+        # Only check the BASE name (before underscore) for conflicts
+
+        # Extract base name (part before underscore)
+        if '_' in normalized_name:
+            # Has subscript - this is explicitly disambiguated, allow it
+            # e.g., 'g_{acc}' is fine even though 'g' is a unit
+            return
+
+        if '{' in display_name and '_' in display_name:
+            # LaTeX subscript like 'L_{pipe}' - also disambiguated
+            return
+
+        # Check if this name is a known unit
+        unit_registry = get_unit_registry()
+
+        # Check built-in abbreviations
+        if normalized_name in UNIT_ABBREVIATIONS:
+            unit_type = self._get_unit_description(normalized_name)
+            raise EvaluationError(
+                f"Variable name '{display_name}' conflicts with unit '{normalized_name}' ({unit_type}). "
+                f"Use a subscript like {display_name}_{{var}} or {display_name}_{{0}} to disambiguate."
+            )
+
+        # Check custom-defined units in registry
+        custom_unit = unit_registry.get_unit(normalized_name)
+        if custom_unit is not None:
+            raise EvaluationError(
+                f"Variable name '{display_name}' conflicts with defined unit '{normalized_name}'. "
+                f"Use a subscript like {display_name}_{{var}} to disambiguate."
+            )
+
+    def _get_unit_description(self, unit_name: str) -> str:
+        """Get a human-readable description of a unit."""
+        descriptions = {
+            # Mass
+            'kg': 'kilogram', 'g': 'gram', 'mg': 'milligram',
+            # Length
+            'm': 'meter', 'cm': 'centimeter', 'mm': 'millimeter', 'km': 'kilometer',
+            # Time
+            's': 'second', 'h': 'hour', 'min': 'minute',
+            # Volume
+            'L': 'liter', 'l': 'liter', 'mL': 'milliliter',
+            # Power/Energy
+            'W': 'watt', 'kW': 'kilowatt', 'J': 'joule',
+            # Pressure
+            'Pa': 'pascal', 'bar': 'bar', 'kPa': 'kilopascal',
+            # Electrical
+            'V': 'volt', 'A': 'ampere',
+            # Temperature
+            'K': 'kelvin',
+            # Force
+            'N': 'newton',
+            # Frequency
+            'Hz': 'hertz',
+        }
+        return descriptions.get(unit_name, 'unit')
+
     def _escape_latex_text(self, text: str) -> str:
         """Escape special LaTeX characters in text."""
         # Special chars: \ { } $ & # ^ _ % ~
@@ -285,12 +371,12 @@ class Evaluator:
         # e.g., \Delta_h -> Delta_h, \theta_1 -> theta_1
         target = self._normalize_symbol_name(calc.target)
         import re
-        from .units import strip_unit_from_value
+        from .units import strip_unit_from_value, get_unit_registry, UNIT_ABBREVIATIONS
 
-        # NOTE: Variable names CAN overlap with SI unit names (like g, m, s, K, L)
-        # The symbol table takes priority over unit lookup in _compute()
-        # So if you define $g := 9.81$, then use $F := m \cdot g$,
-        # the 'g' will be looked up from symbol table first, not as gram unit
+        # CHECK: Prevent variable names that conflict with known unit names
+        # This avoids ambiguity like 'g' meaning both 'gram' and 'gravity'
+        # We check if the FULL variable name (including subscript) would be recognized as a unit
+        self._check_unit_name_conflict(target, original_target)
 
         func_match = re.match(r'^\s*([a-zA-Z_]\w*)\s*\(\s*([a-zA-Z_]\w*)\s*\)\s*$', target) if target else None
 
@@ -440,10 +526,19 @@ class Evaluator:
             # Clean \text{} wrapper
             clean_name = re.sub(r'^\\(text|mathrm)\{([^}]+)\}$', r'\2', sym_name).strip()
 
-            # Check if it's a known unit
-            unit_mapping = {'kg', 'g', 'm', 's', 'N', 'J', 'W', 'Pa', 'Hz', 'V', 'A', 'K', 'mol'}
-            if clean_name in unit_mapping:
+            # Check if it's a known unit (includes prefixed units like kW, mbar)
+            from .units import UNIT_ABBREVIATIONS, get_unit_registry
+            basic_units = {'kg', 'g', 'm', 's', 'N', 'J', 'W', 'Pa', 'Hz', 'V', 'A', 'K', 'mol'}
+            if clean_name in basic_units:
                 continue
+            # Check our unit abbreviations (kW, mbar, kPa, etc.)
+            if clean_name in UNIT_ABBREVIATIONS:
+                continue
+            # Check the unit registry (custom units like €)
+            registry = get_unit_registry()
+            if registry.get_unit(clean_name) is not None:
+                continue
+            # Check SymPy built-in units
             if hasattr(u, clean_name):
                 unit_val = getattr(u, clean_name)
                 if isinstance(unit_val, (u.Unit, u.Quantity)):
@@ -1293,13 +1388,35 @@ class Evaluator:
 
         subs_dict = {}
 
-        # Detect if this is a "pure formula" (no numeric values)
-        # Key insight: definitions have numbers (e.g., "1000 kg/m³"),
-        # formulas don't (e.g., "ρ · g · Q · TDH")
-        # In pure formulas, single letters like 'g' should be variables, not units
+        # Detect if this is a "formula" vs a "definition with units"
+        # Key insight:
+        # - Definitions have numbers followed by units: "1000 kg/m³", "9.81 m/s²"
+        # - Formulas have variables and maybe simple constants: "ρ · g · Q", "vel^2 / (2 · g)"
+        #
+        # Heuristic: A "definition with units" has a decimal number (like 9.81, 1000.5)
+        # or a number immediately followed by a unit-like pattern
+        # Simple integers like 2, 4, pi in formulas are OK
+        #
         # EXCEPTION: force_units=True (for parsing unit expressions like "\frac{m}{s}")
-        has_numbers = bool(re.search(r'\d', expression_latex))
-        is_pure_formula = not has_numbers and not force_units
+
+        # Check for decimal numbers (likely a measurement value)
+        has_decimal = bool(re.search(r'\d+\.\d+', expression_latex))
+
+        # Check for number followed by unit-like pattern (e.g., "100 m", "1000 kg")
+        # This catches:
+        # - "1000 \frac{kg}{m^3}" - fraction units
+        # - "9.81 \frac{m}{s^2}" - decimal + fraction
+        # - "100 m" - simple number + single letter unit
+        # - "-2 m" - negative number + unit
+        # - "50 L/min" - unit with division
+        has_number_unit_pattern = bool(re.search(
+            r'-?\d+\s*(\\frac|\\text|[a-zA-Z]{1,3}[/\^]|kg|kW|mbar|Pa|Hz|[a-zA-Z]$|[a-zA-Z]\s*$)',
+            expression_latex
+        ))
+
+        # It's a "definition with units" if it has decimals OR number+unit patterns
+        is_definition_with_units = (has_decimal or has_number_unit_pattern) and not force_units
+        is_pure_formula = not is_definition_with_units and not force_units
 
         # 1. Handle Symbols (Variables + Units)
         for sym in expr.free_symbols:
@@ -1388,25 +1505,44 @@ class Evaluator:
                 'N': u.newton,
                 'J': u.joule,
                 'W': u.watt,
+                'kW': u.kilo * u.watt,
+                'MW': u.mega * u.watt,
+                'kJ': u.kilo * u.joule,
+                'MJ': u.mega * u.joule,
                 # Pressure
                 'Pa': u.pascal,
+                'kPa': u.kilo * u.pascal,
                 'bar': u.bar,
+                'mbar': u.milli * u.bar,
                 # Frequency/Electrical
                 'Hz': u.hertz,
+                'kHz': u.kilo * u.hertz,
+                'MHz': u.mega * u.hertz,
                 'V': u.volt,
+                'kV': u.kilo * u.volt,
                 'A': u.ampere,
+                'mA': u.milli * u.ampere,
                 # Temperature/Amount
                 'K': u.kelvin,
                 'mol': u.mole,
+                # Volume
+                'L': u.liter,
+                'mL': u.milli * u.liter,
             }
 
-            # Skip single-letter units in pure formulas (no numbers)
-            # 'g' in formula = gravity variable, not gram unit
-            # 'g' after number (like "9.81 m/s²") = can be unit context
-            if is_pure_formula and len(clean_name) == 1:
-                # Don't interpret single letters as units in pure formulas
-                # They're undefined variables (will be caught later)
-                pass
+            # In pure formulas (no numbers), symbols that match unit names
+            # should be treated as VARIABLES, not units.
+            # If they're not defined, raise an error immediately.
+            if is_pure_formula and clean_name in unit_mapping:
+                # This symbol matches a unit name but we're in a formula
+                # It MUST be a defined variable, not a unit
+                unit_desc = self._get_unit_description(clean_name)
+                raise EvaluationError(
+                    f"Undefined variable '{clean_name}' in formula. "
+                    f"Note: '{clean_name}' is also a unit ({unit_desc}), but formulas "
+                    f"cannot mix variables and units. Define '{clean_name}' first with a subscript "
+                    f"like {clean_name}_{{0}} or {clean_name}_{{acc}}."
+                )
             elif clean_name in unit_mapping:
                 subs_dict[sym] = unit_mapping[clean_name]
                 continue

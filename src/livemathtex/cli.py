@@ -1,6 +1,8 @@
 import click
 from pathlib import Path
 from .core import process_file
+from .config import LivemathConfig
+from .parser.lexer import Lexer
 
 @click.group()
 def main():
@@ -21,12 +23,28 @@ def process(input_file, output, verbose, ir_output):
         livemathtex process input.md -o output.md
         livemathtex process input.md --verbose
         livemathtex process input.md -v --ir-output debug.json
+
+    The --verbose flag can also be enabled via document directive:
+
+        <!-- livemathtex: json=true -->
     """
     try:
+        # Check document directive for json
+        input_path = Path(input_file)
+        with open(input_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        lexer = Lexer()
+        doc_directives = lexer.parse_document_directives(content)
+        config = LivemathConfig.load(input_path).with_overrides(doc_directives)
+
+        # CLI --verbose OR document json=true
+        should_generate_ir = verbose or config.json
+
         ir = process_file(
             input_file,
             output,
-            verbose=verbose,
+            verbose=should_generate_ir,
             ir_output_path=ir_output
         )
 
@@ -45,7 +63,7 @@ def process(input_file, output, verbose, ir_output):
 
         click.echo(f"  Duration: {stats.get('duration', 'N/A')}")
 
-        if verbose:
+        if should_generate_ir:
             ir_path = ir_output or str(Path(input_file).with_suffix('.lmt.json'))
             click.echo(f"  IR written to: {ir_path}")
 

@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Newton's Second Law: F = m × a
 
 This example demonstrates SI units and variable naming.
@@ -18,23 +20,27 @@ acceleration formula becomes `10 kg` instead of `meter`!
 
 ### Option 1: Subscript notation (m_1, t_1, etc.)
 
-$m_1 := 10 \cdot kg$
+$m_1 := 10 \cdot kg
+\\ \color{red}{\text{
+    Error: Undefined variable 'g' in formula. Note: 'g' is also a unit (gram), but formulas cannot mix variables and units. Define 'g' first with a subscript like g\_\{0\} or g\_\{acc\}.}}$
 $a_1 := 9.81 \cdot \frac{m}{s^2}$
 
 Calculate force:
 $F_1 := m_1 \cdot a_1 ==
 \\ \color{red}{\text{
-    Error: Undefined variable(s): k}}$
+    Error: Undefined variable(s): m\_1}}$
 
 ### Option 2: Descriptive names
 
-$mass := 25 \cdot kg$
+$mass := 25 \cdot kg
+\\ \color{red}{\text{
+    Error: Undefined variable 'g' in formula. Note: 'g' is also a unit (gram), but formulas cannot mix variables and units. Define 'g' first with a subscript like g\_\{0\} or g\_\{acc\}.}}$
 $accel := 9.81 \cdot \frac{m}{s^2}$
 
 Calculate force:
 $F_2 := mass \cdot accel ==
 \\ \color{red}{\text{
-    Error: Undefined variable(s): k}}$
+    Error: Undefined variable 'm' in formula. Note: 'm' is also a unit (meter), but formulas cannot mix variables and units. Define 'm' first with a subscript like m\_\{0\} or m\_\{acc\}.}}$
 
 Convert to Newtons:
 $F_2N := F_2 ==
@@ -48,10 +54,12 @@ $F_2kN := F_2 ==
 
 ## Compare Results
 
-$ratio := \frac{mass}{m_1} == 2.5$
+$ratio := \frac{mass}{m_1} ==
+\\ \color{red}{\text{
+    Error: Undefined variable 'm' in formula. Note: 'm' is also a unit (meter), but formulas cannot mix variables and units. Define 'm' first with a subscript like m\_\{0\} or m\_\{acc\}.}}$
 
 The ratio should be 2.5 (25 kg / 10 kg).
 
 ---
 
-> *livemathtex: 2026-01-07 01:51:04 | 9 definitions, 5 evaluations | 4 errors | 0.16s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 02:40:49 | 9 definitions, 5 evaluations | 7 errors | 0.21s* <!-- livemathtex-meta -->

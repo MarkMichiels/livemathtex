@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Custom Unit Definitions - LiveMathTeX Example
 
 This example tests the `===` syntax for defining **truly custom** units - units that SymPy doesn't recognize by default.

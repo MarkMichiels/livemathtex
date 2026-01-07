@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Unit Library - Common Industrial Units
 
 This example defines a comprehensive unit library for industrial and algae cultivation applications.

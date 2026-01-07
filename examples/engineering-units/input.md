@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Pump Sizing Calculation (with Units)
 
 This example demonstrates a complete engineering calculation **with SI units** for sizing a centrifugal pump.
@@ -36,24 +38,24 @@ $Q ==$ <!-- [L/s] -->
 ### Geometry
 
 Suction head (negative = below pump):
-$h_s := -2 m$
+$h_s := -2\ \text{m}$
 
 Discharge head:
-$h_d := 15 m$
+$h_d := 15\ \text{m}$
 
 Pipe length:
-$L_{pipe} := 100 m$
+$L_{pipe} := 100\ \text{m}$
 
 Pipe diameter:
-$D_{pipe} := 100 \text{mm}$
+$D_{pipe} := 0.1\ \text{m}$
 
 ### Fluid Properties
 
-Water density:
-$\rho := 1000 \frac{kg}{m^{3}}$
+Water density (kg/m³):
+$\rho := 1000$
 
-Gravitational acceleration:
-$g := 9.81 \frac{m}{s^{2}}$
+Gravitational acceleration (m/s²):
+$g_{acc} := 9.81$
 
 ### Friction Parameters
 
@@ -83,14 +85,14 @@ $H_{static} := h_d - h_s ==$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g} ==$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} ==$$
 
 ### Minor Losses
 
 K-factor for fittings (dimensionless):
 $K_{fit} := 5$
 
-$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g} ==$$
+$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g_{acc}} ==$$
 
 ---
 
@@ -103,7 +105,7 @@ $$TDH := H_{static} + H_f + H_m ==$$
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := \rho \cdot g \cdot Q \cdot TDH ==$$ <!-- [kW] -->
+$$P_{hyd} := \rho \cdot g_{acc} \cdot Q \cdot TDH ==$$ <!-- [kW] -->
 
 ---
 

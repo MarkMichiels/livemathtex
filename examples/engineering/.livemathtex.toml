@@ -1,6 +1,0 @@
-# Livemathtex configuration for engineering example
-# This ensures output always goes to output.md (not timestamped)
-
-output = "output.md"
-format = "engineering"
-digits = 4

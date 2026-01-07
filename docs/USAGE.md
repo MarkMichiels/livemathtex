@@ -500,11 +500,12 @@ From highest to lowest priority:
 |---------|------|---------|-------------|
 | `digits` | int | 4 | Significant figures (1-15) |
 | `format` | enum | "general" | general/decimal/scientific/engineering |
-| `exponential_threshold` | int | 3 | Magnitude for scientific notation |
+| `exponential_threshold` | int | 9 | Magnitude for scientific notation |
 | `trailing_zeros` | bool | false | Show zeros to fill precision |
 | `unit_system` | enum | "SI" | SI/imperial/CGS |
 | `timeout` | int | 5 | Seconds per expression |
 | `output` | string | "timestamped" | Output mode |
+| `json` | bool | false | Generate `.lmt.json` IR file for debugging |
 
 ### Output Modes
 
@@ -536,7 +537,43 @@ Set document-wide defaults at the top:
 $x := 5 ==$
 ```
 
-### Config Files
+### ⭐ Preferred Method: Settings in Document
+
+**The recommended approach is to put ALL settings directly in the document using document directives.**
+
+This follows the principle that **documents should be self-contained**:
+
+```markdown
+<!-- livemathtex: output=output.md, json=true -->
+
+# My Engineering Calculation
+
+This document contains everything needed to reproduce the calculation:
+- The input values
+- The formulas
+- The configuration settings
+```
+
+**Why document directives are preferred:**
+
+| Approach | Portable | Visible | Version Controlled |
+|----------|----------|---------|-------------------|
+| Document directive | ✅ | ✅ | ✅ |
+| `.livemathtex.toml` | ⚠️ Separate file | ❌ Hidden | ⚠️ Easy to forget |
+| `pyproject.toml` | ⚠️ Project-wide | ❌ Hidden | ⚠️ Affects all docs |
+| User config | ❌ Machine-specific | ❌ Hidden | ❌ Not tracked |
+
+**Common document directive patterns:**
+
+```markdown
+<!-- livemathtex: output=output.md, json=true -->
+<!-- livemathtex: digits=6, format=engineering -->
+<!-- livemathtex: output=inplace -->
+```
+
+**Note:** External config files (`.livemathtex.toml`, `pyproject.toml`) are still supported for project-wide defaults, but document directives take precedence and make documents portable.
+
+### Config Files (Alternative)
 
 **.livemathtex.toml** (in document directory):
 

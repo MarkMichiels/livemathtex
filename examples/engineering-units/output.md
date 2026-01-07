@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Pump Sizing Calculation (with Units)
 
 This example demonstrates a complete engineering calculation **with SI units** for sizing a centrifugal pump.
@@ -36,24 +38,24 @@ $Q == 13.89\ \text{L/s}$ <!-- [L/s] -->
 ### Geometry
 
 Suction head (negative = below pump):
-$h_s := -2 m$
+$h_s := -2\ \text{m}$
 
 Discharge head:
-$h_d := 15 m$
+$h_d := 15\ \text{m}$
 
 Pipe length:
-$L_{pipe} := 100 m$
+$L_{pipe} := 100\ \text{m}$
 
 Pipe diameter:
-$D_{pipe} := 100 \text{mm}$
+$D_{pipe} := 0.1\ \text{m}$
 
 ### Fluid Properties
 
-Water density:
-$\rho := 1000 \frac{kg}{m^{3}}$
+Water density (kg/m³):
+$\rho := 1000$
 
-Gravitational acceleration:
-$g := 9.81 \frac{m}{s^{2}}$
+Gravitational acceleration (m/s²):
+$g_{acc} := 9.81$
 
 ### Friction Parameters
 
@@ -83,29 +85,27 @@ $H_{static} := h_d - h_s == 17\ \text{m}$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g} == 3.188\ \text{m}$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 3.188\ \text{m}^{2}/\text{s}^{2}$$
 
 ### Minor Losses
 
 K-factor for fittings (dimensionless):
 $K_{fit} := 5$
 
-$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g} == 0.7969\ \text{m}$$
+$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 0.7969\ \text{m}^{2}/\text{s}^{2}$$
 
 ---
 
 ## Step 3: Total Dynamic Head (TDH)
 
-$$TDH := H_{static} + H_f + H_m == 20.98\ \text{m}$$
+$$TDH := H_{static} + H_f + H_m == \text{3.98470569061937} \cdot \text{m}^{2}/\text{s}^{2 + 17.0} \cdot \text{m}$$
 
 ---
 
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := \rho \cdot g \cdot Q \cdot TDH ==
-\\ \color{red}{\text{
-    Error: Undefined variable(s): k}}$$ <!-- [kW] -->
+$$P_{hyd} := \rho \cdot g_{acc} \cdot Q \cdot TDH == 490\,500\ \text{m}^{3} \cdot \text{(17.0} \cdot \text{m + 51641785.750427} \cdot \text{m}^{2}/\text{h}^{2)}/\text{h}$$ <!-- [kW] -->
 
 ---
 
@@ -118,9 +118,7 @@ Motor efficiency (assumed, dimensionless):
 $eta_m := 0.90$
 
 Required motor power:
-$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} ==
-\\ \color{red}{\text{
-    Error: Undefined variable(s): P\_\{hyd\}}}$$ <!-- [kW] -->
+$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 726\,700\ \text{m}^{3} \cdot \text{(17.0} \cdot \text{m + 51641785.750427} \cdot \text{m}^{2}/\text{h}^{2)}/\text{h}$$ <!-- [kW] -->
 
 ---
 
@@ -133,12 +131,8 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} ==
 | Static head | $H_{static}$ | $20$ <!-- value:H_{static} [m] :1 --> | m |
 | Friction loss | $H_f$ | $410\,000\,000$ <!-- value:H_f [m] :2 --> | m |
 | Total head | $TDH$ | $1$ <!-- value:TDH [m] :1 --> | m |
-| Hydraulic power | $P_{hyd}$ | $
-\\ \color{red}{\text{
-    Error: Undefined variable: P\_\{hyd\}}}$ <!-- value:P_{hyd} [kW] :2 --> | kW |
-| Motor power | $P_{motor}$ | $
-\\ \color{red}{\text{
-    Error: Undefined variable: P\_\{motor\}}}$ <!-- value:P_{motor} [kW] :2 --> | kW |
+| Hydraulic power | $P_{hyd}$ | $490$ <!-- value:P_{hyd} [kW] :2 --> | kW |
+| Motor power | $P_{motor}$ | $730$ <!-- value:P_{motor} [kW] :2 --> | kW |
 
 ---
 
@@ -150,4 +144,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} ==
 
 ---
 
-> *livemathtex: 2026-01-07 01:51:02 | 19 definitions, 11 evaluations, 7 value refs | 4 errors | 0.51s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 02:40:48 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.43s* <!-- livemathtex-meta -->

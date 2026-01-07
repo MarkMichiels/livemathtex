@@ -1,0 +1,366 @@
+{
+  "version": "1.0",
+  "source": "input.md",
+  "symbols": {
+    "\\pi_{approx}": {
+      "mapping": {
+        "latex_original": "\\pi_{approx}",
+        "latex_display": "\\pi_{approx}",
+        "internal_name": "v_{0}"
+      },
+      "value": 3.141592653589793,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "3.141592653589793",
+      "line": 13
+    },
+    "large": {
+      "mapping": {
+        "latex_original": "large",
+        "latex_display": "large",
+        "internal_name": "v_{1}"
+      },
+      "value": 123456789.123456,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "123456789.123456",
+      "line": 14
+    },
+    "small": {
+      "mapping": {
+        "latex_original": "small",
+        "latex_display": "small",
+        "internal_name": "v_{2}"
+      },
+      "value": 1.23456789e-06,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "0.00000123456789",
+      "line": 15
+    },
+    "medium": {
+      "mapping": {
+        "latex_original": "medium",
+        "latex_display": "medium",
+        "internal_name": "v_{3}"
+      },
+      "value": 42.5,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "42.5",
+      "line": 16
+    },
+    "price": {
+      "mapping": {
+        "latex_original": "price",
+        "latex_display": "price",
+        "internal_name": "v_{4}"
+      },
+      "value": 1299.99,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "1299.99",
+      "line": 119
+    },
+    "tax_rate": {
+      "mapping": {
+        "latex_original": "tax_rate",
+        "latex_display": "tax_rate",
+        "internal_name": "v_{5}"
+      },
+      "value": 0.21,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "0.21",
+      "line": 120
+    },
+    "total": {
+      "mapping": {
+        "latex_original": "total",
+        "latex_display": "total",
+        "internal_name": "v_{6}"
+      },
+      "value": 1572.9879,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "price \\cdot (1 + tax_rate)",
+      "line": 121
+    },
+    "wavelength": {
+      "mapping": {
+        "latex_original": "wavelength",
+        "latex_display": "wavelength",
+        "internal_name": "v_{7}"
+      },
+      "value": 5.319999999999999e-07,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "0.000000532",
+      "line": 125
+    },
+    "power": {
+      "mapping": {
+        "latex_original": "power",
+        "latex_display": "power",
+        "internal_name": "v_{8}"
+      },
+      "value": 2500000.0,
+      "unit": null,
+      "unit_latex": null,
+      "expression_latex": "2500000",
+      "line": 130
+    }
+  },
+  "blocks": [
+    {
+      "line": 13,
+      "latex_input": "\\pi_{approx} := 3.141592653589793",
+      "latex_output": "\\pi_{approx} := 3.141592653589793",
+      "operation": ":=",
+      "target": "\\pi_{approx}",
+      "error": null
+    },
+    {
+      "line": 14,
+      "latex_input": "large := 123456789.123456",
+      "latex_output": "large := 123456789.123456",
+      "operation": ":=",
+      "target": "large",
+      "error": null
+    },
+    {
+      "line": 15,
+      "latex_input": "small := 0.00000123456789",
+      "latex_output": "small := 0.00000123456789",
+      "operation": ":=",
+      "target": "small",
+      "error": null
+    },
+    {
+      "line": 16,
+      "latex_input": "medium := 42.5",
+      "latex_output": "medium := 42.5",
+      "operation": ":=",
+      "target": "medium",
+      "error": null
+    },
+    {
+      "line": 34,
+      "latex_input": "\\pi_{approx} ==",
+      "latex_output": "\\pi_{approx} ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 37,
+      "latex_input": "\\pi_{approx} ==",
+      "latex_output": "\\pi_{approx} ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 40,
+      "latex_input": "\\pi_{approx} ==",
+      "latex_output": "\\pi_{approx} ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 43,
+      "latex_input": "\\pi_{approx} ==",
+      "latex_output": "\\pi_{approx} ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 62,
+      "latex_input": "large ==",
+      "latex_output": "large ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 64,
+      "latex_input": "medium ==",
+      "latex_output": "medium ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 66,
+      "latex_input": "small ==",
+      "latex_output": "small ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 72,
+      "latex_input": "large ==",
+      "latex_output": "large ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 74,
+      "latex_input": "medium ==",
+      "latex_output": "medium ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 76,
+      "latex_input": "small ==",
+      "latex_output": "small ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 82,
+      "latex_input": "large ==",
+      "latex_output": "large ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 84,
+      "latex_input": "medium ==",
+      "latex_output": "medium ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 86,
+      "latex_input": "small ==",
+      "latex_output": "small ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 92,
+      "latex_input": "medium ==",
+      "latex_output": "medium ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 94,
+      "latex_input": "medium ==",
+      "latex_output": "medium ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 96,
+      "latex_input": "medium ==",
+      "latex_output": "medium ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 105,
+      "latex_input": "large ==",
+      "latex_output": "large ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 108,
+      "latex_input": "large ==",
+      "latex_output": "large ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 111,
+      "latex_input": "\\pi_{approx} ==",
+      "latex_output": "\\pi_{approx} ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 119,
+      "latex_input": "price := 1299.99",
+      "latex_output": "price := 1299.99",
+      "operation": ":=",
+      "target": "price",
+      "error": null
+    },
+    {
+      "line": 120,
+      "latex_input": "tax_rate := 0.21",
+      "latex_output": "tax_rate := 0.21",
+      "operation": ":=",
+      "target": "tax_rate",
+      "error": null
+    },
+    {
+      "line": 121,
+      "latex_input": "total := price \\cdot (1 + tax_rate) ==",
+      "latex_output": "total := price \\cdot (1 + tax_rate) ==",
+      "operation": ":=_==",
+      "target": "total",
+      "error": null
+    },
+    {
+      "line": 125,
+      "latex_input": "wavelength := 0.000000532",
+      "latex_output": "wavelength := 0.000000532",
+      "operation": ":=",
+      "target": "wavelength",
+      "error": null
+    },
+    {
+      "line": 126,
+      "latex_input": "wavelength ==",
+      "latex_output": "wavelength ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    },
+    {
+      "line": 130,
+      "latex_input": "power := 2500000",
+      "latex_output": "power := 2500000",
+      "operation": ":=",
+      "target": "power",
+      "error": null
+    },
+    {
+      "line": 131,
+      "latex_input": "power ==",
+      "latex_output": "power ==",
+      "operation": "==",
+      "target": null,
+      "error": null
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-07 02:40:48",
+    "duration": "0.27s",
+    "definitions": 9,
+    "evaluations": 22,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0
+  }
+}

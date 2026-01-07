@@ -158,7 +158,28 @@ def process_file(
 
     for name in evaluator.symbols.all_names():
         entry = evaluator.symbols.get(name)
-        if entry and name in ir.symbols:
+        if not entry:
+            continue
+
+        # IR stores original LaTeX names (L_{pipe}), SymbolTable stores normalized (L_pipe)
+        # Look up by original latex_name if available
+        ir_key = entry.latex_name if entry.latex_name else name
+
+        if ir_key not in ir.symbols:
+            # Try normalized name as fallback
+            ir_key = name
+
+        if ir_key in ir.symbols:
+            ir_entry = ir.symbols[ir_key]
+
+            # Update internal_name in mapping to v_{n} format
+            if entry.internal_id:
+                ir_entry.mapping.internal_name = entry.internal_id
+
+            # Update unit_latex from SymbolValue
+            if entry.unit_latex:
+                ir_entry.unit_latex = entry.unit_latex
+
             try:
                 value = entry.value
 
@@ -180,18 +201,18 @@ def process_file(
 
                     # Store numeric coefficient
                     if hasattr(coeff, 'is_number') and coeff.is_number:
-                        ir.symbols[name].value = float(coeff)
+                        ir_entry.value = float(coeff)
                     elif hasattr(coeff, 'evalf'):
-                        ir.symbols[name].value = float(coeff.evalf())
+                        ir_entry.value = float(coeff.evalf())
                     else:
-                        ir.symbols[name].value = float(coeff)
+                        ir_entry.value = float(coeff)
 
                     # Store unit as simplified SI string
                     if unit_part != 1:
-                        ir.symbols[name].unit = sympy.latex(unit_part)
+                        ir_entry.unit = sympy.latex(unit_part)
 
                 elif isinstance(value, (int, float)):
-                    ir.symbols[name].value = float(value)
+                    ir_entry.value = float(value)
 
             except Exception:
                 pass  # Skip symbols that can't be converted

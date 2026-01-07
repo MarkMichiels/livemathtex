@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Heat Exchanger Design Calculation
 
 This example demonstrates a complete engineering calculation for sizing a **shell-and-tube heat exchanger** using the LMTD (Log Mean Temperature Difference) method.
@@ -89,25 +91,25 @@ $$A := \frac{Q}{U \cdot LMTD} == 5.453$$
 ## Step 4: Effectiveness-NTU Analysis
 
 ### Heat Capacity Rates (W/K)
-$C_h := m_h \cdot c_p == 8.372e3$
+$C_h := m_h \cdot c_p == 8372$
 
-$C_c := m_c \cdot c_p == 12.56e3$
+$C_c := m_c \cdot c_p == 12\,560$
 
 Since $C_h < C_c$:
 $Cmin := C_h$
 $Cmax := C_c$
 
 ### Heat Capacity Ratio
-$C_r := \frac{Cmin}{Cmax} == 666.7e-3$
+$C_r := \frac{Cmin}{Cmax} == 0.6667$
 
 ### Maximum Possible Heat Transfer (W)
-$Qmax := Cmin \cdot (T_{h,in} - T_{c,in}) == 586.0e3$
+$Qmax := Cmin \cdot (T_{h,in} - T_{c,in}) == 586\,000$
 
 ### Effectiveness
-$$\varepsilon := \frac{Q}{Qmax} == 256.0e-3$$
+$$\varepsilon := \frac{Q}{Qmax} == 0.256$$
 
 ### Number of Transfer Units (NTU)
-$$NTU := \frac{U \cdot A}{Cmin} == 325.7e-3$$
+$$NTU := \frac{U \cdot A}{Cmin} == 0.3257$$
 
 ---
 
@@ -116,11 +118,11 @@ $$NTU := \frac{U \cdot A}{Cmin} == 325.7e-3$$
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
 | Heat transfer area | $A$ | $5.5$ <!-- value:A :2 --> | m² |
-| Hot outlet temp | $T_{h,out}$ | $72$ <!-- value:T_{h,out} :1 --> | °C |
-| Cold outlet temp | $T_{c,out}$ | $32$ <!-- value:T_{c,out} :1 --> | °C |
+| Hot outlet temp | $T_{h,out}$ | $70$ <!-- value:T_{h,out} :1 --> | °C |
+| Cold outlet temp | $T_{c,out}$ | $30$ <!-- value:T_{c,out} :1 --> | °C |
 | LMTD | $LMTD$ | $55$ <!-- value:LMTD :2 --> | K |
-| Effectiveness | $\varepsilon$ | $256e-3$ <!-- value:\varepsilon :3 --> | - |
-| NTU | $NTU$ | $326e-3$ <!-- value:NTU :3 --> | - |
+| Effectiveness | $\varepsilon$ | $0.256$ <!-- value:\varepsilon :3 --> | - |
+| NTU | $NTU$ | $0.326$ <!-- value:NTU :3 --> | - |
 
 ---
 
@@ -136,4 +138,4 @@ $A_m := \frac{A}{length} == 2.727$
 
 ---
 
-> *livemathtex: 2026-01-07 01:51:01 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.41s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-07 02:40:47 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.37s* <!-- livemathtex-meta -->

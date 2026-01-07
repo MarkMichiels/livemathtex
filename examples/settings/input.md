@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Configuration Settings Demo
 
 This example demonstrates all livemathtex configuration settings using **expression-level overrides**. Each calculation shows the same value formatted differently to illustrate what each setting does.

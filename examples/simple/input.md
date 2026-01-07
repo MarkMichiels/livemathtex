@@ -1,3 +1,5 @@
+<!-- livemathtex: output=output.md, json=true -->
+
 # Simple Calculation Example
 
 This example demonstrates the basic livemathtex operators.

@@ -1,4 +1,0 @@
-# Livemathtex configuration for engineering-units example
-# This ensures output always goes to output.md (not timestamped)
-
-output = "output.md"
