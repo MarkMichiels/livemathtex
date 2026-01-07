@@ -349,6 +349,181 @@ class Evaluator:
             text = text.replace(old, new)
         return text
 
+    # =========================================================================
+    # v3.0 Classification Methods
+    # =========================================================================
+
+    def _is_value_definition(self, rhs: str) -> bool:
+        """
+        Check if RHS is a direct value (number with optional unit).
+
+        A value definition is one where the RHS is just a number,
+        possibly followed by a unit. No other symbol references.
+
+        Examples:
+            "50"           -> True (plain number)
+            "50\ m³/h"     -> True (number with unit)
+            "3.14159"      -> True (decimal)
+            "1.5e-3"       -> True (scientific notation)
+            "a + b"        -> False (formula with symbol references)
+            "v_1 * 2"      -> False (formula)
+            "\\pi"         -> False (mathematical constant, treat as formula)
+
+        Args:
+            rhs: The right-hand side of the definition
+
+        Returns:
+            True if this is a value definition, False if it's a formula
+        """
+        import re
+
+        # Strip LaTeX whitespace and leading/trailing whitespace
+        rhs_clean = rhs.strip()
+        rhs_clean = re.sub(r'\\[,;:\s]+', ' ', rhs_clean)  # LaTeX spacing
+        rhs_clean = rhs_clean.strip()
+
+        # Check for number patterns
+        # Matches: 50, 50.0, .5, 3.14159, 1.5e-3, 1E10, -5.2, +3.0
+        number_pattern = r'^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$'
+
+        # Check if it's a pure number
+        if re.match(number_pattern, rhs_clean):
+            return True
+
+        # Check for number followed by unit
+        # Split on first non-numeric character after the number
+        value_unit_pattern = r'^([+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)\s*(.*)$'
+        match = re.match(value_unit_pattern, rhs_clean)
+        if match:
+            number_part = match.group(1)
+            unit_part = match.group(2).strip()
+
+            # If there's a unit part, check if it looks like a unit (not a variable)
+            if unit_part:
+                # Units are typically short (1-5 chars) or have / or * or ^
+                # Examples: m, kg, m/s, m²/h, €/kWh
+                # Not a unit: x + y, v_1 * 2
+                if '=' in unit_part or '+' in unit_part or '-' in unit_part:
+                    # Has operators suggesting formula
+                    return False
+
+                # Check if unit part contains variable references
+                # Variables in LaTeX: single letters, letters with subscripts
+                variable_pattern = r'[a-zA-Z](?:_\{[^}]+\}|_[a-zA-Z0-9])?(?:\s*[+\-*/]\s*)'
+                if re.search(variable_pattern, unit_part):
+                    return False
+
+                # Looks like a unit (or at least not obviously a formula)
+                return True
+
+        # Check for common formula patterns
+        # Variables: single letters or letters with subscripts
+        # Operators: + - * / ^
+        # If RHS contains any symbol reference, it's a formula
+        known_symbols = set(self.symbols.all_names())
+        latex_mappings = self.symbols.get_all_latex_to_internal()
+
+        # Check each token in RHS
+        tokens = re.findall(r'[a-zA-Z_][a-zA-Z0-9_]*|\{[^}]+\}', rhs_clean)
+        for token in tokens:
+            normalized = self._normalize_symbol_name(token)
+            if normalized in known_symbols:
+                return False
+            if token in latex_mappings:
+                return False
+
+        # If no variables found and it's not purely a number, be conservative
+        # and treat it as a formula (e.g., \pi, \sqrt{2})
+        if not re.match(number_pattern, rhs_clean.split()[0] if rhs_clean else ''):
+            return False
+
+        return True
+
+    def _find_dependencies(self, rhs: str, exclude_params: Optional[List[str]] = None) -> List[str]:
+        """
+        Find all symbol references in an expression.
+
+        Searches for references to previously defined symbols and returns
+        their clean IDs.
+
+        Args:
+            rhs: The expression to search
+            exclude_params: Parameter names to exclude (for function definitions)
+
+        Returns:
+            List of clean IDs that this expression depends on
+        """
+        import re
+
+        exclude = set(exclude_params or [])
+        dependencies = []
+        seen = set()
+
+        # Get all known symbols
+        latex_to_internal = self.symbols.get_all_latex_to_internal()
+
+        # Find all potential symbol references in the expression
+        # Look for: single letters, letters with subscripts, Greek letters
+        potential_refs = re.findall(
+            r'\\?[a-zA-Z]+(?:_\{[^}]+\}|_[a-zA-Z0-9]+)?',
+            rhs
+        )
+
+        for ref in potential_refs:
+            # Skip if it's in the exclude list (function parameters)
+            normalized = self._normalize_symbol_name(ref)
+            if normalized in exclude:
+                continue
+
+            # Check if this matches a known symbol
+            internal_id = latex_to_internal.get(ref)
+            if internal_id and internal_id not in seen:
+                dependencies.append(internal_id)
+                seen.add(internal_id)
+            elif normalized in self.symbols.all_names():
+                # Fallback: check normalized name
+                sym = self.symbols.get(normalized)
+                if sym and sym.internal_id and sym.internal_id not in seen:
+                    dependencies.append(sym.internal_id)
+                    seen.add(sym.internal_id)
+
+        return dependencies
+
+    def _convert_expression_to_clean_ids(self, rhs: str, exclude_params: Optional[List[str]] = None) -> str:
+        """
+        Convert a LaTeX expression to use clean IDs.
+
+        Replaces all symbol references with their clean IDs (v1, f1, etc.)
+        for storage in the IR.
+
+        Args:
+            rhs: The expression to convert
+            exclude_params: Parameter names to keep as-is (e.g., x, y)
+
+        Returns:
+            Expression with clean IDs
+        """
+        import re
+
+        exclude = set(exclude_params or [])
+        result = rhs
+
+        # Get all known symbols
+        latex_to_internal = self.symbols.get_all_latex_to_internal()
+
+        # Sort by length (longest first) to avoid partial replacements
+        sorted_mappings = sorted(latex_to_internal.items(), key=lambda x: -len(x[0]))
+
+        for latex_name, internal_id in sorted_mappings:
+            normalized = self._normalize_symbol_name(latex_name)
+            if normalized not in exclude:
+                # Replace in the expression
+                # Use word boundaries where possible
+                pattern = re.escape(latex_name)
+                result = re.sub(pattern, internal_id, result)
+
+        return result
+
     def _handle_assignment(self, calc: Calculation) -> str:
         content = calc.latex
         rhs_raw = content
@@ -384,13 +559,27 @@ class Evaluator:
             # Use local override to prevent variable substitution during definition
             expr = self._compute(rhs_raw, local_overrides={arg_name: arg_sym})
             func_obj = sympy.Lambda(arg_sym, expr)
+
+            # v3.0: Track function as formula with parameter (only in clean ID mode)
+            dependencies = []
+            formula_expr = ""
+            if getattr(self.symbols, '_use_clean_ids', False):
+                dependencies = self._find_dependencies(rhs_raw, exclude_params=[arg_name])
+                formula_expr = self._convert_expression_to_clean_ids(rhs_raw, exclude_params=[arg_name])
+
             self.symbols.set(
                 func_name,
                 value=func_obj,
                 raw_latex=rhs_raw,
                 latex_name=original_target,
                 valid=True,
-                line=getattr(self, '_current_line', 0)
+                line=getattr(self, '_current_line', 0),
+                # v3.0 formula tracking (only populated in clean ID mode)
+                is_formula=True,
+                formula_expression=formula_expr,
+                depends_on=dependencies,
+                parameters=[arg_name] if getattr(self.symbols, '_use_clean_ids', False) else [],
+                parameter_latex=[arg_name] if getattr(self.symbols, '_use_clean_ids', False) else [],
             )
 
             # Use original target for display (preserves \Delta etc.)
@@ -410,6 +599,17 @@ class Evaluator:
             # Convert to SI if there's a unit
             si_value, si_unit, valid = self._convert_to_si(value, sympy_unit)
 
+            # v3.0: Classify and track dependencies (only in clean ID mode)
+            is_formula_flag = False
+            dependencies = []
+            formula_expression = ""
+            if getattr(self.symbols, '_use_clean_ids', False):
+                is_value = self._is_value_definition(rhs_raw)
+                is_formula_flag = not is_value
+                if is_formula_flag:
+                    dependencies = self._find_dependencies(rhs_raw)
+                    formula_expression = self._convert_expression_to_clean_ids(rhs_raw)
+
             # Store with normalized name, including both original and SI values
             normalized_target = self._normalize_symbol_name(target)
             self.symbols.set(
@@ -421,7 +621,11 @@ class Evaluator:
                 original_value=original_value,
                 original_unit=unit_latex or None,
                 valid=valid,
-                line=getattr(self, '_current_line', 0)
+                line=getattr(self, '_current_line', 0),
+                # v3.0 formula tracking (only populated in clean ID mode)
+                is_formula=is_formula_flag,
+                formula_expression=formula_expression,
+                depends_on=dependencies,
             )
 
             # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
