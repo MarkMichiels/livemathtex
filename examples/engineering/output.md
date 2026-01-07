@@ -150,4 +150,4 @@ $A_m := \frac{A}{length} ==
 
 ---
 
-> *livemathtex: 2026-01-07 12:14:08 | 26 definitions, 16 evaluations, 6 value refs | 6 errors | 0.51s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-08 00:29:04 | 26 definitions, 16 evaluations, 6 value refs | 6 errors | 0.52s* <!-- livemathtex-meta -->

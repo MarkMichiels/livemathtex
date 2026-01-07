@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "/home/mark/Repositories/livemathtex/examples/unit-library/input.md",
+  "source": "examples/unit-library/input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -227,8 +227,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-07 23:50:55",
-    "duration": "0.07s",
+    "last_run": "2026-01-08 00:29:07",
+    "duration": "0.27s",
     "symbols": 10,
     "custom_units": 14,
     "definitions": 10,
