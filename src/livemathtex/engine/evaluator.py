@@ -1628,7 +1628,7 @@ class Evaluator:
         - kilogram -> kg
         - meter/second -> m/s
         - euro/(kilowatt*hour) -> €/kWh
-        
+
         KaTeX requirements:
         - Powers must be outside \\text{}: \\text{m}^2 not \\text{m^2}
         - Use \\cdot for multiplication, not · character
@@ -1649,28 +1649,28 @@ class Evaluator:
 
         # Fallback: use SymPy's latex
         return self._simplify_subscripts(sympy.latex(unit_expr, mul_symbol='dot'))
-    
+
     def _make_katex_compatible(self, unit_str: str) -> str:
         """
         Convert unit string to KaTeX-compatible LaTeX.
-        
+
         Handles:
         - m^2 -> \\text{m}^{2}
         - kg·m/s -> \\text{kg} \\cdot \\text{m/s}
         - € -> \\text{€}
         """
         import re
-        
+
         # Replace Unicode middle dot with LaTeX cdot marker (temporary)
         unit_str = unit_str.replace('·', ' CDOT_MARKER ')
-        
+
         # Handle powers: split on ^ and format properly
         # Pattern: unit^power (e.g., m^2, s^-1)
         if '^' in unit_str:
             # Split into parts around operators
             parts = re.split(r'(\s*/\s*|\s*CDOT_MARKER\s*)', unit_str)
             result_parts = []
-            
+
             for part in parts:
                 part = part.strip()
                 if not part:
@@ -1681,23 +1681,23 @@ class Evaluator:
                 if part == 'CDOT_MARKER':
                     result_parts.append(r' \cdot ')
                     continue
-                
+
                 # Check for power
                 if '^' in part:
                     base, power = part.split('^', 1)
                     result_parts.append(f"\\text{{{base}}}^{{{power}}}")
                 else:
                     result_parts.append(f"\\text{{{part}}}")
-            
+
             return ''.join(result_parts)
-        
+
         # No powers - simple wrapping
         # But handle division and multiplication
         if '/' in unit_str or 'CDOT_MARKER' in unit_str:
             # Split by / and CDOT_MARKER, wrap each part
             parts = re.split(r'(/|CDOT_MARKER)', unit_str)
             result_parts = []
-            
+
             for part in parts:
                 part = part.strip()
                 if part == '/':
@@ -1706,8 +1706,8 @@ class Evaluator:
                     result_parts.append(r' \cdot ')
                 elif part:
                     result_parts.append(f"\\text{{{part}}}")
-            
+
             return ''.join(result_parts)
-        
+
         # Simple unit
         return f"\\text{{{unit_str}}}"
