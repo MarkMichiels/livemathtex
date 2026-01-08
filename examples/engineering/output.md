@@ -88,7 +88,7 @@ From heat exchanger equation: $Q = U \cdot A \cdot LMTD$
 
 $$A := \frac{Q}{U \cdot LMTD} ==
 \\ \color{red}{\text{
-    Error: Undefined variable(s): U}}$$
+    Error: Cannot convert expression to float}}$$
 
 ---
 

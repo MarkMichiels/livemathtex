@@ -21,7 +21,7 @@ from pathlib import Path
 import difflib
 
 from livemathtex.core import process_text, process_text_v3
-from livemathtex.engine.units import reset_unit_registry
+from livemathtex.engine import reset_unit_registry
 from livemathtex.ir.schema import (
     LivemathIR, SymbolEntry, ValueWithUnit,
     LivemathIRV3, SymbolEntryV3, CustomUnitEntry, FormulaInfo

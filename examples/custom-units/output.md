@@ -288,4 +288,40 @@ $x ==$ <!-- digits:4 [mbar] -->
 
 ---
 
-> *livemathtex: 2026-01-08 00:29:03 | 59 definitions, 42 evaluations | no errors | 0.63s* <!-- livemathtex-meta -->
+## ISSUE-001 Test: value: Directive with Custom Units
+
+This section specifically tests the `value:` directive with custom units (MWh, EUR, etc.).
+This was broken before ISSUE-001 was fixed.
+
+### Setup: Define Custom Units
+
+$$MWh === 1000 \cdot kWh$$
+
+### Test Data
+
+$$E := 5000\ kWh$$
+
+$$cost\_eur := 750\ €$$
+
+$$SEC := 0.5\ kWh$$
+
+### value: Directive Tests (ISSUE-001)
+
+These should display the correct converted values:
+
+| Parameter | Value |
+|-----------|-------|
+| Energy (kWh) | $5000$ <!-- value:E [kWh] --> |
+| Energy (MWh) | $5$ <!-- value:E [MWh] --> |
+| Cost (€) | $750$ <!-- value:cost_eur [€] --> |
+| SEC (kWh) | $0.5$ <!-- value:SEC [kWh] --> |
+
+**Expected Results:**
+- Energy (kWh): 5000
+- Energy (MWh): 5
+- Cost (€): 750
+- SEC (kWh): 0.5
+
+---
+
+> *livemathtex: 2026-01-08 | 62 definitions, 42 evaluations, 4 value refs | 0 errors* <!-- livemathtex-meta -->

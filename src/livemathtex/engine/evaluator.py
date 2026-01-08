@@ -30,7 +30,7 @@ except ImportError:
             return sympy.Symbol(latex_str)
 
 from .symbols import SymbolTable
-from .units import get_unit_registry, UnitRegistry
+from .pint_backend import get_sympy_unit_registry as get_unit_registry, UnitRegistry
 from ..parser.models import Calculation
 from ..utils.errors import EvaluationError, UndefinedVariableError
 from ..ir.schema import LivemathIR, SymbolEntry
@@ -543,7 +543,11 @@ class Evaluator:
         # e.g., \Delta_h -> Delta_h, \theta_1 -> theta_1
         target = self._normalize_symbol_name(calc.target)
         import re
-        from .units import strip_unit_from_value, get_unit_registry, UNIT_ABBREVIATIONS
+        from .pint_backend import (
+            sympy_strip_unit_from_value as strip_unit_from_value,
+            get_sympy_unit_registry as get_unit_registry,
+            UNIT_ABBREVIATIONS
+        )
 
         # CHECK: Prevent variable names that conflict with known unit names
         # This avoids ambiguity like 'g' meaning both 'gram' and 'gravity'
@@ -671,7 +675,7 @@ class Evaluator:
         rhs_part, result_part = part2.split("==", 1)
         rhs = rhs_part.strip()
 
-        from .units import strip_unit_from_value
+        from .pint_backend import sympy_strip_unit_from_value as strip_unit_from_value
 
         # Try to strip unit from RHS (in case it's a simple value with unit)
         value_latex, unit_latex, sympy_unit = strip_unit_from_value(rhs)
@@ -757,19 +761,11 @@ class Evaluator:
             # Clean \text{} wrapper
             clean_name = re.sub(r'^\\(text|mathrm)\{([^}]+)\}$', r'\2', sym_name).strip()
 
-            # Check if it's a known unit (includes prefixed units like kW, mbar)
-            from .units import UNIT_ABBREVIATIONS, get_unit_registry
-            basic_units = {'kg', 'g', 'm', 's', 'N', 'J', 'W', 'Pa', 'Hz', 'V', 'A', 'K', 'mol'}
-            if clean_name in basic_units:
+            # Check if it's a known unit using Pint backend (comprehensive check)
+            from .pint_backend import is_unit_token
+            if is_unit_token(clean_name):
                 continue
-            # Check our unit abbreviations (kW, mbar, kPa, etc.)
-            if clean_name in UNIT_ABBREVIATIONS:
-                continue
-            # Check the unit registry (custom units like €)
-            registry = get_unit_registry()
-            if registry.get_unit(clean_name) is not None:
-                continue
-            # Check SymPy built-in units
+            # Also check SymPy built-in units as fallback
             if hasattr(u, clean_name):
                 unit_val = getattr(u, clean_name)
                 if isinstance(unit_val, (u.Unit, u.Quantity)):
@@ -789,7 +785,7 @@ class Evaluator:
             Tuple of (sympy_unit or None, unit_latex_string)
         """
         from sympy.physics.units import Quantity
-        from .units import format_unit_latex
+        from .pint_backend import format_unit_latex
 
         if not hasattr(value, 'as_coeff_Mul'):
             return None, ""
@@ -1145,11 +1141,19 @@ class Evaluator:
             raise EvaluationError(f"Undefined variable: {var_name}")
 
         value = stored.value
+        # Get original value and unit for Pint-based conversion (ISSUE-001 fix)
+        original_value = getattr(stored, 'original_value', None)
+        original_unit = getattr(stored, 'original_unit', None)
 
         # Apply unit conversion if specified (unit is in LaTeX notation)
         if calc.unit_comment:
-            # Parse the unit using LaTeX parser (same as formulas)
-            numeric_value = self._get_numeric_in_unit_latex(value, calc.unit_comment)
+            # Use Pint-based conversion with original_value and original_unit
+            # This ensures custom units (EUR, kWh, MWh) work correctly
+            numeric_value = self._get_numeric_in_unit_latex(
+                value, calc.unit_comment,
+                from_unit=original_unit,
+                original_value=original_value
+            )
         else:
             numeric_value = self._extract_numeric_value(value)
 
@@ -1176,6 +1180,8 @@ class Evaluator:
         Returns:
             The original LaTeX (unit definitions don't produce output)
         """
+        from .pint_backend import define_custom_unit_from_latex
+
         unit_name = calc.target.strip() if calc.target else ""
         definition = calc.original_result.strip() if calc.original_result else ""
 
@@ -1185,7 +1191,10 @@ class Evaluator:
         # Build the full definition string for the unit registry
         full_definition = f"{unit_name} === {definition}"
 
-        # Get the global unit registry and define the unit
+        # Register in Pint backend for value: directive conversions (ISSUE-001 fix)
+        define_custom_unit_from_latex(unit_name, definition)
+
+        # Also register in SymPy registry for calculation purposes
         registry = get_unit_registry()
         unit_def = registry.define_unit(full_definition)
 
@@ -1196,13 +1205,42 @@ class Evaluator:
         else:
             raise EvaluationError(f"Failed to define unit: {unit_name}")
 
-    def _get_numeric_in_unit_latex(self, value: Any, unit_latex: str) -> float:
+    def _get_numeric_in_unit_latex(
+        self,
+        value: Any,
+        unit_latex: str,
+        from_unit: Optional[str] = None,
+        original_value: Optional[float] = None
+    ) -> float:
         """
         Convert a dimensioned value to a target unit (in LaTeX notation) and return the numeric part.
 
+        Uses Pint backend for unit conversion, which supports custom units (EUR, kWh, etc.)
+        and complex unit expressions (MWh, EUR/kWh, m³/h).
+
         Example: 50*meter**3/hour, "m³/h" → 50.0
         Example: 2859*watt, "kW" → 2.859
+        Example: 5000*kWh, "MWh" → 5.0  (ISSUE-001 fix)
+
+        Args:
+            value: The SymPy expression (possibly with units, may be SI-converted)
+            unit_latex: Target unit in LaTeX notation
+            from_unit: Optional source unit string (from symbol's original_unit)
+            original_value: Optional original numeric value (before SI conversion)
         """
+        from .pint_backend import convert_value_to_unit
+
+        # Try Pint-based conversion first (supports custom units like EUR, MWh, etc.)
+        # Use original_value if available (before SI conversion) for accurate conversion
+        if from_unit and original_value is not None:
+            result = convert_value_to_unit(original_value, from_unit, unit_latex)
+            if result is not None:
+                return result
+
+        # Extract numeric value from SymPy expression
+        numeric_value = self._extract_numeric_value(value)
+
+        # Fallback: try SymPy-based conversion for standard units
         from sympy.physics.units import convert_to
         from sympy.physics import units as u
         import sympy
@@ -1219,7 +1257,7 @@ class Evaluator:
                 target_unit = self._parse_unit_expression(normalized_unit)
 
             if target_unit is None:
-                return self._extract_numeric_value(value)
+                return numeric_value
 
             # First convert both value and target to SI base units
             base_units = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
@@ -1250,8 +1288,8 @@ class Evaluator:
                 return float(ratio_simplified)
 
         except Exception as e:
-            # Fallback: try to extract numeric without conversion
-            return self._extract_numeric_value(value)
+            # Fallback: return the extracted numeric without conversion
+            return numeric_value
 
     def _get_numeric_in_unit(self, value: Any, target_unit_latex: str) -> float:
         """
@@ -2242,7 +2280,7 @@ class Evaluator:
         - Powers must be outside \\text{}: \\text{m}^2 not \\text{m^2}
         - Use \\cdot for multiplication, not · character
         """
-        from .units import format_unit_latex
+        from .pint_backend import format_unit_latex
         from sympy.physics.units import Quantity
 
         # Check if this contains unit Quantities

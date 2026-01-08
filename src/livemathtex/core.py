@@ -358,6 +358,7 @@ def process_text(
 def process_text_v3(
     content: str,
     source: str = "<string>",
+    config: Optional[LivemathConfig] = None,
 ) -> tuple[str, LivemathIRV3]:
     """
     Process markdown content using IR v3.0 schema.
@@ -378,9 +379,10 @@ def process_text_v3(
     lexer = Lexer()
     document = lexer.parse(content)
 
-    # 2. Parse document directives and create config
-    doc_directives = lexer.parse_document_directives(content)
-    config = LivemathConfig().with_overrides(doc_directives) if doc_directives else LivemathConfig()
+    # 2. Build config (caller may provide a fully-resolved config, e.g. from file hierarchy)
+    if config is None:
+        doc_directives = lexer.parse_document_directives(content)
+        config = LivemathConfig().with_overrides(doc_directives) if doc_directives else LivemathConfig()
 
     # 3. Build IR v3.0 (extracts custom units with full metadata)
     builder = IRBuilder()

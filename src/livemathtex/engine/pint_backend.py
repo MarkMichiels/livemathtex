@@ -409,6 +409,74 @@ def define_custom_unit(definition: str) -> bool:
         return False
 
 
+def define_custom_unit_from_latex(unit_name: str, definition: str) -> bool:
+    """
+    Define a custom unit from LaTeX-style syntax.
+
+    Converts LaTeX notation to Pint-compatible format and registers the unit.
+
+    Args:
+        unit_name: The unit name being defined (e.g., "kWh", "€", "MWh")
+        definition: The definition expression in LaTeX (e.g., "kW \\cdot h", "1000 \\cdot kWh")
+
+    Returns:
+        True if successful, False otherwise.
+
+    Examples:
+        define_custom_unit_from_latex("€", "€")  # Base currency unit
+        define_custom_unit_from_latex("kWh", "kW \\cdot h")  # Compound unit
+        define_custom_unit_from_latex("MWh", "1000 \\cdot kWh")  # Derived unit
+    """
+    ureg = get_unit_registry()
+
+    # Clean the unit name - replace currency symbols
+    clean_name = unit_name.replace('€', 'EUR').replace('$', 'USD')
+
+    # Clean the definition - convert LaTeX to Pint format
+    clean_def = definition.replace('\\cdot', '*').replace('\\times', '*')
+    clean_def = clean_def.replace('€', 'EUR').replace('$', 'USD')
+    clean_def = clean_def.replace('³', '**3').replace('²', '**2')
+    clean_def = clean_def.strip()
+
+    # Handle base unit definition (X === X)
+    clean_def_normalized = clean_def.replace('EUR', 'EUR').replace('USD', 'USD')
+    if clean_name == clean_def_normalized or clean_name == clean_def:
+        # This is a base unit - check if already defined
+        try:
+            ureg.Unit(clean_name)
+            return True  # Already exists
+        except pint.errors.UndefinedUnitError:
+            # Define as new base unit with its own dimension
+            try:
+                ureg.define(f'{clean_name} = [{clean_name}]')
+                return True
+            except pint.errors.RedefinitionError:
+                return True  # Already defined
+            except Exception:
+                return False
+
+    # Handle derived/compound units
+    try:
+        # Check if already defined
+        try:
+            ureg.Unit(clean_name)
+            return True  # Already exists
+        except pint.errors.UndefinedUnitError:
+            pass
+
+        # Try to define as derived unit
+        pint_def = f'{clean_name} = {clean_def}'
+        ureg.define(pint_def)
+        return True
+
+    except pint.errors.RedefinitionError:
+        return True  # Already defined
+    except pint.errors.DefinitionSyntaxError:
+        return False
+    except Exception:
+        return False
+
+
 def create_quantity(value: float, unit: str) -> Optional[pint.Quantity]:
     """
     Create a Pint Quantity from a value and unit string.
@@ -531,6 +599,93 @@ def format_pint_unit(unit: pint.Unit) -> str:
     return unit_str if unit_str else None
 
 
+def format_unit_latex(unit: Any, original_latex: Optional[str] = None) -> str:
+    """
+    Format a Pint unit as LaTeX-friendly string.
+
+    If original_latex is provided, uses that for display (preserves user's notation).
+    Otherwise, converts Pint unit to readable abbreviation.
+
+    Args:
+        unit: A Pint Unit or Quantity, or string representation
+        original_latex: Optional original LaTeX string for display
+
+    Returns:
+        LaTeX-friendly unit string
+
+    Example:
+        kilogram -> "kg"
+        meter/second -> "m/s"
+        EUR/(kilowatt*hour) -> "€/kWh" (or original_latex if provided)
+    """
+    # Prefer original LaTeX if provided (preserves user notation)
+    if original_latex:
+        return original_latex
+
+    if unit is None:
+        return ""
+
+    # Get string representation
+    unit_str = str(unit)
+
+    # Map Pint full names to common abbreviations
+    # Order matters - longer names first to avoid partial replacements
+    reverse_map = [
+        ('kilogram', 'kg'),
+        ('milligram', 'mg'),
+        ('gram', 'g'),
+        ('millimeter', 'mm'),
+        ('centimeter', 'cm'),
+        ('kilometer', 'km'),
+        ('meter', 'm'),
+        ('millisecond', 'ms'),
+        ('second', 's'),
+        ('minute', 'min'),
+        ('hour', 'h'),
+        ('day', 'dag'),
+        ('milliliter', 'mL'),
+        ('liter', 'L'),
+        ('kilowatt', 'kW'),
+        ('megawatt', 'MW'),
+        ('watt', 'W'),
+        ('kilojoule', 'kJ'),
+        ('joule', 'J'),
+        ('newton', 'N'),
+        ('kilopascal', 'kPa'),
+        ('pascal', 'Pa'),
+        ('millibar', 'mbar'),
+        ('bar', 'bar'),
+        ('volt', 'V'),
+        ('milliampere', 'mA'),
+        ('ampere', 'A'),
+        ('kelvin', 'K'),
+        ('kilohertz', 'kHz'),
+        ('megahertz', 'MHz'),
+        ('hertz', 'Hz'),
+        ('mole', 'mol'),
+        ('euro', '€'),
+        ('EUR', '€'),
+        ('USD', '$'),
+        ('dollar', '$'),
+        # Compound unit patterns
+        ('kilowatt_hour', 'kWh'),
+        ('megawatt_hour', 'MWh'),
+    ]
+
+    for full, abbrev in reverse_map:
+        unit_str = unit_str.replace(full, abbrev)
+
+    # Clean up Pint artifacts for LaTeX compatibility
+    unit_str = unit_str.replace(' ** ', '^')
+    unit_str = unit_str.replace('**', '^')
+    # Use proper LaTeX-compatible separator (will be converted to \cdot later)
+    unit_str = unit_str.replace(' * ', ' · ')
+    unit_str = unit_str.replace('*', ' · ')
+    unit_str = unit_str.replace(' / ', '/')
+
+    return unit_str
+
+
 @dataclass
 class FormulaEvalResult:
     """Result of evaluating a formula with units."""
@@ -541,6 +696,339 @@ class FormulaEvalResult:
     base_unit: Optional[str]
     success: bool
     error: Optional[str] = None
+
+
+# =============================================================================
+# LaTeX Unit Parsing (migrated from units.py)
+# =============================================================================
+
+
+def strip_unit_from_value(latex: str) -> tuple[str, Optional[str], Optional[pint.Unit]]:
+    """
+    Strip the unit from a value expression and parse it.
+
+    Handles multiple patterns:
+        "0.139\\ €/kWh"         -> ("0.139", "€/kWh", pint.Unit)
+        "100\\ \\text{kg}"      -> ("100", "kg", pint.Unit)
+        "5.5\\ \\text{m/s}"     -> ("5.5", "m/s", pint.Unit)
+        "1500\\ kWh"            -> ("1500", "kWh", pint.Unit)
+        "50 \\frac{m^3}{h}"     -> ("50", "m³/h", pint.Unit)
+        "42"                    -> ("42", None, None)
+
+    Returns:
+        Tuple of (value_latex, unit_string or None, pint_unit or None)
+    """
+    latex = latex.strip()
+
+    # Pattern 0: number followed by \frac{numerator}{denominator}
+    # Example: "50 \frac{m^{3}}{h}" or "1000 \frac{kg}{m^{3}}" or "44\ \frac{mg}{L}"
+    frac_match = re.match(r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s*\\?\s*\\frac', latex)
+    if frac_match:
+        value_part = frac_match.group(1).strip()
+        rest = latex[frac_match.end():]
+        # Extract numerator and denominator handling nested braces
+        numerator, rest = _extract_braced_content(rest)
+        denominator, _ = _extract_braced_content(rest)
+        if numerator is not None and denominator is not None:
+            # Clean up LaTeX: m^{3} -> m³, \text{kg} -> kg, \cdot -> *
+            numerator = _clean_unit_latex(numerator)
+            denominator = _clean_unit_latex(denominator)
+            # Use parentheses if denominator contains multiplication
+            if '*' in denominator or '·' in denominator:
+                unit_latex = f"{numerator}/({denominator})"
+            else:
+                unit_latex = f"{numerator}/{denominator}"
+            pint_unit = parse_unit_string(unit_latex)
+            if pint_unit is not None:
+                return value_part, unit_latex, pint_unit
+            else:
+                # Unit pattern detected but not recognized
+                raise ValueError(f"Unrecognized unit: \\frac{{{numerator}}}{{{denominator}}}. "
+                               f"Define it first with '$$ {unit_latex} === ... $$'")
+
+    # Pattern 1: number followed by \text{...} or \mathrm{...}
+    # Example: "100\ \text{kg}" or "5.5 \text{m/s}"
+    match = re.match(
+        r'^(.+?)\s*\\?\s*\\(?:text|mathrm)\{([^}]+)\}\s*$',
+        latex
+    )
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        pint_unit = parse_unit_string(unit_part)
+        return value_part, unit_part, pint_unit
+
+    # Pattern 2: number followed by backslash-space and unit
+    # Example: "0.139\ €/kWh" or "1500\ kWh"
+    match = re.match(
+        r'^([\d.]+(?:[eE][+-]?\d+)?)\s*\\\s+(.+)$',
+        latex
+    )
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        pint_unit = parse_unit_string(unit_part)
+        return value_part, unit_part, pint_unit
+
+    # Pattern 3: number followed by direct unit (no backslash)
+    # Example: "100 kg" or "5.5 m/s" or "-2 m"
+    match = re.match(
+        r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s+([€$]?[a-zA-Z][a-zA-Z0-9/\*\^³²]*)\s*$',
+        latex
+    )
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        # Only accept if it parses as a known unit
+        pint_unit = parse_unit_string(unit_part)
+        if pint_unit is not None:
+            return value_part, unit_part, pint_unit
+        else:
+            # Looks like a unit pattern but not recognized
+            if len(unit_part) > 1 or unit_part in ['m', 's', 'g', 'A', 'K', 'N', 'J', 'W', 'V', 'L', 'h']:
+                raise ValueError(f"Unrecognized unit: '{unit_part}'. "
+                               f"Define it first with '$$ {unit_part} === ... $$'")
+
+    # Pattern 4: number with unit symbol directly attached (currency)
+    # Example: "0.139€/kWh"
+    match = re.match(
+        r'^([\d.]+(?:[eE][+-]?\d+)?)\s*([€$][a-zA-Z0-9/\*\^³²]*)\s*$',
+        latex
+    )
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        pint_unit = parse_unit_string(unit_part)
+        if pint_unit is not None:
+            return value_part, unit_part, pint_unit
+
+    # No unit found
+    return latex, None, None
+
+
+def _extract_braced_content(s: str) -> tuple[Optional[str], str]:
+    """
+    Extract content from balanced braces, handling nesting.
+
+    Example:
+        "{m^{3}}rest" -> ("m^{3}", "rest")
+        "{kg}{m^{3}}" -> ("kg", "{m^{3}}")
+
+    Returns:
+        Tuple of (content or None, remaining string)
+    """
+    s = s.strip()
+    if not s or s[0] != '{':
+        return None, s
+
+    depth = 0
+    start = 0
+    for i, c in enumerate(s):
+        if c == '{':
+            if depth == 0:
+                start = i + 1
+            depth += 1
+        elif c == '}':
+            depth -= 1
+            if depth == 0:
+                return s[start:i], s[i+1:]
+
+    return None, s
+
+
+def _clean_unit_latex(unit_latex: str) -> str:
+    """
+    Clean LaTeX unit notation to simple format.
+
+    Converts:
+        "\\text{mg}" -> "mg"
+        "\\mathrm{kg}" -> "kg"
+        "m^{3}" -> "m³"
+        "m^3"   -> "m³"
+        "m^{2}" -> "m²"
+        "s^{2}" -> "s²"
+        "\\cdot" -> "*"
+
+    Returns:
+        Cleaned unit string
+    """
+    result = unit_latex
+
+    # Remove \text{} and \mathrm{} wrappers
+    result = re.sub(r'\\text\{([^}]+)\}', r'\1', result)
+    result = re.sub(r'\\mathrm\{([^}]+)\}', r'\1', result)
+
+    # Replace \cdot with *
+    result = result.replace(r'\cdot', '*')
+    result = result.replace('·', '*')  # Unicode middle dot
+
+    # Replace LaTeX power notation with Unicode
+    result = re.sub(r'\^\{3\}', '³', result)
+    result = re.sub(r'\^3', '³', result)
+    result = re.sub(r'\^\{2\}', '²', result)
+    result = re.sub(r'\^2', '²', result)
+
+    # Clean up whitespace
+    result = re.sub(r'\s+', '', result)
+
+    return result
+
+
+def parse_unit_string(unit_str: str) -> Optional[pint.Unit]:
+    """
+    Parse a unit string into a Pint unit.
+
+    Handles:
+        - Simple units: "kg", "m", "s", "EUR"
+        - Compound units: "m/s", "EUR/kWh", "mg/L/dag"
+        - Powers: "m²", "m^2", "m³", "m^3"
+        - Products: "kWh", "kg·m/s²"
+        - Currency symbols: "€" -> EUR, "$" -> USD
+
+    Returns:
+        Pint Unit or None if not recognized
+    """
+    if not unit_str:
+        return None
+
+    ureg = get_unit_registry()
+    unit_str = unit_str.strip()
+
+    # Replace currency symbols with Pint-compatible names
+    unit_str = unit_str.replace('€', 'EUR')
+    unit_str = unit_str.replace('$', 'USD')
+
+    # Replace Unicode superscripts with **
+    unit_str = unit_str.replace('²', '**2').replace('³', '**3')
+
+    # Replace · with *
+    unit_str = unit_str.replace('·', '*').replace('\\cdot', '*')
+
+    # Try direct parse
+    try:
+        return ureg.Unit(unit_str)
+    except (pint.errors.UndefinedUnitError, pint.errors.DimensionalityError):
+        pass
+    except Exception:
+        pass
+
+    # Try parsing compound expressions with custom handling
+    return _parse_compound_unit_pint(unit_str)
+
+
+def _parse_compound_unit_pint(unit_str: str) -> Optional[pint.Unit]:
+    """
+    Parse compound unit expressions like "EUR/kWh" or "mg/L/dag".
+
+    Handles:
+        - Division: a/b/c
+        - Multiplication: a*b
+        - Powers: a**2, a**3
+    """
+    ureg = get_unit_registry()
+
+    # Split by / for division
+    if '/' in unit_str:
+        parts = unit_str.split('/')
+
+        # First part is numerator
+        try:
+            result = ureg.Unit(parts[0].strip())
+        except Exception:
+            return None
+
+        # Rest are denominators
+        for denom_str in parts[1:]:
+            denom_str = denom_str.strip()
+            # Handle parentheses
+            if denom_str.startswith('(') and denom_str.endswith(')'):
+                denom_str = denom_str[1:-1]
+            try:
+                denom = ureg.Unit(denom_str)
+                result = result / denom
+            except Exception:
+                return None
+
+        return result
+
+    # Handle multiplication
+    if '*' in unit_str:
+        parts = unit_str.split('*')
+        result = None
+        for part in parts:
+            part = part.strip()
+            if not part:
+                continue
+            try:
+                unit = ureg.Unit(part)
+                if result is None:
+                    result = unit
+                else:
+                    result = result * unit
+            except Exception:
+                return None
+        return result
+
+    return None
+
+
+def convert_value_to_unit(
+    value: float,
+    from_unit: Optional[str],
+    to_unit: str
+) -> Optional[float]:
+    """
+    Convert a value from one unit to another using Pint.
+
+    This is the primary conversion function for the value: directive.
+    Handles custom units (EUR, kWh, etc.) and complex unit expressions.
+
+    Args:
+        value: The numeric value
+        from_unit: The source unit string (or None for dimensionless)
+        to_unit: The target unit string (in LaTeX-friendly format)
+
+    Returns:
+        The converted value, or None if conversion fails.
+
+    Examples:
+        >>> convert_value_to_unit(5000, "kWh", "MWh")
+        5.0
+        >>> convert_value_to_unit(750, "EUR", "EUR")
+        750.0
+        >>> convert_value_to_unit(50, "m³/h", "L/s")
+        13.889
+    """
+    ureg = get_unit_registry()
+
+    # Normalize target unit (handle LaTeX-style notation)
+    to_unit_clean = to_unit.replace('€', 'EUR').replace('$', 'USD')
+    to_unit_clean = to_unit_clean.replace('³', '**3').replace('²', '**2')
+    to_unit_clean = to_unit_clean.replace('·', '*')
+
+    try:
+        if from_unit:
+            # Normalize from_unit too
+            from_unit_clean = from_unit.replace('€', 'EUR').replace('$', 'USD')
+            from_unit_clean = from_unit_clean.replace('³', '**3').replace('²', '**2')
+            from_unit_clean = from_unit_clean.replace('·', '*')
+
+            # Create quantity and convert
+            quantity = value * ureg(from_unit_clean)
+            converted = quantity.to(to_unit_clean)
+            return float(converted.magnitude)
+        else:
+            # Dimensionless - check if target is also dimensionless
+            target_unit = ureg(to_unit_clean)
+            if target_unit.dimensionless:
+                return value
+            return None  # Can't convert dimensionless to dimensioned
+
+    except (pint.errors.DimensionalityError, pint.errors.UndefinedUnitError) as e:
+        # Conversion not possible
+        return None
+    except Exception:
+        return None
 
 
 def evaluate_formula_with_units(
@@ -620,3 +1108,487 @@ def evaluate_formula_with_units(
             success=False,
             error=str(e)
         )
+
+
+# =============================================================================
+# SymPy Unit Registry (for internal calculation compatibility)
+# =============================================================================
+# Note: This is a minimal implementation kept for SymPy calculation compatibility.
+# Pint is the source of truth for unit handling. This registry allows custom units
+# to be used in SymPy expressions during evaluation.
+
+from sympy.physics.units import (
+    Quantity, meter, kilogram, second, ampere, kelvin, mole, candela,
+    gram, milligram, kilogram, liter, bar, day, hour, minute, watt,
+    joule, pascal, hertz, volt, ohm, kilo, milli, micro, centi
+)
+
+# Unit abbreviations mapping to SymPy units
+UNIT_ABBREVIATIONS = {
+    # Length
+    'mm': milli * meter,
+    'cm': centi * meter,
+    'm': meter,
+    'km': kilo * meter,
+    # Mass
+    'g': gram,
+    'mg': milligram,
+    'kg': kilogram,
+    # Time
+    's': second,
+    'min': minute,
+    'h': hour,
+    'day': day,
+    # Power
+    'W': watt,
+    'kW': kilo * watt,
+    'MW': kilo * kilo * watt,
+    # Energy
+    'J': joule,
+    'kJ': kilo * joule,
+    'Wh': watt * hour,
+    'kWh': kilo * watt * hour,
+    'MWh': kilo * kilo * watt * hour,
+    # Pressure
+    'Pa': pascal,
+    'kPa': kilo * pascal,
+    'bar': bar,
+    'mbar': milli * bar,
+    # Volume
+    'L': liter,
+    'mL': milli * liter,
+    'm³': meter**3,
+    'm^3': meter**3,
+    # Frequency
+    'Hz': hertz,
+    'kHz': kilo * hertz,
+    'MHz': kilo * kilo * hertz,
+    # Electrical
+    'V': volt,
+    'A': ampere,
+    'Ω': ohm,
+    # Temperature
+    'K': kelvin,
+}
+
+
+@dataclass
+class UnitDefinition:
+    """Represents a custom unit definition for SymPy calculations."""
+    name: str
+    latex_name: str
+    sympy_unit: Any
+    is_base_unit: bool = False
+    definition_expr: Optional[str] = None
+
+
+class SymPyUnitRegistry:
+    """
+    Registry for custom unit definitions (SymPy compatibility layer).
+
+    This is kept for internal SymPy calculation compatibility.
+    Pint (via get_unit_registry()) is the primary API for unit handling.
+
+    Handles the `===` syntax:
+    - € === €           → New base unit
+    - mbar === bar/1000 → Derived unit
+    - kWh === kW * h    → Compound unit
+    - dag === day       → Alias
+    """
+
+    def __init__(self):
+        self._custom_units: dict[str, UnitDefinition] = {}
+        self._initialize_builtin_units()
+
+    def _initialize_builtin_units(self):
+        """Initialize built-in custom units like euro."""
+        # Currency units (not in SymPy by default)
+        euro = Quantity('euro', abbrev='EUR')
+        self._custom_units['€'] = UnitDefinition(
+            name='euro',
+            latex_name='€',
+            sympy_unit=euro,
+            is_base_unit=True,
+        )
+        self._custom_units['EUR'] = self._custom_units['€']
+        self._custom_units['euro'] = self._custom_units['€']
+
+        # Dollar
+        dollar = Quantity('dollar', abbrev='USD')
+        self._custom_units['$'] = UnitDefinition(
+            name='dollar',
+            latex_name='$',
+            sympy_unit=dollar,
+            is_base_unit=True,
+        )
+        self._custom_units['USD'] = self._custom_units['$']
+        self._custom_units['dollar'] = self._custom_units['$']
+
+    def _clean_unit_name(self, name: str) -> str:
+        """Clean LaTeX formatting from unit name."""
+        name = re.sub(r'\\text\{([^}]+)\}', r'\1', name)
+        name = re.sub(r'\\mathrm\{([^}]+)\}', r'\1', name)
+        name = name.strip().replace('$', '')
+        return name
+
+    def define_unit(self, latex: str) -> Optional[UnitDefinition]:
+        """
+        Parse and register a unit definition from `===` syntax.
+
+        Returns UnitDefinition if successful, None if not a unit definition.
+        """
+        if '===' not in latex:
+            return None
+
+        parts = latex.split('===')
+        if len(parts) != 2:
+            return None
+
+        left = self._clean_unit_name(parts[0].strip())
+        right = self._clean_unit_name(parts[1].strip())
+
+        # Base unit (X === X)
+        if left == right:
+            return self._define_base_unit(left)
+
+        # Derived/compound/alias
+        return self._define_derived_unit(left, right)
+
+    def _define_base_unit(self, name: str) -> UnitDefinition:
+        """Define a new base unit."""
+        if name in self._custom_units:
+            return self._custom_units[name]
+
+        sympy_unit = Quantity(name, abbrev=name)
+        unit_def = UnitDefinition(
+            name=name,
+            latex_name=name,
+            sympy_unit=sympy_unit,
+            is_base_unit=True,
+        )
+        self._custom_units[name] = unit_def
+        return unit_def
+
+    def _define_derived_unit(self, name: str, expr: str) -> UnitDefinition:
+        """Define a derived unit from an expression."""
+        sympy_unit = self._parse_unit_expression(expr)
+
+        if sympy_unit is None:
+            if expr in UNIT_ABBREVIATIONS:
+                sympy_unit = UNIT_ABBREVIATIONS[expr]
+            elif expr in self._custom_units:
+                sympy_unit = self._custom_units[expr].sympy_unit
+            else:
+                sympy_unit = Quantity(name, abbrev=name)
+
+        unit_def = UnitDefinition(
+            name=name,
+            latex_name=name,
+            sympy_unit=sympy_unit,
+            is_base_unit=False,
+            definition_expr=expr,
+        )
+        self._custom_units[name] = unit_def
+        return unit_def
+
+    def _parse_unit_expression(self, expr: str) -> Optional[Any]:
+        """Parse a unit expression like 'bar/1000' or 'kW * h'."""
+        expr = expr.replace('\\cdot', '*').replace('\\times', '*').replace('\\div', '/')
+
+        namespace = dict(UNIT_ABBREVIATIONS)
+        for name, unit_def in self._custom_units.items():
+            namespace[name] = unit_def.sympy_unit
+
+        namespace.update({
+            'bar': bar, 'day': day, 'hour': hour, 'watt': watt,
+            'liter': liter, 'gram': gram, 'meter': meter, 'second': second,
+            'kilogram': kilogram, 'kilo': kilo, 'milli': milli, 'micro': micro,
+        })
+
+        try:
+            return eval(expr, {"__builtins__": {}}, namespace)
+        except Exception:
+            return None
+
+    def get_unit(self, name: str) -> Optional[Any]:
+        """Get a unit by name (abbreviation or custom)."""
+        clean_name = self._clean_unit_name(name)
+
+        if clean_name in self._custom_units:
+            return self._custom_units[clean_name].sympy_unit
+        if clean_name in UNIT_ABBREVIATIONS:
+            return UNIT_ABBREVIATIONS[clean_name]
+
+        # Try to parse compound expressions
+        if '*' in clean_name or '/' in clean_name:
+            return self._parse_unit_expression(clean_name)
+
+        return None
+
+    def reset(self):
+        """Reset to initial state (for testing)."""
+        self._custom_units.clear()
+        self._initialize_builtin_units()
+
+
+# Singleton instance
+_sympy_unit_registry: Optional[SymPyUnitRegistry] = None
+
+
+def get_sympy_unit_registry() -> SymPyUnitRegistry:
+    """Get the singleton SymPy UnitRegistry instance (for internal calculations)."""
+    global _sympy_unit_registry
+    if _sympy_unit_registry is None:
+        _sympy_unit_registry = SymPyUnitRegistry()
+    return _sympy_unit_registry
+
+
+def reset_sympy_unit_registry():
+    """Reset the SymPy unit registry (for testing)."""
+    global _sympy_unit_registry
+    if _sympy_unit_registry is not None:
+        _sympy_unit_registry.reset()
+
+
+# Alias for backwards compatibility (evaluator.py uses UnitRegistry directly)
+UnitRegistry = SymPyUnitRegistry
+
+
+# Legacy alias - evaluator.py imports get_unit_registry from units.py
+# but it should use get_sympy_unit_registry for SymPy operations
+def get_unit_registry_for_sympy() -> SymPyUnitRegistry:
+    """Alias for get_sympy_unit_registry (backwards compatibility)."""
+    return get_sympy_unit_registry()
+
+
+# =============================================================================
+# SymPy Unit Parsing Functions (for assignment parsing)
+# =============================================================================
+
+def _sympy_extract_braced_content(s: str) -> tuple[Optional[str], str]:
+    """Extract content from balanced braces, handling nesting."""
+    s = s.strip()
+    if not s or s[0] != '{':
+        return None, s
+
+    depth = 0
+    start = 0
+    for i, c in enumerate(s):
+        if c == '{':
+            if depth == 0:
+                start = i + 1
+            depth += 1
+        elif c == '}':
+            depth -= 1
+            if depth == 0:
+                return s[start:i], s[i+1:]
+
+    return None, s
+
+
+def _sympy_clean_unit_latex(unit_latex: str) -> str:
+    """Clean LaTeX unit notation to simple format."""
+    result = unit_latex
+    result = re.sub(r'\\text\{([^}]+)\}', r'\1', result)
+    result = re.sub(r'\\mathrm\{([^}]+)\}', r'\1', result)
+    result = result.replace(r'\cdot', '*').replace('·', '*')
+    result = re.sub(r'\^\{3\}', '³', result)
+    result = re.sub(r'\^3', '³', result)
+    result = re.sub(r'\^\{2\}', '²', result)
+    result = re.sub(r'\^2', '²', result)
+    result = re.sub(r'\s+', '', result)
+    return result
+
+
+def _sympy_try_prefixed_unit(unit_str: str) -> Optional[Any]:
+    """Try to parse a unit with SI prefix (k, M, m, µ, n, c)."""
+    from sympy.physics.units.prefixes import kilo, mega, giga, milli, micro, nano, centi
+
+    if len(unit_str) < 2:
+        return None
+
+    prefix_map = {
+        'k': kilo, 'M': mega, 'G': giga, 'c': centi,
+        'µ': micro, 'u': micro, 'n': nano,
+    }
+
+    first_char = unit_str[0]
+    if first_char in prefix_map:
+        base_str = unit_str[1:]
+        if base_str in UNIT_ABBREVIATIONS:
+            return prefix_map[first_char] * UNIT_ABBREVIATIONS[base_str]
+
+    if unit_str == 'mm':
+        return milli * meter
+
+    return None
+
+
+def _sympy_parse_single_unit(unit_str: str, registry: SymPyUnitRegistry) -> Optional[Any]:
+    """Parse a single SymPy unit (possibly with power or parentheses)."""
+    unit_str = unit_str.strip()
+    if not unit_str:
+        return None
+
+    # Handle parentheses
+    if unit_str.startswith('(') and unit_str.endswith(')'):
+        inner = unit_str[1:-1]
+        if '*' in inner:
+            parts = inner.split('*')
+            result = None
+            for part in parts:
+                part_unit = _sympy_parse_single_unit(part.strip(), registry)
+                if part_unit is None:
+                    return None
+                result = part_unit if result is None else result * part_unit
+            return result
+        return _sympy_parse_single_unit(inner, registry)
+
+    # Handle powers: m^2, s^-1
+    if '^' in unit_str:
+        base, exp = unit_str.split('^', 1)
+        base_unit = _sympy_parse_single_unit(base.strip(), registry)
+        if base_unit is None:
+            return None
+        try:
+            return base_unit ** int(exp.strip())
+        except ValueError:
+            return None
+
+    # Handle multiplication: L*dag
+    if '*' in unit_str:
+        parts = unit_str.split('*')
+        result = None
+        for part in parts:
+            part_unit = _sympy_parse_single_unit(part.strip(), registry)
+            if part_unit is None:
+                return None
+            result = part_unit if result is None else result * part_unit
+        return result
+
+    # Direct lookups
+    result = registry.get_unit(unit_str)
+    if result is not None:
+        return result
+
+    if unit_str in UNIT_ABBREVIATIONS:
+        return UNIT_ABBREVIATIONS[unit_str]
+
+    # Try with SI prefixes
+    return _sympy_try_prefixed_unit(unit_str)
+
+
+def _sympy_parse_compound_unit_expr(unit_str: str, registry: SymPyUnitRegistry) -> Optional[Any]:
+    """Parse compound unit expressions like '€/kWh' or 'mg/L/dag'."""
+    if '/' in unit_str:
+        parts = unit_str.split('/')
+        numerator = _sympy_parse_single_unit(parts[0], registry)
+        if numerator is None:
+            return None
+
+        result = numerator
+        for denom_str in parts[1:]:
+            denom = _sympy_parse_single_unit(denom_str, registry)
+            if denom is None:
+                return None
+            result = result / denom
+        return result
+
+    return _sympy_parse_single_unit(unit_str, registry)
+
+
+def _sympy_parse_unit_string(unit_str: str) -> Optional[Any]:
+    """Parse a unit string into a SymPy unit expression."""
+    if not unit_str:
+        return None
+
+    unit_str = unit_str.strip().replace('²', '^2').replace('³', '^3')
+    unit_str = unit_str.replace('·', '*').replace('\\cdot', '*')
+
+    registry = get_sympy_unit_registry()
+
+    result = registry.get_unit(unit_str)
+    if result is not None:
+        return result
+
+    return _sympy_parse_compound_unit_expr(unit_str, registry)
+
+
+def sympy_strip_unit_from_value(latex: str) -> tuple[str, Optional[str], Optional[Any]]:
+    """
+    Strip the unit from a value expression and parse it (SymPy version).
+
+    Used by evaluator.py for parsing assignments like "100\\ kg".
+
+    Returns:
+        Tuple of (value_latex, unit_string or None, sympy_unit or None)
+    """
+    latex = latex.strip()
+
+    # Pattern 0: number followed by \frac{numerator}{denominator}
+    frac_match = re.match(r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s*\\?\s*\\frac', latex)
+    if frac_match:
+        value_part = frac_match.group(1).strip()
+        rest = latex[frac_match.end():]
+        numerator, rest = _sympy_extract_braced_content(rest)
+        denominator, _ = _sympy_extract_braced_content(rest)
+        if numerator is not None and denominator is not None:
+            numerator = _sympy_clean_unit_latex(numerator)
+            denominator = _sympy_clean_unit_latex(denominator)
+            if '*' in denominator or '·' in denominator:
+                unit_latex = f"{numerator}/({denominator})"
+            else:
+                unit_latex = f"{numerator}/{denominator}"
+            sympy_unit = _sympy_parse_unit_string(unit_latex)
+            if sympy_unit is not None:
+                return value_part, unit_latex, sympy_unit
+            else:
+                raise ValueError(f"Unrecognized unit: \\frac{{{numerator}}}{{{denominator}}}. "
+                               f"Define it first with '$$ {unit_latex} === ... $$'")
+
+    # Pattern 1: number followed by \text{...} or \mathrm{...}
+    match = re.match(r'^(.+?)\s*\\?\s*\\(?:text|mathrm)\{([^}]+)\}\s*$', latex)
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        sympy_unit = _sympy_parse_unit_string(unit_part)
+        return value_part, unit_part, sympy_unit
+
+    # Pattern 2: number followed by backslash-space and unit
+    match = re.match(r'^([\d.]+(?:[eE][+-]?\d+)?)\s*\\\s+(.+)$', latex)
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        sympy_unit = _sympy_parse_unit_string(unit_part)
+        return value_part, unit_part, sympy_unit
+
+    # Pattern 3: number followed by direct unit (no backslash)
+    match = re.match(r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s+([€$]?[a-zA-Z][a-zA-Z0-9/\*\^³²]*)\s*$', latex)
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        sympy_unit = _sympy_parse_unit_string(unit_part)
+        if sympy_unit is not None:
+            return value_part, unit_part, sympy_unit
+        elif len(unit_part) > 1 or unit_part in ['m', 's', 'g', 'A', 'K', 'N', 'J', 'W', 'V', 'L', 'h']:
+            raise ValueError(f"Unrecognized unit: '{unit_part}'. "
+                           f"Define it first with '$$ {unit_part} === ... $$'")
+
+    # Pattern 4: number with unit symbol directly attached (currency)
+    match = re.match(r'^([\d.]+(?:[eE][+-]?\d+)?)\s*([€$][a-zA-Z0-9/\*\^³²]*)\s*$', latex)
+    if match:
+        value_part = match.group(1).strip()
+        unit_part = match.group(2).strip()
+        sympy_unit = _sympy_parse_unit_string(unit_part)
+        if sympy_unit is not None:
+            return value_part, unit_part, sympy_unit
+
+    # No unit found
+    return latex, None, None
+
+
+def reset_unit_registry():
+    """Reset both Pint and SymPy unit registries (for testing)."""
+    reset_sympy_unit_registry()
+    global _ureg
+    _ureg = None

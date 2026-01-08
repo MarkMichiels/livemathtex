@@ -46,16 +46,17 @@ def process(input_file, output, verbose, ir_output):
 
         if should_generate_ir:
             # Use v3.0 pipeline for JSON generation
-            from .engine.units import reset_unit_registry
+            from .engine import reset_unit_registry
             reset_unit_registry()
-            
-            rendered_output, ir = process_text_v3(content, source=str(input_path))
-            
+
+            rendered_output, ir = process_text_v3(content, source=str(input_path), config=config)
+
             # Write output markdown
-            output_path = output or config.resolve_output_path(input_path, None)
+            # Match legacy pipeline behavior: resolve relative -o paths next to the input file
+            output_path = config.resolve_output_path(input_path, output)
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(rendered_output)
-            
+
             # Write IR JSON (v3.0)
             ir_path = Path(ir_output) if ir_output else input_path.with_suffix('.lmt.json')
             ir.to_json(ir_path)
@@ -110,13 +111,13 @@ def inspect(ir_file):
         # Read JSON to detect version
         with open(ir_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        
+
         version = data.get('version', '2.0')
-        
+
         if version == '3.0':
             # Load as v3.0
             ir = LivemathIRV3.from_dict(data)
-            
+
             click.echo(f"Source: {ir.source}")
             click.echo(f"Version: {ir.version}")
             if ir.unit_backend:
