@@ -56,7 +56,7 @@ $E := P \cdot t == 2721727$  % ← Computed, but what unit? No verification!
 ```bash
 livemathtex process <input.md> [-o <output.md>] [--verbose] [--ir-output <path.json>]
 livemathtex inspect <input.lmt.json>
-livemathtex clear <input.md> [-o <output.md>]   # PLANNED - see ISSUE-004
+livemathtex clear <input.md> [-o <output.md>]   # PLANNED - see FEAT-002
 ```
 
 ### `process` - Evaluate calculations
@@ -66,7 +66,7 @@ Evaluates all math blocks and writes computed values.
 Shows symbols, units, and errors from the IR file.
 
 ### `clear` - Reset document (PLANNED)
-**Status:** Not yet implemented - see [ISSUE-004](../../docs/KNOWN_ISSUES.md#issue-004-need-livemathtex-clear-command-to-reset-document-calculations)
+**Status:** Not yet implemented - see [FEAT-002](../../docs/BACKLOG.md#feat-002-livemathtex-clear-command-to-reset-document-calculations)
 
 Will reset the document by removing:
 - Computed values after `==`
@@ -122,7 +122,7 @@ $ dag === day $
 - Use `value:` only when you need a number-only cell:
   - `| Flow | $ $ <!-- value:Q [m³/h] :2 --> | m³/h |`
 
-Known limitation: `value:` has limited unit support for custom/complex units (see [KNOWN_ISSUES.md](../../docs/KNOWN_ISSUES.md#issue-001-value-directive-doesnt-support-complexcustom-units), ISSUE-001).
+Known limitation: `value:` has limited unit support for custom/complex units (see [BACKLOG.md](../../docs/BACKLOG.md#issue-001-value-directive-doesnt-support-complexcustom-units), ISSUE-001).
 
 ## Common pitfalls (fix fast)
 
@@ -135,6 +135,6 @@ Known limitation: `value:` has limited unit support for custom/complex units (se
 
 - **[USAGE.md](../../docs/USAGE.md)** — full syntax & configuration
 - **[ARCHITECTURE.md](../../docs/ARCHITECTURE.md)** — IR + internals
-- **[KNOWN_ISSUES.md](../../docs/KNOWN_ISSUES.md)** — limitations + workarounds
+- **[BACKLOG.md](../../docs/BACKLOG.md)** — issues, features & backlog
 - **[Examples](../../examples/)** — known-good patterns
 - **`/livemathtex-setup`** — installation guide

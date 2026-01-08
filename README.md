@@ -135,7 +135,7 @@ If you're using Cursor, this repo also includes command wrappers:
 | [USAGE.md](docs/USAGE.md) | Syntax reference (units, tables, config) |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design (IR, parser/engine/renderer) |
 | [BACKGROUND.md](docs/BACKGROUND.md) | Research and alternatives |
-| [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Limitations & backlog |
+| [BACKLOG.md](docs/BACKLOG.md) | Issues, features & backlog |
 | [ROADMAP.md](docs/ROADMAP.md) | Development phases |
 
 ---

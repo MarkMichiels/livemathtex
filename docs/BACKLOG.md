@@ -1,4 +1,4 @@
-[LiveMathTeX](../README.md) / Issues & Features
+[LiveMathTeX](../README.md) / Backlog
 
 # Issues & Features
 
