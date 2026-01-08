@@ -1,21 +1,29 @@
-[LiveMathTeX](../README.md) / Known Issues & Backlog
+[LiveMathTeX](../README.md) / Issues & Features
 
-# Known Issues & Backlog
+# Issues & Features
 
-This document tracks known limitations and planned improvements for LiveMathTeX.
+This document tracks known limitations (ISSUE), planned improvements (FEAT), and resolved items for LiveMathTeX.
 
 ---
 
-## Issue Index
+## Index
+
+### Issues (Bugs & Problems)
 
 | # | Status | Priority | Description |
 |---|--------|----------|-------------|
 | [ISSUE-001](#issue-001-value-directive-doesnt-support-complexcustom-units) | ✅ Resolved | High | `value:` directive doesn't support complex/custom units |
 | [ISSUE-002](#issue-002-remove-all-hardcoded-unit-lists---use-pint-as-single-source-of-truth) | ✅ Resolved | High | Remove all hardcoded unit lists |
 | [ISSUE-003](#issue-003-failed-variable-definition-still-allows-unit-interpretation-in-subsequent-formulas) | 🔴 Open | Critical | Failed variable definition allows unit fallback |
-| [ISSUE-004](#issue-004-need-livemathtex-clear-command-to-reset-document-calculations) | 🟡 Open | Medium | Need `livemathtex clear` command |
-| [ISSUE-005](#issue-005-document-directive-parser-does-not-ignore-code-blocks) | 🟡 Open | Medium | Directive parser doesn't ignore code blocks |
-| [ISSUE-006](#issue-006-latex-wrapped-units-text-not-parsed-by-pint) | 🟡 Open | Medium | LaTeX-wrapped units not parsed by Pint |
+| [ISSUE-004](#issue-004-document-directive-parser-does-not-ignore-code-blocks) | 🟡 Open | Medium | Directive parser doesn't ignore code blocks |
+| [ISSUE-005](#issue-005-latex-wrapped-units-text-not-parsed-by-pint) | 🟡 Open | Medium | LaTeX-wrapped units not parsed by Pint |
+
+### Features (Enhancements & New Functionality)
+
+| # | Status | Priority | Description |
+|---|--------|----------|-------------|
+| [FEAT-001](#feat-001-expose-public-python-api-for-library-usage) | 🟡 Open | Medium | Expose public Python API for library usage |
+| [FEAT-002](#feat-002-livemathtex-clear-command-to-reset-document-calculations) | 🟡 Open | Medium | `livemathtex clear` command to reset calculations |
 
 ---
 
@@ -137,99 +145,7 @@ All `Cap_XX` and `C_XX` and `U_XX` calculations showed wrong units because `V` w
 
 ---
 
-## ISSUE-004: Need `livemathtex clear` command to reset document calculations
-
-**Status:** 🟡 OPEN
-**Priority:** Medium
-**Discovered:** 2026-01-08
-
-**Problem:**
-After running `livemathtex process`, the document contains:
-1. Computed values to the right of `==` (e.g., `$x == 42$`)
-2. Error messages embedded in LaTeX (`\\ \color{red}{\text{Error: ...}}`)
-3. A meta comment with timestamp and statistics
-
-When errors occur or the document needs to be "reset" for a fresh calculation cycle, there is no command to clean the document back to its original state.
-
-**Current workflow (manual and error-prone):**
-1. User makes changes to document
-2. Runs `livemathtex process` (F9)
-3. Sees errors or wrong values
-4. Must **manually** remove all computed values and errors
-5. Fix the formulas
-6. Run process again
-
-**Desired workflow:**
-1. User makes changes to document
-2. Runs `livemathtex process` (F9)
-3. Sees errors or wrong values
-4. Runs `livemathtex clear` (Shift-F9) - document is reset
-5. Fix the formulas
-6. Run process again
-
-**Proposed `livemathtex clear` command:**
-
-```bash
-livemathtex clear <input.md> [-o <output.md>]
-```
-
-**What it should do:**
-1. **Remove computed values** after `==`:
-   - `$x := 5 \cdot 2 == 10$` → `$x := 5 \cdot 2 ==$`
-   - `$y == 42$` → `$y ==$`
-
-2. **Remove error markup**:
-   - `$x == 10 \\ \color{red}{\text{Error: ...}}$` → `$x ==$`
-
-3. **Remove or reset meta comment**:
-   - `> *livemathtex: 2026-01-08 ... | 15 errors | ...* <!-- livemathtex-meta -->` → remove or reset
-
-4. **Preserve**:
-   - All definitions (`:=`) with their formulas (left side of `==`)
-   - Unit definitions (`===`)
-   - All markdown structure
-   - Comments
-
-**Use cases:**
-1. **Debug workflow:** Error → clear → fix → process → verify
-2. **Validation workflow:** User fills in expected values, processes, compares diff
-3. **Clean commits:** Clear before committing to avoid noise in diffs
-4. **Fresh start:** Reset document after major restructuring
-
-**Implementation approach:**
-1. Add `clear` subcommand to `cli.py`
-2. Use regex or parser to identify:
-   - `== <value>` patterns → strip value
-   - `\\ \color{red}{...}` patterns → remove entirely
-   - `<!-- livemathtex-meta -->` lines → remove
-3. Output cleaned document (same options as `process`: timestamped, inplace, or custom output)
-
-**Regex patterns (initial approach):**
-```python
-# Remove computed value after ==
-r'\s*==\s*[^$]+(?=\$)'  →  ' =='
-
-# Remove error markup
-r'\s*\\\\\s*\\color\{red\}\{\\text\{[^}]+\}\}'  →  ''
-
-# Remove meta comment
-r'^>?\s*\*livemathtex:.*<!-- livemathtex-meta -->\s*$'  →  ''
-```
-
-**Alternative: Parser-based approach:**
-Use the existing Lexer to identify math blocks, then strip computed portions. More robust but more complex.
-
-**Files to modify:**
-- `src/livemathtex/cli.py` - Add `clear` subcommand
-- `src/livemathtex/core.py` - Add `clear_file()` function (or new `cleaner.py` module)
-- `.cursor/commands/livemathtex.md` - Document the new command
-
-**Integration with Cursor:**
-After CLI implementation, the Cursor command can be updated to support Shift-F9 for clearing, providing a complete edit → process → clear → fix cycle.
-
----
-
-## ISSUE-005: Document directive parser does not ignore code blocks
+## ISSUE-004: Document directive parser does not ignore code blocks
 
 **Status:** 🟡 OPEN
 **Priority:** Medium
@@ -292,7 +208,7 @@ Ensure example directives in documentation use different syntax that won't match
 
 ---
 
-## ISSUE-006: LaTeX-wrapped units (`\text{...}`) not parsed by Pint
+## ISSUE-005: LaTeX-wrapped units (`\text{...}`) not parsed by Pint
 
 **Status:** 🟡 OPEN
 **Priority:** Medium
@@ -391,14 +307,150 @@ $a_1 := 9.81\ \frac{m}{s^2}$  % May work with fraction parsing
 
 ---
 
+## FEAT-001: Expose public Python API for library usage
+
+**Status:** 🟡 OPEN
+**Priority:** Medium
+**Requested:** 2026-01-08
+
+**Request:**
+Currently, LiveMathTeX is primarily a CLI tool. The `__init__.py` only exports `main()`, making it difficult to use as a Python library in other projects.
+
+**Current state:**
+```python
+# src/livemathtex/__init__.py
+from .cli import main
+__version__ = "0.1.0"
+```
+
+**Desired API:**
+```python
+from livemathtex import process_text, LivemathConfig
+from pathlib import Path
+
+# Process markdown string directly
+config = LivemathConfig.load(Path("document.md"))
+markdown_out, ir = process_text(markdown_in, config)
+
+# Or simpler one-liner
+result = livemathtex.process("$x := 5 \cdot 2 ==$")
+```
+
+**Use cases:**
+1. **Integration in pipelines** - Process documents programmatically
+2. **Custom tooling** - Build tools on top of LiveMathTeX
+3. **Testing** - Easier unit testing without CLI
+4. **IDE plugins** - Direct Python integration
+
+**Proposed changes:**
+
+1. **Extend `__init__.py`:**
+```python
+from .cli import main
+from .core import process_text_v3 as process_text
+from .config import LivemathConfig
+from .ir.schema import LivemathIR
+
+__version__ = "0.1.0"
+
+__all__ = [
+    "main",
+    "process_text",
+    "LivemathConfig",
+    "LivemathIR",
+]
+```
+
+2. **Add convenience function** (optional):
+```python
+def process_string(content: str, **kwargs) -> tuple[str, LivemathIR]:
+    """Process a markdown string with LiveMathTeX calculations."""
+    config = LivemathConfig(**kwargs)
+    return process_text(content, config)
+```
+
+3. **Update README** to document library usage
+
+**Files to change:**
+- `src/livemathtex/__init__.py` - Add exports
+- `src/livemathtex/core.py` - Possibly simplify API
+- `README.md` - Document library usage
+- `docs/USAGE.md` - Add library examples
+
+**Effort:** Small (1-2 hours)
+
+---
+
+## FEAT-002: `livemathtex clear` command to reset document calculations
+
+**Status:** 🟡 OPEN
+**Priority:** Medium
+**Requested:** 2026-01-08
+
+**Request:**
+After running `livemathtex process`, the document contains computed values and error messages. When errors occur or the document needs resetting, there is no command to clean it back to the original state.
+
+**Current workflow (manual and error-prone):**
+1. User makes changes to document
+2. Runs `livemathtex process` (F9)
+3. Sees errors or wrong values
+4. Must **manually** remove all computed values and errors
+5. Fix the formulas
+6. Run process again
+
+**Desired workflow:**
+1. User makes changes → `process` (F9) → sees errors → `clear` (Shift-F9) → fix → `process` (F9)
+
+**Proposed command:**
+```bash
+livemathtex clear <input.md> [-o <output.md>]
+```
+
+**What it should do:**
+1. **Remove computed values** after `==`:
+   - `$x := 5 \cdot 2 == 10$` → `$x := 5 \cdot 2 ==$`
+2. **Remove error markup**:
+   - `$x == 10 \\ \color{red}{\text{Error: ...}}$` → `$x ==$`
+3. **Remove meta comment**:
+   - `> *livemathtex: ... <!-- livemathtex-meta -->` → remove
+4. **Preserve**: All definitions, unit definitions, markdown structure
+
+**Use cases:**
+1. **Debug workflow:** Error → clear → fix → process → verify
+2. **Validation workflow:** Fill in expected values, process, compare diff
+3. **Clean commits:** Clear before committing to avoid diff noise
+4. **Fresh start:** Reset document after major restructuring
+
+**Implementation approach:**
+1. Add `clear` subcommand to `cli.py`
+2. Use regex or parser to strip computed values and errors
+3. Same output options as `process` (timestamped, inplace, custom)
+
+**Files to change:**
+- `src/livemathtex/cli.py` - Add `clear` subcommand
+- `src/livemathtex/core.py` - Add `clear_text()` function
+- `.cursor/commands/livemathtex.md` - Document new command
+
+**Effort:** Small-Medium (2-4 hours)
+
+---
+
 ## Contributing
 
-When adding new issues:
+When adding new items:
+
+**For issues (bugs):**
 1. Use format: `ISSUE-XXX: Brief title`
-2. Include: Status, Priority, Discovered date, Context
+2. Include: Status, Priority, Discovered date
 3. Describe: Problem, What works/doesn't, Root cause, Impact
-4. Propose: Solution options with short/medium/long term
+4. Propose: Solution options
 5. List: Affected files and workarounds
+
+**For features:**
+1. Use format: `FEAT-XXX: Brief title`
+2. Include: Status, Priority, Requested date
+3. Describe: Request, Current state, Desired API
+4. List: Use cases, Proposed changes, Files to change, Effort estimate
 
 ---
 
