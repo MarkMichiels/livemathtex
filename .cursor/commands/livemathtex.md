@@ -8,6 +8,31 @@ LiveMathTeX evaluates LaTeX math blocks inside Markdown and writes the computed 
 
 **Design intent:** Treat the document as the source of truth. Every number shown should be traceable to a formula in the same document (no manual/hardcoded calculated numbers).
 
+## 🚨 CRITICAL: Use Units Rigorously!
+
+**The entire point of LiveMathTeX is verification.** AI assistants can calculate values themselves, but LiveMathTeX provides a **double-check** through explicit unit-aware computation.
+
+**DO:** Use units consistently to verify calculations are correct:
+```latex
+$P := 310.7\ \text{kW}$
+$t := 8760\ \text{h}$
+$E := P \cdot t ==$  <!-- [MWh] -->
+% → LiveMathTeX computes AND converts: 2721.7 MWh
+% → If you accidentally used seconds, you'd get 0.756 MWh (wrong!)
+```
+
+**DON'T:** Skip units because "you know the answer":
+```latex
+$P := 310.7$       % ← Is this kW? W? MW? Who knows!
+$t := 8760$        % ← Hours? Seconds? Days?
+$E := P \cdot t == 2721727$  % ← Computed, but what unit? No verification!
+```
+
+**Why this matters:**
+- **Dimensional analysis catches errors:** If you mix kW with seconds instead of hours, the unit output reveals the mistake immediately
+- **Self-documenting:** Units in the document explain what each variable means
+- **The AI already knows the answer** - LiveMathTeX's value is the independent verification, not the computation itself
+
 ## Capabilities (what it can do)
 
 - Parse Markdown and execute math blocks (`$...$` and `$$...$$`)
@@ -26,12 +51,29 @@ LiveMathTeX evaluates LaTeX math blocks inside Markdown and writes the computed 
 - Prefer the default **timestamped** output (safe). Only overwrite input when explicitly requested.
 - If results/units look wrong, re-run with IR output and inspect the JSON.
 
-## CLI (the only commands)
+## CLI Commands
 
 ```bash
 livemathtex process <input.md> [-o <output.md>] [--verbose] [--ir-output <path.json>]
 livemathtex inspect <input.lmt.json>
+livemathtex clear <input.md> [-o <output.md>]   # PLANNED - see ISSUE-004
 ```
+
+### `process` - Evaluate calculations
+Evaluates all math blocks and writes computed values.
+
+### `inspect` - Debug IR JSON
+Shows symbols, units, and errors from the IR file.
+
+### `clear` - Reset document (PLANNED)
+**Status:** Not yet implemented - see [ISSUE-004](../../docs/KNOWN_ISSUES.md#issue-004-need-livemathtex-clear-command-to-reset-document-calculations)
+
+Will reset the document by removing:
+- Computed values after `==`
+- Error markup (`\color{red}{...}`)
+- Meta comments
+
+**Workaround until implemented:** Manually edit or use git to restore.
 
 - `-o/--output` overrides the output path only (operational). Formatting belongs in the document/config.
 - `--verbose` (or document directive `json=true`) writes `<input>.lmt.json` and prints a summary.
