@@ -340,20 +340,27 @@ $$ dag === day $$                <!-- Alias for existing unit -->
 | `X === Y * Z` | Compound unit | `ureg.define('X = Y * Z')` |
 | `X === Y` | Alias | `ureg.define('X = Y')` |
 
-**Built-in unit abbreviations:**
+**Unit Recognition - Pint as Single Source of Truth:**
 
-| Abbreviation | Unit | Example |
-|--------------|------------|---------|
-| `L` | `liter` | `197\ \text{L}` |
-| `h` | `hour` | `24\ \text{h}` |
-| `W` | `watt` | `100\ \text{W}` |
-| `kg` | `kilogram` | `5\ \text{kg}` |
-| `dag` | `day` | Dutch for "day" |
+LiveMathTeX uses **Pint** as the authoritative source for unit recognition. There are no hardcoded unit lists in the codebase. All unit validation and parsing flows through Pint's comprehensive unit registry.
 
-**Note:** Pint supports most SI and common units. Custom units are for:
-- Currency (euro, dollar)
-- Non-standard abbreviations (dag → day)
-- Domain-specific units
+| Function | Purpose |
+|----------|---------|
+| `is_pint_unit(token)` | Check if token is a valid Pint unit |
+| `is_known_unit(token)` | Check if token is Pint OR custom unit |
+| `pint_to_sympy_with_prefix(unit)` | Convert Pint unit to SymPy for calculations |
+
+**Custom units are only needed for:**
+- Currency (€, euro, dollar) - not physical quantities
+- Non-standard abbreviations (dag → day for Dutch)
+- Domain-specific units not in Pint
+
+**What Pint recognizes natively:**
+- All SI units and prefixes (kg, MW, GWh, μm, etc.)
+- Common derived units (N, Pa, J, W, etc.)
+- Time units (s, min, hour, day, year)
+- Volume units (L, mL, m³)
+- Most engineering units
 
 #### Unit-Aware Calculations
 
@@ -665,7 +672,9 @@ The `pint_backend.py` module serves as the single source of truth for all unit h
 ```mermaid
 graph TB
     subgraph pint_backend [pint_backend.py]
-        PR[Pint UnitRegistry<br>Unit validation, conversion]
+        PR[Pint UnitRegistry<br>Unit validation & recognition]
+        IPU[is_pint_unit / is_known_unit<br>Dynamic unit checking]
+        PTS[pint_to_sympy_with_prefix<br>Pint → SymPy conversion]
         SR[SymPy Compatibility Layer<br>For internal calculations]
         FMT[format_unit_latex<br>Display formatting]
         CVT[convert_value_to_unit<br>value: directive support]
@@ -676,16 +685,29 @@ graph TB
         VAL[value: Directive]
     end
 
-    PR --> VAL
+    PR --> IPU
+    IPU --> PTS
+    PTS --> CALC
     CVT --> VAL
     SR --> CALC
     FMT --> CALC
 
     style PR fill:#4caf50,stroke:#2e7d32,color:#fff
+    style IPU fill:#81c784,stroke:#4caf50,color:#000
+    style PTS fill:#81c784,stroke:#4caf50,color:#000
     style CVT fill:#4caf50,stroke:#2e7d32,color:#fff
 ```
 
+**Key functions for unit recognition (no hardcoded lists):**
+
+| Function | Purpose |
+|----------|---------|
+| `is_pint_unit(token)` | Check if token is valid in Pint registry |
+| `is_known_unit(token)` | Check if token is Pint OR custom-defined unit |
+| `pint_to_sympy_with_prefix(unit)` | Convert Pint unit string to SymPy expression |
+
 - **Pint UnitRegistry**: Primary API for unit validation, conversion, and the `value:` directive
+- **Dynamic Unit Recognition**: Units are checked against Pint at runtime, not via hardcoded lists
 - **SymPy Compatibility Layer**: Internal adapter allowing SymPy expressions to work with custom units
 - **Single module**: All unit handling is in `pint_backend.py` (no separate `units.py`)
 
