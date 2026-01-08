@@ -267,6 +267,287 @@ def check_variable_name_conflict(name: str) -> Optional[str]:
     return None
 
 
+# =============================================================================
+# ISSUE-002: Dynamic Unit Recognition Functions
+# =============================================================================
+# These functions replace hardcoded unit lists with dynamic Pint queries.
+# Pint is the single source of truth for unit recognition.
+# =============================================================================
+
+
+def is_pint_unit(token: str) -> bool:
+    """
+    Check if a token is a valid Pint unit (built-in, not custom).
+    
+    This checks against Pint's native unit registry, NOT custom units
+    defined via the === syntax. Use is_known_unit() to check both.
+    
+    Args:
+        token: The string token to check (e.g., 'MWh', 'm/s', 'kg').
+    
+    Returns:
+        True if Pint recognizes this as a unit, False otherwise.
+    
+    Examples:
+        >>> is_pint_unit('MWh')      # True - Pint knows megawatt_hour
+        >>> is_pint_unit('kWh/kg')   # True - Pint can parse compound units
+        >>> is_pint_unit('EUR')      # True - We defined EUR in Pint setup
+        >>> is_pint_unit('€')        # False - Symbol not in Pint
+    """
+    if not token or token.strip() == "":
+        return False
+    
+    # Clean the token
+    clean = _unwrap_latex(token.strip())
+    if not clean:
+        return False
+    
+    # Replace common LaTeX notation
+    clean = clean.replace('\\cdot', '*').replace('³', '**3').replace('²', '**2')
+    
+    ureg = get_unit_registry()
+    try:
+        ureg.parse_expression(clean)
+        return True
+    except (pint.errors.UndefinedUnitError, pint.errors.DimensionalityError):
+        return False
+    except Exception:
+        return False
+
+
+def is_custom_unit(token: str) -> bool:
+    """
+    Check if a token is a custom unit defined via === syntax.
+    
+    Custom units are those not in Pint's default registry but defined
+    by the user in their document using the === syntax.
+    
+    Args:
+        token: The string token to check.
+    
+    Returns:
+        True if this is a user-defined custom unit.
+    
+    Examples:
+        >>> is_custom_unit('€')       # True if defined with '€ === €'
+        >>> is_custom_unit('SEC')     # True if defined with 'SEC === kWh/kg'
+        >>> is_custom_unit('MWh')     # False - Pint handles this
+    """
+    if not token or token.strip() == "":
+        return False
+    
+    # Import here to avoid circular imports - registry may not exist yet
+    try:
+        registry = get_sympy_unit_registry()
+        return token in registry._custom_units
+    except Exception:
+        return False
+
+
+def is_known_unit(token: str) -> bool:
+    """
+    Check if a token is a known unit (Pint native OR custom defined).
+    
+    This is the primary function for checking if a token represents a unit.
+    It checks both Pint's built-in registry and custom units from === syntax.
+    
+    Args:
+        token: The string token to check.
+    
+    Returns:
+        True if this is any recognized unit (Pint or custom).
+    
+    Examples:
+        >>> is_known_unit('MWh')  # True - Pint native
+        >>> is_known_unit('€')    # True - Custom unit (if defined)
+        >>> is_known_unit('foo')  # False - Unknown
+    """
+    return is_pint_unit(token) or is_custom_unit(token)
+
+
+def pint_to_sympy(unit_str: str) -> Optional[Any]:
+    """
+    Convert a Pint unit string to a SymPy unit expression dynamically.
+    
+    This is the core function for ISSUE-002: instead of hardcoded mappings,
+    we parse the unit with Pint and construct the equivalent SymPy expression
+    from Pint's dimensionality.
+    
+    Args:
+        unit_str: A unit string like 'MWh', 'kWh/kg', 'm/s**2'.
+    
+    Returns:
+        A SymPy expression representing the unit, or None if conversion fails.
+    
+    Examples:
+        >>> pint_to_sympy('kW')     # kilo * watt
+        >>> pint_to_sympy('m/s')    # meter / second  
+        >>> pint_to_sympy('kWh')    # kilo * watt * hour
+    """
+    if not unit_str or unit_str.strip() == "":
+        return None
+    
+    # Import SymPy units
+    from sympy.physics.units import (
+        meter, kilogram, second, ampere, kelvin, mole, candela,
+        watt, joule, newton, pascal, hertz, volt, ohm,
+        liter, bar, hour, minute, day,
+        kilo, milli, micro, centi, mega, giga, nano, pico
+    )
+    
+    # Clean the unit string
+    clean = unit_str.strip()
+    clean = clean.replace('\\cdot', '*').replace('³', '**3').replace('²', '**2')
+    clean = _unwrap_latex(clean)
+    
+    # First check custom units
+    try:
+        registry = get_sympy_unit_registry()
+        if clean in registry._custom_units:
+            return registry._custom_units[clean].sympy_unit
+    except Exception:
+        pass
+    
+    # Try to parse with Pint
+    ureg = get_unit_registry()
+    try:
+        pint_unit = ureg.parse_expression(clean)
+        
+        # Get dimensionality from Pint
+        if hasattr(pint_unit, 'dimensionality'):
+            dims = dict(pint_unit.dimensionality)
+        else:
+            return None
+        
+        # Build SymPy expression from dimensions
+        # Pint dimensions: [length], [mass], [time], [current], [temperature], [substance], [luminosity]
+        # Also: [energy], [power], [pressure], etc. (derived)
+        
+        result = 1
+        
+        # Map Pint base dimensions to SymPy units
+        base_map = {
+            '[length]': meter,
+            '[mass]': kilogram,
+            '[time]': second,
+            '[current]': ampere,
+            '[temperature]': kelvin,
+            '[substance]': mole,
+            '[luminosity]': candela,
+        }
+        
+        for dim, power in dims.items():
+            if dim in base_map:
+                if power != 0:
+                    result = result * (base_map[dim] ** power)
+        
+        # Handle magnitude/scale (e.g., kW = 1000 W)
+        if hasattr(pint_unit, 'magnitude') and pint_unit.magnitude != 1:
+            result = result * pint_unit.magnitude
+        
+        return result if result != 1 else None
+        
+    except Exception:
+        return None
+
+
+def pint_to_sympy_with_prefix(unit_str: str) -> Optional[Any]:
+    """
+    Convert a Pint unit string to SymPy, handling SI prefixes correctly.
+    
+    This version properly handles prefixed units like kW, MW, mm by
+    returning the prefix multiplied by the base unit.
+    
+    Args:
+        unit_str: A unit string like 'kW', 'MW', 'mm'.
+    
+    Returns:
+        A SymPy expression with proper prefix handling.
+    """
+    from sympy.physics.units import (
+        meter, kilogram, second, ampere, kelvin, mole, candela,
+        gram, watt, joule, newton, pascal, hertz, volt, ohm,
+        liter, bar, hour, minute, day,
+        kilo, milli, micro, centi, mega, giga, nano, pico
+    )
+    
+    if not unit_str:
+        return None
+    
+    clean = unit_str.strip()
+    clean = clean.replace('\\cdot', '*').replace('³', '**3').replace('²', '**2')
+    clean = _unwrap_latex(clean)
+    
+    # First check custom units
+    try:
+        registry = get_sympy_unit_registry()
+        if clean in registry._custom_units:
+            return registry._custom_units[clean].sympy_unit
+    except Exception:
+        pass
+    
+    # Direct mappings for common units (fast path)
+    direct_map = {
+        # Base SI
+        'm': meter, 'kg': kilogram, 's': second, 'A': ampere,
+        'K': kelvin, 'mol': mole, 'cd': candela,
+        # Derived
+        'g': gram, 'W': watt, 'J': joule, 'N': newton,
+        'Pa': pascal, 'Hz': hertz, 'V': volt, 'ohm': ohm,
+        'L': liter, 'bar': bar, 'h': hour, 'min': minute, 'day': day,
+        # Prefixed length
+        'mm': milli * meter, 'cm': centi * meter, 'km': kilo * meter,
+        'nm': nano * meter, 'µm': micro * meter,
+        # Prefixed mass
+        'mg': milli * gram,
+        # Prefixed time
+        'ms': milli * second, 'ns': nano * second,
+        # Prefixed power
+        'kW': kilo * watt, 'MW': mega * watt, 'GW': giga * watt,
+        'mW': milli * watt,
+        # Prefixed energy
+        'kJ': kilo * joule, 'MJ': mega * joule,
+        'Wh': watt * hour, 'kWh': kilo * watt * hour, 'MWh': mega * watt * hour,
+        # Prefixed pressure
+        'kPa': kilo * pascal, 'mbar': milli * bar,
+        # Prefixed frequency
+        'kHz': kilo * hertz, 'MHz': mega * hertz, 'GHz': giga * hertz,
+        # Prefixed electrical
+        'kV': kilo * volt, 'mA': milli * ampere, 'mV': milli * volt,
+        # Prefixed volume
+        'mL': milli * liter,
+        # Compound
+        'm³': meter**3, 'm^3': meter**3, 'm²': meter**2, 'm^2': meter**2,
+    }
+    
+    if clean in direct_map:
+        return direct_map[clean]
+    
+    # Handle compound units with / or *
+    if '/' in clean:
+        parts = clean.split('/')
+        if len(parts) == 2:
+            num = pint_to_sympy_with_prefix(parts[0].strip())
+            den = pint_to_sympy_with_prefix(parts[1].strip())
+            if num and den:
+                return num / den
+    
+    if '*' in clean:
+        parts = clean.split('*')
+        result = 1
+        for part in parts:
+            part = part.strip()
+            if part:
+                unit = pint_to_sympy_with_prefix(part)
+                if unit:
+                    result = result * unit
+        if result != 1:
+            return result
+    
+    # Fallback to dimension-based conversion
+    return pint_to_sympy(clean)
+
+
 def parse_value_with_unit(text: str) -> Optional[ParsedQuantity]:
     """
     Parse a string containing a value with optional unit.
