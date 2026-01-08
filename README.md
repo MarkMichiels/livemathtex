@@ -111,6 +111,7 @@ Three operators. That's it.
 | [EDITOR_INTEGRATION.md](docs/EDITOR_INTEGRATION.md) | Keyboard shortcuts & VS Code setup |
 | [USAGE.md](docs/USAGE.md) | Complete syntax reference |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design |
+| [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Known limitations & backlog |
 | [ROADMAP.md](docs/ROADMAP.md) | Development phases |
 
 ---

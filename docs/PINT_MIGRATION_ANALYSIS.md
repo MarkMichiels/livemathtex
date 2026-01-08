@@ -5,7 +5,7 @@
 **Branch:** `feature/pint-backend`
 **Document purpose:** One place to understand (1) why LiveMathTeX exists, (2) how it works today, (3) where fragility lives, and (4) what a Pint-based unit backend would change—without losing the preprocessor rules and error checks that make the tool reliable.
 
-**Status:** Phase 1-5 complete. IR v3.0 is fully implemented. See [IR_SCHEMA_V3_PROPOSAL.md](IR_SCHEMA_V3_PROPOSAL.md) for details.
+**Status:** All phases (1-5) complete. IR v3.0 is fully implemented. `units.py` has been removed and all unit handling is now in `pint_backend.py`. See [IR_SCHEMA_V3_PROPOSAL.md](IR_SCHEMA_V3_PROPOSAL.md) for details.
 
 ---
 
@@ -60,8 +60,7 @@ Key code entry points:
 - `src/livemathtex/core.py`
 - `src/livemathtex/parser/lexer.py`
 - `src/livemathtex/engine/evaluator.py`
-- `src/livemathtex/engine/units.py`
-- `src/livemathtex/engine/pint_backend.py` *(new)*
+- `src/livemathtex/engine/pint_backend.py` (primary unit handling module)
 
 ### 2.3 Code-Level Bottlenecks (Identified)
 
@@ -142,15 +141,23 @@ If we remove `latex2sympy` entirely, we still need **some** equivalent mapping, 
 
 ---
 
-## 6. Unit handling today (SymPy-based)
+## 6. Unit handling today (Pint-based)
 
 ### 6.1 Current unit architecture
 
-- Unit parsing helpers live in `engine/units.py`:
-  - `strip_unit_from_value()` detects “value + unit” patterns
-  - `_parse_unit_string()` converts the unit token to a SymPy unit expression
-  - `UnitRegistry` supports custom unit definitions via `===`
-  - `format_unit_latex()` renders units back to display form
+All unit handling is now in `engine/pint_backend.py`:
+
+- **Pint UnitRegistry** (primary API):
+  - `get_unit_registry()` - returns configured Pint registry with custom units
+  - `is_unit_token()` - checks if a token is a recognized unit
+  - `check_variable_name_conflict()` - prevents variable names conflicting with units
+  - `convert_value_to_unit()` - converts values between units (used by `value:` directive)
+  - `parse_value_with_unit()` - parses "value unit" strings
+
+- **SymPy Compatibility Layer** (for internal calculations):
+  - `SymPyUnitRegistry` - maintains SymPy Quantity objects for calculation propagation
+  - `sympy_strip_unit_from_value()` - extracts value and SymPy unit from LaTeX
+  - `format_unit_latex()` - renders units back to display form
 
 - Evaluation uses SymPy units for propagation:
   - `Evaluator._compute(..., propagate_units=True)` substitutes variables as `value_with_unit`
@@ -441,8 +448,7 @@ Key code:
 - `src/livemathtex/core.py`
 - `src/livemathtex/parser/lexer.py`
 - `src/livemathtex/engine/evaluator.py`
-- `src/livemathtex/engine/units.py`
-- `src/livemathtex/engine/pint_backend.py` *(new)*
+- `src/livemathtex/engine/pint_backend.py` (all unit handling)
 
 ---
 
@@ -472,11 +478,16 @@ Created a comprehensive test scaffold:
 2. **Updated examples** to use subscripted names (`mass_obj`, `a_1`, `b_1`)
 3. **Regenerated all output files**
 
-### Phase 4: Cleanup (deferred)
-The following cleanup tasks are deferred for future optimization:
-1. Remove redundant code from `engine/units.py`
-2. Remove `UNIT_ABBREVIATIONS` manual list
-3. Further code simplification
+### Phase 4: Cleanup ✅ COMPLETE (2026-01-08)
+All unit handling consolidated into `pint_backend.py`:
+1. **Removed `engine/units.py`** - All code migrated or replaced
+2. **Migrated to Pint-based functions**:
+   - `strip_unit_from_value()` → `sympy_strip_unit_from_value()` in pint_backend.py
+   - `format_unit_latex()` → Pint-based version in pint_backend.py
+   - `UnitRegistry` → `SymPyUnitRegistry` in pint_backend.py
+3. **Unified `value:` directive** - Uses Pint `convert_value_to_unit()` for custom unit support (ISSUE-001 fix)
+4. **Added ISSUE-001 test** - `examples/custom-units/input.md` now includes value: directive tests with MWh, EUR conversions
+5. **76 tests passing** - All examples and unit tests working
 
 ### Phase 5: IR v3.0 Implementation ✅ COMPLETE
 See [IR_SCHEMA_V3_PROPOSAL.md](IR_SCHEMA_V3_PROPOSAL.md) for the complete proposal.

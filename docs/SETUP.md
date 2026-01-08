@@ -54,12 +54,17 @@ Create in your project directory:
 
 ```toml
 # .livemathtex.toml
-digits = 4              # Decimal precision
-scientific = false      # Use scientific notation
-timeout = 5             # Max seconds per expression
+digits = 4                      # Significant figures (1-15)
+format = "general"              # general/decimal/scientific/engineering
+exponential_threshold = 9       # Switch to scientific notation at |exp| >= 9
+trailing_zeros = false          # Keep trailing zeros in decimal format
+timeout = 5                     # Max seconds per expression
+output = "timestamped"          # timestamped/inplace/<filename>
+json = false                    # Generate `.lmt.json` IR file for debugging
 
 [units]
-system = "SI"           # Unit system (SI or imperial)
+system = "SI"                   # SI/imperial/CGS
+simplify = true                 # Simplify to derived units where possible
 ```
 
 ### Document Directives

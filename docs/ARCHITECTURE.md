@@ -333,16 +333,16 @@ $$ kWh === kW \cdot h $$         <!-- Compound unit -->
 $$ dag === day $$                <!-- Alias for existing unit -->
 ```
 
-| Pattern | Meaning | SymPy Implementation |
+| Pattern | Meaning | Pint Implementation |
 |---------|---------|---------------------|
-| `X === X` | New base unit | `Quantity('X')` |
-| `X === Y / n` | Derived from Y | `set_global_relative_scale_factor(1/n, Y)` |
-| `X === Y * Z` | Compound unit | `set_global_relative_scale_factor(1, Y*Z)` |
-| `X === Y` | Alias | `X = Y` |
+| `X === X` | New base unit | `ureg.define('X = [X]')` |
+| `X === Y / n` | Derived from Y | `ureg.define('X = Y / n')` |
+| `X === Y * Z` | Compound unit | `ureg.define('X = Y * Z')` |
+| `X === Y` | Alias | `ureg.define('X = Y')` |
 
 **Built-in unit abbreviations:**
 
-| Abbreviation | SymPy Unit | Example |
+| Abbreviation | Unit | Example |
 |--------------|------------|---------|
 | `L` | `liter` | `197\ \text{L}` |
 | `h` | `hour` | `24\ \text{h}` |
@@ -350,7 +350,7 @@ $$ dag === day $$                <!-- Alias for existing unit -->
 | `kg` | `kilogram` | `5\ \text{kg}` |
 | `dag` | `day` | Dutch for "day" |
 
-**Note:** SymPy supports most SI and common units. Custom units are for:
+**Note:** Pint supports most SI and common units. Custom units are for:
 - Currency (euro, dollar)
 - Non-standard abbreviations (dag → day)
 - Domain-specific units
@@ -479,7 +479,7 @@ Options:
 livemathtex inspect <ir_file>
 
 # Examples
-livemathtex process input.md                      # In-place processing
+livemathtex process input.md                      # Default: timestamped output (controlled by document/config `output`)
 livemathtex process input.md -o output.md         # Separate output
 livemathtex process input.md --verbose            # Write debug IR
 livemathtex inspect input.lmt.json                # View symbols and results
@@ -492,7 +492,7 @@ pandoc output.md -o output.pdf
 
 When using `--verbose` or the `json=true` document directive, livemathtex writes a JSON file containing:
 
-- **version**: IR schema version (2.0)
+- **version**: IR schema version (3.0)
 - **source**: Input file path
 - **custom_units**: User-defined units from `===` syntax
 - **symbols**: All variables with original and SI values
@@ -658,6 +658,37 @@ output = "inplace"  # Power user preference
 - Automatic base unit conversion
 - Easy custom unit registration
 
+**Unit Backend Architecture:**
+
+The `pint_backend.py` module serves as the single source of truth for all unit handling:
+
+```mermaid
+graph TB
+    subgraph pint_backend [pint_backend.py]
+        PR[Pint UnitRegistry<br>Unit validation, conversion]
+        SR[SymPy Compatibility Layer<br>For internal calculations]
+        FMT[format_unit_latex<br>Display formatting]
+        CVT[convert_value_to_unit<br>value: directive support]
+    end
+
+    subgraph evaluator [evaluator.py]
+        CALC[SymPy Calculations]
+        VAL[value: Directive]
+    end
+
+    PR --> VAL
+    CVT --> VAL
+    SR --> CALC
+    FMT --> CALC
+
+    style PR fill:#4caf50,stroke:#2e7d32,color:#fff
+    style CVT fill:#4caf50,stroke:#2e7d32,color:#fff
+```
+
+- **Pint UnitRegistry**: Primary API for unit validation, conversion, and the `value:` directive
+- **SymPy Compatibility Layer**: Internal adapter allowing SymPy expressions to work with custom units
+- **Single module**: All unit handling is in `pint_backend.py` (no separate `units.py`)
+
 See [Pint Migration Analysis](PINT_MIGRATION_ANALYSIS.md) for background.
 
 ---
@@ -682,9 +713,8 @@ livemathtex/
 │       ├── engine/
 │       │   ├── __init__.py
 │       │   ├── evaluator.py    # Main evaluation logic + IR integration
-│       │   ├── pint_backend.py # Pint unit registry + validation
-│       │   ├── symbols.py      # Symbol table
-│       │   └── units.py        # Legacy SymPy unit support
+│       │   ├── pint_backend.py # Pint unit registry + validation + SymPy compatibility
+│       │   └── symbols.py      # Symbol table
 │       ├── render/
 │       │   ├── __init__.py
 │       │   └── markdown.py  # MD output (only output format)

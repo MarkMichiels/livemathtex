@@ -633,18 +633,20 @@ livemathtex inspect input.lmt.json
 
 Output:
 ```
-Source: engineering/input.md
-Version: 1.0
+Source: engineering-units/input.md
+Version: 3.0
+Unit backend: pint 0.25.2
 
 Symbols:
-  \Delta_{T_h}: = 17.92 [K]
-  T_{h,out}: = 72.08
-  LMTD: = 55.01 [K]
-  A: = 5.45 [m²]
+  v_{0} (Q):
+    original: 50.0 m³/h
+    base: 0.0138889 [meter ** 3 / second]
+    conversion_ok: ✓
 
 Stats:
-  definitions: 26
-  evaluations: 16
+  definitions: 19
+  evaluations: 11
+  value_refs: 7
   errors: 0
 ```
 
@@ -652,7 +654,7 @@ Stats:
 
 | Option | Description |
 |--------|-------------|
-| `-o, --output FILE` | Output Markdown file (default: in-place) |
+| `-o, --output FILE` | Output Markdown file (overrides config; if omitted uses document/config `output`, default: `"timestamped"`) |
 | `-v, --verbose` | Write IR to JSON file for debugging |
 | `--ir-output FILE` | Custom path for IR JSON |
 
