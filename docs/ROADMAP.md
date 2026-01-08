@@ -223,14 +223,9 @@ $f'(x) => 2x - 4$
 - [ ] **4.3 Import/Include** (moved to Phase 2)
   - [x] IR JSON output enables import workflow
   - [ ] CLI `--import` flag to load library IR
-  - [ ] Document directive `<!-- livemathtex: import lib.lmt.json -->`
-
-  **Import Workflow:**
-  ```bash
-  # 1. Create library Markdown (constants.md)
-  # 2. Process: livemathtex process constants.md --verbose
-  # 3. Import: livemathtex process calc.md --import constants.lmt.json
-  ```
+  - [ ] Document directive: `<!-- livemathtex: import=./path/to/lib.md -->`
+  - [ ] Relative path support for imports
+  - [ ] **See:** [USAGE.md - Import System](USAGE.md#import-system) for full documentation
 
 ---
 

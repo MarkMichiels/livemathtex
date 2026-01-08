@@ -1073,6 +1073,76 @@ See also: [PINT_MIGRATION_ANALYSIS.md](PINT_MIGRATION_ANALYSIS.md) for details o
 
 ---
 
+## Import System (Planned)
+
+Import definitions from other LiveMathTeX documents to share unit libraries, constants, and formulas.
+
+### Basic Usage
+
+```markdown
+<!-- livemathtex: import=./units/currency.md -->
+<!-- livemathtex: import=../shared/constants.md -->
+```
+
+The imported file is processed first, making all its definitions available:
+- **Unit definitions** (`===`) - Custom units like `€`, `dag`
+- **Variable assignments** (`:=`) - Constants like `g := 9.81\ m/s^2`
+- **Function definitions** (`:=`) - Reusable formulas
+
+### Relative Paths
+
+Paths are relative to the importing document:
+
+```
+project/
+├── units/
+│   └── industrial.md      # Unit definitions
+├── constants/
+│   └── physics.md         # Physical constants
+└── calculations/
+    └── analysis.md        # <- import=../units/industrial.md
+```
+
+### Example Unit Library
+
+Create a unit library file (`units/currency.md`):
+
+```markdown
+<!-- livemathtex: output=currency_output.md -->
+
+## Currency Units
+
+$$ € === € $$
+$$ dollar === dollar $$
+$$ cent === € / 100 $$
+
+## Dutch Aliases
+
+$$ dag === day $$
+```
+
+Use in your document:
+
+```markdown
+<!-- livemathtex: import=./units/currency.md -->
+
+## Cost Calculation
+
+$$ price := 150\ € $$
+$$ quantity := 100 $$
+$$ total := price \cdot quantity == $$
+```
+
+### Current Workaround
+
+Until import is implemented, copy unit definitions to the top of each document.
+
+See `examples/unit-library/input.md` for a comprehensive unit library template.
+
+**Status:** See [ROADMAP.md - Phase 2.3](ROADMAP.md) for implementation timeline.
+
+---
+
 ## Editor Integration (Planned)
 
 ### VS Code
