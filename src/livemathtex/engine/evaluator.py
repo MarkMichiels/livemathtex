@@ -58,18 +58,9 @@ class Evaluator:
     Executes calculations using SymPy and a SymbolTable.
     """
 
-    # Build reserved names from SymPy units module
-    RESERVED_UNIT_NAMES = set()
-    for _name in dir(u):
-        _obj = getattr(u, _name, None)
-        if isinstance(_obj, (u.Quantity,)):
-            RESERVED_UNIT_NAMES.add(_name)
-    # Add common single-letter and abbreviation units
-    RESERVED_UNIT_NAMES.update({
-        'm', 's', 'g', 'A', 'K', 'N', 'J', 'W', 'V', 'C', 'F', 'H', 'T',
-        'Pa', 'Hz', 'kg', 'mol', 'cd', 'rad', 'sr', 'Wb', 'lx', 'Bq', 'Gy',
-        'km', 'cm', 'mm', 'nm', 'pm', 'ms', 'ns', 'ps', 'mg', 'ug',
-    })
+    # ISSUE-002: RESERVED_UNIT_NAMES removed.
+    # Unit detection now uses Pint backend: is_known_unit(), is_unit_token(),
+    # and check_variable_name_conflict() from pint_backend.py.
 
     def __init__(self, config: Optional[LivemathConfig] = None):
         """
