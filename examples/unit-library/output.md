@@ -1,13 +1,24 @@
 <!-- livemathtex: output=output.md, json=true -->
 
-# Unit Library - Common Industrial Units
+# Unit Library - Custom Units for Industrial Applications
 
-This example defines a comprehensive unit library for industrial and algae cultivation applications.
-Copy this section to the top of your document to enable all units.
+This example shows which units need custom definition with `===` syntax.
+
+**Key insight (ISSUE-002):** Pint recognizes almost ALL standard units natively:
+- SI units: m, kg, s, A, K, mol, cd
+- Derived: N, J, W, Pa, Hz, V, ohm
+- Prefixed: kW, MW, mm, km, kWh, MWh, mg, mL
+- Compound: m/s, kWh/kg, m³/h, mg/L
+
+**Only define what Pint doesn't know:**
+- Currency: €, $, EUR, USD
+- Industry-specific: SEC (specific energy consumption), etc.
 
 ---
 
-## Currency Units
+## Custom Units Required
+
+### Currency Units (NOT in Pint)
 
 $$€ === €$$
 
@@ -17,55 +28,21 @@ $$cent === € / 100$$
 
 ---
 
-## Volume Units
+## Units Pint Already Knows (NO definition needed)
 
-Standard volume units (SI + common):
+The following work automatically - do NOT define them:
 
-$$mL === mL$$
-
-$$m³ === m^3$$
-
----
-
-## Concentration Units
-
-For algae cultivation:
-
-$$mg/L === mg / L$$
-
-$$g/L === g / L$$
-
----
-
-## Flow Rate Units
-
-$$L/h === L / h$$
-
-$$m³/h === m^3 / h$$
-
-$$m³/day === m^3 / day$$
-
----
-
-## Energy Units
-
-$$kWh === kW \cdot h$$
-
-$$MWh === MW \cdot h$$
-
----
-
-## Pressure Units
-
-$$mbar === bar / 1000$$
-
-$$kPa === Pa \cdot 1000$$
+- Volume: L, mL, m³, m^3
+- Flow: L/h, m³/h, m³/day
+- Energy: kWh, MWh, Wh
+- Pressure: Pa, kPa, bar, mbar
+- Concentration: mg/L, g/L (compound units work)
 
 ---
 
 ## Example Calculations
 
-### Energy Cost (Electricity)
+### Energy Cost (Uses € custom unit + Pint's kWh)
 
 $$electricity\_price := 0.139\ €/kWh$$
 
@@ -73,7 +50,7 @@ $$consumption := 24000\ kWh$$
 
 $$cost := electricity\_price \cdot consumption == 3336\ \text{€}$$
 
-### Biomass Production
+### Biomass Production (All Pint units)
 
 $$productivity := 5\ g/L$$
 
@@ -81,7 +58,7 @@ $$reactor\_volume := 100\ L$$
 
 $$total := productivity \cdot reactor\_volume == 0.5\ \text{kg}$$
 
-### Working Hours
+### Working Hours (Pure numbers)
 
 $$hours\_per\_day := 8$$
 
@@ -93,17 +70,29 @@ $$total\_hours := hours\_per\_day \cdot days\_per\_week \cdot weeks\_per\_year =
 
 ---
 
-## Usage in Your Documents
+## Summary: What Needs Definition?
 
-To use these units in your LiveMathTeX documents, copy the unit definitions
-(the `===` sections) to the top of your document before any calculations.
-
-In future versions, an import mechanism will allow:
-
-```latex
-<!-- livemathtex: import=unit-library -->
-```
+| Unit Type | Examples | Needs `===` Definition? |
+|-----------|----------|------------------------|
+| SI base | m, kg, s, A, K | **No** - Pint knows these |
+| SI derived | N, J, W, Pa, Hz | **No** - Pint knows these |
+| Prefixed | kW, MW, mm, kWh | **No** - Pint knows these |
+| Compound | m/s, kWh/kg | **No** - Pint parses these |
+| Currency | €, $, EUR | **Yes** - not in Pint |
+| Industry-specific | SEC, custom rates | **Yes** - define with `===` |
 
 ---
 
-> *livemathtex: 2026-01-08 00:29:07 | 10 definitions, 3 evaluations | no errors | 0.27s* <!-- livemathtex-meta -->
+## Future: Import Mechanism
+
+When the import system is implemented (see ROADMAP.md):
+
+```markdown
+<!-- livemathtex: import=./units/currency.md -->
+```
+
+This will allow sharing unit libraries across documents.
+
+---
+
+> *livemathtex: 2026-01-08 02:41:04 | 10 definitions, 3 evaluations | no errors | 0.19s* <!-- livemathtex-meta -->

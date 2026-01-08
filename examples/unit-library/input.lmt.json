@@ -23,72 +23,6 @@
       "type": "compound",
       "pint_definition": "cent = € / 100",
       "line": 0
-    },
-    "mL": {
-      "latex": "mL",
-      "type": "base",
-      "pint_definition": "mL = [ml]",
-      "line": 0
-    },
-    "m³": {
-      "latex": "m³",
-      "type": "alias",
-      "pint_definition": "m³ = m^3",
-      "line": 0
-    },
-    "mg/L": {
-      "latex": "mg/L",
-      "type": "compound",
-      "pint_definition": "mg/L = mg / L",
-      "line": 0
-    },
-    "g/L": {
-      "latex": "g/L",
-      "type": "compound",
-      "pint_definition": "g/L = g / L",
-      "line": 0
-    },
-    "L/h": {
-      "latex": "L/h",
-      "type": "compound",
-      "pint_definition": "L/h = L / h",
-      "line": 0
-    },
-    "m³/h": {
-      "latex": "m³/h",
-      "type": "compound",
-      "pint_definition": "m³/h = m^3 / h",
-      "line": 0
-    },
-    "m³/day": {
-      "latex": "m³/day",
-      "type": "compound",
-      "pint_definition": "m³/day = m^3 / day",
-      "line": 0
-    },
-    "kWh": {
-      "latex": "kWh",
-      "type": "alias",
-      "pint_definition": "kWh = kW \\cdot h",
-      "line": 0
-    },
-    "MWh": {
-      "latex": "MWh",
-      "type": "alias",
-      "pint_definition": "MWh = MW \\cdot h",
-      "line": 0
-    },
-    "mbar": {
-      "latex": "mbar",
-      "type": "compound",
-      "pint_definition": "mbar = bar / 1000",
-      "line": 0
-    },
-    "kPa": {
-      "latex": "kPa",
-      "type": "alias",
-      "pint_definition": "kPa = Pa \\cdot 1000",
-      "line": 0
     }
   },
   "symbols": {
@@ -227,10 +161,10 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-08 00:29:07",
-    "duration": "0.27s",
+    "last_run": "2026-01-08 02:41:04",
+    "duration": "0.19s",
     "symbols": 10,
-    "custom_units": 14,
+    "custom_units": 3,
     "definitions": 10,
     "evaluations": 3,
     "symbolic": 0,
