@@ -1330,86 +1330,50 @@ class Evaluator:
         Parse a unit string into SymPy unit expression.
 
         Handles: m/s, m³/h, kW, mm, etc.
+        
+        ISSUE-002: Uses pint_to_sympy_with_prefix() for dynamic conversion
+        instead of hardcoded unit_map.
         """
-        from sympy.physics import units as u
-        import sympy
-
-        # First try prefixed units (kW, MHz, mm)
+        from .pint_backend import pint_to_sympy_with_prefix
+        
+        # Use Pint backend for dynamic unit conversion
+        result = pint_to_sympy_with_prefix(unit_str)
+        if result is not None:
+            return result
+        
+        # Fallback: try prefixed units via SymPy directly
         prefixed = self._parse_unit_with_prefix(unit_str)
         if prefixed is not None:
             return prefixed
+        
+        return None
 
-        # Map common abbreviations to SymPy units
-        unit_map = {
-            'm': u.meter, 's': u.second, 'kg': u.kilogram, 'g': u.gram,
-            'h': u.hour, 'min': u.minute, 'day': u.day,
-            'N': u.newton, 'Pa': u.pascal, 'J': u.joule, 'W': u.watt,
-            'A': u.ampere, 'V': u.volt, 'K': u.kelvin,
-            'Hz': u.hertz, 'mol': u.mole, 'cd': u.candela,
-            'L': u.liter, 'bar': u.bar,
-            'mm': u.millimeter, 'cm': u.centimeter, 'km': u.kilometer,
-            'ms': u.millisecond, 'hour': u.hour,
-        }
-
-        # Handle compound expressions like m/s, m³/h, m^3/h
-        # Replace ³ with ^3
-        unit_str = unit_str.replace('³', '^3').replace('²', '^2')
-
-        # Parse expression
-        try:
-            # Build expression by parsing components
-            result = sympy.Integer(1)
-
-            # Split by / for numerator/denominator
-            if '/' in unit_str:
-                parts = unit_str.split('/')
-                num_str = parts[0].strip()
-                den_str = parts[1].strip() if len(parts) > 1 else ''
-
-                # Parse numerator
-                if num_str:
-                    num_unit = self._parse_single_unit(num_str, unit_map)
-                    if num_unit:
-                        result = result * num_unit
-
-                # Parse denominator
-                if den_str:
-                    den_unit = self._parse_single_unit(den_str, unit_map)
-                    if den_unit:
-                        result = result / den_unit
-            else:
-                # Single unit
-                single = self._parse_single_unit(unit_str, unit_map)
-                if single:
-                    result = single
-
-            return result if result != 1 else None
-        except:
-            return None
-
-    def _parse_single_unit(self, unit_str: str, unit_map: dict) -> Any:
-        """Parse a single unit with optional exponent like m^3 or m³."""
-        import sympy
-
+    def _parse_single_unit(self, unit_str: str, unit_map: dict = None) -> Any:
+        """Parse a single unit with optional exponent like m^3 or m³.
+        
+        ISSUE-002: unit_map parameter is deprecated, uses pint_to_sympy_with_prefix().
+        """
+        from .pint_backend import pint_to_sympy_with_prefix
+        
         # Handle exponents
         if '^' in unit_str:
-            base, exp = unit_str.split('^')
+            base, exp_str = unit_str.split('^')
             base = base.strip()
-            exp = int(exp.strip())
-
-            if base in unit_map:
-                return unit_map[base] ** exp
-            # Try prefixed
-            prefixed = self._parse_unit_with_prefix(base)
-            if prefixed:
-                return prefixed ** exp
-        else:
-            if unit_str in unit_map:
-                return unit_map[unit_str]
-            # Try prefixed
-            prefixed = self._parse_unit_with_prefix(unit_str)
-            if prefixed:
-                return prefixed
+            exp = int(exp_str.strip())
+            
+            base_unit = pint_to_sympy_with_prefix(base)
+            if base_unit is not None:
+                return base_unit ** exp
+        
+        # Try direct conversion via Pint
+        result = pint_to_sympy_with_prefix(unit_str)
+        if result is not None:
+            return result
+        
+        # Fallback: try prefixed units via SymPy directly
+        prefixed = self._parse_unit_with_prefix(unit_str)
+        if prefixed is not None:
+            return prefixed
 
         return None
 
