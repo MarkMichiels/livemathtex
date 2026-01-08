@@ -121,9 +121,9 @@ $z := x + y == 8$
 - [ ] **2.5 CLI Enhanced**
   - [ ] Watch mode (`--watch`)
   - [x] Verbose mode (`--verbose`)
-  - [ ] Precision flag (`--digits`)
   - [x] Documentation: explain how to use Pandoc for PDF
   - [ ] `--import` flag for loading library IR
+  - [ ] `clear` command for resetting calculations (see [FEAT-002](BACKLOG.md#feat-002-livemathtex-clear-command-to-reset-document-calculations))
 
 - [x] **2.6 Configuration System** (TASK-006 - COMPLETE)
   - [x] Document directives (`<!-- livemathtex: digits=4 -->`)
@@ -229,6 +229,32 @@ $f'(x) => 2x - 4$
 
 ---
 
+## CLI Design Philosophy
+
+**CLI flags should be minimal.** Configuration belongs in:
+
+1. **The document itself** - `<!-- livemathtex: digits=4 -->`
+2. **Config files** - `.livemathtex.toml`, `pyproject.toml`
+3. **User config** - `~/.config/livemathtex/config.toml`
+
+**NOT as CLI flags** (except for essential operations):
+- `-o` / `--output` - Output path (essential)
+- `--verbose` - Debugging
+- `--watch` - Development workflow
+- `--import` - Library loading
+
+This keeps the CLI simple and ensures configuration travels with the document.
+
+---
+
+## Related: Backlog
+
+See **[BACKLOG.md](BACKLOG.md)** for bugs (ISSUE-XXX) and tactical features (FEAT-XXX).
+
+These items are prioritized separately from the phase roadmap.
+
+---
+
 ## Technical Debt & Quality
 
 ### Throughout All Phases
@@ -308,6 +334,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to help with development.
 
 ## References
 
+- [Backlog](./BACKLOG.md) - Issues, features & tactical items
 - [Background](./BACKGROUND.md)
 - [Architecture](./ARCHITECTURE.md)
 - [Usage Reference](./USAGE.md)

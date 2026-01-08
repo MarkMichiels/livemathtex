@@ -454,4 +454,11 @@ When adding new items:
 
 ---
 
+## Related
+
+- **[ROADMAP.md](ROADMAP.md)** - Development phases and milestones
+- **[README.md](../README.md)** - Project overview
+
+---
+
 *Last updated: 2026-01-08*
