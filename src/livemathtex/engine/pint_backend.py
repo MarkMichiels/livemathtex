@@ -502,6 +502,8 @@ def pint_to_sympy_with_prefix(unit_str: str) -> Optional[Any]:
         'mg': milli * gram,
         # Prefixed time
         'ms': milli * second, 'ns': nano * second,
+        # Prefixed force
+        'kN': kilo * newton, 'mN': milli * newton, 'MN': mega * newton,
         # Prefixed power
         'kW': kilo * watt, 'MW': mega * watt, 'GW': giga * watt,
         'mW': milli * watt,
@@ -1401,56 +1403,12 @@ def evaluate_formula_with_units(
 from sympy.physics.units import (
     Quantity, meter, kilogram, second, ampere, kelvin, mole, candela,
     gram, milligram, kilogram, liter, bar, day, hour, minute, watt,
-    joule, pascal, hertz, volt, ohm, kilo, milli, micro, centi
+    joule, pascal, hertz, volt, ohm, kilo, milli, micro, centi, newton
 )
 
-# Unit abbreviations mapping to SymPy units
-UNIT_ABBREVIATIONS = {
-    # Length
-    'mm': milli * meter,
-    'cm': centi * meter,
-    'm': meter,
-    'km': kilo * meter,
-    # Mass
-    'g': gram,
-    'mg': milligram,
-    'kg': kilogram,
-    # Time
-    's': second,
-    'min': minute,
-    'h': hour,
-    'day': day,
-    # Power
-    'W': watt,
-    'kW': kilo * watt,
-    'MW': kilo * kilo * watt,
-    # Energy
-    'J': joule,
-    'kJ': kilo * joule,
-    'Wh': watt * hour,
-    'kWh': kilo * watt * hour,
-    'MWh': kilo * kilo * watt * hour,
-    # Pressure
-    'Pa': pascal,
-    'kPa': kilo * pascal,
-    'bar': bar,
-    'mbar': milli * bar,
-    # Volume
-    'L': liter,
-    'mL': milli * liter,
-    'm³': meter**3,
-    'm^3': meter**3,
-    # Frequency
-    'Hz': hertz,
-    'kHz': kilo * hertz,
-    'MHz': kilo * kilo * hertz,
-    # Electrical
-    'V': volt,
-    'A': ampere,
-    'Ω': ohm,
-    # Temperature
-    'K': kelvin,
-}
+# ISSUE-002: UNIT_ABBREVIATIONS removed.
+# Unit conversion now uses pint_to_sympy_with_prefix() which dynamically
+# converts any Pint-recognized unit to SymPy.
 
 
 @dataclass
@@ -1555,11 +1513,11 @@ class SymPyUnitRegistry:
         sympy_unit = self._parse_unit_expression(expr)
 
         if sympy_unit is None:
-            if expr in UNIT_ABBREVIATIONS:
-                sympy_unit = UNIT_ABBREVIATIONS[expr]
-            elif expr in self._custom_units:
+            # ISSUE-002: Use pint_to_sympy_with_prefix instead of UNIT_ABBREVIATIONS
+            sympy_unit = pint_to_sympy_with_prefix(expr)
+            if sympy_unit is None and expr in self._custom_units:
                 sympy_unit = self._custom_units[expr].sympy_unit
-            else:
+            if sympy_unit is None:
                 sympy_unit = Quantity(name, abbrev=name)
 
         unit_def = UnitDefinition(
@@ -1576,15 +1534,29 @@ class SymPyUnitRegistry:
         """Parse a unit expression like 'bar/1000' or 'kW * h'."""
         expr = expr.replace('\\cdot', '*').replace('\\times', '*').replace('\\div', '/')
 
-        namespace = dict(UNIT_ABBREVIATIONS)
+        # ISSUE-002: Build namespace dynamically from SymPy units (not hardcoded dict)
+        namespace = {}
         for name, unit_def in self._custom_units.items():
             namespace[name] = unit_def.sympy_unit
 
+        # Add SymPy base units and prefixes
         namespace.update({
             'bar': bar, 'day': day, 'hour': hour, 'watt': watt,
             'liter': liter, 'gram': gram, 'meter': meter, 'second': second,
             'kilogram': kilogram, 'kilo': kilo, 'milli': milli, 'micro': micro,
+            'centi': centi, 'joule': joule, 'pascal': pascal, 'hertz': hertz,
+            'volt': volt, 'ampere': ampere, 'ohm': ohm, 'kelvin': kelvin,
+            'minute': minute, 'milligram': milligram, 
+            # Common abbreviations
+            'm': meter, 's': second, 'kg': kilogram, 'g': gram,
+            'h': hour, 'min': minute, 'W': watt, 'J': joule,
+            'Pa': pascal, 'Hz': hertz, 'V': volt, 'A': ampere,
+            'K': kelvin, 'L': liter, 'N': newton,
         })
+        
+        # Also add newton (imported at file level)
+        namespace['newton'] = newton
+        namespace['N'] = newton
 
         try:
             return eval(expr, {"__builtins__": {}}, namespace)
@@ -1597,8 +1569,11 @@ class SymPyUnitRegistry:
 
         if clean_name in self._custom_units:
             return self._custom_units[clean_name].sympy_unit
-        if clean_name in UNIT_ABBREVIATIONS:
-            return UNIT_ABBREVIATIONS[clean_name]
+        
+        # ISSUE-002: Use pint_to_sympy_with_prefix instead of UNIT_ABBREVIATIONS
+        sympy_unit = pint_to_sympy_with_prefix(clean_name)
+        if sympy_unit is not None:
+            return sympy_unit
 
         # Try to parse compound expressions
         if '*' in clean_name or '/' in clean_name:
@@ -1682,25 +1657,14 @@ def _sympy_clean_unit_latex(unit_latex: str) -> str:
 
 
 def _sympy_try_prefixed_unit(unit_str: str) -> Optional[Any]:
-    """Try to parse a unit with SI prefix (k, M, m, µ, n, c)."""
-    from sympy.physics.units.prefixes import kilo, mega, giga, milli, micro, nano, centi
-
-    if len(unit_str) < 2:
-        return None
-
-    prefix_map = {
-        'k': kilo, 'M': mega, 'G': giga, 'c': centi,
-        'µ': micro, 'u': micro, 'n': nano,
-    }
-
-    first_char = unit_str[0]
-    if first_char in prefix_map:
-        base_str = unit_str[1:]
-        if base_str in UNIT_ABBREVIATIONS:
-            return prefix_map[first_char] * UNIT_ABBREVIATIONS[base_str]
-
-    if unit_str == 'mm':
-        return milli * meter
+    """Try to parse a unit with SI prefix (k, M, m, µ, n, c).
+    
+    ISSUE-002: Now uses pint_to_sympy_with_prefix for dynamic conversion.
+    """
+    # Use the comprehensive pint_to_sympy_with_prefix function
+    result = pint_to_sympy_with_prefix(unit_str)
+    if result is not None:
+        return result
 
     return None
 
@@ -1752,10 +1716,12 @@ def _sympy_parse_single_unit(unit_str: str, registry: SymPyUnitRegistry) -> Opti
     if result is not None:
         return result
 
-    if unit_str in UNIT_ABBREVIATIONS:
-        return UNIT_ABBREVIATIONS[unit_str]
+    # ISSUE-002: Use pint_to_sympy_with_prefix instead of UNIT_ABBREVIATIONS
+    sympy_unit = pint_to_sympy_with_prefix(unit_str)
+    if sympy_unit is not None:
+        return sympy_unit
 
-    # Try with SI prefixes
+    # Try with SI prefixes (also uses pint_to_sympy_with_prefix now)
     return _sympy_try_prefixed_unit(unit_str)
 
 

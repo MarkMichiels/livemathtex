@@ -537,7 +537,6 @@ class Evaluator:
         from .pint_backend import (
             sympy_strip_unit_from_value as strip_unit_from_value,
             get_sympy_unit_registry as get_unit_registry,
-            UNIT_ABBREVIATIONS
         )
 
         # CHECK: Prevent variable names that conflict with known unit names
