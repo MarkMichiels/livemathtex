@@ -55,7 +55,7 @@ $a_1 := 9.81\ \text{m/s}^2$
 
 $F_1 := m_1 \cdot a_1$
 
-$F_1 == 49.05$ <!-- [N] -->
+$F_1 == 49.05\ \text{N}$ <!-- [N] -->
 
 Change `m_1`, re-run, and `F_1` updates. The value is computed, not typed.
 
