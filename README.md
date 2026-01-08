@@ -31,9 +31,12 @@ The `<!-- [N] -->` comment requests the display unit (it stays in the source, bu
 Rendered:
 
 $m_1 := 5\ \text{kg}$
+
 $a_1 := 9.81\ \text{m/s}^2$
+
 $F_1 := m_1 \cdot a_1$
-$F_1 == 49.05$ <!-- [N] -->
+
+$F_1 == $ <!-- [N] -->
 
 After processing (output file):
 
@@ -47,8 +50,11 @@ $F_1 == 49.05\ \text{N}$ <!-- [N] -->
 Rendered:
 
 $m_1 := 5\ \text{kg}$
+
 $a_1 := 9.81\ \text{m/s}^2$
+
 $F_1 := m_1 \cdot a_1$
+
 $F_1 == 49.05$ <!-- [N] -->
 
 Change `m_1`, re-run, and `F_1` updates. The value is computed, not typed.
@@ -143,5 +149,3 @@ MIT License — See [LICENSE](LICENSE)
 *Write the formula once. Get the result everywhere.*
 
 ---
-
-> *livemathtex: 2026-01-08 04:53:45 | 6 definitions, 2 evaluations | no errors | 0.18s* <!-- livemathtex-meta -->
