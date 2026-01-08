@@ -1,117 +1,135 @@
 # LiveMathTeX
 
-**Mathcad meets Markdown — live LaTeX calculations in plain text**
+**Mathcad-style recalculation for Markdown — LaTeX in, computed LaTeX out.**
 
 | | |
 |---|---|
-| **Status** | ✅ Core implementation complete |
-| **Version** | 0.1.0 (alpha) |
+| **Status** | Alpha (usable; interfaces may change) |
+| **Version** | 0.1.0 |
+| **Requires** | Python 3.10+ |
+
+LiveMathTeX is a small CLI that reads a Markdown file, evaluates LaTeX-style calculations (with units), and writes the results back into Markdown.
+The document stays plain text: easy to diff, review, and archive.
+
+<!-- livemathtex: output=timestamped -->
 
 ---
 
-## Why LiveMathTeX?
+## Quick example
 
-I used to work a lot with Mathcad — live calculations embedded in documentation. Powerful, but proprietary and not Git-friendly.
+Input (`calculation.md`):
 
-Then I discovered Markdown: plain text, version control, works everywhere. My philosophy became: **keep everything in Markdown**.
+```markdown
+$m_1 := 5\ \text{kg}$
+$a_1 := 9.81\ \text{m/s}^2$
+$F_1 := m_1 \cdot a_1$
+$F_1 ==$ <!-- [N] -->
+```
 
-But I couldn't find a tool that combined both worlds: the calculation power of Mathcad with the simplicity of Markdown. LaTeX handles the notation beautifully, but doesn't compute. Jupyter computes, but uses JSON notebooks instead of plain Markdown.
+The `<!-- [N] -->` comment requests the display unit (it stays in the source, but is invisible when rendered).
 
-So I built LiveMathTeX: write formulas in LaTeX notation, get computed results, stay in Markdown. Whether you write the formulas yourself or let an AI assistant generate them — the calculations are always verifiable and traceable.
+Rendered:
+
+$m_1 := 5\ \text{kg}$
+$a_1 := 9.81\ \text{m/s}^2$
+$F_1 := m_1 \cdot a_1$
+$F_1 == 49.05$ <!-- [N] -->
+
+After processing (output file):
+
+```markdown
+$m_1 := 5\ \text{kg}$
+$a_1 := 9.81\ \text{m/s}^2$
+$F_1 := m_1 \cdot a_1$
+$F_1 == 49.05\ \text{N}$ <!-- [N] -->
+```
+
+Rendered:
+
+$m_1 := 5\ \text{kg}$
+$a_1 := 9.81\ \text{m/s}^2$
+$F_1 := m_1 \cdot a_1$
+$F_1 == 49.05$ <!-- [N] -->
+
+Change `m_1`, re-run, and `F_1` updates. The value is computed, not typed.
 
 ---
 
-## Quick Start
+## Install & run
 
 ```bash
-# Install
 pip install -e .
-
-# Process a file
 livemathtex process calculation.md
 ```
 
-**Keyboard shortcut:** Press `F9` in VS Code/Cursor to process the current file (same as Mathcad/SMath).
-See [Editor Integration](docs/EDITOR_INTEGRATION.md) for setup.
+Output behavior is configurable (default: **timestamped output file** for safety). To overwrite in place:
 
-**Using Cursor/AI assistant?** Type `/livemathtex-setup` for guided installation.
+```markdown
+<!-- livemathtex: output=inplace -->
+```
+
+For debugging, generate an IR JSON file:
+
+```bash
+livemathtex process calculation.md --verbose
+livemathtex inspect calculation.lmt.json
+```
 
 ---
 
-## Example
-
-**Input:**
-```markdown
-$m := 5 \text{ kg}$
-$a := 9.81 \text{ m/s}^2$
-$F := m \cdot a ==$
-```
-$m := 5 \text{ kg}$
-$a := 9.81 \text{ m/s}^2$
-$F := m \cdot a ==$
-
-**After processing:**
-```markdown
-$m := 5 \text{ kg}$
-$a := 9.81 \text{ m/s}^2$
-$F := m \cdot a == 49.05 \text{ N}$
-```
-$m := 5 \text{ kg}$
-$a := 9.81 \text{ m/s}^2$
-$F := m \cdot a == 49.05 \text{ N}$
-
-**The result is computed, not typed.** Change $m$ → $F$ updates automatically.
-
----
-
-## Syntax
-
-Three operators. That's it.
+## Syntax at a glance
 
 | Operator | Meaning | Example |
-|----------|---------|---------|
-| `:=` | Define | `$x := 42$` |
-| `==` | Evaluate | `$x ==$` → `$x == 42$` |
-| `=>` | Symbolic | `$f'(x) =>$` (future) |
+|---|---|---|
+| `:=` | define | `x := 42` |
+| `==` | evaluate | `x ==` → `x == 42` |
+| `=>` | symbolic | `diff(x^2, x) =>` → `diff(x^2, x) => 2x` |
+| `===` | define unit | `kWh === kW \cdot h` |
 
-> ⚠️ **Why `==` not `=`?** Safety. A bare `=` gives an error to prevent accidents.
-
----
-
-## Features
-
-- ✅ LaTeX math in Markdown
-- ✅ SI units (kg, m, s, N, etc.)
-- ✅ Greek letters (Δ, α, θ)
-- ✅ Functions (sin, cos, log, sqrt)
-- ✅ Error handling with clear messages
-- ✅ Debug mode (`--verbose`)
+**Why `==` and not `=`?** In calculation blocks, a bare `=` is rejected to prevent accidental mistakes. Display-only formulas like `$E = mc^2$` pass through unchanged.
 
 ---
 
-## What LiveMathTeX Does NOT Do
+## Highlights
 
-| Out of Scope | Use Instead |
-|--------------|-------------|
+- **Markdown-first**: results are embedded into your LaTeX, but the file remains normal Markdown.
+- **Units that behave**: unit-aware math via Pint; request display units with HTML comments: `Q ==  <!-- [m³/h] -->`
+- **Custom units**: define currency / domain units with `===` (e.g. `€`, `kWh`, aliases like `dag === day`)
+- **Tables without copy/paste**: value-only placeholders via `<!-- value:VAR [unit] :precision -->`
+- **Inspectable state**: optional `.lmt.json` (IR) shows symbols, base units, and conversions.
+
+---
+
+## Editor workflow (VS Code / Cursor)
+
+This repo includes VS Code tasks (bind to F9) that run `livemathtex process` on the current file.
+See [Editor Integration](docs/EDITOR_INTEGRATION.md) for setup.
+
+If you're using Cursor, this repo also includes command wrappers:
+- [`/livemathtex`](.cursor/commands/livemathtex.md)
+- [`/livemathtex-setup`](.cursor/commands/livemathtex-setup.md)
+
+---
+
+## What LiveMathTeX does NOT do
+
+| Out of scope | Use instead |
+|---|---|
 | PDF export | `pandoc output.md -o output.pdf` |
-| Live editor | Markdown Preview Enhanced |
-| Plotting | Matplotlib |
-
-**Philosophy:** Do one thing well — the calculation engine.
+| Live preview UI | your Markdown previewer |
+| Plotting | Matplotlib, etc. |
 
 ---
 
 ## Documentation
 
 | Document | Description |
-|----------|-------------|
-| [`/livemathtex`](.cursor/commands/livemathtex.md) | Process files (Cursor command) |
-| [`/livemathtex-setup`](.cursor/commands/livemathtex-setup.md) | Installation (Cursor command) |
-| [SETUP.md](docs/SETUP.md) | Detailed installation |
-| [EDITOR_INTEGRATION.md](docs/EDITOR_INTEGRATION.md) | Keyboard shortcuts & VS Code setup |
-| [USAGE.md](docs/USAGE.md) | Complete syntax reference |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design |
-| [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Known limitations & backlog |
+|---|---|
+| [SETUP.md](docs/SETUP.md) | Installation |
+| [USAGE.md](docs/USAGE.md) | Syntax reference (units, tables, config) |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design (IR, parser/engine/renderer) |
+| [BACKGROUND.md](docs/BACKGROUND.md) | Research and alternatives |
+| [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Limitations & backlog |
 | [ROADMAP.md](docs/ROADMAP.md) | Development phases |
 
 ---
@@ -122,4 +140,8 @@ MIT License — See [LICENSE](LICENSE)
 
 ---
 
-*"Write the formula once. Get the result everywhere."*
+*Write the formula once. Get the result everywhere.*
+
+---
+
+> *livemathtex: 2026-01-08 04:53:45 | 6 definitions, 2 evaluations | no errors | 0.18s* <!-- livemathtex-meta -->
