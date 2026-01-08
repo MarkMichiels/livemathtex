@@ -1817,7 +1817,8 @@ class Evaluator:
         is_pure_formula = not is_definition_with_units and not force_units
 
         # 1. Handle Symbols (Variables + Units)
-        for sym in expr.free_symbols:
+        # Sort symbols by name for deterministic error messages (Python sets are unordered)
+        for sym in sorted(expr.free_symbols, key=lambda s: str(s)):
             sym_name = str(sym)
 
             # Clean name: convert to internal representation
@@ -1881,57 +1882,18 @@ class Evaluator:
                 subs_dict[sym] = known.value_with_unit if propagate_units else known.value
                 continue
 
-            # 2. Check in SymPy Units (with common abbreviation mapping)
+            # 2. Check if symbol is a known unit (via Pint dynamic lookup)
+            # ISSUE-002: Replace hardcoded unit_mapping with dynamic Pint check
             # BUT: In "pure formulas" (no numbers), skip single-letter units
             # because 'g' in a formula means gravity, not gram
-            unit_mapping = {
-                # Mass
-                'kg': u.kilogram,
-                'g': u.gram,
-                'mg': u.milligram,
-                # Length
-                'm': u.meter,
-                'mm': u.millimeter,
-                'cm': u.centimeter,
-                'km': u.kilometer,
-                # Time
-                's': u.second,
-                'ms': u.millisecond,
-                'min': u.minute,
-                'h': u.hour,
-                # Force/Energy/Power
-                'N': u.newton,
-                'J': u.joule,
-                'W': u.watt,
-                'kW': u.kilo * u.watt,
-                'MW': u.mega * u.watt,
-                'kJ': u.kilo * u.joule,
-                'MJ': u.mega * u.joule,
-                # Pressure
-                'Pa': u.pascal,
-                'kPa': u.kilo * u.pascal,
-                'bar': u.bar,
-                'mbar': u.milli * u.bar,
-                # Frequency/Electrical
-                'Hz': u.hertz,
-                'kHz': u.kilo * u.hertz,
-                'MHz': u.mega * u.hertz,
-                'V': u.volt,
-                'kV': u.kilo * u.volt,
-                'A': u.ampere,
-                'mA': u.milli * u.ampere,
-                # Temperature/Amount
-                'K': u.kelvin,
-                'mol': u.mole,
-                # Volume
-                'L': u.liter,
-                'mL': u.milli * u.liter,
-            }
-
+            from .pint_backend import is_pint_unit, pint_to_sympy_with_prefix
+            
+            is_unit = is_pint_unit(clean_name)
+            
             # In pure formulas (no numbers), symbols that match unit names
             # should be treated as VARIABLES, not units.
             # If they're not defined, raise an error immediately.
-            if is_pure_formula and clean_name in unit_mapping:
+            if is_pure_formula and is_unit:
                 # This symbol matches a unit name but we're in a formula
                 # It MUST be a defined variable, not a unit
                 unit_desc = self._get_unit_description(clean_name)
@@ -1941,14 +1903,18 @@ class Evaluator:
                     f"cannot mix variables and units. Define '{clean_name}' first with a subscript "
                     f"like {clean_name}_{{0}} or {clean_name}_{{acc}}."
                 )
-            elif clean_name in unit_mapping:
-                subs_dict[sym] = unit_mapping[clean_name]
-                continue
-            elif hasattr(u, clean_name):
-                unit_val = getattr(u, clean_name)
-                if isinstance(unit_val, (u.Unit, u.Quantity)):
-                   subs_dict[sym] = unit_val
-                   continue
+            elif is_unit:
+                # Convert Pint unit to SymPy unit dynamically
+                sympy_unit = pint_to_sympy_with_prefix(clean_name)
+                if sympy_unit is not None:
+                    subs_dict[sym] = sympy_unit
+                    continue
+                # Fallback: try SymPy directly
+                elif hasattr(u, clean_name):
+                    unit_val = getattr(u, clean_name)
+                    if isinstance(unit_val, (u.Unit, u.Quantity)):
+                        subs_dict[sym] = unit_val
+                        continue
 
         # 2. Handle Functions (f(x))
         # latex2sympy parses "f(5)" as Function("f")(5)

@@ -88,7 +88,7 @@ From heat exchanger equation: $Q = U \cdot A \cdot LMTD$
 
 $$A := \frac{Q}{U \cdot LMTD} ==
 \\ \color{red}{\text{
-    Error: Cannot convert expression to float}}$$
+    Error: Undefined variable 'U' in formula. Note: 'U' is also a unit (unit), but formulas cannot mix variables and units. Define 'U' first with a subscript like U\_\{0\} or U\_\{acc\}.}}$$
 
 ---
 
@@ -150,4 +150,4 @@ $A_m := \frac{A}{length} ==
 
 ---
 
-> *livemathtex: 2026-01-08 00:29:04 | 26 definitions, 16 evaluations, 6 value refs | 6 errors | 0.52s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-08 02:33:21 | 26 definitions, 16 evaluations, 6 value refs | 6 errors | 0.42s* <!-- livemathtex-meta -->
