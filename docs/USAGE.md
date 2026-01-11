@@ -14,8 +14,13 @@
 | `=>` | Symbolic | `$f'(x) =>$` | `$f'(x) => 2x$` |
 | `===` | Unit definition | `$€ === €$` | (defines custom unit) |
 
-**Unit conversion** (using HTML comment, invisible in rendered output):
+**Unit conversion** (two syntaxes available):
 ```
+# Inline syntax (recommended - visible in rendered Markdown)
+Input:   $v == [m/s]$
+Output:  $v == 27.78\ \text{m/s}$
+
+# HTML comment syntax (invisible in rendered output)
 Input:   $v ==$ <!-- [m/s] -->
 Output:  $v == 27.78\ \text{m/s}$ <!-- [m/s] -->
 ```
@@ -488,29 +493,57 @@ $1.2\ \text{kg/m}^3$
 
 **Default behavior:** All results are displayed in **SI base units** (m, kg, s, A, K, mol, cd).
 
-**To display in different units:** Add `<!-- [unit] -->` comment after the evaluation:
+**To display in different units:** Use either inline syntax or HTML comment:
+
+#### Inline Syntax (Recommended)
 
 ```markdown
-# Input (define in any unit you want)
 $Q := 50\ \text{L/h}$
+$Q == [L/h]$              ← request output in L/h
+$Q == [m³/h]$             ← or convert to m³/h
+```
 
-# Display in default SI (m³/s)
-$Q ==$
+Output:
+```markdown
+$Q := 50\ \text{L/h}$
+$Q == 50\ \text{L/h}$
+$Q == 0.05\ \text{m³/h}$
+```
 
-# Display in specific unit
+**Benefits of inline syntax:**
+- Visible in rendered Markdown (visible hint of expected units)
+- Cleaner, more concise syntax
+- `[unit]` is replaced with the converted value
+
+#### HTML Comment Syntax (Alternative)
+
+```markdown
+$Q := 50\ \text{L/h}$
 $Q ==$ <!-- [L/h] -->
 $Q ==$ <!-- [m³/h] -->
 ```
 
+Output:
 ```markdown
-# Output
 $Q := 50\ \text{L/h}$
-$Q == 1.389e-05\ \text{m}^3/\text{s}$           ← SI default
-$Q == 50\ \text{L/h}$ <!-- [L/h] -->             ← same as input
-$Q == 0.05\ \text{m}^3/\text{h}$ <!-- [m³/h] --> ← converted
+$Q == 50\ \text{L/h}$ <!-- [L/h] -->
+$Q == 0.05\ \text{m³/h}$ <!-- [m³/h] -->
 ```
 
-**🚨 Common mistake - Don't manually convert:**
+**Benefits of HTML comments:**
+- Invisible when rendered (preview/PDF)
+- Comment preserved in output for re-runs
+
+#### Precedence
+
+If both syntaxes are present, **HTML comment takes precedence**:
+```markdown
+$E == [MJ]$ <!-- [kJ] -->  ← uses kJ, not MJ
+```
+
+#### Common Mistakes
+
+**🚨 Don't manually convert:**
 
 ```markdown
 # ❌ WRONG - unnecessary manual conversion
@@ -519,13 +552,8 @@ $Q_s := 0.0000139\ Q_{vol}$  ← Don't do this!
 
 # ✅ CORRECT - let LiveMathTeX handle conversion
 $Q := 50\ \text{L/h}$
-$Q ==$ <!-- [m³/s] -->       ← Just request the display unit
+$Q == [m³/s]$                ← Just request the display unit
 ```
-
-**Why HTML comments?**
-- The instruction stays in the source for re-runs
-- Invisible when rendered (preview/PDF)
-- Doesn't affect calculations, only display
 
 ### Value Display in Tables
 

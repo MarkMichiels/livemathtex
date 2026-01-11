@@ -4,32 +4,6 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-### ISS-007: Evaluation results show SI base units instead of requested output unit
-
-- **Discovered:** Phase 2 (2026-01-11)
-- **Type:** UX
-- **Description:** When evaluating expressions with units, the result is displayed in SI base units (kg·m²/s²) instead of the user's preferred output unit specified in the `<!-- [unit] -->` comment. The evaluator computes in SI base units and formats the result directly. The `<!-- [unit] -->` comment is not parsed or used for unit conversion in the output.
-- **Impact:** Medium (works correctly, but UX could be better)
-- **Effort:** Medium
-- **Suggested phase:** Phase 4 (Output Unit Conversion)
-- **Files to change:**
-  - `src/livemathtex/parser/lexer.py` - Parse output unit hints
-  - `src/livemathtex/engine/evaluator.py` - Apply unit conversion before formatting
-  - `src/livemathtex/engine/pint_backend.py` - Add conversion helper
-
-### ISS-008: Output unit hint syntax requires HTML comment
-
-- **Discovered:** Phase 2 (2026-01-11)
-- **Type:** UX
-- **Description:** The current syntax for specifying output units uses HTML comments (`<!-- [MWh] -->`), which is verbose, breaks reading flow, invisible in rendered Markdown, and easy to forget. Proposed: inline syntax like `$E == [MWh]$` where `[unit]` is parsed and replaced with the converted value.
-- **Impact:** Low (works correctly, this would enhance)
-- **Effort:** Quick
-- **Suggested phase:** Phase 4 (after output unit conversion works)
-- **Depends on:** ISS-007 (output unit conversion must work first)
-- **Files to change:**
-  - `src/livemathtex/parser/lexer.py` - Parse new syntax
-  - `src/livemathtex/engine/evaluator.py` - Handle inline unit hints
-
 ### ISS-009: Compound unit definitions fail with division
 
 - **Discovered:** Phase 2 (2026-01-11)
@@ -70,6 +44,16 @@ Enhancements discovered during execution. Not critical - address in future phase
   - `.cursor/commands/livemathtex.md` - Document new command
 
 ## Closed Enhancements
+
+### ISS-007: Evaluation results show SI base units instead of requested output unit
+
+**Resolved:** 2026-01-11 - Verified working in Phase 4
+**Solution:** Output unit conversion via `<!-- [unit] -->` syntax was already implemented and working. Tests and documentation added to formalize the feature.
+
+### ISS-008: Output unit hint syntax requires HTML comment
+
+**Resolved:** 2026-01-11 - Fixed in Phase 4
+**Solution:** Inline unit hint syntax `$E == [kJ]$` implemented as alternative to HTML comments. Cleaner syntax, visible in rendered Markdown. Both syntaxes work; HTML comment takes precedence if both present.
 
 ### ISS-001: `value:` directive doesn't support complex/custom units
 
