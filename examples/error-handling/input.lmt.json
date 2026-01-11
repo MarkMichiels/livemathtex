@@ -6,10 +6,10 @@
     "version": "0.25.2"
   },
   "custom_units": {
-    "€": {
-      "latex": "€",
+    "stuks": {
+      "latex": "stuks",
       "type": "base",
-      "pint_definition": "€ = [€]",
+      "pint_definition": "stuks = [stuks]",
       "line": 0
     }
   },
@@ -171,60 +171,73 @@
       "line": 0
     },
     "v_{12}": {
-      "latex_name": "cost",
+      "latex_name": "x_{foo}",
       "original": {
-        "value": 100.0,
-        "unit": "€"
+        "value": 5.0,
+        "unit": "foo"
       },
       "base": {
-        "value": 100.0,
-        "unit": "€"
+        "value": 5.0,
+        "unit": "foo"
       },
       "conversion_ok": false,
       "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_error": "'foo' is not defined in the unit registry"
     },
     "v_{13}": {
-      "latex_name": "price_{per\\_kg}",
+      "latex_name": "y_{stuks}",
       "original": {
-        "value": 2.5,
-        "unit": "€"
+        "value": 10.0,
+        "unit": "stuks"
       },
       "base": {
-        "value": 2.5,
-        "unit": "€"
+        "value": 10.0,
+        "unit": "stuks"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
     "v_{14}": {
-      "latex_name": "weight",
+      "latex_name": "aantal",
       "original": {
-        "value": 4.0,
-        "unit": null
+        "value": 100.0,
+        "unit": "stuks"
       },
       "base": {
-        "value": 4.0,
-        "unit": null
+        "value": 100.0,
+        "unit": "stuks"
       },
       "conversion_ok": true,
       "line": 0
     },
     "v_{15}": {
-      "latex_name": "total",
+      "latex_name": "prijs_{per\\_stuk}",
       "original": {
-        "value": 10.0,
-        "unit": null
+        "value": 2.5,
+        "unit": "€"
       },
       "base": {
-        "value": 10.0,
-        "unit": null
+        "value": 2.5,
+        "unit": "€"
+      },
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
+    },
+    "v_{16}": {
+      "latex_name": "n_{stuks}",
+      "original": {
+        "value": 4.0,
+        "unit": "stuks"
+      },
+      "base": {
+        "value": 4.0,
+        "unit": "stuks"
       },
       "conversion_ok": true,
       "line": 0
     },
-    "v_{16}": {
+    "v_{17}": {
       "latex_name": "v_1",
       "original": {
         "value": 5.0,
@@ -237,7 +250,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{17}": {
+    "v_{18}": {
       "latex_name": "E_1",
       "original": {
         "value": 1000.0,
@@ -250,7 +263,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{18}": {
+    "v_{19}": {
       "latex_name": "F_1",
       "original": {
         "value": 98.10000000000001,
@@ -263,7 +276,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{19}": {
+    "v_{20}": {
       "latex_name": "F_{1,N}",
       "original": {
         "value": 98.10000000000001,
@@ -279,12 +292,12 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-11 17:49:23",
-    "duration": "0.38s",
-    "symbols": 20,
+    "last_run": "2026-01-11 17:52:11",
+    "duration": "0.39s",
+    "symbols": 21,
     "custom_units": 1,
-    "definitions": 30,
-    "evaluations": 14,
+    "definitions": 31,
+    "evaluations": 15,
     "symbolic": 0,
     "value_refs": 0,
     "errors": 9

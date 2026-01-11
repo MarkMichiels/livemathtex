@@ -137,22 +137,38 @@ $result_ok := q_1 + 5 == 15$
 
 ---
 
-## Category 4: Custom Units
+## Category 4: Unrecognized Units
 
-Define custom units with the `===` operator before using them.
+Unknown units are silently ignored - the value is stored without a unit. This can lead to unexpected results.
 
-### Custom unit definition
+### Unknown unit is ignored
 
-$€ === €$
-$cost := 100\ €$
-$\text{cost} == 100\ \text{€}$
+$x_{foo} := 5\ foo$
+$x_{foo} == 5$
 
-### Using custom units in calculations
+Note: `foo` is not a recognized unit, so `x_foo` becomes just `5` (unitless).
 
-$price_{per\_kg} := 2.50\ €$
-$weight := 4$
-$total := price_{per\_kg} \cdot weight$
-$\text{total} == 10$
+### Another unknown unit
+
+$y_{stuks} := 10\ stuks$
+$y_{stuks} == 10$
+
+Same problem: `stuks` is not recognized, unit is lost.
+
+### Solution: Define custom units first
+
+Use `===` to define custom units before using them:
+
+$stuks === stuks$
+$aantal := 100\ stuks$
+$\text{aantal} == 100\ \text{stuks}$
+
+Now the custom unit is preserved:
+
+$prijs_{per\_stuk} := 2.50\ €$
+$n_{stuks} := 4\ stuks$
+
+Note: Euro (`€`) is a built-in unit and works without definition.
 
 ---
 
@@ -184,7 +200,7 @@ $F_{1,N} := F_1 == 98.1$ <!-- [N] -->
 | Variable/Unit conflict | `V := 37824` | Use subscript: `V_tot := 37824` |
 | Undefined variable | `y := x * 2` | Define x first |
 | Undefined in eval | `x ==` | Define x first |
-| Custom units | `5\ €` | Define first: `€ === €` |
+| Unknown unit (ignored!) | `5\ foo` | Use standard unit or define with `===` |
 
 ---
 
@@ -192,4 +208,4 @@ $F_{1,N} := F_1 == 98.1$ <!-- [N] -->
 
 ---
 
-> *livemathtex: 2026-01-11 17:49:23 | 30 definitions, 14 evaluations | 9 errors | 0.38s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 17:52:11 | 31 definitions, 15 evaluations | 9 errors | 0.39s* <!-- livemathtex-meta -->
