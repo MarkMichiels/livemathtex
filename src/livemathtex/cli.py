@@ -1,6 +1,6 @@
 import click
 from pathlib import Path
-from .core import process_file, process_text_v3
+from .core import process_file, process_text_v3, clear_text
 from .config import LivemathConfig
 from .parser.lexer import Lexer
 from .ir.schema import LivemathIRV3
@@ -231,6 +231,52 @@ def inspect(ir_file):
 
     except Exception as e:
         click.echo(f"Error reading IR file: {e}", err=True)
+        raise SystemExit(1)
+
+
+@main.command()
+@click.argument('input_file', type=click.Path(exists=True))
+@click.option('-o', '--output', type=click.Path(), help="Output file path (default: overwrite input)")
+def clear(input_file, output):
+    """Clear computed values from a processed livemathtex document.
+
+    Removes evaluation results and error markup while preserving definitions,
+    unit definitions, and unit hints. Useful for resetting a document before
+    reprocessing.
+
+    Examples:
+
+        livemathtex clear output.md                 # Overwrite in-place
+        livemathtex clear output.md -o input.md    # Write to different file
+
+    Cleared patterns:
+        $x == 42$ -> $x ==$
+        \\color{red}{...} -> removed
+        livemathtex metadata -> removed
+
+    Preserved patterns:
+        $x := 5$ (definitions)
+        $kN === 1000 N$ (unit definitions)
+        <!-- [kJ] --> (unit hints)
+    """
+    try:
+        input_path = Path(input_file)
+        with open(input_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        cleared, count = clear_text(content)
+
+        # Determine output path (default: overwrite input)
+        output_path = Path(output) if output else input_path
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(cleared)
+
+        click.echo(f"✓ Cleared {input_file}")
+        click.echo(f"  Evaluations cleared: {count}")
+        click.echo(f"  Output: {output_path}")
+
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
         raise SystemExit(1)
 
 
