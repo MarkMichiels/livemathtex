@@ -112,6 +112,73 @@ def _unwrap_latex(token: str) -> str:
     return token
 
 
+def clean_latex_unit(latex_unit: str) -> str:
+    """
+    Convert LaTeX unit notation to Pint-compatible string.
+
+    Handles:
+    - \\text{...} and \\mathrm{...} wrappers
+    - LaTeX exponents: ^2 -> **2, ^{-3} -> **-3
+    - LaTeX multiplication: \\cdot -> *
+    - LaTeX fractions: \\frac{a}{b} -> a/b
+
+    Args:
+        latex_unit: The LaTeX-formatted unit string.
+
+    Returns:
+        Pint-compatible unit string.
+
+    Examples:
+        >>> clean_latex_unit("\\\\text{m/s}^2")
+        'm/s**2'
+        >>> clean_latex_unit("kg \\\\cdot m/s^2")
+        'kg * m/s**2'
+    """
+    if latex_unit is None:
+        return ""
+
+    unit = latex_unit.strip()
+    if not unit:
+        return ""
+
+    # Remove \\text{...} and \\mathrm{...} wrappers (keep content)
+    unit = re.sub(r'\\text\{([^}]+)\}', r'\1', unit)
+    unit = re.sub(r'\\mathrm\{([^}]+)\}', r'\1', unit)
+    unit = re.sub(r'\\mathit\{([^}]+)\}', r'\1', unit)
+    unit = re.sub(r'\\textit\{([^}]+)\}', r'\1', unit)
+    unit = re.sub(r'\\mathbf\{([^}]+)\}', r'\1', unit)
+
+    # Convert \\frac{num}{denom} to num/denom
+    unit = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'\1/\2', unit)
+
+    # Convert LaTeX exponents to Python: ^2 -> **2, ^{-3} -> **-3
+    unit = re.sub(r'\^\{([^}]+)\}', r'**\1', unit)  # braced first
+    unit = re.sub(r'\^(-?\d+)', r'**\1', unit)       # then bare
+
+    # Convert LaTeX multiplication to Python (use placeholder to avoid ** conflict)
+    unit = unit.replace('\\cdot', '\x00MULT\x00')
+    unit = unit.replace('·', '\x00MULT\x00')  # Unicode middle dot
+
+    # Remove any remaining backslashes (LaTeX escapes)
+    unit = unit.replace('\\', '')
+
+    # Clean up whitespace around division
+    unit = re.sub(r'\s*/\s*', '/', unit)
+
+    # Restore multiplication with proper spacing
+    unit = unit.replace('\x00MULT\x00', ' * ')
+
+    # Clean up whitespace around single * (not **)
+    # Replace single * with spaces, but preserve **
+    unit = re.sub(r'(?<!\*)\*(?!\*)', ' * ', unit)
+
+    # Clean up multiple spaces
+    unit = re.sub(r'\s+', ' ', unit)
+    unit = unit.strip()
+
+    return unit
+
+
 def is_unit_token(token: str) -> bool:
     """
     Check if a given token is a recognized unit in the Pint registry.
