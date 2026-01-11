@@ -331,6 +331,9 @@ class Lexer:
         These directives set document-wide configuration and are typically
         placed at the top of the document.
 
+        Note: Directives inside fenced code blocks (``` or ~~~) are ignored.
+        This prevents example directives in documentation from being parsed.
+
         Args:
             content: Full document text
 
@@ -346,7 +349,12 @@ class Lexer:
         """
         directives: Dict[str, Any] = {}
 
-        for match in self.DOCUMENT_DIRECTIVE_RE.finditer(content):
+        # Strip fenced code blocks before scanning for directives (ISSUE-004)
+        # This prevents example directives in documentation from being parsed
+        content_for_scan = re.sub(r'```[\s\S]*?```', '', content)
+        content_for_scan = re.sub(r'~~~[\s\S]*?~~~', '', content_for_scan)
+
+        for match in self.DOCUMENT_DIRECTIVE_RE.finditer(content_for_scan):
             pairs_str = match.group(1)
             for pair in pairs_str.split(','):
                 pair = pair.strip()
