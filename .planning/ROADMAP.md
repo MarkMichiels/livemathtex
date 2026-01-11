@@ -15,7 +15,7 @@ None (standard Python CLI patterns)
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Critical Bug Fix** - Fix ISSUE-003 (variable/unit fallback)
-- [ ] **Phase 2: Medium Bugs** - Fix ISSUE-004 and ISSUE-005
+- [ ] **Phase 2: Bug Fixes** - Fix ISSUE-004, ISSUE-005, and ISSUE-006
 - [ ] **Phase 3: API Features** - FEAT-001 (public API) and FEAT-002 (clear command)
 
 ## Phase Details
@@ -29,15 +29,16 @@ None (standard Python CLI patterns)
 Plans:
 - [x] 01-01: TDD fix for variable/unit fallback bug
 
-### Phase 2: Medium Bugs
-**Goal**: Fix ISSUE-004 (directive parser ignores code blocks) and ISSUE-005 (LaTeX-wrapped units)
+### Phase 2: Bug Fixes
+**Goal**: Fix ISSUE-004, ISSUE-005, and ISSUE-006 (directive parser, LaTeX units, dimensional analysis)
 **Depends on**: Phase 1
 **Research**: Unlikely (solutions documented in BACKLOG.md)
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Fix directive parser to skip code blocks
-- [ ] 02-02: Add LaTeX unit cleaning for Pint
+- [ ] 02-01: Fix directive parser to skip code blocks (ISSUE-004)
+- [ ] 02-02: Add LaTeX unit cleaning for Pint (ISSUE-005)
+- [ ] 02-03: Add dimensional compatibility checking (ISSUE-006)
 
 ### Phase 3: API Features
 **Goal**: Expose public Python API (FEAT-001) and add clear command (FEAT-002)
@@ -57,5 +58,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Critical Bug Fix | 1/1 | Complete | 2026-01-11 |
-| 2. Medium Bugs | 0/2 | Not started | - |
+| 2. Bug Fixes | 0/3 | Not started | - |
 | 3. API Features | 0/2 | Not started | - |
