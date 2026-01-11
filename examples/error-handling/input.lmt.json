@@ -31,11 +31,11 @@
       "latex_name": "m_1",
       "original": {
         "value": 10.0,
-        "unit": null
+        "unit": "kg"
       },
       "base": {
         "value": 10.0,
-        "unit": null
+        "unit": "kilogram"
       },
       "conversion_ok": true,
       "line": 0
@@ -171,111 +171,6 @@
       "line": 0
     },
     "v_{12}": {
-      "latex_name": "x",
-      "original": {
-        "value": 5.0,
-        "unit": "foo"
-      },
-      "base": {
-        "value": 5.0,
-        "unit": "foo"
-      },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'foo' is not defined in the unit registry"
-    },
-    "v_{13}": {
-      "latex_name": "x_ok",
-      "original": {
-        "value": 5.0,
-        "unit": "m"
-      },
-      "base": {
-        "value": 5.0,
-        "unit": "meter"
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{14}": {
-      "latex_name": "y_val",
-      "original": {
-        "value": 1000.0,
-        "unit": null
-      },
-      "base": {
-        "value": 1000.0,
-        "unit": null
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{15}": {
-      "latex_name": "y_conv",
-      "original": {
-        "value": 1000.0,
-        "unit": null
-      },
-      "base": {
-        "value": 1000.0,
-        "unit": null
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{16}": {
-      "latex_name": "y_val2",
-      "original": {
-        "value": 100000.0,
-        "unit": null
-      },
-      "base": {
-        "value": 100000.0,
-        "unit": null
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{17}": {
-      "latex_name": "y_conv2",
-      "original": {
-        "value": 100000.0,
-        "unit": null
-      },
-      "base": {
-        "value": 100000.0,
-        "unit": null
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{18}": {
-      "latex_name": "speed",
-      "original": {
-        "value": 5.0,
-        "unit": "m/s"
-      },
-      "base": {
-        "value": 5.0,
-        "unit": "meter / second"
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{19}": {
-      "latex_name": "energy",
-      "original": {
-        "value": 1000.0,
-        "unit": "kWh"
-      },
-      "base": {
-        "value": 3600000000.0,
-        "unit": "kilogram * meter ** 2 / second ** 2"
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{20}": {
       "latex_name": "cost",
       "original": {
         "value": 100.0,
@@ -288,18 +183,110 @@
       "conversion_ok": false,
       "line": 0,
       "conversion_error": "'€' is not defined in the unit registry"
+    },
+    "v_{13}": {
+      "latex_name": "price_{per\\_kg}",
+      "original": {
+        "value": 2.5,
+        "unit": "€"
+      },
+      "base": {
+        "value": 2.5,
+        "unit": "€"
+      },
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
+    },
+    "v_{14}": {
+      "latex_name": "weight",
+      "original": {
+        "value": 4.0,
+        "unit": null
+      },
+      "base": {
+        "value": 4.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{15}": {
+      "latex_name": "total",
+      "original": {
+        "value": 10.0,
+        "unit": null
+      },
+      "base": {
+        "value": 10.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{16}": {
+      "latex_name": "v_1",
+      "original": {
+        "value": 5.0,
+        "unit": "m/s"
+      },
+      "base": {
+        "value": 5.0,
+        "unit": "meter / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{17}": {
+      "latex_name": "E_1",
+      "original": {
+        "value": 1000.0,
+        "unit": "kWh"
+      },
+      "base": {
+        "value": 3600000000.0,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{18}": {
+      "latex_name": "F_1",
+      "original": {
+        "value": 98.10000000000001,
+        "unit": null
+      },
+      "base": {
+        "value": 98.10000000000001,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{19}": {
+      "latex_name": "F_{1,N}",
+      "original": {
+        "value": 98.10000000000001,
+        "unit": null
+      },
+      "base": {
+        "value": 98.10000000000001,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-11 17:38:03",
-    "duration": "0.42s",
-    "symbols": 21,
+    "last_run": "2026-01-11 17:49:23",
+    "duration": "0.38s",
+    "symbols": 20,
     "custom_units": 1,
-    "definitions": 33,
-    "evaluations": 16,
+    "definitions": 30,
+    "evaluations": 14,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 13
+    "errors": 9
   }
 }

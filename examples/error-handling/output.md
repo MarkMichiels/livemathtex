@@ -137,30 +137,22 @@ $result_ok := q_1 + 5 == 15$
 
 ---
 
-## Category 4: Unrecognized Units
+## Category 4: Custom Units
 
-When a unit is specified but not recognized by Pint or custom definitions.
+Define custom units with the `===` operator before using them.
 
-### Error: Unrecognized unit in value definition
+### Custom unit definition
 
-$x := 5\ foo$
+$€ === €$
+$cost := 100\ €$
+$\text{cost} == 100\ \text{€}$
 
-**Explanation:** `foo` is not a recognized unit. Check spelling or define it with `===`.
+### Using custom units in calculations
 
-**Fix (using standard unit):**
-
-$x_ok := 5\ m$
-$x_{\text{ok}} == 5\ \text{m}$
-
-### Error: Unrecognized unit in conversion comment
-
-$y_val := 1000$
-$y_conv := y_val == 1000$ <!-- [bar_invalid_unit] -->
-
-**Fix (using recognized unit):**
-
-$y_val2 := 100000$
-$y_conv2 := y_val2 == 100\,000$ <!-- [Pa] -->
+$price_{per\_kg} := 2.50\ €$
+$weight := 4$
+$total := price_{per\_kg} \cdot weight$
+$\text{total} == 10$
 
 ---
 
@@ -170,32 +162,18 @@ These examples show the correct patterns to follow.
 
 ### Value definitions with units (backslash-space syntax)
 
-$mass := 10\ kg
-\\ \color{red}{\text{
-    Error: Variable name 'mass' conflicts with unit 'milliarcsecond'. Use a subscript like 'mass\_1' or 'mass\_var' to disambiguate.}}$
-$speed := 5\ \frac{m}{s}$
-$energy := 1000\ kWh$
+$m_1 := 10\ kg$
+$v_1 := 5\ \frac{m}{s}$
+$E_1 := 1000\ kWh$
 
 ### Formula definitions (operators between defined variables)
 
-$force := mass \cdot 9.81
-\\ \color{red}{\text{
-    Error: Undefined variable 'a'. ('a' is also a unit: unit. Use a subscript like 'a\_tot' to avoid confusion with the unit.)}}$
-$force ==
-\\ \color{red}{\text{
-    Error: Undefined variable 'c'. ('c' is also a unit: unit. Use a subscript like 'c\_tot' to avoid confusion with the unit.)}}$
+$F_1 := m_1 \cdot 9.81$
+$F_1 == 98.1$
 
 ### Unit conversions
 
-$force_N := force ==
-\\ \color{red}{\text{
-    Error: Undefined variable 'c'. ('c' is also a unit: unit. Use a subscript like 'c\_tot' to avoid confusion with the unit.)}}$ <!-- [N] -->
-
-### Custom unit definition
-
-$€ === €$
-$cost := 100\ €$
-$\text{cost} == 100\ \text{€}$
+$F_{1,N} := F_1 == 98.1$ <!-- [N] -->
 
 ---
 
@@ -206,7 +184,7 @@ $\text{cost} == 100\ \text{€}$
 | Variable/Unit conflict | `V := 37824` | Use subscript: `V_tot := 37824` |
 | Undefined variable | `y := x * 2` | Define x first |
 | Undefined in eval | `x ==` | Define x first |
-| Unrecognized unit | `5\ foo` | Use standard unit or define with `===` |
+| Custom units | `5\ €` | Define first: `€ === €` |
 
 ---
 
@@ -214,4 +192,4 @@ $\text{cost} == 100\ \text{€}$
 
 ---
 
-> *livemathtex: 2026-01-11 17:38:03 | 33 definitions, 16 evaluations | 13 errors | 0.42s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 17:49:23 | 30 definitions, 14 evaluations | 9 errors | 0.38s* <!-- livemathtex-meta -->
