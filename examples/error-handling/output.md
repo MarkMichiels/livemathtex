@@ -79,27 +79,27 @@ $y_1 == 10$
 
 ### Error: Undefined variable that matches unit name (ISSUE-003 fix)
 
-This is the critical fix - previously this would silently interpret V as volt!
+This is the critical fix - previously `V` in a formula with decimals would silently be interpreted as volt!
 
-$Cap := V_{undef} \cdot 15 \cdot 0.001
+$Cap := V \cdot 15 \cdot 0.001
 \\ \color{red}{\text{
-    Error: Undefined variable 'V\_undef'. Define it first with a definition like '\$V\_undef := <value>\$'.}}$
+    Error: Undefined variable 'V'. (Note: 'V' is also a unit (volt). Units must be attached to numbers like '5\textbackslash\{\} V', not used as standalone symbols in formulas.)}}$
 
-**Explanation:** `V_{undef}` is undefined. Even though expressions with decimals used to allow unit fallback, LiveMathTeX now always errors on undefined symbols.
+**Explanation:** `V` matches the volt unit, but in a formula it should be a defined variable. The error message notes the unit conflict.
 
-**Fix:** Define the variable first:
+**Fix:** Use a subscript to disambiguate from the unit:
 
-$V_{def} := 37824$
-$Cap_ok := V_{def} \cdot 15 \cdot 0.001$
+$V_{tot} := 37824$
+$Cap_ok := V_{tot} \cdot 15 \cdot 0.001$
 $\text{Cap}_{ok} == 567.4$
 
-### Error: Undefined variable in formula with unit-like name
+### Error: Another unit-like variable (Newton)
 
 $force := N \cdot 10.5
 \\ \color{red}{\text{
     Error: Undefined variable 'N'. (Note: 'N' is also a unit (newton). Units must be attached to numbers like '5\textbackslash\{\} N', not used as standalone symbols in formulas.)}}$
 
-**Explanation:** `N` matches Newton unit, but in a formula it should be a defined variable.
+**Explanation:** `N` matches the Newton unit. Same issue as `V` above.
 
 **Fix:**
 
@@ -214,4 +214,4 @@ $\text{cost} == 100\ \text{€}$
 
 ---
 
-> *livemathtex: 2026-01-11 17:28:49 | 33 definitions, 16 evaluations | 13 errors | 0.44s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 17:33:02 | 33 definitions, 16 evaluations | 13 errors | 0.41s* <!-- livemathtex-meta -->
