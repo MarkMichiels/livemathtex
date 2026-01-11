@@ -14,7 +14,7 @@ This document tracks known limitations (ISSUE), planned improvements (FEAT), and
 |---|--------|----------|-------------|
 | [ISSUE-001](#issue-001-value-directive-doesnt-support-complexcustom-units) | ✅ Resolved | High | `value:` directive doesn't support complex/custom units |
 | [ISSUE-002](#issue-002-remove-all-hardcoded-unit-lists---use-pint-as-single-source-of-truth) | ✅ Resolved | High | Remove all hardcoded unit lists |
-| [ISSUE-003](#issue-003-failed-variable-definition-still-allows-unit-interpretation-in-subsequent-formulas) | 🔴 Open | Critical | Failed variable definition allows unit fallback |
+| [ISSUE-003](#issue-003-failed-variable-definition-still-allows-unit-interpretation-in-subsequent-formulas) | ✅ Resolved | Critical | Failed variable definition allows unit fallback |
 | [ISSUE-004](#issue-004-document-directive-parser-does-not-ignore-code-blocks) | 🟡 Open | Medium | Directive parser doesn't ignore code blocks |
 | [ISSUE-005](#issue-005-latex-wrapped-units-text-not-parsed-by-pint) | 🟡 Open | Medium | LaTeX-wrapped units not parsed by Pint |
 
@@ -95,9 +95,10 @@ All 4 hardcoded lists removed and replaced with dynamic Pint queries:
 
 ## ISSUE-003: Failed variable definition still allows unit interpretation in subsequent formulas
 
-**Status:** 🔴 OPEN
+**Status:** ✅ RESOLVED
 **Priority:** Critical
 **Discovered:** 2026-01-08
+**Resolved:** 2026-01-11
 
 **Problem:**
 When a variable definition fails due to a name conflict with a unit (e.g., `V` conflicts with Volt), the system:
@@ -110,38 +111,31 @@ $V := 37824$                        % Error: conflicts with 'volt'
 $Cap := V \cdot 15 \cdot 0.001$     % Should ERROR, but instead interprets V as Volt!
 ```
 
-**Observed behavior:**
-- Definition `V := 37824` shows error (correct)
-- Subsequent formula `Cap := V · 15 · 0.001` evaluates with `V = 1 volt`
-- Result: `Cap = 0.000015 kg·m²/(A·s³)` (units of voltage × numbers)
+**Solution implemented:**
 
-**Expected behavior:**
-If a definition fails, the variable should be **completely undefined**, and any subsequent use should produce:
-- Either: An "undefined variable" error
-- Or: A propagated error from the failed definition
+The root cause was in `_compute()` where undefined symbols that matched unit names would silently fall back to unit interpretation when the expression contained decimals (triggering `is_definition_with_units=True`).
 
-**Root cause:**
-The error handling for unit conflicts only blocks the definition assignment, but doesn't prevent the parser from falling back to interpreting the token as a unit in later formulas.
+**Fix:** Remove the unit fallback entirely. Undefined symbols that match unit names now ALWAYS produce an error:
 
-**Impact:**
-- Results silently become wrong with nonsensical units
-- Users may not notice the error if they don't check the first line
-- All downstream calculations are corrupted
-
-**Proposed solution:**
-1. Track failed variable definitions in a "blacklist"
-2. When a token matches both a failed variable AND a unit, produce an error rather than silently using the unit
-3. Alternative: Don't produce error at definition - suggest subscript and proceed with unitless interpretation
-
-**Workaround:**
-Use subscripted variable names to avoid unit conflicts:
-```latex
-$V_{tot} := 37824$      % OK - no conflict
-$Cap := V_{tot} \cdot 15 \cdot 0.001$  % Works correctly
+```
+Error: Undefined variable 'V'. (Note: 'V' is also a unit (volt).
+Units must be attached to numbers like '5\ V', not used as standalone symbols in formulas.)
 ```
 
-**Affected formulas in user document:**
-All `Cap_XX` and `C_XX` and `U_XX` calculations showed wrong units because `V` was interpreted as Volt instead of failing completely.
+**Key insight:** Units belong as suffixes to numbers (`5\ V`), not as standalone symbols in formulas. The `\cdot` multiplication syntax (`10 \cdot kg`) is incorrect - use backslash-space (`10\ kg`) for unit attachment.
+
+**Breaking change:** Expressions like `$m_1 := 10 \cdot kg$` that previously worked (by interpreting `kg` as a unit) now require correct syntax: `$m_1 := 10\ kg$`.
+
+**Files changed:**
+- `src/livemathtex/engine/evaluator.py` - Remove unit fallback in `_compute()`
+- `tests/test_definition_types.py` - New test file for definition type handling
+- `examples/error-handling/` - New example demonstrating all error types
+- `examples/simple-units/` - Updated to use correct unit syntax
+- `examples/engineering/` - Renamed U→U_0, A→A_0 to avoid conflicts
+
+**Test coverage:**
+- 13 new tests in `test_definition_types.py`
+- All 115 tests passing
 
 ---
 

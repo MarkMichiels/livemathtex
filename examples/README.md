@@ -21,6 +21,7 @@ livemathtex process examples/playground.md
 | `settings/` | **Configuration settings demo** (digits, format) |
 | `custom-units/` | **Custom unit definitions** (`===` syntax) |
 | `unit-library/` | **Common industrial units** (currency, flow, concentration) |
+| `error-handling/` | **Error catalog** - all error types with explanations |
 | `playground.md` | **Editable** - experiment here! |
 
 ## Static Examples (input → output)
@@ -39,6 +40,7 @@ livemathtex process examples/engineering-units/input.md
 livemathtex process examples/settings/input.md
 livemathtex process examples/custom-units/input.md
 livemathtex process examples/unit-library/input.md
+livemathtex process examples/error-handling/input.md
 ```
 
 ## Operators Reference
@@ -54,9 +56,11 @@ livemathtex process examples/unit-library/input.md
 
 LiveMathTeX recognizes SI units: `kg`, `m`, `s`, `N`, `J`, `W`, `Pa`, `Hz`, `V`, `A`, `K`, `mol`
 
+**Important:** Use backslash-space (`\ `) to attach units to numbers, NOT `\cdot`:
+
 ```markdown
-$mass := 10 \cdot kg$
-$accel := 9.81 \cdot \frac{m}{s^2}$
+$mass := 10\ kg$
+$accel := 9.81\ \frac{m}{s^2}$
 $F := mass \cdot accel ==$
 ```
 
@@ -69,9 +73,22 @@ Result: `$F := ... == 98.1 \frac{kg \cdot m}{s^2}$`
 ```markdown
 $m := 10$      ❌ Error: 'm' conflicts with meter
 $s := 5$       ❌ Error: 's' conflicts with second
-$mass := 10$   ✓ OK
-$time := 5$    ✓ OK
+$m_1 := 10$    ✓ OK (subscript disambiguates)
+$time := 5$    ✓ OK (descriptive name)
 ```
+
+### Value Definitions vs Formula Definitions
+
+LiveMathTeX distinguishes between:
+
+1. **Value definitions:** Number with optional unit suffix (`5\ kg`)
+   - Use backslash-space for units: `$mass := 10\ kg$`
+
+2. **Formula definitions:** Expressions with variables and operators
+   - Use `\cdot` for multiplication: `$F := mass \cdot accel$`
+
+**Wrong:** `$mass := 10 \cdot kg$` (treats `kg` as undefined variable)
+**Right:** `$mass := 10\ kg$` (treats `kg` as unit suffix)
 
 ## Unit Conversion (experimental)
 
