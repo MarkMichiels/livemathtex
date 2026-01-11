@@ -1882,38 +1882,23 @@ class Evaluator:
                 continue
 
             # 2. Check if symbol is a known unit (via Pint dynamic lookup)
-            # ISSUE-002: Replace hardcoded unit_mapping with dynamic Pint check
-            # BUT: In "pure formulas" (no numbers), skip single-letter units
-            # because 'g' in a formula means gravity, not gram
-            from .pint_backend import is_pint_unit, pint_to_sympy_with_prefix
-            
+            # ISSUE-003 FIX: Undefined symbols that match unit names are ALWAYS errors.
+            # Units belong as suffixes to numbers (5\ V), not as standalone symbols.
+            # This prevents silent corruption where V becomes volt instead of undefined variable.
+            from .pint_backend import is_pint_unit
+
             is_unit = is_pint_unit(clean_name)
-            
-            # In pure formulas (no numbers), symbols that match unit names
-            # should be treated as VARIABLES, not units.
-            # If they're not defined, raise an error immediately.
-            if is_pure_formula and is_unit:
-                # This symbol matches a unit name but we're in a formula
-                # It MUST be a defined variable, not a unit
+
+            if is_unit:
+                # Undefined symbol matches a unit name - always an error
+                # Units must be attached to numbers like "5\ V", not used standalone
                 unit_desc = self._get_unit_description(clean_name)
                 raise EvaluationError(
-                    f"Undefined variable '{clean_name}' in formula. "
-                    f"Note: '{clean_name}' is also a unit ({unit_desc}), but formulas "
-                    f"cannot mix variables and units. Define '{clean_name}' first with a subscript "
-                    f"like {clean_name}_{{0}} or {clean_name}_{{acc}}."
+                    f"Undefined variable '{clean_name}'. "
+                    f"(Note: '{clean_name}' is also a unit ({unit_desc}). "
+                    f"Units must be attached to numbers like '5\\ {clean_name}', "
+                    f"not used as standalone symbols in formulas.)"
                 )
-            elif is_unit:
-                # Convert Pint unit to SymPy unit dynamically
-                sympy_unit = pint_to_sympy_with_prefix(clean_name)
-                if sympy_unit is not None:
-                    subs_dict[sym] = sympy_unit
-                    continue
-                # Fallback: try SymPy directly
-                elif hasattr(u, clean_name):
-                    unit_val = getattr(u, clean_name)
-                    if isinstance(unit_val, (u.Unit, u.Quantity)):
-                        subs_dict[sym] = unit_val
-                        continue
 
         # 2. Handle Functions (f(x))
         # latex2sympy parses "f(5)" as Function("f")(5)
