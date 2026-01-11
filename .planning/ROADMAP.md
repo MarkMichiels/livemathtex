@@ -17,7 +17,7 @@ None (standard Python CLI patterns)
 - [x] **Phase 1: Critical Bug Fix** - Fix ISS-003 (variable/unit fallback)
 - [x] **Phase 2: Bug Fixes** - Fix ISS-004, ISS-005, and ISS-006
 - [ ] **Phase 3: API Features** - ISS-010 (public API) and ISS-011 (clear command)
-- [ ] **Phase 4: Output Unit Conversion** - Fix ISS-007 (display results in requested units) and ISS-008 (improve unit hint syntax)
+- [x] **Phase 4: Output Unit Conversion** - Verify ISS-007 (already working), add ISS-008 (inline unit hint syntax)
 
 ## Phase Details
 
@@ -60,8 +60,8 @@ Plans:
 **Note**: ISS-007 (`<!-- [unit] -->` syntax) was found to be already implemented and working during planning. Phase 4 Plan 1 focuses on adding tests and documentation. Plan 2 implements the new inline syntax.
 
 Plans:
-- [ ] 04-01: Add tests and documentation for unit conversion (verify ISS-007)
-- [ ] 04-02: Add inline unit hint syntax `$E == [MWh]$` (ISS-008)
+- [x] 04-01: Add tests and documentation for unit conversion (verify ISS-007)
+- [x] 04-02: Add inline unit hint syntax `$E == [MWh]$` (ISS-008)
 
 ## Progress
 
@@ -73,4 +73,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Critical Bug Fix | 1/1 | Complete | 2026-01-11 |
 | 2. Bug Fixes | 3/3 | Complete | 2026-01-11 |
 | 3. API Features | 1/2 | In progress | - |
-| 4. Output Unit Conversion | 0/2 | Not started | - |
+| 4. Output Unit Conversion | 2/2 | Complete | 2026-01-11 |

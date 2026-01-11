@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-11)
 
 **Core value:** Calculations must evaluate correctly - failed definitions must not silently fall back to units
-**Current focus:** Phase 3 — API Features (in progress)
+**Current focus:** Phase 3 — API Features (only 03-02 remains)
 
 ## Current Position
 
 Phase: 3 of 4 (API Features)
-Plan: 1 of 2 in current phase
+Plan: 1 of 2 in current phase (03-02 pending)
 Status: In progress
-Last activity: 2026-01-11 — Completed 03-01-PLAN.md
+Last activity: 2026-01-11 — Completed Phase 4 (04-01 + 04-02)
 
-Progress: █████████░ 71%
+Progress: █████████░ 86% (7/8 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 6 min
-- Total execution time: 28 min
+- Total plans completed: 7
+- Average duration: ~5 min
+- Total execution time: ~38 min
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: █████████░ 71%
 | 1. Critical Bug Fix | 1/1 | 11 min | 11 min |
 | 2. Bug Fixes | 3/3 | ~18 min | ~6 min |
 | 3. API Features | 1/2 | 3 min | 3 min |
+| 4. Output Unit Conversion | 2/2 | ~10 min | ~5 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (3 min), 02-02 (8 min), 02-03 (~7 min), 03-01 (3 min)
+- Last 5 plans: 02-03 (~7 min), 03-01 (3 min), 04-01 (~5 min), 04-02 (~5 min)
 - Trend: Consistent pace
 
 ## Accumulated Context
@@ -53,6 +54,8 @@ Recent decisions affecting current work:
 - **02-03:** Check dimensional compatibility in _handle_evaluation after compute step
 - **03-01:** Export process_text as primary API (simple, returns tuple)
 - **03-01:** Include both v2.0 and v3.0 IR types for flexibility
+- **04-02:** Inline unit hint syntax `$E == [kJ]$` as recommended approach
+- **04-02:** HTML comment takes precedence when both syntaxes present
 
 ### Deferred Issues
 
@@ -64,6 +67,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-11 20:31 UTC
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-01-11 21:50 UTC
+Stopped at: Completed Phase 4 (04-01, 04-02)
 Resume file: None
+Next: Execute 03-02-PLAN.md (livemathtex clear command)
