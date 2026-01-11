@@ -16,7 +16,7 @@ None (standard Python CLI patterns)
 
 - [x] **Phase 1: Critical Bug Fix** - Fix ISS-003 (variable/unit fallback)
 - [x] **Phase 2: Bug Fixes** - Fix ISS-004, ISS-005, and ISS-006
-- [ ] **Phase 3: API Features** - ISS-010 (public API) and ISS-011 (clear command)
+- [x] **Phase 3: API Features** - ISS-010 (public API) and ISS-011 (clear command)
 - [x] **Phase 4: Output Unit Conversion** - Verify ISS-007 (already working), add ISS-008 (inline unit hint syntax)
 
 ## Phase Details
@@ -49,7 +49,7 @@ Plans:
 
 Plans:
 - [x] 03-01: Expose public API in __init__.py
-- [ ] 03-02: Add livemathtex clear command
+- [x] 03-02: Add livemathtex clear command
 
 ### Phase 4: Output Unit Conversion
 **Goal**: Verify and document ISS-007 (already working), implement ISS-008 (inline unit hint syntax)
@@ -72,5 +72,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Critical Bug Fix | 1/1 | Complete | 2026-01-11 |
 | 2. Bug Fixes | 3/3 | Complete | 2026-01-11 |
-| 3. API Features | 1/2 | In progress | - |
+| 3. API Features | 2/2 | Complete | 2026-01-12 |
 | 4. Output Unit Conversion | 2/2 | Complete | 2026-01-11 |
+
+**Milestone v1.1 Complete:** 8/8 plans executed successfully.

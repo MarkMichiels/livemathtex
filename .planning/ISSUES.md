@@ -16,34 +16,17 @@ Enhancements discovered during execution. Not critical - address in future phase
   - `src/livemathtex/engine/pint_backend.py` - Extend `register_custom_unit()`
   - `tests/test_pint_backend.py` - Add compound unit definition tests
 
+## Closed Enhancements
+
 ### ISS-010: Expose public Python API for library usage
 
-- **Discovered:** Phase 2 (2026-01-08)
-- **Type:** Refactoring
-- **Description:** Currently, LiveMathTeX is primarily a CLI tool. The `__init__.py` only exports `main()`, making it difficult to use as a Python library in other projects. Should expose `process_text()`, `LivemathConfig`, and `LivemathIR` for programmatic usage.
-- **Impact:** Medium (CLI works, library usage would enhance)
-- **Effort:** Quick
-- **Suggested phase:** Phase 3 (API Features)
-- **Files to change:**
-  - `src/livemathtex/__init__.py` - Add exports
-  - `src/livemathtex/core.py` - Possibly simplify API
-  - `README.md` - Document library usage
-  - `docs/USAGE.md` - Add library examples
+**Resolved:** 2026-01-11 - Fixed in Phase 3
+**Solution:** Public API exported in `__init__.py`. Exports `process_text()` as primary API, along with both v2.0 and v3.0 IR types for flexibility.
 
 ### ISS-011: `livemathtex clear` command to reset document calculations
 
-- **Discovered:** Phase 2 (2026-01-08)
-- **Type:** UX
-- **Description:** After running `livemathtex process`, the document contains computed values and error messages. When errors occur or the document needs resetting, there is no command to clean it back to the original state. Should add `livemathtex clear` command that removes computed values after `==`, removes error markup, and preserves all definitions and structure.
-- **Impact:** Medium (manual workaround exists)
-- **Effort:** Medium
-- **Suggested phase:** Phase 3 (API Features)
-- **Files to change:**
-  - `src/livemathtex/cli.py` - Add `clear` subcommand
-  - `src/livemathtex/core.py` - Add `clear_text()` function
-  - `.cursor/commands/livemathtex.md` - Document new command
-
-## Closed Enhancements
+**Resolved:** 2026-01-12 - Fixed in Phase 3
+**Solution:** Added `clear_text()` function to core.py and `livemathtex clear` CLI command. Removes evaluation results and error markup while preserving definitions, unit definitions, and unit hints.
 
 ### ISS-007: Evaluation results show SI base units instead of requested output unit
 
@@ -87,4 +70,4 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ---
 
-*Last reviewed: 2026-01-11*
+*Last reviewed: 2026-01-12*
