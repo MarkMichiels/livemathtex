@@ -16,7 +16,7 @@ This document tracks known limitations (ISSUE), planned improvements (FEAT), and
 | [ISSUE-002](#issue-002-remove-all-hardcoded-unit-lists---use-pint-as-single-source-of-truth) | ✅ Resolved | High | Remove all hardcoded unit lists |
 | [ISSUE-003](#issue-003-failed-variable-definition-still-allows-unit-interpretation-in-subsequent-formulas) | ✅ Resolved | Critical | Failed variable definition allows unit fallback |
 | [ISSUE-004](#issue-004-document-directive-parser-does-not-ignore-code-blocks) | ✅ Resolved | Medium | Directive parser doesn't ignore code blocks |
-| [ISSUE-005](#issue-005-latex-wrapped-units-text-not-parsed-by-pint) | 🟡 Open | Medium | LaTeX-wrapped units not parsed by Pint |
+| [ISSUE-005](#issue-005-latex-wrapped-units-text-not-parsed-by-pint) | ✅ Resolved | Medium | LaTeX-wrapped units not parsed by Pint |
 | [ISSUE-006](#issue-006-incompatible-unit-operations-silently-produce-wrong-results) | 🟡 Open | High | Incompatible unit operations silently produce wrong results |
 
 ### Features (Enhancements & New Functionality)
@@ -199,9 +199,10 @@ def parse_document_directives(self, content: str) -> Dict[str, Any]:
 
 ## ISSUE-005: LaTeX-wrapped units (`\text{...}`) not parsed by Pint
 
-**Status:** 🟡 OPEN
+**Status:** ✅ RESOLVED
 **Priority:** Medium
 **Discovered:** 2026-01-08
+**Resolved:** 2026-01-11
 
 **Problem:**
 When units are written with LaTeX formatting like `\text{m/s}^2`, Pint cannot parse them. The `\text{...}` wrapper and LaTeX escape sequences break Pint's unit parser.
@@ -213,86 +214,28 @@ $F_1 := m_1 \cdot a_1$
 $F_1 ==$ <!-- [N] -->
 ```
 
-**Observed behavior (from IR JSON):**
-```json
-"a_1": {
-    "original": {
-        "value": 9.81,
-        "unit": "\\text{m/s}^2"
-    },
-    "conversion_ok": false,
-    "conversion_error": "('unexpected character after line continuation character', (1, 14))"
-}
-```
+**Solution implemented:**
 
-Because `a_1` has no valid unit, `F_1 = m_1 · a_1` becomes unitless, and the `<!-- [N] -->` conversion request fails silently.
+Added `clean_latex_unit()` function to `pint_backend.py` that converts LaTeX unit notation to Pint-compatible strings:
 
-**Expected behavior:**
-The system should:
-1. Strip LaTeX formatting (`\text{...}`, `\mathrm{...}`, etc.) from unit strings
-2. Convert LaTeX escapes (`^2` → `**2`, `\cdot` → `*`)
-3. Pass clean unit string to Pint: `m/s**2`
-4. Result: `F_1` correctly has unit `kg·m/s²` = `N`
+1. **Wrapper removal:** `\text{...}`, `\mathrm{...}`, `\mathit{...}`, `\textit{...}`, `\mathbf{...}`
+2. **Fraction conversion:** `\frac{m}{s^2}` -> `m/s**2`
+3. **Exponent conversion:** `^2` -> `**2`, `^{-3}` -> `**-3`
+4. **Multiplication:** `\cdot` and Unicode middle dot (·) -> `*`
+5. **Cleanup:** Remove remaining LaTeX escapes, normalize whitespace
 
-**Root cause:**
-Unit extraction passes raw LaTeX to Pint without preprocessing.
+The function is now integrated into:
+- `is_unit_token()` - Checks if LaTeX unit string is valid
+- `get_unit()` - Gets Pint Unit from LaTeX notation
+- `parse_unit_string()` - Main unit parsing function
 
-**Proposed solution:**
+**Test coverage:**
+- 11 new tests in `tests/test_pint_backend.py::TestCleanLatexUnit`
+- All 140 tests passing
 
-Add a `clean_latex_unit()` function before Pint parsing:
-
-```python
-def clean_latex_unit(latex_unit: str) -> str:
-    """
-    Convert LaTeX unit notation to Pint-compatible string.
-
-    Examples:
-        \\text{m/s}^2  →  m/s**2
-        \\mathrm{kg}   →  kg
-        m^3            →  m**3
-        \\cdot         →  *
-    """
-    unit = latex_unit
-
-    # Remove \text{...} and \mathrm{...} wrappers
-    unit = re.sub(r'\\text\{([^}]+)\}', r'\1', unit)
-    unit = re.sub(r'\\mathrm\{([^}]+)\}', r'\1', unit)
-
-    # Convert LaTeX exponents to Python
-    unit = re.sub(r'\^(\d+)', r'**\1', unit)
-    unit = re.sub(r'\^\{(\d+)\}', r'**\1', unit)
-
-    # Convert multiplication
-    unit = unit.replace('\\cdot', '*')
-    unit = unit.replace('·', '*')
-
-    # Remove remaining backslashes and extra spaces
-    unit = unit.replace('\\', '')
-    unit = unit.strip()
-
-    return unit
-```
-
-**Files to modify:**
-- `src/livemathtex/engine/pint_backend.py` - Add `clean_latex_unit()`
-- `src/livemathtex/engine/evaluator.py` - Call `clean_latex_unit()` before Pint conversion
-
-**Test cases to add:**
-```python
-def test_latex_unit_cleaning():
-    assert clean_latex_unit("\\text{m/s}^2") == "m/s**2"
-    assert clean_latex_unit("\\mathrm{kg}") == "kg"
-    assert clean_latex_unit("m^3") == "m**3"
-    assert clean_latex_unit("kg \\cdot m/s^2") == "kg * m/s**2"
-    assert clean_latex_unit("\\text{kW} \\cdot \\text{h}") == "kW * h"
-```
-
-**Workaround:**
-Write units without LaTeX wrappers:
-```latex
-$a_1 := 9.81\ m/s^2$        % Works (if parser handles ^2)
-$a_1 := 9.81\ \frac{m}{s^2}$  % May work with fraction parsing
-```
+**Files changed:**
+- `src/livemathtex/engine/pint_backend.py` - Added `clean_latex_unit()`, integrated into unit parsing functions
+- `tests/test_pint_backend.py` - Added TestCleanLatexUnit test class
 
 ---
 
