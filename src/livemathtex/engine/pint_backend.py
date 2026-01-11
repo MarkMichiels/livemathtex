@@ -183,7 +183,8 @@ def is_unit_token(token: str) -> bool:
     """
     Check if a given token is a recognized unit in the Pint registry.
 
-    Handles LaTeX-wrapped units like r'\\text{kg}' and r'\\mathrm{kW}'.
+    Handles LaTeX-wrapped units like r'\\text{kg}' and r'\\mathrm{kW}',
+    as well as LaTeX exponents and fractions (ISSUE-005).
 
     Args:
         token: The string token to check.
@@ -196,8 +197,8 @@ def is_unit_token(token: str) -> bool:
 
     ureg = get_unit_registry()
 
-    # Unwrap LaTeX commands
-    clean_token = _unwrap_latex(token)
+    # Clean LaTeX notation (ISSUE-005: handles \text{m/s}^2 -> m/s**2)
+    clean_token = clean_latex_unit(token)
     if not clean_token:
         return False
 
@@ -218,6 +219,8 @@ def get_unit(token: str) -> Optional[pint.Unit]:
     """
     Get a Pint Unit object for a given token.
 
+    Handles LaTeX-wrapped units and notation (ISSUE-005).
+
     Args:
         token: The string token representing the unit.
 
@@ -228,7 +231,8 @@ def get_unit(token: str) -> Optional[pint.Unit]:
         return None
 
     ureg = get_unit_registry()
-    clean_token = _unwrap_latex(token)
+    # Clean LaTeX notation (ISSUE-005: handles \text{m/s}^2 -> m/s**2)
+    clean_token = clean_latex_unit(token)
 
     try:
         return ureg.Unit(clean_token)
@@ -1234,6 +1238,7 @@ def parse_unit_string(unit_str: str) -> Optional[pint.Unit]:
         - Powers: "m²", "m^2", "m³", "m^3"
         - Products: "kWh", "kg·m/s²"
         - Currency symbols: "€" -> EUR, "$" -> USD
+        - LaTeX notation: "\\text{m/s}^2" (ISSUE-005)
 
     Returns:
         Pint Unit or None if not recognized
@@ -1242,17 +1247,18 @@ def parse_unit_string(unit_str: str) -> Optional[pint.Unit]:
         return None
 
     ureg = get_unit_registry()
-    unit_str = unit_str.strip()
+
+    # Clean LaTeX notation first (ISSUE-005: handles \text{m/s}^2 -> m/s**2)
+    unit_str = clean_latex_unit(unit_str)
+    if not unit_str:
+        return None
 
     # Replace currency symbols with Pint-compatible names
     unit_str = unit_str.replace('€', 'EUR')
     unit_str = unit_str.replace('$', 'USD')
 
-    # Replace Unicode superscripts with **
+    # Replace Unicode superscripts with ** (clean_latex_unit handles LaTeX ^)
     unit_str = unit_str.replace('²', '**2').replace('³', '**3')
-
-    # Replace · with *
-    unit_str = unit_str.replace('·', '*').replace('\\cdot', '*')
 
     # Try direct parse
     try:
