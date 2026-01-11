@@ -829,16 +829,22 @@ class Evaluator:
                 dim = get_sympy_unit_dimensionality(term)
                 term_dims.append(dim)
 
-                # Get a representative unit string for error message
-                if hasattr(term, 'atoms'):
+                # Get the unit part of the term for error message
+                unit_str = "(dimensionless)"
+                if hasattr(term, 'as_coeff_Mul'):
+                    try:
+                        coeff, unit_part = term.as_coeff_Mul()
+                        if unit_part != 1:
+                            # Use the full unit expression
+                            unit_str = str(unit_part)
+                    except Exception:
+                        pass
+                # Fallback: if as_coeff_Mul didn't work, try atoms
+                if unit_str == "(dimensionless)" and hasattr(term, 'atoms'):
                     quantities = term.atoms(Quantity)
                     if quantities:
-                        # Use the first quantity's name
-                        unit_str = str(list(quantities)[0])
-                    else:
-                        unit_str = "(dimensionless)"
-                else:
-                    unit_str = "(dimensionless)"
+                        # Sort for deterministic output
+                        unit_str = str(sorted(quantities, key=str)[0])
                 term_units.append(unit_str)
 
             # Check if all terms have compatible dimensions

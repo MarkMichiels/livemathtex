@@ -192,7 +192,7 @@ $time_1 := 10\ s$
 $vel_1 := 5\ \frac{m}{s}$
 $invalid_2 := time_1 - vel_1 ==
 \\ \color{red}{\text{
-    Error: Cannot add/subtract incompatible units: second and meter. Dimensions must match for addition/subtraction.}}$
+    Error: Cannot add/subtract incompatible units: second and meter/second. Dimensions must match for addition/subtraction.}}$
 
 **Explanation:** Cannot subtract velocity from time. Dimensions must match.
 
@@ -250,4 +250,4 @@ $F_{1,N} := F_1 == 98.1$ <!-- [N] -->
 
 ---
 
-> *livemathtex: 2026-01-11 20:40:59 | 42 definitions, 20 evaluations | 11 errors | 0.52s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 20:43:48 | 42 definitions, 20 evaluations | 11 errors | 0.50s* <!-- livemathtex-meta -->
