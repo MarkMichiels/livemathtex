@@ -83,6 +83,28 @@ livemathtex inspect calculation.lmt.json
 
 ---
 
+## Library usage
+
+LiveMathTeX can also be used as a Python library:
+
+```python
+from livemathtex import process_text
+
+content = """
+$m := 5\\ \\text{kg}$
+$a := 9.81\\ \\text{m/s}^2$
+$F := m \\cdot a ==$
+"""
+
+output, ir = process_text(content)
+print(output)  # Markdown with computed results
+print(ir.symbols)  # Access symbol values
+```
+
+See [USAGE.md](docs/USAGE.md#library-usage-python-api) for full API documentation.
+
+---
+
 ## Syntax at a glance
 
 | Operator | Meaning | Example |
