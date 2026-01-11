@@ -27,37 +27,24 @@ if [ ! -d "$PROVIRON_DIR" ]; then
 fi
 
 # =============================================================================
-# .cursor/rules/ - Symlink coding standards from proviron
+# .cursor/rules/ - Local rules only (NO symlinks from proviron!)
+# =============================================================================
+# IMPORTANT: In a multi-root workspace, Cursor loads rules from ALL folders.
+# Since proviron is part of the workspace, its rules are already available.
+# Symlinking them here would cause duplicate rule loading.
 # =============================================================================
 echo "📁 Setting up .cursor/rules/..."
 
 mkdir -p "$SCRIPT_DIR/.cursor/rules"
 
-# Rules to symlink from proviron
-RULES_TO_LINK=(
-    "general.mdc"
-    "general_coding.mdc"
-    "general_context.mdc"
-    "general_credentials.mdc"
-    "documentation.mdc"
-    "python.mdc"
-)
-
-for rule in "${RULES_TO_LINK[@]}"; do
-    SOURCE="$PROVIRON_DIR/.cursor/rules/$rule"
-    TARGET="$SCRIPT_DIR/.cursor/rules/$rule"
-
-    if [ -f "$SOURCE" ]; then
-        if [ -L "$TARGET" ]; then
-            rm "$TARGET"
-        elif [ -f "$TARGET" ]; then
-            echo "   ⚠️  Skipping $rule (local file exists)"
-            continue
-        fi
-        ln -s "$SOURCE" "$TARGET"
-        echo "   ✅ $rule → proviron"
-    else
-        echo "   ⚠️  $rule not found in proviron"
+# Clean up any existing symlinks to proviron rules (from previous setup)
+echo "   Cleaning up old proviron rule symlinks..."
+for SYMLINK in "$SCRIPT_DIR/.cursor/rules/"*; do
+    [ -L "$SYMLINK" ] || continue
+    TARGET=$(readlink "$SYMLINK")
+    if [[ "$TARGET" == "$PROVIRON_DIR/.cursor/rules/"* ]]; then
+        rm "$SYMLINK"
+        echo "   ✅ Removed $(basename "$SYMLINK") (proviron symlink - no longer needed)"
     fi
 done
 
@@ -66,28 +53,29 @@ if [ ! -f "$SCRIPT_DIR/.cursor/rules/index.md" ]; then
     cat > "$SCRIPT_DIR/.cursor/rules/index.md" << 'EOF'
 # LiveMathTeX Cursor Rules
 
-This directory contains Cursor rules for the LiveMathTeX project.
+This directory contains Cursor rules specific to the LiveMathTeX project.
 
-## Symlinked Rules (from proviron)
+## Multi-Root Workspace
 
-General coding standards are symlinked from the proviron repository:
-- `general.mdc` - Entry point for always-loaded rules
-- `general_coding.mdc` - Coding standards, git workflow
-- `general_context.mdc` - Context discovery, search strategies
-- `general_credentials.mdc` - Credential storage patterns
-- `documentation.mdc` - Markdown documentation standards
-- `python.mdc` - Python-specific rules
+In a multi-root workspace (development.code-workspace), Cursor automatically
+loads rules from all workspace folders. Since proviron is in the workspace,
+its rules (general, python, documentation, etc.) are already available.
+
+**Do NOT symlink proviron rules here** - this causes duplicate loading!
 
 ## Local Rules
 
-LiveMathTeX-specific rules can be added here as `.mdc` files.
-They will override symlinked rules if they have the same name.
+Add LiveMathTeX-specific rules here as `.mdc` files:
+- `livemathtex.mdc` - LiveMathTeX-specific coding standards (if needed)
 
-## Setup
+## Standalone Development
 
-Run `./setup_symlinks.sh` to create/update symlinks.
+If developing LiveMathTeX outside the multi-root workspace, you may want to
+copy (not symlink) relevant rules from proviron manually.
 EOF
-    echo "   ✅ Created index.md"
+    echo "   ✅ Created/updated index.md"
+else
+    echo "   ℹ️  index.md exists (not overwriting)"
 fi
 
 # =============================================================================
@@ -127,7 +115,7 @@ if [ -d "$PROVIRON_DIR/tools" ]; then
     elif [ -d "$SCRIPT_DIR/tools" ]; then
         echo "   ⚠️  Skipping tools/ (local directory exists)"
     fi
-    
+
     if [ ! -d "$SCRIPT_DIR/tools" ]; then
         ln -s "$PROVIRON_DIR/tools" "$SCRIPT_DIR/tools"
         echo "   ✅ tools/ → proviron"
@@ -143,7 +131,7 @@ if [ -d "$PROVIRON_DIR/scripts" ]; then
     elif [ -d "$SCRIPT_DIR/scripts" ]; then
         echo "   ⚠️  Skipping scripts/ (local directory exists)"
     fi
-    
+
     if [ ! -d "$SCRIPT_DIR/scripts" ]; then
         ln -s "$PROVIRON_DIR/scripts" "$SCRIPT_DIR/scripts"
         echo "   ✅ scripts/ → proviron"

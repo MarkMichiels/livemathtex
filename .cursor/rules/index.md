@@ -1,22 +1,21 @@
 # LiveMathTeX Cursor Rules
 
-This directory contains Cursor rules for the LiveMathTeX project.
+This directory contains Cursor rules specific to the LiveMathTeX project.
 
-## Symlinked Rules (from proviron)
+## Multi-Root Workspace
 
-General coding standards are symlinked from the proviron repository:
-- `general.mdc` - Entry point for always-loaded rules
-- `general_coding.mdc` - Coding standards, git workflow
-- `general_context.mdc` - Context discovery, search strategies
-- `general_credentials.mdc` - Credential storage patterns
-- `documentation.mdc` - Markdown documentation standards
-- `python.mdc` - Python-specific rules
+In a multi-root workspace (development.code-workspace), Cursor automatically
+loads rules from all workspace folders. Since proviron is in the workspace,
+its rules (general, python, documentation, etc.) are already available.
+
+**Do NOT symlink proviron rules here** - this causes duplicate loading!
 
 ## Local Rules
 
-LiveMathTeX-specific rules can be added here as `.mdc` files.
-They will override symlinked rules if they have the same name.
+Add LiveMathTeX-specific rules here as `.mdc` files:
+- `livemathtex.mdc` - LiveMathTeX-specific coding standards (if needed)
 
-## Setup
+## Standalone Development
 
-Run `./setup_symlinks.sh` to create/update symlinks.
+If developing LiveMathTeX outside the multi-root workspace, you may want to
+copy (not symlink) relevant rules from proviron manually.
