@@ -18,6 +18,9 @@ This document tracks known limitations (ISSUE), planned improvements (FEAT), and
 | [ISSUE-004](#issue-004-document-directive-parser-does-not-ignore-code-blocks) | ✅ Resolved | Medium | Directive parser doesn't ignore code blocks |
 | [ISSUE-005](#issue-005-latex-wrapped-units-text-not-parsed-by-pint) | ✅ Resolved | Medium | LaTeX-wrapped units not parsed by Pint |
 | [ISSUE-006](#issue-006-incompatible-unit-operations-silently-produce-wrong-results) | ✅ Resolved | High | Incompatible unit operations silently produce wrong results |
+| [ISSUE-007](#issue-007-evaluation-results-show-si-base-units-instead-of-requested-output-unit) | 🟡 Open | Medium | Evaluation results show SI base units instead of requested output unit |
+| [ISSUE-008](#issue-008-output-unit-hint-syntax-requires-html-comment) | 🟡 Open | Low | Output unit hint syntax requires HTML comment |
+| [ISSUE-009](#issue-009-compound-unit-definitions-fail-with-division) | 🟡 Open | Medium | Compound unit definitions fail with division |
 
 ### Features (Enhancements & New Functionality)
 
@@ -293,6 +296,153 @@ Dimensions must match for addition/subtraction.
 - Incompatible unit additions/subtractions now produce clear errors
 - Compatible operations (same dimension, different scale) still work
 - Multiplication/division of different units still works
+
+---
+
+## ISSUE-007: Evaluation results show SI base units instead of requested output unit
+
+**Status:** 🟡 OPEN
+**Priority:** Medium
+**Discovered:** 2026-01-11
+
+**Problem:**
+When evaluating expressions with units, the result is displayed in SI base units (kg·m²/s²) instead of the user's preferred output unit specified in the `<!-- [unit] -->` comment.
+
+**Example:**
+```latex
+$P_{sys} := 310.7\ kW$
+$t_{yr} := 1\ yr$
+$E := P_{sys} \cdot t_{yr} == 2\,722\,000\,000\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$ <!-- [MWh] -->
+```
+
+**Expected:**
+```latex
+$E := P_{sys} \cdot t_{yr} == 2722\ \text{MWh}$
+```
+
+**Current workaround:**
+Use dimensionless numbers with manual unit tracking:
+```latex
+$P := 310.7$  % kW (dimensionless)
+$t := 8760$   % hours/year
+$E := P \cdot t \cdot 0.001 == 2722$  % MWh
+```
+
+**Root cause:**
+The evaluator computes in SI base units and formats the result directly. The `<!-- [unit] -->` comment is not parsed or used for unit conversion in the output.
+
+**Proposed solution:**
+1. Parse the `<!-- [unit] -->` comment after `==`
+2. Convert the computed result to the requested unit using Pint
+3. Format the result with the requested unit
+
+**Files to change:**
+- `src/livemathtex/parser/lexer.py` - Parse output unit hints
+- `src/livemathtex/engine/evaluator.py` - Apply unit conversion before formatting
+- `src/livemathtex/engine/pint_backend.py` - Add conversion helper
+
+**Effort:** Medium (4-6 hours)
+
+---
+
+## ISSUE-008: Output unit hint syntax requires HTML comment
+
+**Status:** 🟡 OPEN
+**Priority:** Low
+**Discovered:** 2026-01-11
+
+**Problem:**
+The current syntax for specifying output units uses HTML comments:
+```latex
+$E == 2722$ <!-- [MWh] -->
+```
+
+This is:
+1. Verbose and breaks reading flow
+2. Invisible in rendered Markdown
+3. Easy to forget or misplace
+
+**Proposed syntax options:**
+
+**Option A: Inline after `==` (recommended)**
+```latex
+$E == [MWh]$
+```
+The `[unit]` is parsed and replaced with the converted value.
+
+**Option B: LaTeX comment style**
+```latex
+$E == \% [MWh]$
+```
+
+**Option C: Keep HTML but make it optional**
+If no unit hint, use "smart" unit selection based on magnitude.
+
+**Depends on:** ISSUE-007 (output unit conversion must work first)
+
+**Files to change:**
+- `src/livemathtex/parser/lexer.py` - Parse new syntax
+- `src/livemathtex/engine/evaluator.py` - Handle inline unit hints
+
+**Effort:** Small (2-3 hours, after ISSUE-007)
+
+---
+
+## ISSUE-009: Compound unit definitions fail with division
+
+**Status:** 🟡 OPEN
+**Priority:** Medium
+**Discovered:** 2026-01-11
+
+**Problem:**
+Unit definitions (`===`) with division fail to register correctly with Pint:
+
+```latex
+$PPE === umol/J$           % FAILS: Pint can't parse this
+$SEC === MWh/kg$           % FAILS: Same issue
+$\gamma === mg/(L \cdot d)$ % FAILS: Complex compound
+```
+
+**Current behavior:**
+- Simple aliases work: `$kWh === 1000\ Wh$`
+- Multiplied compounds work: `$Wh === W \cdot hour$`
+- Division compounds fail silently or produce errors
+
+**Root cause:**
+The `===` parser in `pint_backend.py` doesn't properly handle:
+1. Division (`/`) in unit expressions
+2. Compound units with multiple operators
+3. LaTeX-style parentheses in unit expressions
+
+**Workaround:**
+Use dimensionless values with documented units:
+```latex
+$PPE_{red} := 4.29$  % PPE in µmol/J (dimensionless)
+```
+
+**Proposed solution:**
+1. Extend `register_custom_unit()` to parse compound unit expressions
+2. Use Pint's `define()` with proper dimensional analysis
+3. Handle division by converting `a/b` to `a * b**-1`
+
+**Example fix:**
+```python
+# Convert "umol/J" to Pint definition
+# umol = 1e-6 mol, J = joule
+# So: PPE = umol/J = 1e-6 * mole / joule
+ureg.define("PPE = 1e-6 * mole / joule")
+```
+
+**Complexity:** This requires understanding of:
+- Pint's unit definition syntax
+- SI prefixes (µ = 1e-6)
+- Compound dimensional analysis
+
+**Files to change:**
+- `src/livemathtex/engine/pint_backend.py` - Extend `register_custom_unit()`
+- `tests/test_pint_backend.py` - Add compound unit definition tests
+
+**Effort:** Medium-Large (4-8 hours)
 
 ---
 
