@@ -2,7 +2,7 @@
 
 ## Overview
 
-Fix critical calculation bugs that undermine trust, then add quality-of-life features (public API, clear command). Small, focused milestone.
+Fix critical calculation bugs that undermine trust, add quality-of-life features (public API, clear command), and improve output formatting (unit conversion). Small, focused milestone.
 
 ## Domain Expertise
 
@@ -15,8 +15,9 @@ None (standard Python CLI patterns)
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Critical Bug Fix** - Fix ISSUE-003 (variable/unit fallback)
-- [ ] **Phase 2: Bug Fixes** - Fix ISSUE-004, ISSUE-005, and ISSUE-006
+- [x] **Phase 2: Bug Fixes** - Fix ISSUE-004, ISSUE-005, and ISSUE-006
 - [ ] **Phase 3: API Features** - FEAT-001 (public API) and FEAT-002 (clear command)
+- [ ] **Phase 4: Output Unit Conversion** - Fix ISSUE-007 (display results in requested units)
 
 ## Phase Details
 
@@ -50,13 +51,23 @@ Plans:
 - [ ] 03-01: Expose public API in __init__.py
 - [ ] 03-02: Add livemathtex clear command
 
+### Phase 4: Output Unit Conversion
+**Goal**: Fix ISSUE-007 - display evaluation results in user-requested units instead of SI base units
+**Depends on**: Phase 2 (uses Pint infrastructure)
+**Research**: Unlikely (Pint conversion well-understood)
+**Plans**: 1 plan
+
+Plans:
+- [ ] 04-01: Implement output unit hint parsing and conversion
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Critical Bug Fix | 1/1 | Complete | 2026-01-11 |
 | 2. Bug Fixes | 3/3 | Complete | 2026-01-11 |
 | 3. API Features | 0/2 | Not started | - |
+| 4. Output Unit Conversion | 0/1 | Not started | - |
