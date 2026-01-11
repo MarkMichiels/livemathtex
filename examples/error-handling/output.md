@@ -67,7 +67,7 @@ When a symbol is referenced but never defined, LiveMathTeX produces an error. If
 
 $y := x \cdot 2
 \\ \color{red}{\text{
-    Error: Undefined variable 'x'. Define it first with a definition like '\$x := <value>\$'.}}$
+    Error: Undefined variable 'x'. Define it before use.}}$
 
 **Explanation:** `x` was never defined. LiveMathTeX does NOT assume undeclared symbols are zero or unity.
 
@@ -83,7 +83,7 @@ This is the critical fix - previously `V` in a formula with decimals would silen
 
 $Cap := V \cdot 15 \cdot 0.001
 \\ \color{red}{\text{
-    Error: Undefined variable 'V'. (Note: 'V' is also a unit (volt). Units must be attached to numbers like '5\textbackslash\{\} V', not used as standalone symbols in formulas.)}}$
+    Error: Undefined variable 'V'. ('V' is also a unit: volt. Use a subscript like 'V\_tot' to avoid confusion with the unit.)}}$
 
 **Explanation:** `V` matches the volt unit, but in a formula it should be a defined variable. The error message notes the unit conflict.
 
@@ -97,7 +97,7 @@ $\text{Cap}_{ok} == 567.4$
 
 $force := N \cdot 10.5
 \\ \color{red}{\text{
-    Error: Undefined variable 'N'. (Note: 'N' is also a unit (newton). Units must be attached to numbers like '5\textbackslash\{\} N', not used as standalone symbols in formulas.)}}$
+    Error: Undefined variable 'N'. ('N' is also a unit: newton. Use a subscript like 'N\_tot' to avoid confusion with the unit.)}}$
 
 **Explanation:** `N` matches the Newton unit. Same issue as `V` above.
 
@@ -117,7 +117,7 @@ When using `==` to evaluate an expression, all referenced symbols must be define
 
 $z ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'z'. Define it first with a definition like '\$z := <value>\$'.}}$
+    Error: Undefined variable 'z'. Define it before use.}}$
 
 **Fix:**
 
@@ -128,7 +128,7 @@ $z_1 == 42$
 
 $result := q + 5 ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'q'. Define it first with a definition like '\$q := <value>\$'.}}$
+    Error: Undefined variable 'q'. Define it before use.}}$
 
 **Fix:**
 
@@ -180,16 +180,16 @@ $energy := 1000\ kWh$
 
 $force := mass \cdot 9.81
 \\ \color{red}{\text{
-    Error: Undefined variable 'a'. (Note: 'a' is also a unit (unit). Units must be attached to numbers like '5\textbackslash\{\} a', not used as standalone symbols in formulas.)}}$
+    Error: Undefined variable 'a'. ('a' is also a unit: unit. Use a subscript like 'a\_tot' to avoid confusion with the unit.)}}$
 $force ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'c'. (Note: 'c' is also a unit (unit). Units must be attached to numbers like '5\textbackslash\{\} c', not used as standalone symbols in formulas.)}}$
+    Error: Undefined variable 'c'. ('c' is also a unit: unit. Use a subscript like 'c\_tot' to avoid confusion with the unit.)}}$
 
 ### Unit conversions
 
 $force_N := force ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'c'. (Note: 'c' is also a unit (unit). Units must be attached to numbers like '5\textbackslash\{\} c', not used as standalone symbols in formulas.)}}$ <!-- [N] -->
+    Error: Undefined variable 'c'. ('c' is also a unit: unit. Use a subscript like 'c\_tot' to avoid confusion with the unit.)}}$ <!-- [N] -->
 
 ### Custom unit definition
 
@@ -214,4 +214,4 @@ $\text{cost} == 100\ \text{€}$
 
 ---
 
-> *livemathtex: 2026-01-11 17:33:02 | 33 definitions, 16 evaluations | 13 errors | 0.41s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 17:38:03 | 33 definitions, 16 evaluations | 13 errors | 0.42s* <!-- livemathtex-meta -->
