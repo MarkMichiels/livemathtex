@@ -17,6 +17,7 @@ Version 3.0:
 """
 
 from pathlib import Path
+import re
 import time
 from datetime import datetime
 from typing import Optional
@@ -28,6 +29,88 @@ from .render.markdown import MarkdownRenderer
 from .ir import IRBuilder, LivemathIR, SymbolEntry, ValueWithUnit
 from .ir.schema import LivemathIRV3, SymbolEntryV3, FormulaInfo, CustomUnitEntry
 from .config import LivemathConfig
+
+
+def clear_text(content: str) -> tuple[str, int]:
+    """
+    Clear computed values from a processed livemathtex document.
+
+    Removes evaluation results (everything after ==) and error markup
+    while preserving definitions, structure, and unit hints.
+
+    Args:
+        content: Processed markdown content with computed values
+
+    Returns:
+        Tuple of (cleared_content, count_of_cleared_evaluations)
+
+    Patterns cleared:
+    - `== 42$` -> `==$`
+    - `== 49.05\\ \\text{N}$` -> `==$`
+    - `\\color{red}{...}` -> removed
+    - livemathtex metadata comment -> removed
+
+    Patterns preserved:
+    - `:= 5$` (definitions)
+    - `<!-- [N] -->` (unit hints)
+    - `===` (unit definitions)
+    - `=>` results (symbolic)
+    """
+    cleared = content
+    count = 0
+
+    # Pattern 1: Clear evaluation results in inline math `$...$`
+    # Match: == followed by anything up to closing $
+    # But NOT === (unit definitions)
+    # Captures: (stuff before ==)
+    # Replace with: \1==$
+    def clear_inline_eval(match):
+        nonlocal count
+        count += 1
+        prefix = match.group(1)  # Everything before ==
+        return f'{prefix}==$'
+
+    # Pattern for inline: $...== value$ (not ===)
+    # Use negative lookbehind AND negative lookahead to avoid ===
+    # Capture group does NOT include the ==
+    inline_pattern = r'(\$[^\$]*?)(?<!=)==(?!=)\s*[^\$]+\$'
+    cleared = re.sub(inline_pattern, clear_inline_eval, cleared)
+
+    # Pattern 2: Clear evaluation results in display math `$$...$$`
+    # Capture group does NOT include the ==
+    def clear_display_eval(match):
+        nonlocal count
+        count += 1
+        prefix = match.group(1)
+        return f'{prefix}==$$'
+
+    display_pattern = r'(\$\$[^\$]*?)(?<!=)==(?!=)\s*[^\$]+\$\$'
+    cleared = re.sub(display_pattern, clear_display_eval, cleared)
+
+    # Pattern 3: Remove error markup (red color)
+    # \color{red}{...} - LaTeX color commands with braced content
+    error_pattern = r'\\color\{red\}\{[^}]*\}'
+    cleared = re.sub(error_pattern, '', cleared)
+
+    # Pattern 4: Remove inline error text
+    # \text{(Error: ...)}
+    error_text_pattern = r'\\text\{\(Error:[^)]*\)\}'
+    cleared = re.sub(error_text_pattern, '', cleared)
+
+    # Pattern 5: Remove newline + error continuation
+    # \\ \color{red}{\text{...}} patterns on new lines within math
+    multiline_error = r'\s*\\\\\s*\\color\{red\}\{\\text\{[^}]*\}\}'
+    cleared = re.sub(multiline_error, '', cleared)
+
+    # Pattern 6: Remove livemathtex metadata comment
+    # > *livemathtex: timestamp | stats | errors | duration* <!-- livemathtex-meta -->
+    meta_pattern = r'\n+---\n+>\s*\*livemathtex:[^*]+\*\s*<!--\s*livemathtex-meta\s*-->\n*'
+    cleared = re.sub(meta_pattern, '\n', cleared)
+
+    # Clean up any double newlines left by removals
+    cleared = re.sub(r'\n{3,}', '\n\n', cleared)
+
+    return cleared, count
 
 
 def process_file(
