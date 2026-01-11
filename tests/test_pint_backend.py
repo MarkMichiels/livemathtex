@@ -20,6 +20,7 @@ from livemathtex.engine.pint_backend import (
     to_si_base,
     define_custom_unit,
     reset_unit_registry,
+    clean_latex_unit,
 )
 
 
@@ -308,3 +309,66 @@ class TestGetAllUnitNames:
         """Should contain custom-defined units."""
         names = get_all_unit_names()
         assert "EUR" in names
+
+
+class TestCleanLatexUnit:
+    """Tests for ISSUE-005: LaTeX-wrapped units with exponents."""
+
+    def setup_method(self):
+        """Reset registry before each test."""
+        reset_unit_registry()
+
+    def test_text_wrapper_with_exponent(self):
+        """\\text{m/s}^2 should become m/s**2."""
+        result = clean_latex_unit("\\text{m/s}^2")
+        assert result == "m/s**2"
+
+    def test_mathrm_wrapper(self):
+        """\\mathrm{kg} should become kg."""
+        result = clean_latex_unit("\\mathrm{kg}")
+        assert result == "kg"
+
+    def test_bare_exponent(self):
+        """m^3 should become m**3."""
+        result = clean_latex_unit("m^3")
+        assert result == "m**3"
+
+    def test_braced_exponent(self):
+        """m^{-2} should become m**-2."""
+        result = clean_latex_unit("m^{-2}")
+        assert result == "m**-2"
+
+    def test_cdot_multiplication(self):
+        """kg \\cdot m/s^2 should become kg * m/s**2."""
+        result = clean_latex_unit("kg \\cdot m/s^2")
+        assert result == "kg * m/s**2"
+
+    def test_multiple_text_wrappers(self):
+        """\\text{kW} \\cdot \\text{h} should become kW * h."""
+        result = clean_latex_unit("\\text{kW} \\cdot \\text{h}")
+        assert result == "kW * h"
+
+    def test_frac_notation(self):
+        """\\frac{m}{s^2} should become m/s**2."""
+        result = clean_latex_unit("\\frac{m}{s^2}")
+        assert result == "m/s**2"
+
+    def test_none_input(self):
+        """None input should return empty string."""
+        result = clean_latex_unit(None)
+        assert result == ""
+
+    def test_empty_input(self):
+        """Empty string should return empty string."""
+        result = clean_latex_unit("")
+        assert result == ""
+
+    def test_plain_unit_unchanged(self):
+        """Plain unit without LaTeX should remain unchanged."""
+        result = clean_latex_unit("kg")
+        assert result == "kg"
+
+    def test_unicode_middle_dot(self):
+        """Unicode middle dot (·) should become *."""
+        result = clean_latex_unit("kg·m/s^2")
+        assert result == "kg * m/s**2"
