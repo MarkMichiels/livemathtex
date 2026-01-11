@@ -251,13 +251,21 @@ class Lexer:
                 if eval_match:
                      expr = eval_match.group(1).strip()
                      result_part = eval_match.group(2).strip()
+
+                     # Check for inline unit hint: [unit] at end of result_part
+                     unit_comment = math_block.unit_comment
+                     inline_unit_match = re.search(r'\[([^\]]+)\]\s*$', result_part)
+                     if inline_unit_match and not unit_comment:
+                         unit_comment = inline_unit_match.group(1).strip()
+                         result_part = result_part[:inline_unit_match.start()].strip()
+
                      calculations.append(
                         Calculation(
                             latex=line,
                             operation=":=_==",
                             target=lhs,
                             original_result=result_part,
-                            unit_comment=math_block.unit_comment
+                            unit_comment=unit_comment
                         )
                      )
                 else:
@@ -277,13 +285,24 @@ class Lexer:
             eval_match = re.search(r'^\s*(.*?)\s*==\s*(.*)', line, re.DOTALL)
             if eval_match:
                 result_part = eval_match.group(2).strip()
+
+                # Check for inline unit hint: [unit] at end of result_part
+                # This provides a cleaner alternative to HTML comment syntax
+                unit_comment = math_block.unit_comment
+                inline_unit_match = re.search(r'\[([^\]]+)\]\s*$', result_part)
+                if inline_unit_match and not unit_comment:
+                    # Extract unit from inline hint (HTML comment takes precedence)
+                    unit_comment = inline_unit_match.group(1).strip()
+                    # Remove [unit] from result_part for cleaner output
+                    result_part = result_part[:inline_unit_match.start()].strip()
+
                 calculations.append(
                     Calculation(
                         latex=line,
                         operation="==",
                         target=None,
                         original_result=result_part,
-                        unit_comment=math_block.unit_comment
+                        unit_comment=unit_comment
                     )
                 )
                 continue
