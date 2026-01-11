@@ -1,90 +1,83 @@
 # Technology Stack
 
-**Analysis Date:** 2026-01-10
+**Analysis Date:** 2026-01-11
 
 ## Languages
 
 **Primary:**
-- Python 3.10+ - All application code (CLI tool, core engine, parser, evaluator)
+- Python 3.10+ - All application code
 
 **Secondary:**
-- Markdown - Documentation and examples
-- TOML - Configuration files (pyproject.toml, .livemathtex.toml)
+- Markdown - Documentation and test fixtures
 
 ## Runtime
 
 **Environment:**
-- Python 3.10, 3.11, or 3.12 (requires-python: ">=3.10")
+- Python 3.10, 3.11, 3.12 supported
 - No browser runtime (CLI tool only)
-- No server runtime (standalone executable)
 
 **Package Manager:**
-- pip (Python package manager)
-- pyproject.toml for project metadata and dependencies
-- No lockfile (pip freeze for reproducible installs)
+- pip with setuptools
+- `pyproject.toml` for project configuration
 
 ## Frameworks
 
 **Core:**
-- None (vanilla Python with standard library + dependencies)
+- None (vanilla Python CLI)
 
 **Testing:**
-- pytest 7.0+ - Unit and integration tests
-- pytest-cov 4.0+ - Coverage reporting
+- pytest >=7.0 - Unit and snapshot tests
+- pytest-cov >=4.0 - Coverage reporting
 
 **Build/Dev:**
-- setuptools 61.0+ - Package building and distribution
-- black 23.0+ - Code formatting
-- ruff 0.1.0+ - Linting
-- mypy 1.0+ - Type checking
-- isort 5.12+ - Import sorting
+- setuptools >=61.0 - Package building
+- black >=23.0 - Code formatting
+- ruff >=0.1.0 - Linting
+- mypy >=1.0 - Type checking
+- isort >=5.12 - Import sorting
 
 ## Key Dependencies
 
 **Critical:**
-- sympy 1.12+ - Symbolic mathematics engine (core calculation engine)
-- latex2sympy2 (fork) - LaTeX to SymPy parser (from git+https://github.com/MarkMichiels/latex2sympy.git)
-- pint 0.23+ - Unit handling and conversion (primary unit backend)
-- numpy 1.24+ - Numeric operations
+- sympy >=1.12 - Core math engine, symbolic computation
+- latex2sympy2 (forked) - LaTeX to SymPy parsing (`git+https://github.com/MarkMichiels/latex2sympy.git`)
+- pint >=0.23 - Unit handling, registry, conversion (primary unit backend)
+- numpy >=1.24 - Numeric operations
+
+**CLI:**
+- click >=8.1 - Command-line interface
+- rich >=13.0 - Terminal output styling
 
 **Infrastructure:**
-- click 8.1+ - CLI argument parsing and command structure
-- rich 13.0+ - Terminal output styling and formatting
-- watchdog 3.0+ - File watching for watch mode (future feature)
-- tomli 2.0+ - TOML parsing (for Python < 3.11, built-in tomllib for 3.11+)
+- watchdog >=3.0 - Watch mode file monitoring
+- tomli >=2.0 - TOML parsing (Python < 3.11)
 
 ## Configuration
 
 **Environment:**
-- No environment variables required for basic operation
-- Configuration via hierarchical system:
-  1. CLI -o flag (output path only)
-  2. Document directives (`<!-- livemathtex: ... -->`)
-  3. Local config (`.livemathtex.toml` in document directory)
-  4. Project config (`pyproject.toml [tool.livemathtex]`)
-  5. User config (`~/.config/livemathtex/config.toml`)
-  6. Defaults (hardcoded in `config.py`)
+- No environment variables required
+- Configuration via TOML files and document directives
 
 **Build:**
-- `pyproject.toml` - Project metadata, dependencies, build config
-- `setup.py` - Not used (setuptools.build_meta backend)
-- `.livemathtex.toml` - Per-document configuration (optional)
+- `pyproject.toml` - Project metadata, dependencies, tool configs
+
+**Tool Configuration (in pyproject.toml):**
+- `[tool.black]` - Line length 100
+- `[tool.ruff]` - Linting rules
+- `[tool.pytest.ini_options]` - Test paths, coverage
+- `[tool.mypy]` - Type checking config
 
 ## Platform Requirements
 
 **Development:**
 - macOS/Linux/Windows (any platform with Python 3.10+)
-- No external dependencies beyond Python packages
-- Optional: VS Code or Cursor for editor integration
+- Symlinks to proviron for shared tooling (optional)
 
 **Production:**
-- Distributed as Python package via pip
-- Installed via `pip install -e .` (development) or `pip install livemathtex` (production)
-- CLI command: `livemathtex` (via entry point in pyproject.toml)
-- Runs on user's Python installation
+- Installed via `pip install -e .`
+- CLI entry point: `livemathtex`
 
 ---
 
-*Stack analysis: 2026-01-10*
+*Stack analysis: 2026-01-11*
 *Update after major dependency changes*
-

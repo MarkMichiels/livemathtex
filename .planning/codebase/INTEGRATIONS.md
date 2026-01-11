@@ -1,153 +1,109 @@
 # External Integrations
 
-**Analysis Date:** 2026-01-10
+**Analysis Date:** 2026-01-11
 
 ## APIs & External Services
 
-**None:**
-- No external APIs or services
-- Standalone CLI tool with no network dependencies
-- All processing is local
+**Not applicable** - LiveMathTeX is a standalone CLI tool with no external API calls.
 
 ## Data Storage
 
-**None:**
-- No databases
-- No file storage services
-- File I/O: Local filesystem only (read input.md, write output.md)
+**Databases:**
+- None - File-based processing only
 
-**File Operations:**
-- Input: Read markdown files from local filesystem
-- Output: Write markdown files to local filesystem
-- IR JSON: Optional debug output (`.lmt.json` files)
+**File Storage:**
+- Local filesystem only
+- Input: Markdown files (`.md`)
+- Output: Processed Markdown files
+- Debug: IR JSON files (`.lmt.json`)
+
+**Caching:**
+- None - Each run processes fresh
+
+## Third-Party Libraries (Key Integrations)
+
+**latex2sympy2 (Forked):**
+- Purpose: LaTeX to SymPy expression parsing
+- Integration: Git dependency from `https://github.com/MarkMichiels/latex2sympy.git`
+- Why forked: DIFFERENTIAL bug fix not in upstream
+- Usage: `src/livemathtex/engine/evaluator.py`
+
+**SymPy:**
+- Purpose: Symbolic mathematics engine
+- Integration: Direct Python import
+- Usage: Calculation evaluation, symbolic differentiation, expression manipulation
+- Files: `src/livemathtex/engine/evaluator.py`
+
+**Pint:**
+- Purpose: Unit handling (parsing, validation, conversion)
+- Integration: Direct Python import, singleton UnitRegistry
+- Usage: Single source of truth for unit recognition
+- Files: `src/livemathtex/engine/pint_backend.py`
+- Custom units: Registered dynamically via `===` syntax
+
+**Click:**
+- Purpose: CLI framework
+- Integration: Direct Python import
+- Usage: Command definitions, argument parsing
+- Files: `src/livemathtex/cli.py`
+
+**Rich:**
+- Purpose: Terminal output styling
+- Integration: Direct Python import
+- Usage: Colored output, progress indicators
+
+**Watchdog:**
+- Purpose: File system monitoring (watch mode)
+- Integration: Direct Python import
+- Usage: Auto-rebuild on file changes (planned)
 
 ## Authentication & Identity
 
-**None:**
-- No authentication required
-- No user accounts
-- No identity providers
-- CLI tool runs with user's local permissions
+**Not applicable** - No authentication required.
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- None (CLI tool, not a service)
-- Errors collected in IR.errors list
-- Displayed to console via Click.echo
+- None - Errors displayed inline and collected in IR
 
-**Analytics:**
-- None
-
-**Logging:**
-- Console output only (stdout/stderr)
-- Stats displayed after processing (symbols, definitions, evaluations, errors)
-- No file logging, no remote logging
+**Logs:**
+- stdout/stderr only via click.echo
+- No log files or external logging services
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Distributed as Python package via PyPI (future) or git
-- Installed via `pip install -e .` (development) or `pip install livemathtex` (production)
-- Runs on user's local Python installation
+- Not applicable - Local CLI tool
+- Distributed as pip-installable package
 
 **CI Pipeline:**
-- Not configured (no CI/CD setup documented)
-- Tests run locally via pytest
-- No automated deployment
+- Not configured (manual testing currently)
 
 ## Environment Configuration
 
 **Development:**
 - Required: Python 3.10+
-- No environment variables required
-- Configuration via files (see Configuration section)
+- Virtual environment: `.venv/` (local)
+- Dependencies: `pip install -e ".[dev]"`
 
 **Production:**
-- Same as development (no environment differences)
-- User installs via pip
-- Configuration via same hierarchical system
+- Same as development
+- Install: `pip install -e .`
+- CLI available as `livemathtex`
 
-## Webhooks & Callbacks
+## Symlinks to Proviron
 
-**None:**
-- No webhooks
-- No callbacks
-- No external triggers
+**Shared Tooling:**
+- `tools/` → `/home/mark/Repositories/proviron/tools`
+- `scripts/` → `/home/mark/Repositories/proviron/scripts`
+- `.crossnote/` → `/home/mark/Repositories/proviron/.crossnote`
 
-## External Libraries (Dependencies)
-
-**Mathematical Libraries:**
-- **SymPy 1.12+** - Symbolic mathematics engine
-  - Purpose: Core calculation engine
-  - Usage: Expression evaluation, symbolic math, unit conversions
-  - Integration: Direct import, no API calls
-
-- **latex2sympy2 (fork)** - LaTeX to SymPy parser
-  - Purpose: Parse LaTeX expressions to SymPy
-  - Source: `git+https://github.com/MarkMichiels/latex2sympy.git`
-  - Integration: Direct import, function calls
-
-- **Pint 0.23+** - Unit handling library
-  - Purpose: Unit registry, validation, conversion
-  - Usage: Primary unit backend (replaces SymPy units)
-  - Integration: Direct import, UnitRegistry instance
-
-- **NumPy 1.24+** - Numeric operations
-  - Purpose: Numeric calculations
-  - Usage: Used by SymPy/Pint internally
-  - Integration: Indirect (via SymPy/Pint)
-
-**CLI Libraries:**
-- **Click 8.1+** - CLI framework
-  - Purpose: Command-line argument parsing
-  - Usage: Command definitions, help text, output formatting
-  - Integration: Decorator-based command registration
-
-- **Rich 13.0+** - Terminal formatting
-  - Purpose: Colored output, tables (if used)
-  - Usage: Terminal styling
-  - Integration: Direct import (if used)
-
-**File Watching:**
-- **Watchdog 3.0+** - File system monitoring
-  - Purpose: Watch mode (future feature)
-  - Usage: Monitor input files for changes
-  - Integration: Not yet implemented
-
-**Configuration:**
-- **tomli 2.0+** - TOML parsing (Python < 3.11)
-  - Purpose: Parse TOML config files
-  - Usage: Configuration loading
-  - Integration: Conditional import (built-in tomllib for Python 3.11+)
-
-## Editor Integration
-
-**VS Code / Cursor:**
-- VS Code tasks configured (bind to F9)
-- Cursor command wrappers:
-  - `/livemathtex` - Process current file
-  - `/livemathtex-setup` - Setup instructions
-- Location: `.cursor/commands/` directory
-- Documentation: `docs/EDITOR_INTEGRATION.md`
-
-## External Tools (User's Responsibility)
-
-**PDF Export:**
-- Pandoc (not included, user installs)
-- Usage: `pandoc output.md -o output.pdf`
-- Out of scope for livemathtex
-
-**Markdown Preview:**
-- User's markdown previewer (VS Code, Cursor, etc.)
-- Out of scope for livemathtex
-
-**Plotting:**
-- Matplotlib, etc. (not included)
-- Out of scope for livemathtex
+**Setup:**
+```bash
+./setup_symlinks.sh  # Creates symlinks to proviron
+```
 
 ---
 
-*Integration audit: 2026-01-10*
+*Integration audit: 2026-01-11*
 *Update when adding/removing external services*
-
