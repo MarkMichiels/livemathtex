@@ -28,6 +28,223 @@ Output:  $v == 27.78\ \text{m/s}$ <!-- [m/s] -->
 
 ---
 
+## Library Usage (Python API)
+
+LiveMathTeX can be used as a Python library for programmatic document processing.
+
+### Installation
+
+```bash
+pip install -e .  # or pip install livemathtex when published
+```
+
+### Quick Start
+
+```python
+from livemathtex import process_text
+
+content = """
+$m := 5\\ \\text{kg}$
+$a := 9.81\\ \\text{m/s}^2$
+$F := m \\cdot a ==$
+"""
+
+output, ir = process_text(content)
+print(output)
+# $m := 5\ \text{kg}$
+# $a := 9.81\ \text{m/s}^2$
+# $F := m \cdot a == 49.05\ \text{kg} \cdot \text{m} / \text{s}^{2}$
+```
+
+### Public API
+
+#### Processing Functions
+
+**`process_text(content: str, source: str = "<string>") -> tuple[str, LivemathIR]`**
+
+Process markdown content from a string.
+
+- `content`: Markdown with LiveMathTeX calculations
+- `source`: Source identifier for debugging (optional)
+- Returns: `(rendered_output, ir)` tuple
+
+```python
+from livemathtex import process_text
+
+output, ir = process_text("$x := 5$\n$y := x^2 ==$")
+print(output)  # Markdown with results
+print(ir.stats)  # Processing statistics
+```
+
+**`process_text_v3(content: str, source: str = "<string>", config: LivemathConfig = None) -> tuple[str, LivemathIRV3]`**
+
+Process with v3.0 IR schema (Pint-based units, detailed custom unit metadata).
+
+```python
+from livemathtex import process_text_v3, LivemathConfig
+
+config = LivemathConfig(digits=6)
+output, ir = process_text_v3("$x := 123.456789 ==$", config=config)
+```
+
+**`process_file(input_path: str, output_path: str = None, verbose: bool = False, ir_output_path: str = None) -> LivemathIR`**
+
+Process a markdown file directly.
+
+- `input_path`: Path to input markdown file
+- `output_path`: Path for output file (default: uses config or timestamped)
+- `verbose`: If True, write IR JSON file
+- `ir_output_path`: Custom path for IR JSON
+- Returns: `LivemathIR` with all symbol values
+
+```python
+from livemathtex import process_file
+
+ir = process_file("calculation.md", output_path="result.md", verbose=True)
+print(f"Processed {ir.stats['symbols']} symbols")
+```
+
+#### Configuration
+
+**`LivemathConfig`**
+
+Configuration options for processing.
+
+```python
+from livemathtex import LivemathConfig
+
+config = LivemathConfig(
+    digits=4,           # Significant figures (default: 4)
+    format="general",   # general/decimal/scientific/engineering
+    output="inplace",   # Output mode: inplace/timestamped/path
+    json=False,         # Generate IR JSON file
+)
+```
+
+Configuration hierarchy (highest priority first):
+1. Expression-level: `$x ==$ <!-- digits:6 -->`
+2. Document directives: `<!-- livemathtex: digits=6 -->`
+3. Config file: `.livemathtex.toml`
+4. Passed `LivemathConfig` object
+5. Defaults
+
+#### Result Types
+
+**`LivemathIR`** (v2.0)
+
+Intermediate Representation with symbol values and errors.
+
+```python
+from livemathtex import process_text
+
+output, ir = process_text(content)
+
+# Access symbols
+for name, entry in ir.symbols.items():
+    print(f"{name}: {entry.original.value} {entry.original.unit}")
+    print(f"  SI: {entry.si.value} {entry.si.unit}")
+    print(f"  Valid: {entry.valid}")
+
+# Access errors
+for error in ir.errors:
+    print(f"Line {error.line}: {error.message}")
+
+# Processing stats
+print(ir.stats)
+# {'symbols': 3, 'definitions': 2, 'evaluations': 1, 'errors': 0, ...}
+```
+
+**`LivemathIRV3`** (v3.0)
+
+Enhanced IR with Pint-based unit conversion and custom unit metadata.
+
+```python
+from livemathtex import process_text_v3
+
+output, ir = process_text_v3(content)
+
+# Custom units with full metadata
+for name, unit in ir.custom_units.items():
+    print(f"{name}: {unit.type} - {unit.pint_definition}")
+
+# Symbols with Pint conversion info
+for id, entry in ir.symbols.items():
+    print(f"{entry.latex_name}:")
+    print(f"  Original: {entry.original.value} {entry.original.unit}")
+    print(f"  Base: {entry.base.value} {entry.base.unit}")
+    print(f"  Conversion OK: {entry.conversion_ok}")
+```
+
+### Examples
+
+#### Basic Text Processing
+
+```python
+from livemathtex import process_text
+
+content = """
+# Physics Calculation
+
+$m := 10\\ \\text{kg}$
+$v := 5\\ \\text{m/s}$
+$E_k := \\frac{1}{2} m v^2 ==$
+"""
+
+output, ir = process_text(content)
+print(output)
+```
+
+#### Processing with Custom Config
+
+```python
+from livemathtex import process_text_v3, LivemathConfig
+
+# High precision engineering format
+config = LivemathConfig(digits=6, format="engineering")
+
+content = "$P := 1234567.89 ==$"
+output, ir = process_text_v3(content, config=config)
+```
+
+#### Accessing Symbol Values
+
+```python
+from livemathtex import process_text
+
+content = """
+$Q := 50\\ \\text{m}^3/\\text{h}$
+$\\rho := 1000\\ \\text{kg/m}^3$
+$\\dot{m} := Q \\cdot \\rho ==$
+"""
+
+output, ir = process_text(content)
+
+# Get mass flow rate value
+for name, entry in ir.symbols.items():
+    if "dot{m}" in name:
+        print(f"Mass flow: {entry.si.value} {entry.si.unit}")
+```
+
+#### Error Handling
+
+```python
+from livemathtex import process_text
+
+content = """
+$x := undefined_var + 5 ==$
+"""
+
+output, ir = process_text(content)
+
+if ir.errors:
+    for error in ir.errors:
+        print(f"Error on line {error.line}: {error.message}")
+else:
+    print("Processing successful")
+```
+
+---
+
 ## Workflow
 
 ```
