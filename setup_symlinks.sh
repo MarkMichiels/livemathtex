@@ -2,8 +2,10 @@
 # setup_symlinks.sh - Setup symlinks to proviron for shared development standards
 #
 # This script creates symlinks to proviron's:
-# - Cursor rules (coding standards, documentation guidelines)
-# - Shared tools (optional)
+# - Shared tools and scripts (optional)
+#
+# Note: Cursor rules are NOT symlinked - they're available via multi-root workspace.
+# Local rules can be added directly to .cursor/rules/ (tracked in git).
 #
 # LiveMathTeX is a standalone project, but during development in the
 # axabio workspace, we benefit from shared coding standards.
@@ -167,7 +169,10 @@ fi
 echo ""
 echo "=== Setup Complete ==="
 echo ""
-echo "Symlinks created. LiveMathTeX now uses proviron's coding standards."
+echo "Symlinks created. LiveMathTeX now uses proviron's tools and scripts."
+echo ""
+echo "Note: Cursor rules are available via multi-root workspace."
+echo "      Local rules can be added directly to .cursor/rules/ (tracked in git)."
 echo ""
 echo "To update symlinks after proviron changes:"
 echo "  ./setup_symlinks.sh"
