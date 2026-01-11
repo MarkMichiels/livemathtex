@@ -133,10 +133,11 @@ If you're using Cursor, this repo also includes command wrappers:
 |---|---|
 | [SETUP.md](docs/SETUP.md) | Installation |
 | [USAGE.md](docs/USAGE.md) | Syntax reference (units, tables, config) |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical design (IR, parser/engine/renderer) |
 | [BACKGROUND.md](docs/BACKGROUND.md) | Research and alternatives |
-| [BACKLOG.md](docs/BACKLOG.md) | Issues, features & backlog |
-| [ROADMAP.md](docs/ROADMAP.md) | Development phases |
+| [EDITOR_INTEGRATION.md](docs/EDITOR_INTEGRATION.md) | VS Code/Cursor setup |
+| [ROADMAP.md](.planning/ROADMAP.md) | Development phases (GSD planning) |
+| [ARCHITECTURE.md](.planning/codebase/ARCHITECTURE.md) | Technical design (IR, parser/engine/renderer) |
+| [ISSUES.md](.planning/ISSUES.md) | Open issues and enhancements |
 
 ---
 

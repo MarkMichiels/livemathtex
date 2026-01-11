@@ -849,7 +849,7 @@ Shows all symbols, their values, and any errors in a human-readable format.
 
 ### IR Schema v2.0 (Legacy)
 
-Version 2.0 is still supported for backward compatibility. See [ARCHITECTURE.md](ARCHITECTURE.md) for details.
+Version 2.0 is still supported for backward compatibility. See [ARCHITECTURE.md](../.planning/codebase/ARCHITECTURE.md) for details.
 
 ---
 
@@ -1059,7 +1059,7 @@ $a_1 := 10$                <!-- OK: not 'a' but 'a_1' -->
 $mass_{obj} := 2\ kg$      <!-- OK: not 'mass' but 'mass_obj' -->
 ```
 
-See also: [PINT_MIGRATION_ANALYSIS.md](PINT_MIGRATION_ANALYSIS.md) for details on unit validation.
+See also: [PINT_MIGRATION_ANALYSIS.md](../.planning/history/PINT_MIGRATION_ANALYSIS.md) for details on unit validation.
 
 ---
 
@@ -1139,7 +1139,7 @@ Until import is implemented, copy unit definitions to the top of each document.
 
 See `examples/unit-library/input.md` for a comprehensive unit library template.
 
-**Status:** See [ROADMAP.md - Phase 2.3](ROADMAP.md) for implementation timeline.
+**Status:** See [ROADMAP.md - Phase 2.3](../.planning/ROADMAP.md) for implementation timeline.
 
 ---
 
