@@ -11,11 +11,11 @@
       "latex_name": "m_1",
       "original": {
         "value": 10.0,
-        "unit": null
+        "unit": "kg"
       },
       "base": {
         "value": 10.0,
-        "unit": null
+        "unit": "kilogram"
       },
       "conversion_ok": true,
       "line": 0
@@ -24,11 +24,11 @@
       "latex_name": "a_1",
       "original": {
         "value": 9.81,
-        "unit": null
+        "unit": "m/s²"
       },
       "base": {
         "value": 9.81,
-        "unit": null
+        "unit": "meter / second ** 2"
       },
       "conversion_ok": true,
       "line": 0
@@ -36,11 +36,11 @@
     "v_{2}": {
       "latex_name": "F_1",
       "original": {
-        "value": 98.1,
-        "unit": "kg·m/s^2"
+        "value": 98.10000000000001,
+        "unit": "kg · m/s^2"
       },
       "base": {
-        "value": 98.1,
+        "value": 98.10000000000001,
         "unit": "kilogram * meter / second ** 2"
       },
       "conversion_ok": true,
@@ -50,11 +50,11 @@
       "latex_name": "mass_{obj}",
       "original": {
         "value": 25.0,
-        "unit": null
+        "unit": "kg"
       },
       "base": {
         "value": 25.0,
-        "unit": null
+        "unit": "kilogram"
       },
       "conversion_ok": true,
       "line": 0
@@ -63,11 +63,11 @@
       "latex_name": "accel_{g}",
       "original": {
         "value": 9.81,
-        "unit": null
+        "unit": "m/s²"
       },
       "base": {
         "value": 9.81,
-        "unit": null
+        "unit": "meter / second ** 2"
       },
       "conversion_ok": true,
       "line": 0
@@ -76,7 +76,7 @@
       "latex_name": "F_2",
       "original": {
         "value": 245.25,
-        "unit": "kg·m/s^2"
+        "unit": "kg · m/s^2"
       },
       "base": {
         "value": 245.25,
@@ -89,7 +89,7 @@
       "latex_name": "F_2N",
       "original": {
         "value": 245.25,
-        "unit": "kg·m/s^2"
+        "unit": "kg · m/s^2"
       },
       "base": {
         "value": 245.25,
@@ -102,7 +102,7 @@
       "latex_name": "F_2kN",
       "original": {
         "value": 245.25,
-        "unit": "kg·m/s^2"
+        "unit": "kg · m/s^2"
       },
       "base": {
         "value": 245.25,
@@ -140,8 +140,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-08 00:29:07",
-    "duration": "0.38s",
+    "last_run": "2026-01-11 16:58:12",
+    "duration": "0.26s",
     "symbols": 10,
     "custom_units": 0,
     "definitions": 12,

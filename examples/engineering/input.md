@@ -41,7 +41,7 @@ Heat duty (W):
 $Q := 150000$
 
 Overall heat transfer coefficient (W/m²·K):
-$U := 500$
+$U_0 := 500$
 
 ---
 
@@ -84,7 +84,7 @@ $$LMTD := \frac{\Delta T_1 - \Delta T_2}{\ln(ratio)} ==$$
 
 From heat exchanger equation: $Q = U \cdot A \cdot LMTD$
 
-$$A := \frac{Q}{U \cdot LMTD} ==$$
+$$A_0 := \frac{Q}{U_0 \cdot LMTD} ==$$
 
 ---
 
@@ -109,7 +109,7 @@ $Qmax := Cmin \cdot (T_{h,in} - T_{c,in}) ==$
 $$\varepsilon := \frac{Q}{Qmax} ==$$
 
 ### Number of Transfer Units (NTU)
-$$NTU := \frac{U \cdot A}{Cmin} ==$$
+$$NTU := \frac{U_0 \cdot A_0}{Cmin} ==$$
 
 ---
 
@@ -117,7 +117,7 @@ $$NTU := \frac{U \cdot A}{Cmin} ==$$
 
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
-| Heat transfer area | $A$ | $ $ <!-- value:A :2 --> | m² |
+| Heat transfer area | $A_0$ | $ $ <!-- value:A_0 :2 --> | m² |
 | Hot outlet temp | $T_{h,out}$ | $ $ <!-- value:T_{h,out} :1 --> | °C |
 | Cold outlet temp | $T_{c,out}$ | $ $ <!-- value:T_{c,out} :1 --> | °C |
 | LMTD | $LMTD$ | $ $ <!-- value:LMTD :2 --> | K |
@@ -132,6 +132,6 @@ Tube length (m):
 $length := 2$
 
 Area per meter:
-$A_m := \frac{A}{length} ==$
+$A_m := \frac{A_0}{length} ==$
 
 **Conclusion:** The design meets thermal requirements with calculated effectiveness.

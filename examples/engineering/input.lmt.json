@@ -86,6 +86,19 @@
       "line": 0
     },
     "v_{6}": {
+      "latex_name": "U_0",
+      "original": {
+        "value": 500.0,
+        "unit": null
+      },
+      "base": {
+        "value": 500.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{7}": {
       "latex_name": "\\Delta T_h",
       "original": {
         "value": 17.916865742952698,
@@ -98,7 +111,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{7}": {
+    "v_{8}": {
       "latex_name": "T_{h,out}",
       "original": {
         "value": 72.0831342570473,
@@ -111,7 +124,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{8}": {
+    "v_{9}": {
       "latex_name": "\\Delta T_c",
       "original": {
         "value": 11.944577161968466,
@@ -124,7 +137,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{9}": {
+    "v_{10}": {
       "latex_name": "T_{c,out}",
       "original": {
         "value": 31.944577161968468,
@@ -137,7 +150,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{10}": {
+    "v_{11}": {
       "latex_name": "\\Delta T_1",
       "original": {
         "value": 58.05542283803153,
@@ -150,7 +163,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{11}": {
+    "v_{12}": {
       "latex_name": "\\Delta T_2",
       "original": {
         "value": 52.083134257047305,
@@ -163,7 +176,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{12}": {
+    "v_{13}": {
       "latex_name": "ratio",
       "original": {
         "value": 1.1146683790477936,
@@ -176,7 +189,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{13}": {
+    "v_{14}": {
       "latex_name": "LMTD",
       "original": {
         "value": 55.015261373689036,
@@ -189,7 +202,20 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{14}": {
+    "v_{15}": {
+      "latex_name": "A_0",
+      "original": {
+        "value": 5.453032349737677,
+        "unit": null
+      },
+      "base": {
+        "value": 5.453032349737677,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{16}": {
       "latex_name": "C_h",
       "original": {
         "value": 8372.0,
@@ -202,7 +228,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{15}": {
+    "v_{17}": {
       "latex_name": "C_c",
       "original": {
         "value": 12558.0,
@@ -215,7 +241,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{16}": {
+    "v_{18}": {
       "latex_name": "Cmin",
       "original": {
         "value": 8372.0,
@@ -228,7 +254,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{17}": {
+    "v_{19}": {
       "latex_name": "Cmax",
       "original": {
         "value": 12558.0,
@@ -241,7 +267,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{18}": {
+    "v_{20}": {
       "latex_name": "C_r",
       "original": {
         "value": 0.6666666666666666,
@@ -254,7 +280,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{19}": {
+    "v_{21}": {
       "latex_name": "Qmax",
       "original": {
         "value": 586040.0,
@@ -267,7 +293,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{20}": {
+    "v_{22}": {
       "latex_name": "\\varepsilon",
       "original": {
         "value": 0.2559552248993243,
@@ -280,7 +306,20 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{21}": {
+    "v_{23}": {
+      "latex_name": "NTU",
+      "original": {
+        "value": 0.3256708283407595,
+        "unit": null
+      },
+      "base": {
+        "value": 0.3256708283407595,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{24}": {
       "latex_name": "length",
       "original": {
         "value": 2.0,
@@ -292,18 +331,31 @@
       },
       "conversion_ok": true,
       "line": 0
+    },
+    "v_{25}": {
+      "latex_name": "A_m",
+      "original": {
+        "value": 2.7265161748688387,
+        "unit": null
+      },
+      "base": {
+        "value": 2.7265161748688387,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-08 00:29:04",
-    "duration": "0.52s",
-    "symbols": 22,
+    "last_run": "2026-01-11 16:58:16",
+    "duration": "0.45s",
+    "symbols": 26,
     "custom_units": 0,
     "definitions": 26,
     "evaluations": 16,
     "symbolic": 0,
     "value_refs": 6,
-    "errors": 6
+    "errors": 0
   }
 }

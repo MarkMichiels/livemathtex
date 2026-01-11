@@ -41,9 +41,7 @@ Heat duty (W):
 $Q := 150000$
 
 Overall heat transfer coefficient (W/m²·K):
-$U := 500
-\\ \color{red}{\text{
-    Error: Variable name 'U' conflicts with unit 'enzyme\_unit'. Use a subscript like 'U\_1' or 'U\_var' to disambiguate.}}$
+$U_0 := 500$
 
 ---
 
@@ -86,9 +84,7 @@ $$LMTD := \frac{\Delta T_1 - \Delta T_2}{\ln(ratio)} == 55.02$$
 
 From heat exchanger equation: $Q = U \cdot A \cdot LMTD$
 
-$$A := \frac{Q}{U \cdot LMTD} ==
-\\ \color{red}{\text{
-    Error: Undefined variable 'U' in formula. Note: 'U' is also a unit (unit), but formulas cannot mix variables and units. Define 'U' first with a subscript like U\_\{0\} or U\_\{acc\}.}}$$
+$$A_0 := \frac{Q}{U_0 \cdot LMTD} == 5.453$$
 
 ---
 
@@ -113,9 +109,7 @@ $Qmax := Cmin \cdot (T_{h,in} - T_{c,in}) == 586\,000$
 $$\varepsilon := \frac{Q}{Qmax} == 0.256$$
 
 ### Number of Transfer Units (NTU)
-$$NTU := \frac{U \cdot A}{Cmin} ==
-\\ \color{red}{\text{
-    Error: Undefined variable 'A' in formula. Note: 'A' is also a unit (ampere), but formulas cannot mix variables and units. Define 'A' first with a subscript like A\_\{0\} or A\_\{acc\}.}}$$
+$$NTU := \frac{U_0 \cdot A_0}{Cmin} == 0.3257$$
 
 ---
 
@@ -123,16 +117,12 @@ $$NTU := \frac{U \cdot A}{Cmin} ==
 
 | Parameter | Symbol | Value | Unit |
 |-----------|--------|-------|------|
-| Heat transfer area | $A$ | $
-\\ \color{red}{\text{
-    Error: Undefined variable: A}}$ <!-- value:A :2 --> | m² |
+| Heat transfer area | $A_0$ | $5.5$ <!-- value:A_0 :2 --> | m² |
 | Hot outlet temp | $T_{h,out}$ | $70$ <!-- value:T_{h,out} :1 --> | °C |
 | Cold outlet temp | $T_{c,out}$ | $30$ <!-- value:T_{c,out} :1 --> | °C |
 | LMTD | $LMTD$ | $55$ <!-- value:LMTD :2 --> | K |
 | Effectiveness | $\varepsilon$ | $0.256$ <!-- value:\varepsilon :3 --> | - |
-| NTU | $NTU$ | $
-\\ \color{red}{\text{
-    Error: Undefined variable: NTU}}$ <!-- value:NTU :3 --> | - |
+| NTU | $NTU$ | $0.326$ <!-- value:NTU :3 --> | - |
 
 ---
 
@@ -142,12 +132,10 @@ Tube length (m):
 $length := 2$
 
 Area per meter:
-$A_m := \frac{A}{length} ==
-\\ \color{red}{\text{
-    Error: Undefined variable 'A' in formula. Note: 'A' is also a unit (ampere), but formulas cannot mix variables and units. Define 'A' first with a subscript like A\_\{0\} or A\_\{acc\}.}}$
+$A_m := \frac{A_0}{length} == 2.727$
 
 **Conclusion:** The design meets thermal requirements with calculated effectiveness.
 
 ---
 
-> *livemathtex: 2026-01-08 02:33:21 | 26 definitions, 16 evaluations, 6 value refs | 6 errors | 0.42s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 16:58:16 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.45s* <!-- livemathtex-meta -->

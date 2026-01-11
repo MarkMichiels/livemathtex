@@ -22,8 +22,8 @@ Writing `m := 10 · kg` produces:
 
 ### Option 1: Subscript notation (m_1, t_1, etc.)
 
-$m_1 := 10 \cdot kg$
-$a_1 := 9.81 \cdot \frac{m}{s^2}$
+$m_1 := 10\ kg$
+$a_1 := 9.81\ \frac{m}{s^2}$
 
 Calculate force:
 $F_1 := m_1 \cdot a_1 ==$
@@ -34,8 +34,8 @@ Note: Even descriptive names can conflict with Pint's unit database.
 For example, `mass` is recognized as "milliarcsecond" (astronomy unit).
 Always use subscripts to be safe.
 
-$mass_{obj} := 25 \cdot kg$
-$accel_{g} := 9.81 \cdot \frac{m}{s^2}$
+$mass_{obj} := 25\ kg$
+$accel_{g} := 9.81\ \frac{m}{s^2}$
 
 Calculate force:
 $F_2 := mass_{obj} \cdot accel_{g} ==$
@@ -60,7 +60,7 @@ The ratio should be 2.5 (25 kg / 10 kg).
 
 This line tries to define `m` which conflicts with the SI unit meter:
 
-$m := 10 \cdot kg$
+$m := 10\ kg$
 
 ### Error 2: Undefined variable in formula
 
