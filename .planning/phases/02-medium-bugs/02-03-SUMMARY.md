@@ -28,7 +28,7 @@ key-files:
     - src/livemathtex/engine/pint_backend.py
     - examples/error-handling/input.md
     - examples/error-handling/output.md
-    - docs/BACKLOG.md
+    - .planning/ISSUES.md
 
 key-decisions:
   - "Use as_coeff_Mul() to extract full unit expression, not just first factor"
@@ -81,7 +81,7 @@ Each task was committed atomically:
 - `src/livemathtex/engine/evaluator.py` - Added dimensional check methods
 - `examples/error-handling/input.md` - Added Category 5: Dimension Mismatch
 - `examples/error-handling/output.md` - Regenerated with new examples
-- `docs/BACKLOG.md` - Updated ISSUE-006 status to RESOLVED
+- `.planning/ISSUES.md` - Updated ISS-006 status to RESOLVED
 
 ## TDD Approach
 
@@ -112,11 +112,11 @@ None significant.
 ## Phase 2 Completion
 
 Phase 2 is now complete with all 3 issues resolved:
-- ISSUE-004: Directive parser skips code blocks
-- ISSUE-005: LaTeX unit cleaning for Pint
-- ISSUE-006: Dimensional compatibility checking
+- ISS-004: Directive parser skips code blocks
+- ISS-005: LaTeX unit cleaning for Pint
+- ISS-006: Dimensional compatibility checking
 
-Ready for Phase 3: API Features (FEAT-001, FEAT-002)
+Ready for Phase 3: API Features (ISS-010, ISS-011)
 
 ---
 *Phase: 02-medium-bugs*

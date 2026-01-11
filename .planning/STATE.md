@@ -9,7 +9,7 @@ See: .planning/PROJECT.md (updated 2026-01-11)
 
 ## Current Position
 
-Phase: 2 of 3 (Bug Fixes) - Complete
+Phase: 2 of 4 (Bug Fixes) - Complete
 Plan: 3 of 3 in current phase
 Status: Phase 2 complete
 Last activity: 2026-01-11 — Completed 02-03-PLAN.md
@@ -42,7 +42,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
 - Focus on bugs before features (critical bugs undermine trust)
-- TDD approach for ISSUE-003 (complex error handling)
+- TDD approach for ISS-003 (complex error handling)
 - **01-01:** Remove unit fallback entirely - simpler code, clearer semantics
 - **01-01:** Breaking change acceptable - update examples to use correct syntax
 - **02-01:** Simple regex approach for code block stripping (temporary copy pattern)

@@ -26,11 +26,11 @@ Calculations must evaluate correctly with proper error handling - a failed varia
 
 <!-- Current scope. Building toward these. -->
 
-- [ ] ISSUE-003: Failed variable definition blocks unit fallback (Critical)
-- [ ] ISSUE-004: Directive parser ignores code blocks (Medium)
-- [ ] ISSUE-005: LaTeX-wrapped units parsed correctly (Medium)
-- [ ] FEAT-001: Public Python API exposed via `__init__.py`
-- [ ] FEAT-002: `livemathtex clear` command to reset calculations
+- [x] ISS-003: Failed variable definition blocks unit fallback (Critical) - Fixed in Phase 1
+- [x] ISS-004: Directive parser ignores code blocks (Medium) - Fixed in Phase 2
+- [x] ISS-005: LaTeX-wrapped units parsed correctly (Medium) - Fixed in Phase 2
+- [ ] ISS-010: Public Python API exposed via `__init__.py` - Planned for Phase 3
+- [ ] ISS-011: `livemathtex clear` command to reset calculations - Planned for Phase 3
 
 ### Out of Scope
 
@@ -43,16 +43,16 @@ Calculations must evaluate correctly with proper error handling - a failed varia
 
 ## Context
 
-LiveMathTeX is a personal tool for technical calculations in Markdown documents. The codebase is mature with 102 passing tests. Recent work resolved unit handling issues (ISSUE-001, ISSUE-002), consolidating all unit logic in Pint.
+LiveMathTeX is a personal tool for technical calculations in Markdown documents. The codebase is mature with 102 passing tests. Recent work resolved unit handling issues (ISS-001, ISS-002), consolidating all unit logic in Pint.
 
 **Tech debt identified:**
 - Large files: `evaluator.py` (91KB), `pint_backend.py` (58KB)
 - Forked `latex2sympy2` dependency for DIFFERENTIAL bug fix
 
-**Known issues from BACKLOG.md:**
-- ISSUE-003 is critical: failed `V := 37824` silently becomes `V = 1 volt` in subsequent formulas
-- ISSUE-004 affects documentation: example directives in code blocks get parsed
-- ISSUE-005 affects usability: `\text{m/s}^2` units don't work
+**Known issues from ISSUES.md:**
+- ISS-003 was critical: failed `V := 37824` silently became `V = 1 volt` in subsequent formulas (fixed)
+- ISS-004 affected documentation: example directives in code blocks got parsed (fixed)
+- ISS-005 affected usability: `\text{m/s}^2` units didn't work (fixed)
 
 ## Constraints
 
@@ -68,7 +68,7 @@ LiveMathTeX is a personal tool for technical calculations in Markdown documents.
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Focus on bugs before features | Critical bugs undermine trust in calculations | — Pending |
-| TDD for ISSUE-003 | Complex error handling needs test coverage first | — Pending |
+| TDD for ISS-003 | Complex error handling needs test coverage first | — Pending |
 
 ---
 *Last updated: 2026-01-11 after initialization*

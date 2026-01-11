@@ -30,7 +30,7 @@ key-files:
     - src/livemathtex/engine/evaluator.py
     - examples/simple-units/input.md
     - examples/engineering/input.md
-    - docs/BACKLOG.md
+    - .planning/ISSUES.md
     - examples/README.md
 
 key-decisions:
@@ -49,7 +49,7 @@ duration: 11min
 completed: 2026-01-11
 ---
 
-# Phase 1 Plan 1: ISSUE-003 Fix Summary
+# Phase 1 Plan 1: ISS-003 Fix Summary
 
 **Strict undefined symbol handling via TDD fix - units must be attached to numbers, not used as standalone symbols in formulas**
 
@@ -97,7 +97,7 @@ Each task was committed atomically:
 - `examples/error-handling/` - New: exhaustive error catalog (7 categories)
 - `examples/simple-units/input.md` - Fix unit syntax (use `\ ` not `\cdot`)
 - `examples/engineering/input.md` - Rename U→U_0, A→A_0
-- `docs/BACKLOG.md` - Mark ISSUE-003 as resolved
+- `.planning/ISSUES.md` - Mark ISS-003 as resolved
 - `examples/README.md` - Add error-handling, document correct syntax
 
 ## Accomplishments
@@ -124,7 +124,7 @@ None.
 ## Next Phase Readiness
 
 - Phase 1 complete (single plan)
-- Ready for Phase 2: Medium Bugs (ISSUE-004 and ISSUE-005)
+- Ready for Phase 2: Medium Bugs (ISS-004 and ISS-005)
 - All 115 tests passing
 
 ---

@@ -24,7 +24,7 @@ key-files:
     - tests/test_lexer_directives.py
   modified:
     - src/livemathtex/parser/lexer.py
-    - docs/BACKLOG.md
+    - .planning/ISSUES.md
 
 key-decisions:
   - "Use temporary copy (content_for_scan) to preserve original content"
@@ -56,7 +56,7 @@ completed: 2026-01-11
 
 - Directive parser now strips code blocks before scanning for `<!-- livemathtex: ... -->` patterns
 - 8 new tests covering backtick, tilde, multiple blocks, and edge cases
-- ISSUE-004 marked as resolved in BACKLOG.md
+- ISS-004 marked as resolved in ISSUES.md
 
 ## Task Commits
 
@@ -64,13 +64,13 @@ Each task was committed atomically:
 
 1. **Task 1: Write failing tests** - `019a394` (test)
 2. **Task 2: Implement code block stripping** - `a2f30a2` (feat)
-3. **Task 3: Update BACKLOG** - `954bb95` (docs)
+3. **Task 3: Update ISSUES** - `954bb95` (docs)
 
 ## Files Created/Modified
 
-- `tests/test_lexer_directives.py` - New test file with 8 tests for ISSUE-004
+- `tests/test_lexer_directives.py` - New test file with 8 tests for ISS-004
 - `src/livemathtex/parser/lexer.py` - Added code block stripping in `parse_document_directives()`
-- `docs/BACKLOG.md` - Updated ISSUE-004 status to RESOLVED
+- `.planning/ISSUES.md` - Updated ISS-004 status to RESOLVED
 
 ## Decisions Made
 
@@ -87,7 +87,7 @@ None
 
 ## Next Phase Readiness
 
-- Ready for 02-02-PLAN.md (LaTeX unit cleaning for Pint - ISSUE-005)
+- Ready for 02-02-PLAN.md (LaTeX unit cleaning for Pint - ISS-005)
 - No blockers
 
 ---

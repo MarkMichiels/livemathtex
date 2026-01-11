@@ -25,7 +25,7 @@ key-files:
   modified:
     - src/livemathtex/engine/pint_backend.py
     - tests/test_pint_backend.py
-    - docs/BACKLOG.md
+    - .planning/ISSUES.md
 
 key-decisions:
   - "Use \x00MULT\x00 placeholder to avoid ** being affected by * spacing cleanup"
@@ -58,7 +58,7 @@ completed: 2026-01-11
 - Added `clean_latex_unit()` function to convert LaTeX notation to Pint format
 - Integrated LaTeX cleaning into all unit parsing entry points
 - 11 new tests for LaTeX unit conversion covering wrappers, exponents, fractions, multiplication
-- ISSUE-005 marked as resolved in BACKLOG.md
+- ISS-005 marked as resolved in ISSUES.md
 
 ## Task Commits
 
@@ -67,13 +67,13 @@ Each task was committed atomically:
 1. **Task 1: Write failing tests** - `937e871` (test)
 2. **Task 2: Implement clean_latex_unit** - `36acece` (feat)
 3. **Task 3: Integrate into pipeline** - `93fe9c5` (feat)
-4. **Task 4: Update BACKLOG** - `794896b` (docs)
+4. **Task 4: Update ISSUES** - `794896b` (docs)
 
 ## Files Created/Modified
 
 - `src/livemathtex/engine/pint_backend.py` - Added `clean_latex_unit()`, updated `is_unit_token()`, `get_unit()`, `parse_unit_string()`
 - `tests/test_pint_backend.py` - Added TestCleanLatexUnit class with 11 tests
-- `docs/BACKLOG.md` - Updated ISSUE-005 status to RESOLVED
+- `.planning/ISSUES.md` - Updated ISS-005 status to RESOLVED
 
 ## TDD Approach
 
@@ -103,7 +103,7 @@ None.
 
 ## Next Phase Readiness
 
-- Phase 02 complete (both ISSUE-004 and ISSUE-005 resolved)
+- Phase 02 complete (both ISS-004 and ISS-005 resolved)
 - Ready for Phase 03 (next milestone/phase as defined in ROADMAP)
 - No blockers
 
