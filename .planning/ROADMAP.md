@@ -38,7 +38,7 @@ Plans:
 Plans:
 - [x] 02-01: Fix directive parser to skip code blocks (ISSUE-004)
 - [x] 02-02: Add LaTeX unit cleaning for Pint (ISSUE-005)
-- [ ] 02-03: Add dimensional compatibility checking (ISSUE-006)
+- [x] 02-03: Add dimensional compatibility checking (ISSUE-006)
 
 ### Phase 3: API Features
 **Goal**: Expose public Python API (FEAT-001) and add clear command (FEAT-002)
@@ -58,5 +58,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Critical Bug Fix | 1/1 | Complete | 2026-01-11 |
-| 2. Bug Fixes | 2/3 | In progress | - |
+| 2. Bug Fixes | 3/3 | Complete | 2026-01-11 |
 | 3. API Features | 0/2 | Not started | - |
