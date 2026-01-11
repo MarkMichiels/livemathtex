@@ -15,8 +15,9 @@ This document tracks known limitations (ISSUE), planned improvements (FEAT), and
 | [ISSUE-001](#issue-001-value-directive-doesnt-support-complexcustom-units) | ✅ Resolved | High | `value:` directive doesn't support complex/custom units |
 | [ISSUE-002](#issue-002-remove-all-hardcoded-unit-lists---use-pint-as-single-source-of-truth) | ✅ Resolved | High | Remove all hardcoded unit lists |
 | [ISSUE-003](#issue-003-failed-variable-definition-still-allows-unit-interpretation-in-subsequent-formulas) | ✅ Resolved | Critical | Failed variable definition allows unit fallback |
-| [ISSUE-004](#issue-004-document-directive-parser-does-not-ignore-code-blocks) | 🟡 Open | Medium | Directive parser doesn't ignore code blocks |
+| [ISSUE-004](#issue-004-document-directive-parser-does-not-ignore-code-blocks) | ✅ Resolved | Medium | Directive parser doesn't ignore code blocks |
 | [ISSUE-005](#issue-005-latex-wrapped-units-text-not-parsed-by-pint) | 🟡 Open | Medium | LaTeX-wrapped units not parsed by Pint |
+| [ISSUE-006](#issue-006-incompatible-unit-operations-silently-produce-wrong-results) | 🟡 Open | High | Incompatible unit operations silently produce wrong results |
 
 ### Features (Enhancements & New Functionality)
 
@@ -141,9 +142,10 @@ Units must be attached to numbers like '5\ V', not used as standalone symbols in
 
 ## ISSUE-004: Document directive parser does not ignore code blocks
 
-**Status:** 🟡 OPEN
+**Status:** ✅ RESOLVED
 **Priority:** Medium
 **Discovered:** 2026-01-08
+**Resolved:** 2026-01-11
 
 **Problem:**
 The `parse_document_directives()` function in `lexer.py` scans the entire document for `<!-- livemathtex: ... -->` patterns, but does **not** skip content inside fenced code blocks (``` ... ```).
@@ -169,36 +171,29 @@ Output behavior is configurable. To overwrite in place:
 **Expected behavior:**
 Content inside fenced code blocks should be completely ignored by the directive parser.
 
-**Root cause:**
-`DOCUMENT_DIRECTIVE_RE` regex scans raw content without first stripping code blocks.
+**Solution implemented:**
+Before scanning for directives, strip all fenced code blocks from a temporary copy of the content:
 
-**Proposed solution:**
-1. Before scanning for directives, remove all fenced code blocks from content
-2. Or: Modify regex to use negative lookbehind for code fence context
-3. Or: Use the existing `Document` parse tree which already identifies `CodeBlock` nodes
-
-**Implementation approach (option 1 - simplest):**
 ```python
 def parse_document_directives(self, content: str) -> Dict[str, Any]:
-    # Strip fenced code blocks before scanning
-    content_no_code = re.sub(r'```[\s\S]*?```', '', content)
-    content_no_code = re.sub(r'~~~[\s\S]*?~~~', '', content_no_code)
+    # Strip fenced code blocks before scanning (ISSUE-004)
+    content_for_scan = re.sub(r'```[\s\S]*?```', '', content)
+    content_for_scan = re.sub(r'~~~[\s\S]*?~~~', '', content_for_scan)
 
-    directives = {}
-    for match in self.DOCUMENT_DIRECTIVE_RE.finditer(content_no_code):
+    for match in self.DOCUMENT_DIRECTIVE_RE.finditer(content_for_scan):
         # ... rest of parsing
 ```
 
-**Files to modify:**
-- `src/livemathtex/parser/lexer.py` - `parse_document_directives()` method
+**Test coverage:**
+- 8 new tests in `tests/test_lexer_directives.py`
+- Tests backtick and tilde code blocks
+- Tests multiple code blocks
+- Tests edge cases (empty document, only code blocks)
+- All 129 tests passing
 
-**Workaround:**
-Ensure example directives in documentation use different syntax that won't match, e.g.:
-```markdown
-```text
-< !-- livemathtex: output=inplace -- >   ← Spaces break the pattern
-```
-```
+**Files changed:**
+- `src/livemathtex/parser/lexer.py` - Strip code blocks before directive scanning
+- `tests/test_lexer_directives.py` - New test file for directive code block skipping
 
 ---
 
@@ -298,6 +293,145 @@ Write units without LaTeX wrappers:
 $a_1 := 9.81\ m/s^2$        % Works (if parser handles ^2)
 $a_1 := 9.81\ \frac{m}{s^2}$  % May work with fraction parsing
 ```
+
+---
+
+## ISSUE-006: Incompatible unit operations silently produce wrong results
+
+**Status:** 🟡 OPEN
+**Priority:** High
+**Discovered:** 2026-01-11
+
+**Problem:**
+When adding or subtracting quantities with incompatible units (e.g., kg + m), the system silently produces numerically wrong results instead of raising an error.
+
+**Example:**
+```latex
+$m_1 := 5\ kg$
+$d_1 := 3\ m$
+$nonsense := m_1 + d_1 ==$    % Should ERROR, but displays: 8
+$doubled := nonsense \cdot 2 ==$  % Cascades: displays 16
+```
+
+**Observed behavior:**
+- `5 kg + 3 m` evaluates to `8` (numerically adds 5 + 3)
+- The result is displayed without units (because the system can't determine a valid unit)
+- Subsequent calculations propagate the error silently
+- No warning or error is shown to the user
+
+**Expected behavior:**
+Adding incompatible units should produce a clear error:
+```
+Error: Cannot add quantities with incompatible units: kg + m
+```
+
+**Root cause:**
+SymPy performs symbolic math but does not enforce dimensional analysis. When evaluating expressions:
+1. `m_1 + d_1` becomes `5*kilogram + 3*meter` in SymPy
+2. SymPy's `simplify()` cannot reduce this to a single unit
+3. The expression is evaluated numerically: `5 + 3 = 8`
+4. Since units don't simplify cleanly, they're silently dropped
+
+Pint DOES enforce dimensional analysis, but it's only used for unit parsing, not for evaluating entire expressions.
+
+**Impact:**
+- **Silent wrong results** - Users may not notice the error
+- **Cascading errors** - Wrong values propagate through subsequent calculations
+- **False confidence** - Document appears to process successfully
+
+**Proposed solution:**
+
+**Option A: Pre-check dimensional compatibility (simpler)**
+Before evaluating an Add/Sub expression, check if all terms have compatible dimensions:
+
+```python
+def check_dimensional_compatibility(expr, symbol_table):
+    """Check if Add/Sub expression has dimensionally compatible terms."""
+    from sympy import Add, Symbol
+
+    if not isinstance(expr, Add):
+        return True
+
+    dimensions = []
+    for term in expr.args:
+        # Get the unit dimension of this term
+        dim = get_dimension(term, symbol_table)
+        dimensions.append(dim)
+
+    # All dimensions must be compatible (same base dimension)
+    if not all_compatible(dimensions):
+        raise ValueError(f"Cannot add quantities with incompatible units: {dimensions}")
+
+    return True
+```
+
+**Option B: Use Pint for evaluation (more comprehensive)**
+Convert the entire expression to Pint quantities and let Pint handle dimensional analysis:
+
+```python
+def evaluate_with_pint(expr, symbol_table):
+    """Evaluate expression using Pint for dimensional analysis."""
+    # Convert SymPy expression to Pint quantities
+    pint_expr = sympy_to_pint(expr, symbol_table)
+
+    # Pint will raise DimensionalityError if incompatible
+    result = pint_expr.magnitude
+    result_unit = pint_expr.units
+
+    return result, result_unit
+```
+
+**Option C: Post-check result unit (minimal)**
+After evaluation, check if the result has a valid/coherent unit:
+
+```python
+def verify_result_unit(result_expr):
+    """Verify that result has a coherent unit (not mixed dimensions)."""
+    # If result contains Add of incompatible units, it's invalid
+    if has_mixed_dimensions(result_expr):
+        raise ValueError("Result has incompatible unit dimensions")
+```
+
+**Recommended approach:** Option A - Pre-check dimensional compatibility. It catches the error early, provides clear error messages, and doesn't require major refactoring.
+
+**Test cases to add:**
+```python
+def test_incompatible_addition_raises_error():
+    """Adding incompatible units should raise an error."""
+    result = process_text("$m_1 := 5\\ kg$\n$d_1 := 3\\ m$\n$bad := m_1 + d_1 ==$")
+    assert "Error" in result
+    assert "incompatible" in result.lower()
+
+def test_incompatible_subtraction_raises_error():
+    """Subtracting incompatible units should raise an error."""
+    result = process_text("$t_1 := 10\\ s$\n$v_1 := 5\\ m/s$\n$bad := t_1 - v_1 ==$")
+    assert "Error" in result
+
+def test_compatible_addition_works():
+    """Adding compatible units should work."""
+    result = process_text("$m_1 := 5\\ kg$\n$m_2 := 3\\ kg$\n$total := m_1 + m_2 ==$")
+    assert "Error" not in result
+    assert "8" in result  # 5 + 3 = 8 kg
+
+def test_compatible_mixed_units_works():
+    """Adding compatible but different units should work (with conversion)."""
+    result = process_text("$d_1 := 1\\ km$\n$d_2 := 500\\ m$\n$total := d_1 + d_2 ==$")
+    assert "Error" not in result
+    # Result should be 1500 m or 1.5 km
+```
+
+**Files to modify:**
+- `src/livemathtex/engine/evaluator.py` - Add dimensional compatibility check in `_compute()`
+- `src/livemathtex/engine/pint_backend.py` - Add `get_unit_dimension()` helper
+- `tests/test_dimensional_analysis.py` - New test file for dimensional checking
+- `examples/error-handling/input.md` - Add Category 6: Dimension Mismatch Errors
+
+**Workaround:**
+Users must manually verify that only compatible units are added/subtracted. There is no automatic detection currently.
+
+**Related:**
+- ISSUE-003 (resolved) - Variable/unit fallback bug
+- Pint's DimensionalityError handling
 
 ---
 
@@ -455,4 +589,4 @@ When adding new items:
 
 ---
 
-*Last updated: 2026-01-08*
+*Last updated: 2026-01-11*
