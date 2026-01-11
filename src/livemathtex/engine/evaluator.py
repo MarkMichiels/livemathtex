@@ -765,7 +765,19 @@ class Evaluator:
             undefined.append(clean_name)
 
         if undefined:
-            raise EvaluationError(f"Undefined variable(s): {', '.join(sorted(undefined))}")
+            # Generate a helpful error message
+            if len(undefined) == 1:
+                var = undefined[0]
+                raise EvaluationError(
+                    f"Undefined variable '{var}'. "
+                    f"Define it first with a definition like '${var} := <value>$'."
+                )
+            else:
+                vars_list = ', '.join(f"'{v}'" for v in sorted(undefined))
+                raise EvaluationError(
+                    f"Undefined variables: {vars_list}. "
+                    f"Define them first before using in formulas."
+                )
 
     def _extract_unit_from_value(self, value: Any) -> Tuple[Optional[Any], str]:
         """
@@ -1898,6 +1910,13 @@ class Evaluator:
                     f"(Note: '{clean_name}' is also a unit ({unit_desc}). "
                     f"Units must be attached to numbers like '5\\ {clean_name}', "
                     f"not used as standalone symbols in formulas.)"
+                )
+            else:
+                # Undefined symbol that is NOT a unit - still an error
+                # All variables must be defined before use
+                raise EvaluationError(
+                    f"Undefined variable '{clean_name}'. "
+                    f"Define it first with a definition like '${clean_name} := <value>$'."
                 )
 
         # 2. Handle Functions (f(x))

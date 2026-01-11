@@ -67,7 +67,7 @@ When a symbol is referenced but never defined, LiveMathTeX produces an error. If
 
 $y := x \cdot 2
 \\ \color{red}{\text{
-    Error: Cannot convert expression to float}}$
+    Error: Undefined variable 'x'. Define it first with a definition like '\$x := <value>\$'.}}$
 
 **Explanation:** `x` was never defined. LiveMathTeX does NOT assume undeclared symbols are zero or unity.
 
@@ -83,7 +83,7 @@ This is the critical fix - previously this would silently interpret V as volt!
 
 $Cap := V_{undef} \cdot 15 \cdot 0.001
 \\ \color{red}{\text{
-    Error: Cannot convert expression to float}}$
+    Error: Undefined variable 'V\_undef'. Define it first with a definition like '\$V\_undef := <value>\$'.}}$
 
 **Explanation:** `V_{undef}` is undefined. Even though expressions with decimals used to allow unit fallback, LiveMathTeX now always errors on undefined symbols.
 
@@ -117,7 +117,7 @@ When using `==` to evaluate an expression, all referenced symbols must be define
 
 $z ==
 \\ \color{red}{\text{
-    Error: Undefined variable(s): z}}$
+    Error: Undefined variable 'z'. Define it first with a definition like '\$z := <value>\$'.}}$
 
 **Fix:**
 
@@ -128,7 +128,7 @@ $z_1 == 42$
 
 $result := q + 5 ==
 \\ \color{red}{\text{
-    Error: Undefined variable(s): q}}$
+    Error: Undefined variable 'q'. Define it first with a definition like '\$q := <value>\$'.}}$
 
 **Fix:**
 
@@ -214,4 +214,4 @@ $\text{cost} == 100\ \text{€}$
 
 ---
 
-> *livemathtex: 2026-01-11 17:00:03 | 33 definitions, 16 evaluations | 13 errors | 0.44s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 17:28:49 | 33 definitions, 16 evaluations | 13 errors | 0.44s* <!-- livemathtex-meta -->

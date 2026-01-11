@@ -27,7 +27,7 @@ y = x + 3
 
 $result := z + 5 ==
 \\ \color{red}{\text{
-    Error: Undefined variable(s): z}}$
+    Error: Undefined variable 'z'. Define it first with a definition like '\$z := <value>\$'.}}$
 
 ## ✅ Correct Usage
 
@@ -64,4 +64,4 @@ $\text{total} == 15$
 
 ---
 
-> *livemathtex: 2026-01-08 00:29:06 | 7 definitions, 5 evaluations | 2 errors | 0.29s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 17:29:48 | 7 definitions, 5 evaluations | 2 errors | 0.22s* <!-- livemathtex-meta -->

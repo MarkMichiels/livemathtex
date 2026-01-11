@@ -78,4 +78,4 @@ $t_{fall} := \sqrt{\frac{2 \cdot h_{drop}}{g}} ==
 
 ---
 
-> *livemathtex: 2026-01-11 16:58:12 | 12 definitions, 6 evaluations | 2 errors | 0.26s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 17:29:49 | 12 definitions, 6 evaluations | 2 errors | 0.26s* <!-- livemathtex-meta -->
