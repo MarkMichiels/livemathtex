@@ -24,6 +24,28 @@
             "group": "build"
         },
         {
+            "label": "LiveMathTeX: Clear Current File",
+            "type": "shell",
+            "command": "livemathtex",
+            "args": [
+                "clear",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "LiveMathTeX: Process Current File (Verbose)",
             "type": "shell",
             "command": "livemathtex",

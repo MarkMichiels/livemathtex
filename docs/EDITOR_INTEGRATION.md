@@ -68,7 +68,8 @@ Click the icon in the top-right to open `keybindings.json` and add:
 
 | Task | Description | Use Case |
 |------|-------------|----------|
-| **Process Current File** | Updates file in place | Normal workflow |
+| **Process Current File** | Updates file in place | Normal workflow (F9) |
+| **Clear Current File** | Removes computed values | Reset before re-processing (Shift+F9) |
 | **Process Current File (Verbose)** | Shows debug info, creates `.lmt.json` | Debugging |
 
 ### Run Tasks Manually
@@ -94,7 +95,7 @@ Add these to your `keybindings.json`:
     {
         "key": "shift+f9",
         "command": "workbench.action.tasks.runTask",
-        "args": "LiveMathTeX: Process Current File (Verbose)",
+        "args": "LiveMathTeX: Clear Current File",
         "when": "editorLangId == markdown"
     }
 ]
@@ -103,7 +104,7 @@ Add these to your `keybindings.json`:
 | Shortcut | Action |
 |----------|--------|
 | `F9` | Process file (same as Mathcad/SMath) |
-| `Shift+F9` | Process with debug output |
+| `Shift+F9` | Clear computed values (reset for re-processing) |
 
 ---
 
