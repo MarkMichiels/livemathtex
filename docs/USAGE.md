@@ -895,6 +895,27 @@ Stats:
   errors: 0
 ```
 
+### Clear Computed Values
+
+Remove evaluation results and error markup from a processed file:
+
+```bash
+livemathtex clear output.md                  # Overwrite in-place
+livemathtex clear output.md -o input.md      # Write to different file
+```
+
+**What gets cleared:**
+- Evaluation results: `$x == 42$` → `$x ==$`
+- Error markup: `\color{red}{...}` → removed
+- Metadata comments: `<!-- livemathtex-meta -->` → removed
+
+**What gets preserved:**
+- Definitions: `$x := 5$`
+- Unit definitions: `$kN === 1000\ N$`
+- Unit hints: `<!-- [kJ] -->` and `[kJ]` inline syntax
+
+**Use case:** Reset a document before re-processing, or create a clean input file from processed output.
+
 ### Options
 
 | Option | Description |
