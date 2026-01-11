@@ -644,6 +644,9 @@ class Evaluator:
         # Check for undefined variables (symbols that weren't substituted)
         self._check_undefined_symbols(value, lhs)
 
+        # ISSUE-006: Check for dimensional compatibility in additions/subtractions
+        self._check_dimensional_compatibility(value, lhs)
+
         # Use unit_comment from parser for display conversion
         value, suffix = self._apply_conversion(value, calc.unit_comment)
         skip_si_conversion = bool(calc.unit_comment)
@@ -679,6 +682,9 @@ class Evaluator:
 
         # Check for undefined variables (symbols that weren't substituted)
         self._check_undefined_symbols(value, rhs)
+
+        # ISSUE-006: Check for dimensional compatibility in additions/subtractions
+        self._check_dimensional_compatibility(value, rhs)
 
         # IMPORTANT: Simplify symbolic expressions (like 39.32/pi² + 17) to numeric
         # This must happen BEFORE extracting unit, otherwise we get complex unit strings
@@ -772,6 +778,85 @@ class Evaluator:
             else:
                 vars_list = ', '.join(f"'{v}'" for v in sorted(undefined))
                 raise EvaluationError(f"Undefined variables: {vars_list}. Define them before use.")
+
+    def _check_dimensional_compatibility(self, value: Any, original_latex: str) -> None:
+        """
+        Check if an Add/Sub expression has dimensionally compatible terms.
+
+        ISSUE-006: Detect incompatible unit operations like kg + m.
+
+        Args:
+            value: The computed SymPy expression
+            original_latex: Original LaTeX for error messages
+
+        Raises:
+            EvaluationError: If incompatible units are being added/subtracted
+        """
+        from sympy import Add
+        from sympy.physics.units import Quantity
+        from .pint_backend import get_sympy_unit_dimensionality, are_dimensions_compatible
+
+        if not hasattr(value, 'args'):
+            return  # Not an expression with arguments
+
+        # Recursively check all Add expressions in the tree
+        self._check_add_dimensional_compatibility(value)
+
+    def _check_add_dimensional_compatibility(self, expr: Any) -> None:
+        """
+        Recursively check Add expressions for dimensional compatibility.
+
+        Args:
+            expr: A SymPy expression to check
+
+        Raises:
+            EvaluationError: If incompatible units are being added/subtracted
+        """
+        from sympy import Add
+        from sympy.physics.units import Quantity
+        from .pint_backend import get_sympy_unit_dimensionality, are_dimensions_compatible
+
+        if not hasattr(expr, 'args'):
+            return
+
+        # Check if this is an Add expression
+        if isinstance(expr, Add):
+            # Get dimensionality of each term
+            term_dims = []
+            term_units = []
+
+            for term in expr.args:
+                dim = get_sympy_unit_dimensionality(term)
+                term_dims.append(dim)
+
+                # Get a representative unit string for error message
+                if hasattr(term, 'atoms'):
+                    quantities = term.atoms(Quantity)
+                    if quantities:
+                        # Use the first quantity's name
+                        unit_str = str(list(quantities)[0])
+                    else:
+                        unit_str = "(dimensionless)"
+                else:
+                    unit_str = "(dimensionless)"
+                term_units.append(unit_str)
+
+            # Check if all terms have compatible dimensions
+            if len(term_dims) >= 2:
+                first_dim = term_dims[0]
+                for i, dim in enumerate(term_dims[1:], 1):
+                    if not are_dimensions_compatible(first_dim, dim):
+                        # Found incompatible dimensions
+                        unit1 = term_units[0]
+                        unit2 = term_units[i]
+                        raise EvaluationError(
+                            f"Cannot add/subtract incompatible units: {unit1} and {unit2}. "
+                            f"Dimensions must match for addition/subtraction."
+                        )
+
+        # Recursively check sub-expressions
+        for arg in expr.args:
+            self._check_add_dimensional_compatibility(arg)
 
     def _extract_unit_from_value(self, value: Any) -> Tuple[Optional[Any], str]:
         """

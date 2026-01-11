@@ -1912,3 +1912,181 @@ def reset_unit_registry():
     reset_sympy_unit_registry()
     global _ureg
     _ureg = None
+
+
+# =============================================================================
+# ISSUE-006: Dimensional Compatibility Checking
+# =============================================================================
+
+
+def get_unit_dimensionality(unit_expr: Any) -> Optional[str]:
+    """
+    Get the dimensionality string for a unit expression.
+
+    Uses Pint to determine the physical dimension of a unit.
+
+    Args:
+        unit_expr: A Pint unit, SymPy unit Quantity, or unit string
+
+    Returns:
+        Dimensionality string like '[mass]', '[length]', '[time]',
+        '[length] / [time]', etc. Returns None for dimensionless or invalid.
+
+    Examples:
+        >>> get_unit_dimensionality('kg')
+        '[mass]'
+        >>> get_unit_dimensionality('m/s')
+        '[length] / [time]'
+        >>> get_unit_dimensionality('kWh')
+        '[length] ** 2 * [mass] / [time] ** 2'
+    """
+    if unit_expr is None:
+        return None
+
+    ureg = get_unit_registry()
+
+    def is_dimensionless(dim) -> bool:
+        """Check if a Pint dimensionality is dimensionless."""
+        # Pint's UnitsContainer is dimensionless if it's empty or contains only dimensionless
+        if hasattr(dim, 'dimensionless'):
+            return dim.dimensionless
+        # For UnitsContainer, check if it's empty (no dimensions)
+        return len(dim) == 0
+
+    try:
+        # If it's already a Pint unit/quantity with dimensionality
+        if hasattr(unit_expr, 'dimensionality'):
+            dim = unit_expr.dimensionality
+            if is_dimensionless(dim):
+                return None
+            return str(dim)
+
+        # Convert to string for parsing
+        unit_str = str(unit_expr)
+        if not unit_str or unit_str.strip() == '':
+            return None
+
+        # Clean LaTeX notation
+        unit_str = clean_latex_unit(unit_str)
+        if not unit_str:
+            return None
+
+        # Replace currency symbols
+        unit_str = unit_str.replace('€', 'EUR').replace('$', 'USD')
+
+        # Try to parse as Pint unit
+        pint_unit = ureg.Unit(unit_str)
+        dim = pint_unit.dimensionality
+        if is_dimensionless(dim):
+            return None
+        return str(dim)
+
+    except Exception:
+        # Try as a quantity (might have magnitude)
+        try:
+            pint_qty = ureg.parse_expression(str(unit_expr))
+            if hasattr(pint_qty, 'dimensionality'):
+                dim = pint_qty.dimensionality
+                if is_dimensionless(dim):
+                    return None
+                return str(dim)
+        except Exception:
+            pass
+
+    return None
+
+
+def get_sympy_unit_dimensionality(sympy_expr: Any) -> Optional[str]:
+    """
+    Get the dimensionality of a SymPy expression containing units.
+
+    Extracts units from a SymPy expression and returns their dimensionality.
+
+    Args:
+        sympy_expr: A SymPy expression possibly containing Quantity units
+
+    Returns:
+        Dimensionality string or None if no units/dimensionless
+
+    Examples:
+        >>> from sympy.physics.units import kg, meter
+        >>> get_sympy_unit_dimensionality(5 * kg)
+        '[mass]'
+        >>> get_sympy_unit_dimensionality(10 * meter / second)
+        '[length] / [time]'
+    """
+    from sympy.physics.units import Quantity
+
+    if sympy_expr is None:
+        return None
+
+    # Check if it's a pure number
+    try:
+        if hasattr(sympy_expr, 'is_number') and sympy_expr.is_number:
+            return None
+    except Exception:
+        pass
+
+    # Extract Quantity atoms (units) from the expression
+    try:
+        if hasattr(sympy_expr, 'atoms'):
+            quantities = sympy_expr.atoms(Quantity)
+            if not quantities:
+                return None
+
+            # Build a unit string from the SymPy quantities
+            # This is approximate but works for common cases
+            unit_parts = []
+            for q in quantities:
+                unit_parts.append(str(q))
+
+            if not unit_parts:
+                return None
+
+            # For simple single-unit cases, use that unit
+            if len(unit_parts) == 1:
+                return get_unit_dimensionality(unit_parts[0])
+
+            # For compound units, try to extract the overall unit expression
+            # from the SymPy expression structure
+            coeff, unit_part = sympy_expr.as_coeff_Mul()
+            if unit_part != 1:
+                # Convert SymPy unit expression to string
+                unit_str = str(unit_part)
+                # Clean up SymPy notation to Pint notation
+                unit_str = unit_str.replace('**', '^')
+                return get_unit_dimensionality(unit_str)
+
+    except Exception:
+        pass
+
+    return None
+
+
+def are_dimensions_compatible(dim1: Optional[str], dim2: Optional[str]) -> bool:
+    """
+    Check if two dimensionalities are compatible for addition/subtraction.
+
+    Compatible means:
+    - Both are None (dimensionless)
+    - Both have the same dimensionality string
+
+    Args:
+        dim1: First dimensionality string or None
+        dim2: Second dimensionality string or None
+
+    Returns:
+        True if compatible, False otherwise
+    """
+    # Both dimensionless
+    if dim1 is None and dim2 is None:
+        return True
+
+    # One has units, other doesn't
+    if dim1 is None or dim2 is None:
+        # For now, treat mixing unit + unitless as incompatible
+        # This catches cases like "5 kg + 3" which is likely an error
+        return False
+
+    # Compare dimensionality strings
+    return dim1 == dim2
