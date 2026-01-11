@@ -1,0 +1,318 @@
+{
+  "version": "3.0",
+  "source": "examples/error-handling/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {
+    "€": {
+      "latex": "€",
+      "type": "base",
+      "pint_definition": "€ = [€]",
+      "line": 0
+    }
+  },
+  "symbols": {
+    "v_{0}": {
+      "latex_name": "V_{tot}",
+      "original": {
+        "value": 37824.0,
+        "unit": null
+      },
+      "base": {
+        "value": 37824.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{1}": {
+      "latex_name": "m_1",
+      "original": {
+        "value": 10.0,
+        "unit": null
+      },
+      "base": {
+        "value": 10.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{2}": {
+      "latex_name": "time_1",
+      "original": {
+        "value": 5.0,
+        "unit": null
+      },
+      "base": {
+        "value": 5.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{3}": {
+      "latex_name": "accel",
+      "original": {
+        "value": 9.81,
+        "unit": null
+      },
+      "base": {
+        "value": 9.81,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{4}": {
+      "latex_name": "x_1",
+      "original": {
+        "value": 5.0,
+        "unit": null
+      },
+      "base": {
+        "value": 5.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{5}": {
+      "latex_name": "y_1",
+      "original": {
+        "value": 10.0,
+        "unit": null
+      },
+      "base": {
+        "value": 10.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{6}": {
+      "latex_name": "V_{def}",
+      "original": {
+        "value": 37824.0,
+        "unit": null
+      },
+      "base": {
+        "value": 37824.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{7}": {
+      "latex_name": "Cap_ok",
+      "original": {
+        "value": 567.36,
+        "unit": null
+      },
+      "base": {
+        "value": 567.36,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{8}": {
+      "latex_name": "N_val",
+      "original": {
+        "value": 100.0,
+        "unit": null
+      },
+      "base": {
+        "value": 100.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{9}": {
+      "latex_name": "force_ok",
+      "original": {
+        "value": 1050.0,
+        "unit": null
+      },
+      "base": {
+        "value": 1050.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{10}": {
+      "latex_name": "z_1",
+      "original": {
+        "value": 42.0,
+        "unit": null
+      },
+      "base": {
+        "value": 42.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{11}": {
+      "latex_name": "q_1",
+      "original": {
+        "value": 10.0,
+        "unit": null
+      },
+      "base": {
+        "value": 10.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{12}": {
+      "latex_name": "result_ok",
+      "original": {
+        "value": 15.0,
+        "unit": null
+      },
+      "base": {
+        "value": 15.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{13}": {
+      "latex_name": "x",
+      "original": {
+        "value": 5.0,
+        "unit": "foo"
+      },
+      "base": {
+        "value": 5.0,
+        "unit": "foo"
+      },
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'foo' is not defined in the unit registry"
+    },
+    "v_{14}": {
+      "latex_name": "x_ok",
+      "original": {
+        "value": 5.0,
+        "unit": "m"
+      },
+      "base": {
+        "value": 5.0,
+        "unit": "meter"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{15}": {
+      "latex_name": "y_val",
+      "original": {
+        "value": 1000.0,
+        "unit": null
+      },
+      "base": {
+        "value": 1000.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{16}": {
+      "latex_name": "y_conv",
+      "original": {
+        "value": 1000.0,
+        "unit": null
+      },
+      "base": {
+        "value": 1000.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{17}": {
+      "latex_name": "y_val2",
+      "original": {
+        "value": 100000.0,
+        "unit": null
+      },
+      "base": {
+        "value": 100000.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{18}": {
+      "latex_name": "y_conv2",
+      "original": {
+        "value": 100000.0,
+        "unit": null
+      },
+      "base": {
+        "value": 100000.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{19}": {
+      "latex_name": "speed",
+      "original": {
+        "value": 5.0,
+        "unit": "m/s"
+      },
+      "base": {
+        "value": 5.0,
+        "unit": "meter / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{20}": {
+      "latex_name": "energy",
+      "original": {
+        "value": 1000.0,
+        "unit": "kWh"
+      },
+      "base": {
+        "value": 3600000000.0,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{21}": {
+      "latex_name": "cost",
+      "original": {
+        "value": 100.0,
+        "unit": "€"
+      },
+      "base": {
+        "value": 100.0,
+        "unit": "€"
+      },
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-11 17:00:03",
+    "duration": "0.44s",
+    "symbols": 22,
+    "custom_units": 1,
+    "definitions": 33,
+    "evaluations": 16,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 13
+  }
+}
