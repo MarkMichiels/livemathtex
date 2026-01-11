@@ -48,7 +48,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: Expose public API in __init__.py
+- [x] 03-01: Expose public API in __init__.py
 - [ ] 03-02: Add livemathtex clear command
 
 ### Phase 4: Output Unit Conversion
@@ -70,5 +70,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Critical Bug Fix | 1/1 | Complete | 2026-01-11 |
 | 2. Bug Fixes | 3/3 | Complete | 2026-01-11 |
-| 3. API Features | 0/2 | Not started | - |
+| 3. API Features | 1/2 | In progress | - |
 | 4. Output Unit Conversion | 0/2 | Not started | - |

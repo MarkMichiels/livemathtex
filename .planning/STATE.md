@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-11)
 
 **Core value:** Calculations must evaluate correctly - failed definitions must not silently fall back to units
-**Current focus:** Phase 2 — Complete, ready for Phase 3
+**Current focus:** Phase 3 — API Features (in progress)
 
 ## Current Position
 
-Phase: 2 of 4 (Bug Fixes) - Complete
-Plan: 3 of 3 in current phase
-Status: Phase 2 complete
-Last activity: 2026-01-11 — Completed 02-03-PLAN.md
+Phase: 3 of 4 (API Features)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-11 — Completed 03-01-PLAN.md
 
-Progress: ██████████ 67%
+Progress: █████████░ 71%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 7 min
-- Total execution time: 22 min
+- Total plans completed: 5
+- Average duration: 6 min
+- Total execution time: 28 min
 
 **By Phase:**
 
@@ -29,9 +29,10 @@ Progress: ██████████ 67%
 |-------|-------|-------|----------|
 | 1. Critical Bug Fix | 1/1 | 11 min | 11 min |
 | 2. Bug Fixes | 3/3 | ~18 min | ~6 min |
+| 3. API Features | 1/2 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (11 min), 02-01 (3 min), 02-02 (8 min), 02-03 (~7 min)
+- Last 5 plans: 02-01 (3 min), 02-02 (8 min), 02-03 (~7 min), 03-01 (3 min)
 - Trend: Consistent pace
 
 ## Accumulated Context
@@ -50,6 +51,8 @@ Recent decisions affecting current work:
 - **02-02:** Integrate LaTeX cleaning at parsing entry points (is_unit_token, get_unit, parse_unit_string)
 - **02-03:** Use as_coeff_Mul() for robust unit extraction from SymPy expressions
 - **02-03:** Check dimensional compatibility in _handle_evaluation after compute step
+- **03-01:** Export process_text as primary API (simple, returns tuple)
+- **03-01:** Include both v2.0 and v3.0 IR types for flexibility
 
 ### Deferred Issues
 
@@ -61,6 +64,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-11 19:45 UTC
-Stopped at: Completed 02-03-PLAN.md (Phase 2 complete)
+Last session: 2026-01-11 20:31 UTC
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
