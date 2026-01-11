@@ -14,7 +14,7 @@ None (standard Python CLI patterns)
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Critical Bug Fix** - Fix ISSUE-003 (variable/unit fallback)
+- [x] **Phase 1: Critical Bug Fix** - Fix ISSUE-003 (variable/unit fallback)
 - [ ] **Phase 2: Medium Bugs** - Fix ISSUE-004 and ISSUE-005
 - [ ] **Phase 3: API Features** - FEAT-001 (public API) and FEAT-002 (clear command)
 
@@ -27,7 +27,7 @@ None (standard Python CLI patterns)
 **Plans**: 1 plan (TDD approach)
 
 Plans:
-- [ ] 01-01: TDD fix for variable/unit fallback bug
+- [x] 01-01: TDD fix for variable/unit fallback bug
 
 ### Phase 2: Medium Bugs
 **Goal**: Fix ISSUE-004 (directive parser ignores code blocks) and ISSUE-005 (LaTeX-wrapped units)
@@ -56,6 +56,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Critical Bug Fix | 0/1 | Not started | - |
+| 1. Critical Bug Fix | 1/1 | Complete | 2026-01-11 |
 | 2. Medium Bugs | 0/2 | Not started | - |
 | 3. API Features | 0/2 | Not started | - |
