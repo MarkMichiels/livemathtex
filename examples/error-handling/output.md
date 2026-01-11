@@ -172,7 +172,48 @@ Note: Euro (`€`) is a built-in unit and works without definition.
 
 ---
 
-## Category 5: Correct Usage Reference
+## Category 5: Dimension Mismatch Errors
+
+Adding or subtracting quantities with incompatible dimensions produces an error (ISSUE-006).
+
+### Error: Adding mass and length
+
+$mass_1 := 5\ kg$
+$dist_1 := 3\ m$
+$invalid_1 := mass_1 + dist_1 ==
+\\ \color{red}{\text{
+    Error: Cannot add/subtract incompatible units: meter and kilogram. Dimensions must match for addition/subtraction.}}$
+
+**Explanation:** Cannot add kilograms (mass) to meters (length). These have different physical dimensions.
+
+### Error: Subtracting time and velocity
+
+$time_1 := 10\ s$
+$vel_1 := 5\ \frac{m}{s}$
+$invalid_2 := time_1 - vel_1 ==
+\\ \color{red}{\text{
+    Error: Cannot add/subtract incompatible units: second and meter. Dimensions must match for addition/subtraction.}}$
+
+**Explanation:** Cannot subtract velocity from time. Dimensions must match.
+
+### Multiplication and division are OK
+
+Different units CAN be multiplied or divided:
+
+$prod := mass_1 \cdot dist_1 == 15\ \text{kg} \cdot \text{m}$
+$velocity_1 := dist_1 / time_1 == 0.3\ \text{m}/\text{s}$
+
+### Compatible units work fine
+
+Same dimensions (even different scales) can be added:
+
+$d_1 := 1\ km$
+$d_2 := 500\ m$
+$total_d := d_1 + d_2 == 1500\ \text{m}$
+
+---
+
+## Category 6: Correct Usage Reference
 
 These examples show the correct patterns to follow.
 
@@ -201,6 +242,7 @@ $F_{1,N} := F_1 == 98.1$ <!-- [N] -->
 | Undefined variable | `y := x * 2` | Define x first |
 | Undefined in eval | `x ==` | Define x first |
 | Unknown unit (ignored!) | `5\ foo` | Use standard unit or define with `===` |
+| Dimension mismatch | `kg + m` | Only add/subtract compatible dimensions |
 
 ---
 
@@ -208,4 +250,4 @@ $F_{1,N} := F_1 == 98.1$ <!-- [N] -->
 
 ---
 
-> *livemathtex: 2026-01-11 17:52:11 | 31 definitions, 15 evaluations | 9 errors | 0.39s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-11 20:40:59 | 42 definitions, 20 evaluations | 11 errors | 0.52s* <!-- livemathtex-meta -->

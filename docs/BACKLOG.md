@@ -17,7 +17,7 @@ This document tracks known limitations (ISSUE), planned improvements (FEAT), and
 | [ISSUE-003](#issue-003-failed-variable-definition-still-allows-unit-interpretation-in-subsequent-formulas) | ✅ Resolved | Critical | Failed variable definition allows unit fallback |
 | [ISSUE-004](#issue-004-document-directive-parser-does-not-ignore-code-blocks) | ✅ Resolved | Medium | Directive parser doesn't ignore code blocks |
 | [ISSUE-005](#issue-005-latex-wrapped-units-text-not-parsed-by-pint) | ✅ Resolved | Medium | LaTeX-wrapped units not parsed by Pint |
-| [ISSUE-006](#issue-006-incompatible-unit-operations-silently-produce-wrong-results) | 🟡 Open | High | Incompatible unit operations silently produce wrong results |
+| [ISSUE-006](#issue-006-incompatible-unit-operations-silently-produce-wrong-results) | ✅ Resolved | High | Incompatible unit operations silently produce wrong results |
 
 ### Features (Enhancements & New Functionality)
 
@@ -241,140 +241,58 @@ The function is now integrated into:
 
 ## ISSUE-006: Incompatible unit operations silently produce wrong results
 
-**Status:** 🟡 OPEN
+**Status:** ✅ RESOLVED
 **Priority:** High
 **Discovered:** 2026-01-11
+**Resolved:** 2026-01-11
 
 **Problem:**
 When adding or subtracting quantities with incompatible units (e.g., kg + m), the system silently produces numerically wrong results instead of raising an error.
 
-**Example:**
+**Example (before fix):**
 ```latex
 $m_1 := 5\ kg$
 $d_1 := 3\ m$
-$nonsense := m_1 + d_1 ==$    % Should ERROR, but displays: 8
-$doubled := nonsense \cdot 2 ==$  % Cascades: displays 16
+$nonsense := m_1 + d_1 ==$    % Displayed: 8 (wrong!)
 ```
 
-**Observed behavior:**
-- `5 kg + 3 m` evaluates to `8` (numerically adds 5 + 3)
-- The result is displayed without units (because the system can't determine a valid unit)
-- Subsequent calculations propagate the error silently
-- No warning or error is shown to the user
+**Solution implemented:**
 
-**Expected behavior:**
-Adding incompatible units should produce a clear error:
+Used Option A from the proposed solutions: Pre-check dimensional compatibility.
+
+1. **Added helper functions to `pint_backend.py`:**
+   - `get_unit_dimensionality()` - Get Pint dimensionality for unit string
+   - `get_sympy_unit_dimensionality()` - Extract dimensionality from SymPy expressions
+   - `are_dimensions_compatible()` - Check if two dimensions can be added/subtracted
+
+2. **Added dimensional check to `evaluator.py`:**
+   - `_check_dimensional_compatibility()` - Entry point after `_compute()`
+   - `_check_add_dimensional_compatibility()` - Recursive check for Add expressions
+   - Called in both `_handle_evaluation()` and `_handle_assignment_evaluation()`
+
+**Error message format:**
 ```
-Error: Cannot add quantities with incompatible units: kg + m
-```
-
-**Root cause:**
-SymPy performs symbolic math but does not enforce dimensional analysis. When evaluating expressions:
-1. `m_1 + d_1` becomes `5*kilogram + 3*meter` in SymPy
-2. SymPy's `simplify()` cannot reduce this to a single unit
-3. The expression is evaluated numerically: `5 + 3 = 8`
-4. Since units don't simplify cleanly, they're silently dropped
-
-Pint DOES enforce dimensional analysis, but it's only used for unit parsing, not for evaluating entire expressions.
-
-**Impact:**
-- **Silent wrong results** - Users may not notice the error
-- **Cascading errors** - Wrong values propagate through subsequent calculations
-- **False confidence** - Document appears to process successfully
-
-**Proposed solution:**
-
-**Option A: Pre-check dimensional compatibility (simpler)**
-Before evaluating an Add/Sub expression, check if all terms have compatible dimensions:
-
-```python
-def check_dimensional_compatibility(expr, symbol_table):
-    """Check if Add/Sub expression has dimensionally compatible terms."""
-    from sympy import Add, Symbol
-
-    if not isinstance(expr, Add):
-        return True
-
-    dimensions = []
-    for term in expr.args:
-        # Get the unit dimension of this term
-        dim = get_dimension(term, symbol_table)
-        dimensions.append(dim)
-
-    # All dimensions must be compatible (same base dimension)
-    if not all_compatible(dimensions):
-        raise ValueError(f"Cannot add quantities with incompatible units: {dimensions}")
-
-    return True
+Error: Cannot add/subtract incompatible units: kilogram and meter.
+Dimensions must match for addition/subtraction.
 ```
 
-**Option B: Use Pint for evaluation (more comprehensive)**
-Convert the entire expression to Pint quantities and let Pint handle dimensional analysis:
+**Test coverage:**
+- 8 tests in `tests/test_dimensional_analysis.py`:
+  - `TestIncompatibleUnits`: 3 tests for error detection (kg+m, s-m/s, 3 terms)
+  - `TestCompatibleUnits`: 3 tests for allowed operations (kg+kg, km+m, unitless)
+  - `TestEdgeCases`: 2 tests for multiplication/division (different units OK)
 
-```python
-def evaluate_with_pint(expr, symbol_table):
-    """Evaluate expression using Pint for dimensional analysis."""
-    # Convert SymPy expression to Pint quantities
-    pint_expr = sympy_to_pint(expr, symbol_table)
+**Files changed:**
+- `src/livemathtex/engine/pint_backend.py` - Added 3 helper functions
+- `src/livemathtex/engine/evaluator.py` - Added dimensional check methods
+- `tests/test_dimensional_analysis.py` - New test file (8 tests)
+- `examples/error-handling/input.md` - Added Category 5: Dimension Mismatch Errors
 
-    # Pint will raise DimensionalityError if incompatible
-    result = pint_expr.magnitude
-    result_unit = pint_expr.units
-
-    return result, result_unit
-```
-
-**Option C: Post-check result unit (minimal)**
-After evaluation, check if the result has a valid/coherent unit:
-
-```python
-def verify_result_unit(result_expr):
-    """Verify that result has a coherent unit (not mixed dimensions)."""
-    # If result contains Add of incompatible units, it's invalid
-    if has_mixed_dimensions(result_expr):
-        raise ValueError("Result has incompatible unit dimensions")
-```
-
-**Recommended approach:** Option A - Pre-check dimensional compatibility. It catches the error early, provides clear error messages, and doesn't require major refactoring.
-
-**Test cases to add:**
-```python
-def test_incompatible_addition_raises_error():
-    """Adding incompatible units should raise an error."""
-    result = process_text("$m_1 := 5\\ kg$\n$d_1 := 3\\ m$\n$bad := m_1 + d_1 ==$")
-    assert "Error" in result
-    assert "incompatible" in result.lower()
-
-def test_incompatible_subtraction_raises_error():
-    """Subtracting incompatible units should raise an error."""
-    result = process_text("$t_1 := 10\\ s$\n$v_1 := 5\\ m/s$\n$bad := t_1 - v_1 ==$")
-    assert "Error" in result
-
-def test_compatible_addition_works():
-    """Adding compatible units should work."""
-    result = process_text("$m_1 := 5\\ kg$\n$m_2 := 3\\ kg$\n$total := m_1 + m_2 ==$")
-    assert "Error" not in result
-    assert "8" in result  # 5 + 3 = 8 kg
-
-def test_compatible_mixed_units_works():
-    """Adding compatible but different units should work (with conversion)."""
-    result = process_text("$d_1 := 1\\ km$\n$d_2 := 500\\ m$\n$total := d_1 + d_2 ==$")
-    assert "Error" not in result
-    # Result should be 1500 m or 1.5 km
-```
-
-**Files to modify:**
-- `src/livemathtex/engine/evaluator.py` - Add dimensional compatibility check in `_compute()`
-- `src/livemathtex/engine/pint_backend.py` - Add `get_unit_dimension()` helper
-- `tests/test_dimensional_analysis.py` - New test file for dimensional checking
-- `examples/error-handling/input.md` - Add Category 6: Dimension Mismatch Errors
-
-**Workaround:**
-Users must manually verify that only compatible units are added/subtracted. There is no automatic detection currently.
-
-**Related:**
-- ISSUE-003 (resolved) - Variable/unit fallback bug
-- Pint's DimensionalityError handling
+**Result:**
+- All 148+ tests passing
+- Incompatible unit additions/subtractions now produce clear errors
+- Compatible operations (same dimension, different scale) still work
+- Multiplication/division of different units still works
 
 ---
 
