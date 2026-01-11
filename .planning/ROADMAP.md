@@ -52,13 +52,15 @@ Plans:
 - [ ] 03-02: Add livemathtex clear command
 
 ### Phase 4: Output Unit Conversion
-**Goal**: Fix ISS-007 - display evaluation results in user-requested units instead of SI base units, and ISS-008 - improve unit hint syntax (inline instead of HTML comment)
+**Goal**: Verify and document ISS-007 (already working), implement ISS-008 (inline unit hint syntax)
 **Depends on**: Phase 2 (uses Pint infrastructure)
 **Research**: Unlikely (Pint conversion well-understood)
 **Plans**: 2 plans
 
+**Note**: ISS-007 (`<!-- [unit] -->` syntax) was found to be already implemented and working during planning. Phase 4 Plan 1 focuses on adding tests and documentation. Plan 2 implements the new inline syntax.
+
 Plans:
-- [ ] 04-01: Implement output unit hint parsing and conversion (ISS-007)
+- [ ] 04-01: Add tests and documentation for unit conversion (verify ISS-007)
 - [ ] 04-02: Add inline unit hint syntax `$E == [MWh]$` (ISS-008)
 
 ## Progress
