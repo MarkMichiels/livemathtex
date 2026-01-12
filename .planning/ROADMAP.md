@@ -14,6 +14,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.2 Process/Clear Stability** - Phase 1 (shipped 2026-01-12)
 - ✅ **v1.3 Unit Hint Preservation** - Phases 2-4 (shipped 2026-01-12)
 - ✅ **v1.4 Cleanup & Docs** - Phases 5-7 (shipped 2026-01-12)
+- 🚧 **v1.5 Parser Architecture** - Phases 8-12 (in progress)
 
 ## Phases
 
@@ -88,14 +89,69 @@ Plans:
 
 </details>
 
+### 🚧 v1.5 Parser Architecture (In Progress)
+
+**Milestone Goal:** Replace regex-driven processing with structural parsing for robustness and extensibility. Addresses ISS-017, ISS-018, ISS-019, ISS-020, ISS-021.
+
+**Constraints:**
+- Keep documents clean - no extra visible markup for users
+- Maintain backward compatibility - existing documents should process identically
+- Idempotency is non-negotiable - processing must remain stable on repeated runs
+
+#### Phase 8: Markdown Parser Integration
+**Goal**: Integrate markdown parser library (markdown-it-py or mistune) for AST with exact source spans. Extract math blocks as first-class nodes.
+**Depends on**: v1.4 complete
+**Research**: Likely (library selection and API patterns)
+**Research topics**: markdown-it-py vs mistune API, span extraction, plugin architecture
+**Plans**: TBD
+
+Plans:
+- [ ] 08-01: TBD (run /gsd:plan-phase 8 to break down)
+
+#### Phase 9: Structural Math Parsing
+**Goal**: Within math blocks, parse calculations into internal structure with spans/offsets for operators (:=, ==, ===, =>), lhs/rhs, rendered result parts, error markup.
+**Depends on**: Phase 8
+**Research**: Unlikely (internal patterns, builds on Phase 8)
+**Plans**: TBD
+
+Plans:
+- [ ] 09-01: TBD (run /gsd:plan-phase 9 to break down)
+
+#### Phase 10: Clear Refactor
+**Goal**: Rewrite `clear_text()` to use span-based operations instead of regex. Fixes ISS-021 (document corruption around multiline error blocks).
+**Depends on**: Phase 9
+**Research**: Unlikely (internal refactoring)
+**Plans**: TBD
+
+Plans:
+- [ ] 10-01: TBD (run /gsd:plan-phase 10 to break down)
+
+#### Phase 11: Token Classification
+**Goal**: Centralize "is this a unit, variable, or function?" logic. Handle multi-letter identifiers properly (ISS-018). Either treat as single symbol or provide clear error.
+**Depends on**: Phase 10
+**Research**: Unlikely (internal patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 11-01: TBD (run /gsd:plan-phase 11 to break down)
+
+#### Phase 12: Unit Warnings
+**Goal**: Distinguish calculation errors from formatting warnings. Unit conversion failures show warnings (orange) with SI fallback, not red errors (ISS-017).
+**Depends on**: Phase 11
+**Research**: Unlikely (internal patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 12-01: TBD (run /gsd:plan-phase 12 to break down)
+
 ## Progress
 
-**Execution Order:** Phases execute in numeric order: 5 → 6 → 7
+**Execution Order:** Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
 
 | Phase | Milestone | Plans | Status | Completed |
 |-------|-----------|-------|--------|-----------|
-| 5. Fix Recursive Units | v1.4 | 1/1 | Complete | 2026-01-12 |
-| 6. Error Markup Cleanup | v1.4 | 1/1 | Complete | 2026-01-12 |
-| 7. User Documentation | v1.4 | 1/1 | Complete | 2026-01-12 |
-
-**Milestone v1.4 Complete** - All deferred issues resolved (ISS-014, ISS-015, ISS-016)
+| 8. Markdown Parser Integration | v1.5 | 0/? | Not started | - |
+| 9. Structural Math Parsing | v1.5 | 0/? | Not started | - |
+| 10. Clear Refactor | v1.5 | 0/? | Not started | - |
+| 11. Token Classification | v1.5 | 0/? | Not started | - |
+| 12. Unit Warnings | v1.5 | 0/? | Not started | - |

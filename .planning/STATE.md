@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** Milestone v1.4 Cleanup & Docs - COMPLETE
+**Current focus:** Milestone v1.5 Parser Architecture
 
 ## Current Position
 
-Phase: 7 of 7 (User Documentation)
-Plan: 07-01 complete
-Status: Milestone complete
-Last activity: 2026-01-12 — Phase 7 complete (ISS-015 closed)
+Phase: 8 of 12 (Markdown Parser Integration)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-13 — Milestone v1.5 created
 
-Progress: ██████████ 100% (3/3 phases)
+Progress: ░░░░░░░░░░ 0% (0/5 phases)
 
 ## Performance Metrics
 
@@ -57,7 +57,12 @@ Progress: ██████████ 100% (3/3 phases)
 
 ### Deferred Issues
 
-ISS-017: Unit conversion failures need better diagnostics (warnings vs errors) - Suggested for future milestone
+None - all issues being addressed in v1.5:
+- ISS-017 → Phase 12 (Unit Warnings)
+- ISS-018 → Phase 11 (Token Classification)
+- ISS-019 → Phase 8 (Parser Integration)
+- ISS-020 → Phases 8-9 (Structural Parsing)
+- ISS-021 → Phase 10 (Clear Refactor)
 
 ### Blockers/Concerns
 
@@ -68,15 +73,12 @@ None.
 - Milestone v1.3 complete: All 3 phases (2-4) finished
 - ISS-013 fixed: Inline unit hints survive processing
 - ISS-009 fixed: Custom division units work in standalone evaluations
-- Milestone v1.4 created: Cleanup & Docs, 3 phases (5-7)
-- Phase 5 complete: ISS-014 verified fixed (was side effect of ISS-009 fix)
-- Phase 6 complete: ISS-016 fixed (error markup detection and auto-cleanup)
-- Phase 7 complete: ISS-015 closed (user documentation updated)
 - Milestone v1.4 complete: All deferred issues addressed
+- Milestone v1.5 created: Parser Architecture, 5 phases (8-12)
 
 ## Session Continuity
 
-Last session: 2026-01-12
-Stopped at: Milestone v1.4 complete
+Last session: 2026-01-13
+Stopped at: Milestone v1.5 initialization
 Resume file: None
-Next: Create v1.4.0 release tag (optional)
+Next: Plan Phase 8 (Markdown Parser Integration)
