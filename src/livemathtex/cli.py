@@ -1,4 +1,5 @@
 import click
+import re
 from pathlib import Path
 from .core import process_file, process_text_v3, clear_text
 from .config import LivemathConfig
@@ -260,20 +261,109 @@ def clear(input_file, output):
         <!-- [kJ] --> (unit hints)
     """
     try:
+        from datetime import datetime
+
         input_path = Path(input_file)
         with open(input_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
         cleared, count = clear_text(content)
 
+        # Add metadata footer (same format as process command)
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        metadata_footer = f"\n\n---\n\n> *livemathtex: {now_str} | cleared {count} evaluation{'s' if count != 1 else ''} | no errors | <1s* <!-- livemathtex-meta -->\n"
+
+        # Remove any trailing whitespace/newlines before adding footer
+        cleared = cleared.rstrip()
+        cleared_with_metadata = cleared + metadata_footer
+
         # Determine output path (default: overwrite input)
         output_path = Path(output) if output else input_path
         with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(cleared)
+            f.write(cleared_with_metadata)
 
         click.echo(f"✓ Cleared {input_file}")
         click.echo(f"  Evaluations cleared: {count}")
         click.echo(f"  Output: {output_path}")
+
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+
+@main.command()
+@click.argument('file', type=click.Path(exists=True))
+def copy(file):
+    """Copy input file to output file without processing, or clear inplace file.
+
+    Behavior depends on the directive:
+    - If directive points to a different file: copies this file to that output (input → output)
+    - If directive points to itself: treats as inplace and clears computed values
+
+    Examples:
+
+        livemathtex copy input.md
+        # Copies input.md to output.md (from directive in input.md)
+
+        livemathtex copy output.md
+        # If output.md points to itself, clears computed values (inplace)
+        # If output.md points elsewhere, copies to that location
+    """
+    try:
+        file_path = Path(file)
+
+        # Read the file to check its directive
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Parse document directive to understand the relationship
+        lexer = Lexer()
+        doc_directives = lexer.parse_document_directives(content)
+        config = LivemathConfig.load(file_path).with_overrides(doc_directives)
+
+        # Resolve what the output path would be
+        output_path = config.resolve_output_path(file_path, None)
+
+        # Determine behavior based on directive
+        if output_path == file_path:
+            # File points to itself - treat as inplace and clear computed values
+            from datetime import datetime
+
+            cleared, count = clear_text(content)
+
+            # Add metadata footer (same format as process command)
+            now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            metadata_footer = f"\n\n---\n\n> *livemathtex: {now_str} | cleared {count} evaluation{'s' if count != 1 else ''} | no errors | <1s* <!-- livemathtex-meta -->\n"
+
+            # Remove any trailing whitespace/newlines before adding footer
+            cleared = cleared.rstrip()
+            cleared_with_metadata = cleared + metadata_footer
+
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(cleared_with_metadata)
+            click.echo(f"✓ Cleared computed values from {file_path.name} (inplace)")
+            click.echo(f"  Evaluations cleared: {count}")
+        else:
+            # File points to a different file - copy this file to that output
+            # Add metadata footer to indicate copy operation
+            from datetime import datetime
+
+            now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Remove any existing metadata first
+            content_cleaned = re.sub(
+                r'\n+---\n+>\s*\*livemathtex:[^*]+\*\s*<!--\s*livemathtex-meta\s*-->\n*',
+                '\n',
+                content
+            ).rstrip()
+
+            metadata_footer = f"\n\n---\n\n> *livemathtex: {now_str} | copied from {file_path.name} | no errors | <1s* <!-- livemathtex-meta -->\n"
+            content_with_metadata = content_cleaned + metadata_footer
+
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(content_with_metadata)
+            click.echo(f"✓ Copied {file_path.name} to {output_path.name}")
+            click.echo(f"  Source: {file_path}")
+            click.echo(f"  Output: {output_path}")
 
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
