@@ -1017,6 +1017,8 @@ pandoc calculation_out.md -o calculation.pdf
 | `Invalid syntax` | Parse error |
 | `Circular dependency` | Self-reference |
 | `Computation timeout` | Expression too complex |
+| `Unit redefinition` | Attempting to redefine existing Pint unit (e.g., `$kg === ...`) |
+| `Variable name conflict` | Variable name conflicts with Pint unit (e.g., `a` = year, `s` = second) |
 
 ### Error Display
 
@@ -1031,6 +1033,17 @@ $y == x + 1$ → Error: Undefined variable 'x'
 - In calculation block: `$$ x := 5 \n y = x + 3 $$` → Error on the `y = ...` line
 
 Console also reports errors with line numbers.
+
+### Auto-cleanup Behavior
+
+`process_text()` and `process_file()` automatically detect and clean error markup from previous runs before parsing. This makes processing **idempotent** - running the same document multiple times produces stable, consistent results.
+
+**What gets auto-cleaned:**
+- Previous evaluation results: `$x == 42$` → `$x ==$`
+- Error markup: `\color{red}{...}` patterns
+- Metadata comments: `<!-- livemathtex-meta -->`
+
+Use `detect_error_markup()` to programmatically check if a document contains error patterns before processing. See [Utility Functions](#utility-functions) for details.
 
 ---
 
