@@ -25,31 +25,17 @@ Enhancements discovered during execution. Not critical - address in future phase
   - Current: `Error: Unit conversion failed for 'mol/day': Cannot convert expression to float.`
   - Expected: `Warning: Cannot convert from 'mol' (total) to 'mol/day' (rate) - dimensions incompatible. Showing value in SI: 650.67 mol` (in orange/yellow, not red)
 
+## Closed Enhancements
+
 ### ISS-015: User documentation incomplete/outdated
 
-- **Discovered:** 2026-01-12 (during Phase 3 planning)
-- **Type:** Documentation
-- **Description:** User-facing documentation may not cover all current features and error handling. Needs review and update to include:
-  - Inline unit hint syntax `$E == [kJ]$` (added in v1.3)
-  - HTML comment unit hints `<!-- [unit] -->`
-  - Custom unit definitions with `===` syntax
-  - Error messages for undefined units and redefinition attempts
-  - Process/clear cycle behavior
-  - Examples for all supported syntaxes
-- **Impact:** Medium (users may not discover features or understand errors)
-- **Effort:** Medium
-- **Suggested phase:** v1.4 (after v1.3 stabilizes)
-- **Files to review:**
-  - `README.md` - Main documentation
-  - `docs/` - If exists, all documentation files
-  - `examples/` - Example files should demonstrate all features
-- **Deliverables:**
-  - Complete syntax reference
-  - Feature overview with examples
-  - Error message documentation
-  - Migration guide if breaking changes
-
-## Closed Enhancements
+**Resolved:** 2026-01-12 - Fixed in v1.4 Phase 7
+**Solution:** Updated docs/USAGE.md with comprehensive documentation for v1.2-v1.4 features:
+- Added `clear_text()` and `detect_error_markup()` to Python API documentation
+- Documented auto-cleanup behavior for idempotent processing
+- Added Unit redefinition and Variable name conflict to error types table
+- Verified all 8 examples process successfully
+- All existing syntax (inline unit hints, HTML comments, custom units) was already documented
 
 ### ISS-016: Error markup in input document not detected or cleaned
 
