@@ -42,7 +42,7 @@ Progress: ██████████ 100% (3/3 phases)
 | v1.1 | v1.1.0 | 2026-01-12 | .planning/archive/v1.1/ |
 | v1.2 | — | 2026-01-12 | — |
 | v1.3 | v1.3.0 | 2026-01-12 | .planning/milestones/v1.3-ROADMAP.md |
-| v1.4 | — | 2026-01-12 | — |
+| v1.4 | v1.4.0 | 2026-01-12 | — |
 
 ## Accumulated Context
 
