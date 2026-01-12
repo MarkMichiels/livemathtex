@@ -1,8 +1,10 @@
-# LiveMathTeX v1.3 - Unit Hint Preservation
+# LiveMathTeX
 
 ## What This Is
 
-LiveMathTeX is a CLI tool that processes Markdown documents containing LaTeX calculations, evaluating them with unit support via SymPy and Pint. This milestone fixes unit hint preservation (ISS-013) and custom unit evaluation lookup (ISS-009).
+LiveMathTeX is a CLI tool that processes Markdown documents containing LaTeX calculations, evaluating them with unit support via SymPy and Pint.
+
+**Latest:** v1.3 (shipped 2026-01-12) - Unit hint preservation and custom unit evaluation
 
 ## Core Value
 
@@ -20,20 +22,14 @@ Processing must be idempotent - running process on an already-processed file sho
 - ✓ Public Python API (`process_text`, `clear_text`) — v1.1
 - ✓ Error handling with color-coded markup — existing
 - ✓ Process/clear cycle stability (ISS-012) — v1.2
+- ✓ Inline unit hints survive processing/re-processing (ISS-013) — v1.3
+- ✓ Custom unit evaluation lookup works for all syntaxes (ISS-009) — v1.3
 
 ### Active
 
 <!-- Current scope. Building toward these. -->
 
-- [ ] ISS-013: Inline unit hints survive processing/re-processing
-  - [ ] `$E == [kJ]$` preserved in output (not lost when result inserted)
-  - [ ] Re-processing uses preserved hint (not SI base units)
-  - [ ] clear_text() restores inline hints from processed output
-
-- [ ] ISS-009: Custom unit evaluation lookup works for all syntaxes
-  - [ ] Division-based units (`SEC === MWh/kg`) work in standalone `$var ==`
-  - [ ] Combined `:= ==` syntax (already works)
-  - [ ] Separate definition then evaluation (currently fails)
+None currently.
 
 ### Out of Scope
 
@@ -64,4 +60,4 @@ Processing must be idempotent - running process on an already-processed file sho
 | Pre-processing approach | Clear already-processed content before parsing | ✓ Resolved v1.2 |
 
 ---
-*Last updated: 2026-01-12 after milestone v1.3 initialization*
+*Last updated: 2026-01-12 — v1.3 shipped*

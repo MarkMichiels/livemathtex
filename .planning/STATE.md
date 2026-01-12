@@ -5,16 +5,13 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** Milestone v1.3 Unit Hint Preservation - COMPLETE
+**Current focus:** None - v1.3 shipped
 
 ## Current Position
 
-Phase: 4 of 4 (Re-processing Verification)
-Plan: 1 of 1 in current phase
-Status: Milestone complete
-Last activity: 2026-01-12 — Completed 04-01-PLAN.md
-
-Progress: ██████████ 100% (3/3 phases complete)
+Status: Idle (no active milestone)
+Last milestone: v1.3 Unit Hint Preservation (shipped 2026-01-12)
+Last activity: 2026-01-12 — Milestone v1.3 archived
 
 ## Performance Metrics
 
@@ -38,7 +35,7 @@ Progress: ██████████ 100% (3/3 phases complete)
 |---------|-----|-----------|---------|
 | v1.1 | v1.1.0 | 2026-01-12 | .planning/archive/v1.1/ |
 | v1.2 | — | 2026-01-12 | — |
-| v1.3 | — | 2026-01-12 | — |
+| v1.3 | v1.3.0 | 2026-01-12 | .planning/milestones/v1.3-ROADMAP.md |
 
 ## Accumulated Context
 
@@ -70,6 +67,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-12
-Stopped at: Milestone v1.3 complete
-Resume file: None (milestone complete)
-Next: Run /gsd:complete-milestone to archive v1.3
+Stopped at: Milestone v1.3 archived
+Resume file: None
+Next: Start new milestone when needed
