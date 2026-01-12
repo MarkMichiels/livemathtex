@@ -143,15 +143,23 @@ Unknown units are silently ignored - the value is stored without a unit. This ca
 
 ### Unknown unit is ignored
 
-$x_{foo} := 5\ foo$
-$x_{foo} == 5$
+$x_{foo} := 5\ foo
+\\ \color{red}{\text{
+    Error: Undefined variable 'f'. Define it before use.}}$
+$x_{foo} ==
+\\ \color{red}{\text{
+    Error: Undefined variable 'x\_foo'. Define it before use.}}$
 
 Note: `foo` is not a recognized unit, so `x_foo` becomes just `5` (unitless).
 
 ### Another unknown unit
 
-$y_{stuks} := 10\ stuks$
-$y_{stuks} == 10$
+$y_{stuks} := 10\ stuks
+\\ \color{red}{\text{
+    Error: Undefined variable 'k'. ('k' is also a unit: unit. Use a subscript like 'k\_tot' to avoid confusion with the unit.)}}$
+$y_{stuks} ==
+\\ \color{red}{\text{
+    Error: Undefined variable 'y\_stuks'. Define it before use.}}$
 
 Same problem: `stuks` is not recognized, unit is lost.
 
@@ -222,15 +230,16 @@ These examples show the correct patterns to follow.
 $m_1 := 10\ kg$
 $v_1 := 5\ \frac{m}{s}$
 $E_1 := 1000\ kWh$
+$g_{acc} := 9.81\ \frac{m}{s^2}$
 
 ### Formula definitions (operators between defined variables)
 
-$F_1 := m_1 \cdot 9.81$
-$F_1 == 98.1$
+$F_1 := m_1 \cdot g_{acc}$
+$F_1 == 98.1\ \text{kg} \cdot \text{m}/\text{s}^{2}$
 
 ### Unit conversions
 
-$F_{1,N} := F_1 == 98.1$ <!-- [N] -->
+$F_{1,N} := F_1 == 98.1\ \text{N}$ <!-- [N] -->
 
 ---
 
@@ -250,4 +259,4 @@ $F_{1,N} := F_1 == 98.1$ <!-- [N] -->
 
 ---
 
-> *livemathtex: 2026-01-11 20:43:48 | 42 definitions, 20 evaluations | 11 errors | 0.50s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-12 03:54:44 | 43 definitions, 20 evaluations | 15 errors | 0.56s* <!-- livemathtex-meta -->

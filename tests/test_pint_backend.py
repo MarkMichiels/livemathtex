@@ -430,8 +430,51 @@ $ratio ==$ <!-- [SEC] -->
 '''
         result = process_text(input_text)
 
+        # process_text returns (text, IR) tuple
+        result_text = result[0] if isinstance(result, tuple) else result
+
         # Should show "18 SEC" not a raw number like "1.8e10"
-        assert '18' in result
-        assert 'SEC' in result
+        assert '18' in result_text
+        assert 'SEC' in result_text
         # Should NOT show raw SI value (like 6.48e+13 J/kg)
-        assert '6.48' not in result
+        assert '6.48' not in result_text
+
+    def test_redefine_existing_unit_raises_error(self):
+        """Attempting to redefine kg should raise error during processing."""
+        from livemathtex import process_text
+        import pytest
+
+        # kg is a Pint unit - should not be overwritable
+        input_text = '$$ kg === 1000 g $$'
+        result_text, _ = process_text(input_text)
+
+        # Should contain error message about redefining existing unit
+        assert 'Cannot redefine existing unit' in result_text
+        assert 'kg' in result_text
+
+    def test_redefine_newton_raises_error(self):
+        """Attempting to redefine N (Newton) should raise error during processing."""
+        from livemathtex import process_text
+
+        # N is a Pint unit - should not be overwritable
+        input_text = '$$ N === kg * m / s**2 $$'
+        result_text, _ = process_text(input_text)
+
+        # Should contain error message about redefining existing unit
+        assert 'Cannot redefine existing unit' in result_text
+        assert 'N' in result_text
+
+    def test_custom_unit_can_be_defined(self):
+        """Custom units with unique names should work."""
+        from livemathtex import process_text
+
+        # STUKS is NOT a Pint unit - should work without error
+        input_text = '''$$ STUKS === STUKS $$
+$n_{items} := 5\\ STUKS$
+$n_{items} ==$'''
+        result_text, _ = process_text(input_text)
+
+        # Should NOT contain error message
+        assert 'Error' not in result_text or 'Cannot redefine' not in result_text
+        # Should contain the value with unit
+        assert 'STUKS' in result_text

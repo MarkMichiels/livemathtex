@@ -10,10 +10,11 @@ This example tests the `===` syntax for defining **truly custom** units - units 
 
 **Built-in** (no definition needed): `kg`, `m`, `s`, `W`, `bar`, `L`, `mL`, `Pa`, `hour`
 
+**Also built-in** (via Pint): `kW`, `MW`, `mbar`, `kWh`, `MWh`, `EUR`, `dag`
+
 **NOT built-in** (need `===` definition):
-- Prefix combinations: `kW`, `mbar`, `kWh`, `MW`
-- Currency: `€`, `dollar`
-- Custom abbreviations: `dag` (Dutch for day)
+- Currency symbols: `€` (but EUR is built-in)
+- Application-specific units: e.g., `STUKS`, `SEC` (specific energy consumption)
 
 ---
 
@@ -35,9 +36,7 @@ $$final\_price := price \cdot (1 - discount) == 80\ \text{€}$$
 
 ## Test 2: Kilowatt - SI Output vs Custom Unit
 
-SymPy has `watt` and `kilo`, but not `kilowatt` or `kW`:
-
-$$kW === kilo \cdot W$$
+Pint knows `kW` (no definition needed):
 
 $$power := 5\ kW$$
 
@@ -66,9 +65,7 @@ $$energy\_decimal := power \cdot time == 40\ \text{kWh}$$ <!-- [kWh] format:deci
 
 ## Test 3: Millibar - SI Output vs Custom Unit
 
-SymPy has `bar` and `milli`, but not `millibar` or `mbar`:
-
-$$mbar === milli \cdot bar$$
+Pint knows `mbar` (no definition needed):
 
 $$pressure\_atm := 1013\ mbar$$
 
@@ -90,9 +87,7 @@ $$pressure\_mbar := pressure\_atm \cdot factor == 2026\ \text{mbar}$$ <!-- [mbar
 
 ## Test 4: Kilowatt-hour - Unit Cancellation
 
-The classic energy unit - must be defined:
-
-$$kWh === kilo \cdot W \cdot hour$$
+Pint knows `kWh` (no definition needed):
 
 $$electricity\_price := 0.139\ €/kWh$$
 
@@ -262,10 +257,12 @@ $$huge\_dec := 1000000000000000 == 1\,000\,000\,000\,000\,000$$ <!-- format:deci
 | `kg`, `m`, `s`, `W` | ✅ Yes | No |
 | `bar`, `Pa`, `L` | ✅ Yes | No |
 | `hour`, `day` | ✅ Yes | No |
-| `kW`, `MW`, `GW` | ❌ No | `kW === kilo \cdot W` |
-| `mbar`, `kPa` | ❌ No | `mbar === milli \cdot bar` |
-| `kWh`, `MWh` | ❌ No | `kWh === kilo \cdot W \cdot hour` |
-| `€`, `$` | ❌ No | `€ === €` |
+| `kW`, `MW`, `GW` | ✅ Yes (Pint) | No |
+| `mbar`, `kPa` | ✅ Yes (Pint) | No |
+| `kWh`, `MWh` | ✅ Yes (Pint) | No |
+| `EUR` | ✅ Yes (Pint) | No |
+| `€` (symbol) | ❌ No | `€ === €` |
+| Custom units | ❌ No | `STUKS === STUKS` |
 
 ## Output Control Syntax
 
@@ -293,11 +290,9 @@ $x ==$ <!-- digits:4 [mbar] -->
 This section specifically tests the `value:` directive with custom units (MWh, EUR, etc.).
 This was broken before ISSUE-001 was fixed.
 
-### Setup: Define Custom Units
-
-$$MWh === 1000 \cdot kWh$$
-
 ### Test Data
+
+Note: MWh is built-in via Pint (no definition needed).
 
 $$E := 5000\ kWh$$
 
@@ -324,4 +319,4 @@ These should display the correct converted values:
 
 ---
 
-> *livemathtex: 2026-01-08 | 62 definitions, 42 evaluations, 4 value refs | 0 errors* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-12 04:03:53 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.58s* <!-- livemathtex-meta -->

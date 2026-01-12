@@ -584,14 +584,36 @@ class Evaluator:
             # Try to strip unit from the RHS (e.g., "0.139\ €/kWh" -> "0.139", "€/kWh")
             value_latex, unit_latex, sympy_unit = strip_unit_from_value(rhs_raw)
 
-            # Compute the numeric value (without unit)
-            value = self._compute(value_latex)
+            # ISS-009 FIX: If unit was explicitly given, compute value without unit.
+            # If no unit stripped (formula like E_1 / m_1), compute WITH unit propagation
+            # so that units from variables are carried through the calculation.
+            if sympy_unit is not None:
+                # Explicit unit given - compute just the numeric value
+                value = self._compute(value_latex)
+            else:
+                # No explicit unit - compute entire expression with unit propagation
+                value = self._compute(rhs_raw, propagate_units=True)
+
+            # IMPORTANT: Simplify symbolic expressions to numeric
+            # This must happen BEFORE extracting unit
+            if hasattr(value, 'evalf'):
+                value = value.evalf()
+
+            # Extract unit from computed result if it has units (and no explicit unit was given)
+            result_unit = sympy_unit
+            result_unit_latex = unit_latex or ""
+            if sympy_unit is None:
+                # No explicit unit - extract from computed value
+                result_unit, result_unit_latex = self._extract_unit_from_value(value)
+                if result_unit is not None:
+                    # Store just the numeric part
+                    value = self._extract_numeric_value(value)
 
             # Extract numeric original value
             original_value = self._extract_numeric_value(value) if value is not None else None
 
             # Convert to SI if there's a unit
-            si_value, si_unit, valid = self._convert_to_si(value, sympy_unit)
+            si_value, si_unit, valid = self._convert_to_si(value, result_unit)
 
             # v3.0: Classify and track dependencies (only in clean ID mode)
             is_formula_flag = False
@@ -613,7 +635,7 @@ class Evaluator:
                 raw_latex=rhs_raw,
                 latex_name=original_target,
                 original_value=original_value,
-                original_unit=unit_latex or None,
+                original_unit=result_unit_latex or None,  # Use extracted unit if no explicit unit
                 valid=valid,
                 line=getattr(self, '_current_line', 0),
                 # v3.0 formula tracking (only populated in clean ID mode)
@@ -1181,8 +1203,12 @@ class Evaluator:
             # Re-raise ValueError for unrecognized units
             raise
         except Exception as e:
-            # Fallback if conversion fails for other reasons
-            return value, ""
+            # ISS-009 FIX: Don't silently swallow errors - raise with context
+            # This helps diagnose issues like dimension mismatches or undefined units
+            raise ValueError(
+                f"Unit conversion failed for '{target_unit_latex}': {e}. "
+                f"Check that the unit is properly defined and dimensionally compatible."
+            ) from e
 
     def _handle_symbolic(self, calc: Calculation) -> str:
         """Handle $expr =>$"""
@@ -1267,13 +1293,21 @@ class Evaluator:
         Returns:
             The original LaTeX (unit definitions don't produce output)
         """
-        from .pint_backend import define_custom_unit_from_latex
+        from .pint_backend import define_custom_unit_from_latex, is_pint_unit
 
         unit_name = calc.target.strip() if calc.target else ""
         definition = calc.original_result.strip() if calc.original_result else ""
 
         if not unit_name:
             raise EvaluationError("Unit definition requires a unit name on the left side of ===")
+
+        # ISS-009 FIX: Check if unit already exists in Pint BEFORE we define it.
+        # This must be done before define_custom_unit_from_latex which adds to Pint registry.
+        if is_pint_unit(unit_name):
+            raise EvaluationError(
+                f"Cannot redefine existing unit '{unit_name}'. "
+                f"Choose a different name for your custom unit."
+            )
 
         # Build the full definition string for the unit registry
         full_definition = f"{unit_name} === {definition}"

@@ -11,6 +11,10 @@ class MarkdownRenderer:
         """
         Reconstruct document text from AST and calculated results.
         Injects/Updates metadata footer at the bottom if provided.
+
+        Note: calculations dict values can be either:
+        - str: The calculated result LaTeX (legacy format)
+        - tuple[str, Optional[str]]: (result, inline_unit_hint) for ISS-013 support
         """
         import re
         output = []
@@ -25,7 +29,14 @@ class MarkdownRenderer:
                 output.append(text)
             elif isinstance(node, MathBlock):
                 if node in calculations:
-                    new_inner = calculations[node]
+                    calc_value = calculations[node]
+
+                    # ISS-013: Support tuple format (result, inline_unit_hint)
+                    if isinstance(calc_value, tuple):
+                        new_inner, inline_unit_hint = calc_value
+                    else:
+                        new_inner = calc_value
+                        inline_unit_hint = None
 
                     # Check if this is a value display (<!-- value:... --> syntax)
                     # Value display outputs the number in math mode, preserving the comment
@@ -44,12 +55,16 @@ class MarkdownRenderer:
                         else:
                             math_part = f"${new_inner}$"
 
+                        # ISS-013: Use inline_unit_hint if block doesn't have unit_comment
+                        # This preserves inline [unit] syntax as HTML comment in output
+                        effective_unit = node.unit_comment or inline_unit_hint
+
                         # Preserve comments: unit_comment and/or config_comment
-                        if node.unit_comment and node.config_comment:
+                        if effective_unit and node.config_comment:
                             # Both unit and config: combine them
-                            output.append(f"{math_part} <!-- [{node.unit_comment}] {node.config_comment} -->")
-                        elif node.unit_comment:
-                            output.append(f"{math_part} <!-- [{node.unit_comment}] -->")
+                            output.append(f"{math_part} <!-- [{effective_unit}] {node.config_comment} -->")
+                        elif effective_unit:
+                            output.append(f"{math_part} <!-- [{effective_unit}] -->")
                         elif node.config_comment:
                             output.append(f"{math_part} <!-- {node.config_comment} -->")
                         else:

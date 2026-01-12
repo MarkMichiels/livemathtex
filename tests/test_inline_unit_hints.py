@@ -229,3 +229,52 @@ class TestClearTextPreservesInlineUnitHints:
         # Should have restored the inline hint
         assert '$E == [kJ]$' in cleared or '$E ==$' in cleared
         assert count == 1  # One evaluation cleared
+
+
+class TestInlineUnitHintReprocessing:
+    """Test that re-processing output uses preserved unit hints (ISS-013)."""
+
+    def test_reprocess_preserves_unit_hint(self):
+        """Re-processing output should use same unit, not fall back to SI base."""
+        input_content = '$E_total := 1000000\\ J$\n$E_kJ := E_total == [kJ]$'
+
+        # First process
+        processed1, _ = process_text(input_content)
+        assert '\\text{kJ}' in processed1  # Uses kJ
+
+        # Re-process the output
+        processed2, _ = process_text(processed1)
+        assert '\\text{kJ}' in processed2  # Still kJ, NOT kg·m²/s²
+        assert 'kg' not in processed2  # Should NOT fall back to base units
+
+    def test_reprocess_cycle_is_stable(self):
+        """Processing the same content twice should produce identical results."""
+        input_content = '$E := 1000000\\ J$\n$E == [kJ]$'
+
+        # First process
+        processed1, _ = process_text(input_content)
+
+        # Second process (of the processed output)
+        processed2, _ = process_text(processed1)
+
+        # Third process (of the re-processed output)
+        processed3, _ = process_text(processed2)
+
+        # Results should be stable
+        assert processed2 == processed3  # Idempotent after first pass
+        assert '\\text{kJ}' in processed2
+        assert '\\text{kJ}' in processed3
+
+    def test_reprocess_combined_definition_evaluation(self):
+        """Combined := == syntax should also survive re-processing."""
+        # Use Power_1 to avoid conflict with P (poise unit)
+        input_content = '$Power_1 := 1000\\ W$\n$Power_kW := Power_1 == [kW]$'
+
+        # First process
+        processed1, _ = process_text(input_content)
+        assert '\\text{kW}' in processed1
+
+        # Re-process
+        processed2, _ = process_text(processed1)
+        assert '\\text{kW}' in processed2
+        assert 'kg' not in processed2  # Not base units

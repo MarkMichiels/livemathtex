@@ -1548,6 +1548,9 @@ class SymPyUnitRegistry:
         Parse and register a unit definition from `===` syntax.
 
         Returns UnitDefinition if successful, None if not a unit definition.
+
+        Note: Validation for existing units should be done in the caller
+        (evaluator._handle_unit_definition) BEFORE adding to Pint registry.
         """
         if '===' not in latex:
             return None
@@ -1605,6 +1608,8 @@ class SymPyUnitRegistry:
 
     def _parse_unit_expression(self, expr: str) -> Optional[Any]:
         """Parse a unit expression like 'bar/1000' or 'kW * h'."""
+        import re
+
         expr = expr.replace('\\cdot', '*').replace('\\times', '*').replace('\\div', '/')
 
         # ISSUE-002: Build namespace dynamically from SymPy units (not hardcoded dict)
@@ -1619,17 +1624,27 @@ class SymPyUnitRegistry:
             'kilogram': kilogram, 'kilo': kilo, 'milli': milli, 'micro': micro,
             'centi': centi, 'joule': joule, 'pascal': pascal, 'hertz': hertz,
             'volt': volt, 'ampere': ampere, 'ohm': ohm, 'kelvin': kelvin,
-            'minute': minute, 'milligram': milligram, 
+            'minute': minute, 'milligram': milligram,
             # Common abbreviations
             'm': meter, 's': second, 'kg': kilogram, 'g': gram,
             'h': hour, 'min': minute, 'W': watt, 'J': joule,
             'Pa': pascal, 'Hz': hertz, 'V': volt, 'A': ampere,
             'K': kelvin, 'L': liter, 'N': newton,
         })
-        
+
         # Also add newton (imported at file level)
         namespace['newton'] = newton
         namespace['N'] = newton
+
+        # ISS-009 FIX: Add prefixed units that aren't in the base namespace
+        # Extract tokens from expression and resolve via pint_to_sympy_with_prefix
+        # This handles units like MWh, kJ, GW that have SI prefixes
+        tokens = re.findall(r'[A-Za-z]\w*', expr)
+        for token in tokens:
+            if token not in namespace:
+                sympy_unit = pint_to_sympy_with_prefix(token)
+                if sympy_unit is not None:
+                    namespace[token] = sympy_unit
 
         try:
             return eval(expr, {"__builtins__": {}}, namespace)

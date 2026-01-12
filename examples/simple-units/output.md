@@ -47,10 +47,10 @@ Convert to kilonewtons (HTML comment syntax):
 $F_2kN := F_2 == 0.2452\ \text{kN}$ <!-- [kN] -->
 
 Convert to Newtons (inline syntax - recommended):
-$F_2N_inline := F_2 == 245.2\ \text{N}$
+$F_2N_inline := F_2 == 245.2\ \text{N}$ <!-- [N] -->
 
 Convert to kilonewtons (inline syntax - recommended):
-$F_2kN_inline := F_2 == 0.2452\ \text{kN}$
+$F_2kN_inline := F_2 == 0.2452\ \text{kN}$ <!-- [kN] -->
 
 ## Compare Results
 

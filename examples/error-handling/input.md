@@ -200,10 +200,11 @@ These examples show the correct patterns to follow.
 $m_1 := 10\ kg$
 $v_1 := 5\ \frac{m}{s}$
 $E_1 := 1000\ kWh$
+$g_{acc} := 9.81\ \frac{m}{s^2}$
 
 ### Formula definitions (operators between defined variables)
 
-$F_1 := m_1 \cdot 9.81$
+$F_1 := m_1 \cdot g_{acc}$
 $F_1 ==$
 
 ### Unit conversions
