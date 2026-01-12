@@ -21,19 +21,6 @@ Enhancements discovered during execution. Not critical - address in future phase
   - After processing: `$F_2N_inline := F_2 == 245.2\ \text{N}$` (hint lost)
   - After re-processing: Falls back to SI base units (kg·m/s²) instead of N
 
-### ISS-012: Process/clear cycle produces unstable results and incorrect errors
-
-- **Discovered:** Post-Phase 4 (2026-01-12)
-- **Type:** Bug
-- **Description:** When processing an already-processed output file multiple times, or after clearing it, unexpected changes occur. The file should remain stable (only timestamp should change) but instead: (1) Additional errors appear on repeated processing (Scenario 4: F9 on output.md second time), (2) File content changes after clearing and re-processing (Scenario 6: F9 after clear), (3) Error markup is not fully cleaned, causing parsing issues. Root causes: (a) `clear_text()` function doesn't remove all error markup formats (incomplete math blocks `\\ }$`, multiline errors), (b) Parser misinterprets error artifacts as math content, (c) No stability check for in-place processing, (d) Clear function doesn't restore file to exact input state. See `.planning/BUG_INVESTIGATION.md` for detailed analysis and test scenarios.
-- **Impact:** High (affects core workflow: process → clear → re-process)
-- **Effort:** Substantial
-- **Suggested phase:** Future (after v1.1 milestone)
-- **Files to change:**
-  - `src/livemathtex/core.py` - Improve `clear_text()` error markup patterns, add stability check for in-place processing
-  - `src/livemathtex/parser/lexer.py` - Handle error artifacts in math block parsing
-  - `tests/test_process_clear_cycle.py` - Regression tests (already created, currently failing as expected)
-
 ### ISS-009: Compound unit definitions fail with division
 
 - **Discovered:** Phase 2 (2026-01-11)
@@ -47,6 +34,11 @@ Enhancements discovered during execution. Not critical - address in future phase
   - `tests/test_pint_backend.py` - Add compound unit definition tests
 
 ## Closed Enhancements
+
+### ISS-012: Process/clear cycle produces unstable results and incorrect errors
+
+**Resolved:** 2026-01-12 - Fixed in v1.2 Phase 1
+**Solution:** Fixed `clear_text()` to properly handle nested braces in error markup using pattern `\{(?:[^{}]|\{[^{}]*\})*\}`. Added cleanup patterns for orphaned artifacts (`\\ }$`, `\\ $`). Added pre-processing step in `process_file()` to clear already-processed content before parsing. All 8 cycle tests now pass.
 
 ### ISS-010: Expose public Python API for library usage
 
@@ -101,5 +93,3 @@ Enhancements discovered during execution. Not critical - address in future phase
 ---
 
 *Last reviewed: 2026-01-12*
-
-**Note:** ISS-012 bug investigation documented in `.planning/BUG_INVESTIGATION.md` with detailed test scenarios and root cause analysis.

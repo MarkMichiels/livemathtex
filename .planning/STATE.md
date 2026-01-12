@@ -5,46 +5,49 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** Milestone v1.2 - Fix ISS-012
+**Current focus:** Milestone v1.2 Complete
 
 ## Current Position
 
-Phase: 1 of 1 - Fix Clear/Process Cycle
-Plan: 0 of 2 complete
-Status: **Ready to execute**
-Last activity: 2026-01-12 — Phase 1 planned
+Phase: All phases complete
+Plan: 2 of 2 complete
+Status: **Milestone v1.2 Complete**
+Last activity: 2026-01-12 — Completed Phase 1 (01-01, 01-02)
 
-Progress: ░░░░░░░░░░ 0% (0/2 plans complete)
+Progress: ██████████ 100% (2/2 plans complete)
+
+## Performance Metrics
+
+**Velocity:**
+- Total plans completed: 2
+- Average duration: ~8 min
+- Total execution time: ~16 min
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 1. Fix Clear/Process Cycle | 2/2 | ~16 min | ~8 min |
 
 ## Completed Milestones
 
 | Version | Tag | Completed | Archive |
 |---------|-----|-----------|---------|
 | v1.1 | v1.1.0 | 2026-01-12 | .planning/archive/v1.1/ |
+| v1.2 | — | 2026-01-12 | — |
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- TDD approach for ISS-012 (failing tests already exist)
-- Focus on clear_text() first (root cause is incomplete error cleanup)
-- **01-01:** Use nested brace regex pattern `\{(?:[^{}]|\{[^{}]*\})*\}` for proper matching
-
-### Root Cause Analysis
-
-Problem: `clear_text()` pattern `\{[^}]*\}` stops at first `}` in nested `\color{red}{\text{...}}`, leaving `\\ }$` artifacts.
-
-Solution:
-1. Fix nested brace handling in error patterns
-2. Add cleanup patterns for orphaned artifacts
-3. Fix incomplete math blocks after error removal
+- **01-01:** Pre-processing approach - clear already-processed content before parsing
+- **01-01:** Fixed test assertions that incorrectly checked for "Error:" in section headings
+- **01-01:** Use nested brace regex `\{(?:[^{}]|\{[^{}]*\})*\}` for proper matching
 
 ### Deferred Issues
 
-ISS-009: Compound unit definitions with division (deferred to v1.3)
+- ISS-009: Compound unit definitions with division (future milestone)
+- ISS-013: Inline unit hint syntax lost after processing (future milestone)
 
 ### Blockers/Concerns
 
@@ -53,6 +56,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-12
-Stopped at: Phase 1 planned, ready to execute 01-01
+Stopped at: Milestone v1.2 complete
 Resume file: None
-Next: Execute plan 01-01
+Next: Ready for release tagging or next milestone planning

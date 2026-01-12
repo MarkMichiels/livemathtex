@@ -35,8 +35,8 @@ None (regex patterns, Python)
 - `tests/test_process_clear_cycle.py` - Existing failing tests should pass
 
 Plans:
-- [ ] 01-01: Fix clear_text() error markup patterns
-- [ ] 01-02: Add idempotency check and verify full cycle
+- [x] 01-01: Fix clear_text() error markup patterns
+- [x] 01-02: Add idempotency check and verify full cycle
 
 ## Progress
 
@@ -45,4 +45,6 @@ Phases execute in numeric order: 1
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Fix Clear/Process Cycle | 0/2 | Not started | — |
+| 1. Fix Clear/Process Cycle | 2/2 | Complete | 2026-01-12 |
+
+**Milestone v1.2 Complete:** 2/2 plans executed successfully.
