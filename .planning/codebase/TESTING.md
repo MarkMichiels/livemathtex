@@ -34,10 +34,11 @@ pytest -k "test_name"            # Run specific test
 ```
 tests/
 ├── __init__.py
-├── conftest.py              # Shared fixtures
-├── test_examples.py         # Snapshot tests (14,748 bytes)
-├── test_pint_backend.py     # Unit backend tests (10,211 bytes)
-└── test_unit_recognition.py # Unit recognition tests (9,500 bytes)
+├── conftest.py                    # Shared fixtures
+├── test_examples.py               # Snapshot tests (14,748 bytes)
+├── test_pint_backend.py           # Unit backend tests (10,211 bytes)
+├── test_unit_recognition.py       # Unit recognition tests (9,500 bytes)
+└── test_process_clear_cycle.py    # Process/clear cycle stability tests
 ```
 
 ## Test Structure
@@ -99,6 +100,14 @@ def examples_dir() -> Path:
 - Test individual functions in isolation
 - Test unit parsing, conversion, recognition
 - Test edge cases and error handling
+
+**Integration Tests (`test_process_clear_cycle.py`):**
+- Test process/clear cycle stability
+- Verify that processing same file multiple times produces stable results
+- Test that clear → process cycle produces same result as original
+- Test that copy → process cycle produces same result as original
+- Verify error markup is fully cleaned
+- Documents known bugs in process/clear workflow
 
 **Pattern:**
 ```python
@@ -184,7 +193,43 @@ def test_is_pint_unit(unit: str, expected: bool) -> None:
     assert is_pint_unit(unit) == expected
 ```
 
+**Process/Clear Cycle Tests:**
+```python
+def test_scenario_4_process_output_second_time(temp_example_dir: Path):
+    """
+    Scenario 4: F9 on output.md (second time) → should be stable.
+
+    Expected: File should NOT change (only timestamp should update).
+    This test documents the current bug where content changes.
+    """
+    # Process output.md first time
+    process_file(str(output_file), None, verbose=False)
+    first_content = normalize_for_comparison(output_file.read_text())
+
+    # Process output.md second time
+    process_file(str(output_file), None, verbose=False)
+    second_content = normalize_for_comparison(output_file.read_text())
+
+    # BUG: Currently fails - content should be stable
+    assert first_content == second_content, \
+        "Content should be stable on second processing"
+```
+
+**Test Scenarios Covered:**
+1. **Scenario 1:** F9 on input.md → output.md generated
+2. **Scenario 2:** Shift+F9 on input.md → output.md cleaned (copy)
+3. **Scenario 3:** F9 on output.md (first time) → recalculated
+4. **Scenario 4:** F9 on output.md (second time) → should be stable (currently fails)
+5. **Scenario 5:** Shift+F9 on output.md → cleared
+6. **Scenario 6:** F9 on output.md after clear → should match Scenario 1 (currently fails)
+
+**Running Process/Clear Cycle Tests:**
+```bash
+pytest tests/test_process_clear_cycle.py -v
+pytest tests/test_process_clear_cycle.py::test_scenario_4_process_output_second_time
+```
+
 ---
 
-*Testing analysis: 2026-01-11*
+*Testing analysis: 2026-01-12*
 *Update when test patterns change*
