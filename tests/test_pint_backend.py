@@ -372,3 +372,66 @@ class TestCleanLatexUnit:
         """Unicode middle dot (·) should become *."""
         result = clean_latex_unit("kg·m/s^2")
         assert result == "kg * m/s**2"
+
+
+class TestCustomUnitWithDivision:
+    """Tests for ISS-009: Custom units defined with division."""
+
+    def setup_method(self):
+        """Reset registry before each test."""
+        from livemathtex.engine.pint_backend import reset_sympy_unit_registry
+        reset_unit_registry()
+        reset_sympy_unit_registry()
+
+    def test_define_division_unit_sympy_lookup(self):
+        """SEC === MWh/kg should create proper SymPy unit."""
+        from livemathtex.engine.pint_backend import (
+            get_sympy_unit_registry,
+        )
+        from sympy.physics.units import mega, watt, hour, kilogram
+
+        registry = get_sympy_unit_registry()
+
+        # Define SEC as MWh/kg
+        registry.define_unit('SEC === MWh/kg')
+
+        # Get the unit
+        sec_unit = registry.get_unit('SEC')
+
+        # It should NOT be a bare Quantity with no dimensions
+        assert sec_unit is not None
+
+        # It should be equivalent to MWh/kg = mega*watt*hour/kilogram
+        expected = mega * watt * hour / kilogram
+
+        # Check dimensional equivalence (ratio should be dimensionless number)
+        from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
+        ratio = sec_unit / expected
+        ratio_base = convert_to(ratio, [kg, m, s, A, K, mol, cd])
+
+        # Should be 1.0 (same dimensions)
+        assert float(ratio_base) == 1.0
+
+    def test_standalone_evaluation_with_custom_division_unit(self):
+        """Standalone $var ==$ should work with division-based custom units."""
+        from livemathtex import process_text
+
+        # Use subscripted variable names to avoid unit conflicts (m conflicts with meter)
+        input_text = '''
+$$ SEC === MWh/kg $$
+
+$E_1 := 18000\\ MWh$
+
+$m_1 := 1000\\ kg$
+
+$ratio := E_1 / m_1$
+
+$ratio ==$ <!-- [SEC] -->
+'''
+        result = process_text(input_text)
+
+        # Should show "18 SEC" not a raw number like "1.8e10"
+        assert '18' in result
+        assert 'SEC' in result
+        # Should NOT show raw SI value (like 6.48e+13 J/kg)
+        assert '6.48' not in result
