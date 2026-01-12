@@ -1,78 +1,48 @@
-# Roadmap: LiveMathTeX v1.1
+# Roadmap: LiveMathTeX v1.2
 
 ## Overview
 
-Fix critical calculation bugs that undermine trust, add quality-of-life features (public API, clear command), and improve output formatting (unit conversion). Small, focused milestone.
+Fix ISS-012: Process/clear cycle instability. Small, focused milestone with single bug fix.
 
 ## Domain Expertise
 
-None (standard Python CLI patterns)
+None (regex patterns, Python)
 
 ## Phases
 
 **Phase Numbering:**
 - Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
+- Decimal phases (1.1, 1.2): Urgent insertions (marked with INSERTED)
 
-- [x] **Phase 1: Critical Bug Fix** - Fix ISS-003 (variable/unit fallback)
-- [x] **Phase 2: Bug Fixes** - Fix ISS-004, ISS-005, and ISS-006
-- [x] **Phase 3: API Features** - ISS-010 (public API) and ISS-011 (clear command)
-- [x] **Phase 4: Output Unit Conversion** - Verify ISS-007 (already working), add ISS-008 (inline unit hint syntax)
+- [ ] **Phase 1: Fix Clear/Process Cycle** - Comprehensive error cleanup and idempotency
 
 ## Phase Details
 
-### Phase 1: Critical Bug Fix
-**Goal**: Fix ISS-003 - failed variable definition must not silently fall back to unit interpretation
+### Phase 1: Fix Clear/Process Cycle
+**Goal**: Make process/clear cycle stable and idempotent
 **Depends on**: Nothing (first phase)
-**Research**: Unlikely (internal codebase, issue well-documented in ISSUES.md)
-**Plans**: 1 plan (TDD approach)
-
-Plans:
-- [x] 01-01: TDD fix for variable/unit fallback bug
-
-### Phase 2: Bug Fixes
-**Goal**: Fix ISS-004, ISS-005, and ISS-006 (directive parser, LaTeX units, dimensional analysis)
-**Depends on**: Phase 1
-**Research**: Unlikely (solutions documented in ISSUES.md)
-**Plans**: 3 plans
-
-Plans:
-- [x] 02-01: Fix directive parser to skip code blocks (ISS-004)
-- [x] 02-02: Add LaTeX unit cleaning for Pint (ISS-005)
-- [x] 02-03: Add dimensional compatibility checking (ISS-006)
-
-### Phase 3: API Features
-**Goal**: Expose public Python API (ISS-010) and add clear command (ISS-011)
-**Depends on**: Phase 2
-**Research**: Unlikely (straightforward Python patterns)
+**Research**: Unlikely (root cause documented in BUG_INVESTIGATION.md)
 **Plans**: 2 plans
 
-Plans:
-- [x] 03-01: Expose public API in __init__.py
-- [x] 03-02: Add livemathtex clear command
+**Sub-goals:**
+1. Fix `clear_text()` to remove ALL error markup formats
+2. Ensure processing is idempotent (F9 twice = same result)
+3. Ensure clear→process = original process result
 
-### Phase 4: Output Unit Conversion
-**Goal**: Verify and document ISS-007 (already working), implement ISS-008 (inline unit hint syntax)
-**Depends on**: Phase 2 (uses Pint infrastructure)
-**Research**: Unlikely (Pint conversion well-understood)
-**Plans**: 2 plans
-
-**Note**: ISS-007 (`<!-- [unit] -->` syntax) was found to be already implemented and working during planning. Phase 4 Plan 1 focuses on adding tests and documentation. Plan 2 implements the new inline syntax.
+**Files to change:**
+- `src/livemathtex/core.py` - Improve `clear_text()` error patterns
+- `src/livemathtex/parser/lexer.py` - Handle error artifacts gracefully
+- `tests/test_process_clear_cycle.py` - Existing failing tests should pass
 
 Plans:
-- [x] 04-01: Add tests and documentation for unit conversion (verify ISS-007)
-- [x] 04-02: Add inline unit hint syntax `$E == [MWh]$` (ISS-008)
+- [ ] 01-01: Fix clear_text() error markup patterns
+- [ ] 01-02: Add idempotency check and verify full cycle
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases execute in numeric order: 1
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Critical Bug Fix | 1/1 | Complete | 2026-01-11 |
-| 2. Bug Fixes | 3/3 | Complete | 2026-01-11 |
-| 3. API Features | 2/2 | Complete | 2026-01-12 |
-| 4. Output Unit Conversion | 2/2 | Complete | 2026-01-11 |
-
-**Milestone v1.1 Complete:** 8/8 plans executed successfully.
+| 1. Fix Clear/Process Cycle | 0/2 | Not started | — |

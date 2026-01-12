@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md
+See: .planning/PROJECT.md (updated 2026-01-12)
 
-**Core value:** Calculations must evaluate correctly with proper error handling
-**Current focus:** Ready for next milestone
+**Core value:** Processing must be idempotent - stable results on repeated runs
+**Current focus:** Milestone v1.2 - Fix ISS-012
 
 ## Current Position
 
-Phase: —
-Plan: —
-Status: **Between milestones**
-Last activity: 2026-01-12 — Milestone v1.1 tagged and archived
+Phase: 1 of 1 - Fix Clear/Process Cycle
+Plan: 0 of 2 complete
+Status: **Ready to plan**
+Last activity: 2026-01-12 — Milestone v1.2 initialized
 
-Progress: Ready for v1.2 planning
+Progress: ░░░░░░░░░░ 0% (0/2 plans complete)
 
 ## Completed Milestones
 
@@ -22,15 +22,27 @@ Progress: Ready for v1.2 planning
 |---------|-----|-----------|---------|
 | v1.1 | v1.1.0 | 2026-01-12 | .planning/archive/v1.1/ |
 
-## Open Issues
+## Accumulated Context
 
-From ISSUES.md:
-- ISS-012: Process/clear cycle instability (High impact)
-- ISS-009: Compound unit definitions with division (Medium impact)
+### Decisions
+
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- TDD approach for ISS-012 (failing tests already exist)
+- Focus on clear_text() first (root cause is incomplete error cleanup)
+
+### Deferred Issues
+
+ISS-009: Compound unit definitions with division (deferred to v1.3)
+
+### Blockers/Concerns
+
+None.
 
 ## Session Continuity
 
 Last session: 2026-01-12
-Stopped at: Milestone v1.1 complete, tagged, and archived
+Stopped at: Milestone v1.2 initialized, ready to plan Phase 1
 Resume file: None
-Next: Plan next milestone or address open issues
+Next: Plan Phase 1 or discuss approach
