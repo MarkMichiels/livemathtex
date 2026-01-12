@@ -4,24 +4,26 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-### ISS-016: Error markup in input document not detected or cleaned
+### ISS-017: Unit conversion failures need better diagnostics and should be warnings, not errors
 
 - **Discovered:** 2026-01-12 (during document processing)
-- **Type:** Bug
-- **Description:** When a document contains error markup from a previous run (e.g., `\\ \color{red}{\text{Error: ...}}`), LiveMathTeX processes it without detecting or reporting these errors. The error count shows "0 errors" even though error markup is visible in the output. Additionally, incomplete expressions (e.g., `\ := m_{30} ...` or `$C_{26} := ... == \}$`) remain in the document after error cleanup, causing parsing issues. **Root cause:** Error detection only checks for `\\color{red}` in newly generated `result_latex` from `evaluator.evaluate()`, not in the input document itself. The `clear_text()` function attempts to remove error markup, but incomplete expressions and orphaned error fragments persist.
-- **Impact:** High (misleading error reporting, broken LaTeX in documents, user confusion)
+- **Type:** UX/Error Handling
+- **Description:** Unit conversion failures currently show generic error messages that don't indicate the current unit of the value. For example, when converting `mol` to `mol/day` fails, the error only says "Unit conversion failed for 'mol/day'" without mentioning that the value is currently in `mol`. Additionally, unit conversion failures are treated as errors (red) even when the calculation itself succeeds (value can be converted to SI base units) - these are formatting/display issues, not calculation failures. **Solution approach:** Instead of attempting automatic unit manipulation (like MadCraft/S-MAD does), show a clear warning with the current unit and display the value in SI units. The system should:
+  1. Extract and show the current unit from the value before attempting conversion (e.g., "Cannot convert from 'mol' to 'mol/day'")
+  2. Distinguish between calculation errors (value cannot be computed) and formatting warnings (value computed but display conversion fails)
+  3. For formatting failures, show the value in SI base units with a warning (different color than red, e.g., orange/yellow) instead of an error
+  4. Update error counting to distinguish errors from warnings
+- **Impact:** Medium (user confusion, difficulty debugging unit issues, misleading error reporting)
 - **Effort:** Medium
-- **Suggested phase:** v1.3
+- **Suggested phase:** v1.4
 - **Files to change:**
-  - `src/livemathtex/core.py` - Enhance `clear_text()` to better handle incomplete expressions and orphaned error fragments. Add detection for error markup in input before processing.
-  - `src/livemathtex/core.py` - Add pre-processing step to detect and report existing error markup in input document (warn user or auto-clean).
-  - `src/livemathtex/engine/evaluator.py` - Consider detecting error markup in input LaTeX and treating it as an error condition.
-  - `tests/test_process_clear_cycle.py` - Add test for documents with existing error markup to verify cleanup and error detection.
+  - `src/livemathtex/engine/evaluator.py` - Enhance `_apply_conversion()` to extract and report current unit from `value` before attempting conversion. Add logic to distinguish calculation errors vs formatting failures. Use warning color (orange/yellow) instead of error color (red) for formatting failures.
+  - `src/livemathtex/engine/evaluator.py` - When formatting conversion fails, return value in SI base units with warning message instead of raising error.
+  - `src/livemathtex/core.py` - Update error counting to distinguish errors from warnings (separate counters or metadata).
+  - `tests/test_unit_conversion.py` - Add tests for improved warning messages and warning behavior (non-red color, SI unit display).
 - **Example:**
-  - Input document contains: `$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} == \}$ <!-- [kg/year] -->` and `\\ \color{red}{\text{Error: Undefined variable 'C\_26'}}`
-  - LiveMathTeX reports: "no errors"
-  - Output still contains: error markup and incomplete expressions
-  - Expected: Either auto-clean error markup before processing, or detect and report it as an error condition
+  - Current: `Error: Unit conversion failed for 'mol/day': Cannot convert expression to float.`
+  - Expected: `Warning: Cannot convert from 'mol' (total) to 'mol/day' (rate) - dimensions incompatible. Showing value in SI: 650.67 mol` (in orange/yellow, not red)
 
 ### ISS-015: User documentation incomplete/outdated
 
@@ -48,6 +50,11 @@ Enhancements discovered during execution. Not critical - address in future phase
   - Migration guide if breaking changes
 
 ## Closed Enhancements
+
+### ISS-016: Error markup in input document not detected or cleaned
+
+**Resolved:** 2026-01-12 - Fixed in v1.4 Phase 6
+**Solution:** Added pre-processing to `process_text()` that matches existing `process_file()` behavior - checks for `\color{red}` or `livemathtex-meta` and calls `clear_text()` before parsing. Added `detect_error_markup()` function for programmatic inspection of documents. 9 tests added in `tests/test_error_markup.py`.
 
 ### ISS-014: Unit conversion fails for recursively defined units (MWh, mol/day, etc.)
 

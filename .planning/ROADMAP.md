@@ -65,14 +65,14 @@ See: [v1.3 Archive](.planning/milestones/v1.3-ROADMAP.md)
 Plans:
 - [x] 05-01: Verify and test recursive unit conversion (ISS-014 already fixed)
 
-#### Phase 6: Error Markup Cleanup
+#### Phase 6: Error Markup Cleanup ✅
 **Goal**: Detect and clean error markup in input documents (ISS-016)
 **Depends on**: Phase 5
-**Research**: Unlikely (regex patterns, existing clear_text)
-**Plans**: TBD
+**Completed**: 2026-01-12
+**Plans**: 1
 
 Plans:
-- [ ] 06-01: TBD (run /gsd:plan-phase 6 to break down)
+- [x] 06-01: Error markup detection and auto-cleanup
 
 #### Phase 7: User Documentation
 **Goal**: Update and complete user documentation (ISS-015)
@@ -90,5 +90,5 @@ Plans:
 | Phase | Milestone | Plans | Status | Completed |
 |-------|-----------|-------|--------|-----------|
 | 5. Fix Recursive Units | v1.4 | 1/1 | Complete | 2026-01-12 |
-| 6. Error Markup Cleanup | v1.4 | 0/? | Not started | - |
+| 6. Error Markup Cleanup | v1.4 | 1/1 | Complete | 2026-01-12 |
 | 7. User Documentation | v1.4 | 0/? | Not started | - |
