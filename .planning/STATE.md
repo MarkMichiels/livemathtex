@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 5 of 7 (Fix Recursive Units)
+Phase: 6 of 7 (Error Markup Cleanup)
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-01-12 — Milestone v1.4 created
+Last activity: 2026-01-12 — Phase 5 complete (ISS-014 verified fixed)
 
-Progress: ░░░░░░░░░░ 0% (0/3 phases)
+Progress: ███░░░░░░░ 33% (1/3 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5 (2 from v1.2 + 3 from v1.3)
-- Average duration: ~12 min
-- Total execution time: ~50 min
+- Total plans completed: 6 (2 from v1.2 + 3 from v1.3 + 1 from v1.4)
+- Average duration: ~10 min
+- Total execution time: ~58 min
 
 **By Phase:**
 
@@ -31,6 +31,7 @@ Progress: ░░░░░░░░░░ 0% (0/3 phases)
 | 2. Preserve Inline Unit Hints | 1/1 | ~10 min | ~10 min |
 | 3. Fix Evaluation Unit Lookup | 1/1 | ~12 min | ~12 min |
 | 4. Re-processing Verification | 1/1 | ~12 min | ~12 min |
+| 5. Fix Recursive Units | 1/1 | ~8 min | ~8 min |
 
 ## Completed Milestones
 
@@ -68,10 +69,11 @@ None.
 - ISS-013 fixed: Inline unit hints survive processing
 - ISS-009 fixed: Custom division units work in standalone evaluations
 - Milestone v1.4 created: Cleanup & Docs, 3 phases (5-7)
+- Phase 5 complete: ISS-014 verified fixed (was side effect of ISS-009 fix)
 
 ## Session Continuity
 
 Last session: 2026-01-12
-Stopped at: Milestone v1.4 initialization
+Stopped at: Phase 5 complete
 Resume file: None
-Next: Plan Phase 5 (Fix Recursive Units)
+Next: Plan Phase 6 (Error Markup Cleanup)

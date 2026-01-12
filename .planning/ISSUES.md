@@ -23,23 +23,6 @@ Enhancements discovered during execution. Not critical - address in future phase
   - Output still contains: error markup and incomplete expressions
   - Expected: Either auto-clean error markup before processing, or detect and report it as an error condition
 
-### ISS-014: Unit conversion fails for recursively defined units (MWh, mol/day, etc.)
-
-- **Discovered:** 2026-01-12 (during document analysis)
-- **Type:** Bug
-- **Description:** Unit hints with HTML comment syntax `<!-- [MWh] -->` fail to convert results to the target unit. **Root cause:** `_apply_conversion()` receives a dimensionless value (already converted to base SI as a pure number), but divides by a SymPy unit expression (e.g., `1000000*hour*watt` for MWh). The ratio calculation `value / target_unit` produces a result that still has units (e.g., `168*second**2/(kilogram*meter**2)`), which cannot be converted to `float()`, causing the conversion to fail silently and fall back to SI base units. This affects recursively defined units like `MWh === 1000 kWh` (where `kWh === 1000 Wh`), as well as compound units like `mol/day` and `MWh/kg`. Simple units like `kW` work because they use a different code path (`_parse_unit_with_prefix`).
-- **Impact:** High (breaks unit conversion for complex/recursive units, making documents hard to read)
-- **Effort:** Medium
-- **Suggested phase:** v1.3
-- **Files to change:**
-  - `src/livemathtex/engine/evaluator.py` - Fix `_apply_conversion()` to properly handle dimensionless values vs. unit expressions. Either: (1) pass value as SymPy Quantity with units, or (2) convert target_unit to base SI first before ratio calculation, or (3) use Pint-based conversion instead of SymPy for unit hints.
-  - `tests/test_unit_conversion.py` - Add tests for recursive unit definitions (MWh, mol/day, MWh/kg) to verify conversion works
-- **Example:**
-  - Input: `$E_{26} := P_{sys} \cdot t_{yr} \cdot \frac{U_{26}}{100} == $ <!-- [MWh] -->`
-  - Expected: `$E_{26} := ... == 168\ \text{MWh}$`
-  - Actual: `$E_{26} := ... == 168\,000\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$ <!-- [MWh] -->`
-
-
 ### ISS-015: User documentation incomplete/outdated
 
 - **Discovered:** 2026-01-12 (during Phase 3 planning)
@@ -65,6 +48,11 @@ Enhancements discovered during execution. Not critical - address in future phase
   - Migration guide if breaking changes
 
 ## Closed Enhancements
+
+### ISS-014: Unit conversion fails for recursively defined units (MWh, mol/day, etc.)
+
+**Resolved:** 2026-01-12 - Verified fixed in v1.4 Phase 5
+**Solution:** Investigation during Phase 5 revealed that ISS-014 was already fixed as a side effect of the ISS-009 fix in v1.3. The `_parse_unit_expression` fix to resolve prefixed units via `pint_to_sympy_with_prefix` also enables proper handling of recursive units like MWh and compound units like mol/day. Added 6 tests in `TestRecursiveUnitConversion` and `TestUnitConversionEdgeCases` classes to verify and prevent regression.
 
 ### ISS-009: Compound unit definitions with division - evaluation lookup fails
 

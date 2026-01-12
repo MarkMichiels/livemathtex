@@ -56,14 +56,14 @@ See: [v1.3 Archive](.planning/milestones/v1.3-ROADMAP.md)
 
 **Milestone Goal:** Address deferred issues - recursive unit conversion, error markup cleanup, and user documentation
 
-#### Phase 5: Fix Recursive Units
+#### Phase 5: Fix Recursive Units ✅
 **Goal**: Fix unit conversion for recursively defined units like MWh, mol/day (ISS-014)
 **Depends on**: v1.3 complete
-**Research**: Unlikely (Pint library internals, existing patterns)
-**Plans**: TBD
+**Completed**: 2026-01-12
+**Plans**: 1
 
 Plans:
-- [ ] 05-01: TBD (run /gsd:plan-phase 5 to break down)
+- [x] 05-01: Verify and test recursive unit conversion (ISS-014 already fixed)
 
 #### Phase 6: Error Markup Cleanup
 **Goal**: Detect and clean error markup in input documents (ISS-016)
@@ -89,6 +89,6 @@ Plans:
 
 | Phase | Milestone | Plans | Status | Completed |
 |-------|-----------|-------|--------|-----------|
-| 5. Fix Recursive Units | v1.4 | 0/? | Not started | - |
+| 5. Fix Recursive Units | v1.4 | 1/1 | Complete | 2026-01-12 |
 | 6. Error Markup Cleanup | v1.4 | 0/? | Not started | - |
 | 7. User Documentation | v1.4 | 0/? | Not started | - |
