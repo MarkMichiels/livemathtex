@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** Milestone v1.2 Complete
+**Current focus:** Milestone v1.3 Unit Hint Preservation
 
 ## Current Position
 
-Phase: All phases complete
-Plan: 2 of 2 complete
-Status: **Milestone v1.2 Complete**
-Last activity: 2026-01-12 — Completed Phase 1 (01-01, 01-02)
+Phase: 2 of 4 (Preserve Inline Unit Hints)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-12 — Milestone v1.3 created
 
-Progress: ██████████ 100% (2/2 plans complete)
+Progress: ░░░░░░░░░░ 0% (0/3 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
+- Total plans completed: 2 (from v1.2)
 - Average duration: ~8 min
 - Total execution time: ~16 min
 
@@ -46,16 +46,19 @@ Progress: ██████████ 100% (2/2 plans complete)
 
 ### Deferred Issues
 
-- ISS-009: Compound unit definitions with division (future milestone)
-- ISS-013: Inline unit hint syntax lost after processing (future milestone)
+None (ISS-009 and ISS-013 are now active in v1.3)
 
 ### Blockers/Concerns
 
 None.
 
+### Roadmap Evolution
+
+- Milestone v1.3 created: Unit hint preservation, 3 phases (Phase 2-4)
+
 ## Session Continuity
 
 Last session: 2026-01-12
-Stopped at: Milestone v1.2 complete
+Stopped at: Milestone v1.3 initialization
 Resume file: None
-Next: Ready for release tagging or next milestone planning
+Next: Plan Phase 2 (Preserve Inline Unit Hints)

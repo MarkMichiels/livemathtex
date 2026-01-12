@@ -11,7 +11,7 @@ Enhancements discovered during execution. Not critical - address in future phase
 - **Description:** When using inline unit hint syntax `$E == [kJ]$`, the hint is extracted during processing and removed from the output. When re-processing the output file, the unit hint is missing, causing the result to fall back to SI base units instead of the requested unit. HTML comment syntax `<!-- [kJ] -->` works correctly because it remains in the output. The inline syntax should either: (1) be preserved in the output as HTML comment (auto-convert), or (2) be restored when clearing processed output, or (3) be preserved in some other way that survives re-processing.
 - **Impact:** High (inline syntax is recommended but breaks re-processing workflow)
 - **Effort:** Medium
-- **Suggested phase:** Future (after v1.1 milestone)
+- **Suggested phase:** v1.3
 - **Files to change:**
   - `src/livemathtex/core.py` - Preserve inline unit hints in processed output (convert to HTML comment or restore inline syntax)
   - `src/livemathtex/render/markdown.py` - Ensure unit hints are preserved in rendered output
@@ -21,17 +21,21 @@ Enhancements discovered during execution. Not critical - address in future phase
   - After processing: `$F_2N_inline := F_2 == 245.2\ \text{N}$` (hint lost)
   - After re-processing: Falls back to SI base units (kg·m/s²) instead of N
 
-### ISS-009: Compound unit definitions fail with division
+### ISS-009: Compound unit definitions with division - evaluation lookup fails
 
 - **Discovered:** Phase 2 (2026-01-11)
-- **Type:** Refactoring
-- **Description:** Unit definitions (`===`) with division fail to register correctly with Pint. Simple aliases work (`kWh === 1000\ Wh`), multiplied compounds work (`Wh === W \cdot hour`), but division compounds fail silently or produce errors (e.g., `PPE === umol/J`, `SEC === MWh/kg`). The `===` parser in `pint_backend.py` doesn't properly handle division (`/`) in unit expressions, compound units with multiple operators, or LaTeX-style parentheses.
-- **Impact:** Medium (workaround exists: use dimensionless values)
-- **Effort:** Substantial
-- **Suggested phase:** Future
+- **Updated:** 2026-01-12 (partially resolved)
+- **Type:** Bug
+- **Description:** Unit definitions (`===`) with division **now register correctly** with Pint. The issue has narrowed: division-based custom units work in combined `:= ==` syntax but fail in separate `$var ==` evaluation. The unit is registered (`is_known_unit('SEC') = True`), but the evaluator doesn't look it up correctly during standalone evaluation.
+- **Impact:** Medium (workaround: use combined `:= ==` syntax)
+- **Effort:** Medium (unit registration fixed, just need to fix evaluation lookup)
+- **Suggested phase:** v1.3
 - **Files to change:**
-  - `src/livemathtex/engine/pint_backend.py` - Extend `register_custom_unit()`
+  - `src/livemathtex/engine/evaluator.py` - Fix custom unit lookup in evaluation
   - `tests/test_pint_backend.py` - Add compound unit definition tests
+- **Example:**
+  - Works: `$SEC_result := E / m ==$ <!-- [SEC] -->` → `5\ \text{SEC}`
+  - Fails: `$ratio := E / m$` then `$ratio ==$ <!-- [SEC] -->` → `1.800e+10` (no unit)
 
 ## Closed Enhancements
 
@@ -92,4 +96,4 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ---
 
-*Last reviewed: 2026-01-12*
+*Last reviewed: 2026-01-12 (issues triaged for v1.3)*
