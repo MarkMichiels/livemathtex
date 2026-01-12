@@ -109,6 +109,76 @@ ir = process_file("calculation.md", output_path="result.md", verbose=True)
 print(f"Processed {ir.stats['symbols']} symbols")
 ```
 
+#### Utility Functions
+
+**`clear_text(content: str) -> tuple[str, int]`**
+
+Remove evaluation results and error markup from processed content.
+
+- `content`: Markdown with LiveMathTeX output (previously processed)
+- Returns: `(cleared_content, count)` - cleaned content and number of items cleared
+
+Use case: Reset a document before re-processing, or create a clean input file from processed output.
+
+```python
+from livemathtex import clear_text
+
+# Clear a previously processed document
+processed = """$x := 5$
+$x == 5$
+$y == \\color{red}{\\text{Error: undefined}}$"""
+
+cleared, count = clear_text(processed)
+print(f"Cleared {count} items")
+print(cleared)
+# $x := 5$
+# $x ==$
+# $y ==$
+```
+
+**What gets cleared:**
+- Evaluation results: `$x == 42$` → `$x ==$`
+- Error markup: `\color{red}{...}` → removed
+- Metadata comments: `<!-- livemathtex-meta -->` → removed
+
+**What gets preserved:**
+- Definitions: `$x := 5$`
+- Unit definitions: `$kN === 1000\ N$`
+- Unit hints: `<!-- [kJ] -->` and `[kJ]` inline syntax
+
+**`detect_error_markup(content: str) -> dict`**
+
+Detect existing error markup in content from previous processing.
+
+- `content`: Markdown content to check
+- Returns: dict with detection results
+
+```python
+from livemathtex import detect_error_markup
+
+content = """$x := 5$
+$y == \\color{red}{\\text{Error: undefined}}$"""
+
+result = detect_error_markup(content)
+print(result)
+# {
+#   'has_errors': True,
+#   'count': 1,
+#   'has_meta': False,
+#   'patterns': ['color{red}']
+# }
+```
+
+**Return dict fields:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `has_errors` | bool | True if error markup found |
+| `count` | int | Number of error patterns found |
+| `has_meta` | bool | True if livemathtex-meta comment found |
+| `patterns` | list | Types of patterns found (`color{red}`, `text{Error}`, `livemathtex-meta`) |
+
+Use case: Check if a document needs cleaning before processing, or verify cleanup was successful.
+
 #### Configuration
 
 **`LivemathConfig`**
