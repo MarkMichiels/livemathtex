@@ -40,11 +40,17 @@ $accel_{g} := 9.81\ \frac{m}{s^2}$
 Calculate force:
 $F_2 := mass_{obj} \cdot accel_{g} == 245.2\ \text{kg} \cdot \text{m}/\text{s}^{2}$
 
-Convert to Newtons:
+Convert to Newtons (HTML comment syntax):
 $F_2N := F_2 == 245.2\ \text{N}$ <!-- [N] -->
 
-Convert to kilonewtons:
+Convert to kilonewtons (HTML comment syntax):
 $F_2kN := F_2 == 0.2452\ \text{kN}$ <!-- [kN] -->
+
+Convert to Newtons (inline syntax - recommended):
+$F_2N_inline := F_2 == 245.2\ \text{N}$
+
+Convert to kilonewtons (inline syntax - recommended):
+$F_2kN_inline := F_2 == 0.2452\ \text{kN}$
 
 ## Compare Results
 
@@ -78,4 +84,4 @@ $t_{fall} := \sqrt{\frac{2 \cdot h_{drop}}{g}} ==
 
 ---
 
-> *livemathtex: 2026-01-11 17:38:05 | 12 definitions, 6 evaluations | 2 errors | 0.26s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-12 02:30:57 | 14 definitions, 8 evaluations | 2 errors | 0.30s* <!-- livemathtex-meta -->

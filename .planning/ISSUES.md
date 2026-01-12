@@ -4,6 +4,23 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
+### ISS-013: Inline unit hint syntax lost after processing, breaks re-processing
+
+- **Discovered:** 2026-01-12 (during testing)
+- **Type:** Bug
+- **Description:** When using inline unit hint syntax `$E == [kJ]$`, the hint is extracted during processing and removed from the output. When re-processing the output file, the unit hint is missing, causing the result to fall back to SI base units instead of the requested unit. HTML comment syntax `<!-- [kJ] -->` works correctly because it remains in the output. The inline syntax should either: (1) be preserved in the output as HTML comment (auto-convert), or (2) be restored when clearing processed output, or (3) be preserved in some other way that survives re-processing.
+- **Impact:** High (inline syntax is recommended but breaks re-processing workflow)
+- **Effort:** Medium
+- **Suggested phase:** Future (after v1.1 milestone)
+- **Files to change:**
+  - `src/livemathtex/core.py` - Preserve inline unit hints in processed output (convert to HTML comment or restore inline syntax)
+  - `src/livemathtex/render/markdown.py` - Ensure unit hints are preserved in rendered output
+  - `tests/test_inline_unit_hints.py` - Add test for re-processing with inline hints
+- **Example:**
+  - Input: `$F_2N_inline := F_2 == [N]$`
+  - After processing: `$F_2N_inline := F_2 == 245.2\ \text{N}$` (hint lost)
+  - After re-processing: Falls back to SI base units (kg·m/s²) instead of N
+
 ### ISS-012: Process/clear cycle produces unstable results and incorrect errors
 
 - **Discovered:** Post-Phase 4 (2026-01-12)

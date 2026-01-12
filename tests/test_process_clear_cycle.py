@@ -53,10 +53,11 @@ def count_evaluations(content: str) -> int:
 
 
 def count_errors(content: str) -> int:
-    """Count number of error messages in content."""
+    """Count number of error markup instances in content."""
     import re
-    # Count error markup
-    error_pattern = r'\\color\{red\}|Error:'
+    # Count error markup (not section headings that contain "Error:")
+    # Only count \color{red} which is the actual error markup
+    error_pattern = r'\\color\{red\}'
     return len(re.findall(error_pattern, content))
 
 
@@ -121,12 +122,19 @@ def test_scenario_2_copy_input(temp_example_dir: Path):
     assert result.exit_code == 0, f"copy command failed: {result.output}"
     assert output_file.exists(), "output.md should exist"
 
-    # Verify output is clean (no calculations)
+    # Read input and output content
+    input_content = input_file.read_text()
     new_output = output_file.read_text()
-    assert count_evaluations(new_output) == 0, "Should have no evaluations after copy"
+
+    # Verify output matches input (has same evaluation expressions, no computed values)
+    input_eval_count = count_evaluations(input_content)
+    output_eval_count = count_evaluations(new_output)
+    assert output_eval_count == input_eval_count, \
+        f"Should have same evaluations as input: expected {input_eval_count}, got {output_eval_count}"
+    # Verify no computed values (no error markup from processing)
+    assert count_errors(new_output) == 0, "Should have no error markup after copy"
 
     # Verify it matches input content (minus metadata)
-    input_content = input_file.read_text()
     input_normalized = normalize_for_comparison(input_content)
     output_normalized = normalize_for_comparison(new_output)
 
@@ -299,11 +307,12 @@ def test_clear_removes_all_error_markup(temp_example_dir: Path):
     assert '\\color{red}' not in cleared_content, "Should remove \\color{red} markup"
     assert '\\ }$' not in cleared_content, "Should remove incomplete math block terminators"
 
-    # Check for any remaining error indicators
+    # Check for any remaining error markup (not section headings)
+    # Error markup appears as \text{Error:...} or \text{(Error:...)}
     import re
-    remaining_errors = re.findall(r'Error:', cleared_content)
-    assert len(remaining_errors) == 0, \
-        f"Should remove all 'Error:' text, found {len(remaining_errors)} instances"
+    remaining_error_markup = re.findall(r'\\text\{[^}]*Error:', cleared_content)
+    assert len(remaining_error_markup) == 0, \
+        f"Should remove all error markup, found {len(remaining_error_markup)} instances"
 
 
 def test_process_stability_multiple_runs(temp_example_dir: Path):

@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "/home/mark/Repositories/livemathtex/examples/simple-units/input.md",
+  "source": "/home/mark/Repositories/livemathtex/examples/simple-units/output.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -166,14 +166,14 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-12 02:30:57",
-    "duration": "0.30s",
+    "last_run": "2026-01-12 02:31:33",
+    "duration": "0.28s",
     "symbols": 12,
     "custom_units": 0,
-    "definitions": 14,
-    "evaluations": 8,
+    "definitions": 12,
+    "evaluations": 7,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 2
+    "errors": 0
   }
 }

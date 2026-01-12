@@ -40,11 +40,17 @@ $accel_{g} := 9.81\ \frac{m}{s^2}$
 Calculate force:
 $F_2 := mass_{obj} \cdot accel_{g} ==$
 
-Convert to Newtons:
+Convert to Newtons (HTML comment syntax):
 $F_2N := F_2 ==$ <!-- [N] -->
 
-Convert to kilonewtons:
+Convert to kilonewtons (HTML comment syntax):
 $F_2kN := F_2 ==$ <!-- [kN] -->
+
+Convert to Newtons (inline syntax - recommended):
+$F_2N_inline := F_2 == [N]$
+
+Convert to kilonewtons (inline syntax - recommended):
+$F_2kN_inline := F_2 == [kN]$
 
 ## Compare Results
 

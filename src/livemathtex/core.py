@@ -52,7 +52,8 @@ def clear_text(content: str) -> tuple[str, int]:
 
     Patterns preserved:
     - `:= 5$` (definitions)
-    - `<!-- [N] -->` (unit hints)
+    - `<!-- [N] -->` (HTML comment unit hints)
+    - `== [N]$` (inline unit hints)
     - `===` (unit definitions)
     - `=>` results (symbolic)
     """
@@ -62,19 +63,49 @@ def clear_text(content: str) -> tuple[str, int]:
     # Pattern 1: Clear evaluation results in inline math `$...$`
     # Match: == followed by anything up to closing $
     # But NOT === (unit definitions)
+    # Preserves: [unit] inline unit hints
+    # Restores: inline unit hints from \text{unit} in output
     # Captures: (stuff before ==)
-    # Replace with: \1==$
+    # Replace with: \1==$ or \1== [unit]$ if unit hint present
     def clear_inline_eval(match):
         nonlocal count
         count += 1
         prefix = match.group(1)  # Everything before ==
+        result_part = match.group(0)[len(prefix)+2:]  # Everything after ==
+
+        # Check if inline unit hint [unit] is already present at end
+        unit_hint_match = re.search(r'\[([^\]]+)\]\s*$', result_part)
+        if unit_hint_match:
+            # Preserve the existing unit hint
+            unit = unit_hint_match.group(1)
+            return f'{prefix}== [{unit}]$'
+
+        # Try to extract unit from \text{unit} in processed output
+        # Pattern: \text{unit} at end of result (handle escaped backslashes)
+        # Match both \\text{unit} (escaped) and \text{unit} (single)
+        text_unit_match = re.search(r'(?:\\\\)?\\text\{([^}]+)\}\s*$', result_part)
+        if text_unit_match:
+            # Extract unit from \text{unit} and restore as inline hint
+            unit = text_unit_match.group(1)
+            # Clean up LaTeX formatting (e.g., \text{m³/h} -> m³/h)
+            # Remove LaTeX commands but keep the unit string
+            unit_clean = unit.replace('\\', '').strip()
+            return f'{prefix}== [{unit_clean}]$'
+
+        # No unit hint found, just clear
         return f'{prefix}==$'
 
     # Pattern for inline: $...== value$ (not ===)
     # Use negative lookbehind AND negative lookahead to avoid ===
+    # Exclude: $...== [unit]$ (unit hints only, no evaluation to clear)
     # Capture group does NOT include the ==
-    inline_pattern = r'(\$[^\$]*?)(?<!=)==(?!=)\s*[^\$]+\$'
+    # Match: == followed by something that's NOT just [unit]
+    inline_pattern = r'(\$[^\$]*?)(?<!=)==(?!=)(?!\s*\[[^\]]+\]\s*\$)\s*[^\$]+\$'
     cleared = re.sub(inline_pattern, clear_inline_eval, cleared)
+
+    # Special case: preserve inline unit hints $...== [unit]$
+    # These are not evaluations, just unit hints, so don't clear them
+    # (They should remain as-is in the input)
 
     # Pattern 2: Clear evaluation results in display math `$$...$$`
     # Capture group does NOT include the ==
@@ -87,9 +118,11 @@ def clear_text(content: str) -> tuple[str, int]:
     display_pattern = r'(\$\$[^\$]*?)(?<!=)==(?!=)\s*[^\$]+\$\$'
     cleared = re.sub(display_pattern, clear_display_eval, cleared)
 
-    # Pattern 3: Remove error markup (red color)
+    # Pattern 3: Remove error markup (red color) with nested braces
     # \color{red}{...} - LaTeX color commands with braced content
-    error_pattern = r'\\color\{red\}\{[^}]*\}'
+    # Uses pattern that handles one level of nesting: \{(?:[^{}]|\{[^{}]*\})*\}
+    # This properly matches \color{red}{\text{...}} without stopping at inner }
+    error_pattern = r'\\color\{red\}\{(?:[^{}]|\{[^{}]*\})*\}'
     cleared = re.sub(error_pattern, '', cleared)
 
     # Pattern 4: Remove inline error text
@@ -97,12 +130,36 @@ def clear_text(content: str) -> tuple[str, int]:
     error_text_pattern = r'\\text\{\(Error:[^)]*\)\}'
     cleared = re.sub(error_text_pattern, '', cleared)
 
-    # Pattern 5: Remove newline + error continuation
-    # \\ \color{red}{\text{...}} patterns on new lines within math
-    multiline_error = r'\s*\\\\\s*\\color\{red\}\{\\text\{[^}]*\}\}'
+    # Pattern 5: Remove multiline error blocks entirely
+    # Matches: newline + \\ + \color{red}{\text{...}} spanning multiple lines
+    # The [\s\S]*? matches any character including newlines (non-greedy)
+    multiline_error = r'\n\\\\\s*\\color\{red\}\{\\text\{[\s\S]*?\}\}'
     cleared = re.sub(multiline_error, '', cleared)
 
-    # Pattern 6: Remove livemathtex metadata comment
+    # Pattern 6: Remove orphaned line continuation artifacts
+    # After error removal, we may have:
+    # - \\ }$ (incomplete closing brace)
+    # - \\ $ (just line continuation before closing)
+    # Replace with just $ to close the math block properly
+    orphan_brace = r'\n?\\\\\s*\}\$'
+    cleared = re.sub(orphan_brace, '$', cleared)
+    orphan_newline = r'\n\\\\\s*\$'
+    cleared = re.sub(orphan_newline, '$', cleared)
+
+    # Pattern 7: Fix definitions that end with newline (error was removed)
+    # Matches: $expr := value\n$ or $expr := value\n\n$
+    # Convert to: $expr := value$
+    incomplete_def = r'(\$[^$]+:=\s*[^\n$]+)\n+\$'
+    cleared = re.sub(incomplete_def, r'\1$', cleared)
+
+    # Pattern 8: Convert \text{varname} back to varname in evaluations
+    # The evaluator wraps variable names in \text{} for display, but the parser
+    # needs the original syntax. Only convert at start of math: $\text{name}
+    # This allows re-processing of cleared files.
+    text_var_pattern = r'\$\\text\{([^}]+)\}\s*(==)'
+    cleared = re.sub(text_var_pattern, r'$\1 \2', cleared)
+
+    # Pattern 9: Remove livemathtex metadata comment
     # > *livemathtex: timestamp | stats | errors | duration* <!-- livemathtex-meta -->
     meta_pattern = r'\n+---\n+>\s*\*livemathtex:[^*]+\*\s*<!--\s*livemathtex-meta\s*-->\n*'
     cleared = re.sub(meta_pattern, '\n', cleared)
@@ -145,6 +202,12 @@ def process_file(
     # 1. Read document
     with open(input_path, 'r', encoding='utf-8') as f:
         content = f.read()
+
+    # 1a. Pre-process: If content appears to be already processed
+    # (contains error markup or livemathtex-meta), clear it first.
+    # This ensures idempotent processing of output files.
+    if '\\color{red}' in content or 'livemathtex-meta' in content:
+        content, _ = clear_text(content)
 
     # 2. Load config from files (levels 3-6 of hierarchy)
     base_config = LivemathConfig.load(input_path_obj)

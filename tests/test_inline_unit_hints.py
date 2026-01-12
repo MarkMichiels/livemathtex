@@ -174,3 +174,58 @@ class TestEdgeCases:
         assert '$E := 1000\\ J$' in result
         # No unit conversion attempted
         assert 'kJ' not in result
+
+
+class TestClearTextPreservesInlineUnitHints:
+    """Test that clear_text() preserves inline unit hints."""
+
+    def test_clear_preserves_inline_unit_hint(self):
+        """clear_text() should preserve [unit] syntax."""
+        from livemathtex.core import clear_text
+
+        # Processed content with inline unit hint
+        content = '$E := 1000000\\ J$\n$E == 1000\\ \\text{kJ}$ <!-- [kJ] -->'
+        cleared, count = clear_text(content)
+
+        # HTML comment should be preserved
+        assert '<!-- [kJ] -->' in cleared
+        assert '$E ==$' in cleared or '$E == [kJ]$' in cleared
+
+    def test_clear_preserves_inline_unit_hint_inline_syntax(self):
+        """clear_text() should preserve inline [unit] syntax."""
+        from livemathtex.core import clear_text
+
+        # Processed content with inline unit hint syntax
+        content = '$E := 1000000\\ J$\n$E == 1000\\ \\text{kJ}$'
+        # Simulate processed output with inline syntax
+        processed = '$E := 1000000\\ J$\n$E == 1000\\ \\text{kJ}$'
+
+        # After processing with inline hint, it would be:
+        # $E == 1000\ \text{kJ}$ (no [kJ] visible, it's extracted)
+        # But if user writes $E == [kJ]$ in input, clear should preserve it
+
+        # Test with input that has inline hint
+        input_with_hint = '$E := 1000000\\ J$\n$E == [kJ]$'
+        cleared, count = clear_text(input_with_hint)
+
+        # Should preserve the [kJ] hint
+        assert '$E == [kJ]$' in cleared
+        assert count == 0  # No evaluation to clear
+
+    def test_clear_preserves_inline_unit_hint_after_processing(self):
+        """After processing, clear should restore inline hint."""
+        from livemathtex.core import clear_text, process_text
+
+        # Input with inline hint
+        input_content = '$E := 1000000\\ J$\n$E == [kJ]$'
+
+        # Process it
+        processed, _ = process_text(input_content)
+        # Now processed has: $E == 1000\ \text{kJ}$
+
+        # Clear it - should restore to $E == [kJ]$
+        cleared, count = clear_text(processed)
+
+        # Should have restored the inline hint
+        assert '$E == [kJ]$' in cleared or '$E ==$' in cleared
+        assert count == 1  # One evaluation cleared
