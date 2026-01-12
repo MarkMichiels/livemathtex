@@ -278,3 +278,60 @@ class TestInlineUnitHintReprocessing:
         processed2, _ = process_text(processed1)
         assert '\\text{kW}' in processed2
         assert 'kg' not in processed2  # Not base units
+
+    def test_clear_then_reprocess_preserves_unit_hint(self):
+        """Processing after clear should use preserved unit hint (ISS-013).
+
+        This tests the full cycle: process → clear → process.
+        The HTML comment hint should be preserved through clear.
+        """
+        from livemathtex.core import clear_text
+
+        input_content = '$E_clear := 1000000\\ J$\n$E_clear == [kJ]$'
+
+        # First process
+        processed, _ = process_text(input_content)
+        assert '\\text{kJ}' in processed
+
+        # Clear
+        cleared, count = clear_text(processed)
+        assert count == 1, "Should clear 1 evaluation"
+        # HTML comment should be preserved
+        assert '<!-- [kJ] -->' in cleared, "Clear should preserve HTML comment hint"
+
+        # Re-process
+        reprocessed, _ = process_text(cleared)
+
+        # Should still use kJ
+        assert '\\text{kJ}' in reprocessed, "Re-processing after clear should use preserved hint"
+        assert 'kg' not in reprocessed, "Should NOT fall back to SI base units"
+
+    def test_clear_then_reprocess_stability(self):
+        """Multiple process→clear→process cycles should be stable."""
+        from livemathtex.core import clear_text
+
+        # Use simple variable name without underscore to avoid parsing issues
+        input_content = '$time_1 := 3600\\ s$\n$time_1 == [h]$'
+
+        # Cycle 1
+        processed1, _ = process_text(input_content)
+        assert '\\text{h}' in processed1
+
+        cleared1, _ = clear_text(processed1)
+        reprocessed1, _ = process_text(cleared1)
+        assert '\\text{h}' in reprocessed1
+
+        # Cycle 2
+        cleared2, _ = clear_text(reprocessed1)
+        reprocessed2, _ = process_text(cleared2)
+        assert '\\text{h}' in reprocessed2
+
+        # Results should be stable after first cycle
+        # (normalized for timestamp differences)
+        import re
+        def normalize(s):
+            # Remove metadata lines
+            return re.sub(r'> \*livemathtex:.*', '', s).strip()
+
+        assert normalize(reprocessed1) == normalize(reprocessed2), \
+            "Multiple cycles should produce stable results"

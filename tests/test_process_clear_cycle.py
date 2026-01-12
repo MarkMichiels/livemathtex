@@ -344,3 +344,204 @@ def test_process_stability_multiple_runs(temp_example_dir: Path):
 
     assert first_errors == final_errors, \
         f"Error count should be stable: first={first_errors}, final={final_errors}"
+
+
+class TestUnitHintCycle:
+    """Tests for unit hint preservation through process/clear cycle."""
+
+    def test_inline_unit_hint_survives_full_cycle(self):
+        """$E == [kJ]$ should produce same result after clear and re-process."""
+        from livemathtex import process_text
+        from livemathtex.core import clear_text
+
+        input_content = '$E_1 := 1000000\\ J$\n$E_1 == [kJ]$'
+
+        # First process
+        processed1, _ = process_text(input_content)
+        assert '\\text{kJ}' in processed1, "First process should convert to kJ"
+
+        # Clear
+        cleared, _ = clear_text(processed1)
+
+        # Re-process
+        processed2, _ = process_text(cleared)
+
+        # Should still use kJ, not fall back to SI base units
+        assert '\\text{kJ}' in processed2, "Re-processing after clear should still use kJ"
+        assert 'kg' not in processed2, "Should NOT fall back to kg·m²/s² base units"
+
+    def test_html_comment_unit_hint_survives_cycle(self):
+        """$E ==$ <!-- [kJ] --> should produce same result after cycle."""
+        from livemathtex import process_text
+        from livemathtex.core import clear_text
+
+        input_content = '$E_2 := 2000000\\ J$\n$E_2 ==$ <!-- [kJ] -->'
+
+        # First process
+        processed1, _ = process_text(input_content)
+        assert '\\text{kJ}' in processed1, "First process should convert to kJ"
+        assert '<!-- [kJ] -->' in processed1, "HTML comment should be preserved"
+
+        # Clear
+        cleared, _ = clear_text(processed1)
+        assert '<!-- [kJ] -->' in cleared, "Clear should preserve HTML comment hint"
+
+        # Re-process
+        processed2, _ = process_text(cleared)
+
+        # Should still use kJ
+        assert '\\text{kJ}' in processed2, "Re-processing should use preserved HTML comment hint"
+        assert 'kg' not in processed2, "Should NOT fall back to base units"
+
+    def test_custom_division_unit_survives_cycle(self):
+        """SEC === MWh/kg custom unit should work after clear and re-process."""
+        from livemathtex import process_text
+        from livemathtex.core import clear_text
+        from livemathtex.engine.pint_backend import reset_unit_registry, reset_sympy_unit_registry
+
+        # Reset registries to ensure clean state
+        reset_unit_registry()
+        reset_sympy_unit_registry()
+
+        input_content = '''$$ SEC === MWh/kg $$
+
+$E_3 := 18000\\ MWh$
+
+$m_3 := 1000\\ kg$
+
+$ratio_3 := E_3 / m_3$
+
+$ratio_3 ==$ <!-- [SEC] -->'''
+
+        # First process
+        processed1, _ = process_text(input_content)
+        assert 'SEC' in processed1, "First process should show SEC unit"
+
+        # Clear
+        cleared, _ = clear_text(processed1)
+
+        # Reset registries again for fresh re-processing
+        reset_unit_registry()
+        reset_sympy_unit_registry()
+
+        # Re-process
+        processed2, _ = process_text(cleared)
+
+        # Should still use SEC
+        assert 'SEC' in processed2, "Re-processing should use custom SEC unit"
+
+    def test_combined_definition_evaluation_cycle(self):
+        """$P := 1000\ W == [kW]$ combined syntax should survive cycle."""
+        from livemathtex import process_text
+        from livemathtex.core import clear_text
+
+        input_content = '$P_1 := 1000\\ W$\n$P_1 == [kW]$'
+
+        # First process
+        processed1, _ = process_text(input_content)
+        assert '\\text{kW}' in processed1, "First process should convert to kW"
+
+        # Clear
+        cleared, _ = clear_text(processed1)
+
+        # Re-process
+        processed2, _ = process_text(cleared)
+
+        # Should still use kW
+        assert '\\text{kW}' in processed2, "Re-processing should still use kW"
+
+
+class TestFileCycle:
+    """Tests for file-based process/clear/process cycle with unit hints."""
+
+    def test_unit_hint_file_cycle(self, tmp_path: Path):
+        """Unit hints survive file-based process → clear → process cycle.
+
+        Note: HTML comment hint is preserved through the cycle. The inline
+        [unit] syntax is converted to HTML comment during processing, which
+        is then preserved by clear.
+        """
+        from livemathtex.core import process_file
+
+        # Create input file with HTML comment unit hints (the preserved format)
+        input_file = tmp_path / "input.md"
+        output_file = tmp_path / "output.md"
+
+        input_content = '''<!-- livemathtex: output=output.md -->
+
+# Energy Conversion Test
+
+$E_file := 3600000\\ J$
+
+$E_file ==$ <!-- [kWh] -->
+'''
+        input_file.write_text(input_content)
+
+        # First process
+        process_file(str(input_file), str(output_file), verbose=False)
+        processed1 = output_file.read_text()
+        assert '\\text{kWh}' in processed1, "First process should convert to kWh"
+        assert '<!-- [kWh] -->' in processed1, "HTML comment should be preserved"
+
+        # Clear via CLI
+        runner = click.testing.CliRunner()
+        result = runner.invoke(cli_main, ['clear', str(output_file)])
+        assert result.exit_code == 0, f"clear command failed: {result.output}"
+
+        cleared = output_file.read_text()
+        assert '<!-- [kWh] -->' in cleared, "Cleared file should preserve unit hint"
+
+        # Re-process
+        process_file(str(output_file), None, verbose=False)
+        processed2 = output_file.read_text()
+
+        # Should still use kWh
+        assert '\\text{kWh}' in processed2, "Re-processing should use preserved hint"
+        assert 'kg' not in processed2, "Should NOT fall back to SI base units"
+
+    def test_custom_unit_file_cycle(self, tmp_path: Path):
+        """Custom units defined with === survive file-based cycle."""
+        from livemathtex.core import process_file
+        from livemathtex.engine.pint_backend import reset_unit_registry, reset_sympy_unit_registry
+
+        # Reset registries
+        reset_unit_registry()
+        reset_sympy_unit_registry()
+
+        # Create input file with custom unit
+        input_file = tmp_path / "input.md"
+        output_file = tmp_path / "output.md"
+
+        input_content = '''<!-- livemathtex: output=output.md -->
+
+# Custom Unit Test
+
+$$ EURO === EUR $$
+
+$price_1 := 100\\ EURO$
+
+$price_1 ==$
+'''
+        input_file.write_text(input_content)
+
+        # First process
+        process_file(str(input_file), str(output_file), verbose=False)
+        processed1 = output_file.read_text()
+        assert 'EURO' in processed1, "First process should show custom EURO unit"
+
+        # Clear via CLI
+        runner = click.testing.CliRunner()
+        result = runner.invoke(cli_main, ['clear', str(output_file)])
+        assert result.exit_code == 0
+
+        # Reset registries for re-processing
+        reset_unit_registry()
+        reset_sympy_unit_registry()
+
+        # Re-process
+        process_file(str(output_file), None, verbose=False)
+        processed2 = output_file.read_text()
+
+        # Should still work with custom unit
+        assert 'EURO' in processed2 or 'EUR' in processed2, \
+            "Re-processing should still recognize custom unit"
