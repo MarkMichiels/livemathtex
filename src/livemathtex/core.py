@@ -406,6 +406,12 @@ def process_text(
     """
     start_time = time.time()
 
+    # Pre-process: If content appears to be already processed
+    # (contains error markup or livemathtex-meta), clear it first.
+    # This ensures idempotent processing of output files.
+    if '\\color{red}' in content or 'livemathtex-meta' in content:
+        content, _ = clear_text(content)
+
     # 1. Parse document structure
     lexer = Lexer()
     document = lexer.parse(content)
