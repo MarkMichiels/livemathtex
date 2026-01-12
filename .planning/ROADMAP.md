@@ -13,6 +13,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.1 Foundation** - Phases 1-4 (shipped 2026-01-12)
 - ✅ **v1.2 Process/Clear Stability** - Phase 1 (shipped 2026-01-12)
 - ✅ **v1.3 Unit Hint Preservation** - Phases 2-4 (shipped 2026-01-12)
+- 🚧 **v1.4 Cleanup & Docs** - Phases 5-7 (in progress)
 
 ## Phases
 
@@ -51,12 +52,43 @@ See: [v1.3 Archive](.planning/milestones/v1.3-ROADMAP.md)
 
 </details>
 
+### 🚧 v1.4 Cleanup & Docs (In Progress)
+
+**Milestone Goal:** Address deferred issues - recursive unit conversion, error markup cleanup, and user documentation
+
+#### Phase 5: Fix Recursive Units
+**Goal**: Fix unit conversion for recursively defined units like MWh, mol/day (ISS-014)
+**Depends on**: v1.3 complete
+**Research**: Unlikely (Pint library internals, existing patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 05-01: TBD (run /gsd:plan-phase 5 to break down)
+
+#### Phase 6: Error Markup Cleanup
+**Goal**: Detect and clean error markup in input documents (ISS-016)
+**Depends on**: Phase 5
+**Research**: Unlikely (regex patterns, existing clear_text)
+**Plans**: TBD
+
+Plans:
+- [ ] 06-01: TBD (run /gsd:plan-phase 6 to break down)
+
+#### Phase 7: User Documentation
+**Goal**: Update and complete user documentation (ISS-015)
+**Depends on**: Phase 6
+**Research**: Unlikely (internal documentation work)
+**Plans**: TBD
+
+Plans:
+- [ ] 07-01: TBD (run /gsd:plan-phase 7 to break down)
+
 ## Progress
 
-All phases for v1.3 complete. No active development phases.
+**Execution Order:** Phases execute in numeric order: 5 → 6 → 7
 
-| Milestone | Phases | Status | Completed |
-|-----------|--------|--------|-----------|
-| v1.1 Foundation | 1-4 | ✅ Shipped | 2026-01-12 |
-| v1.2 Process/Clear Stability | 1 | ✅ Shipped | 2026-01-12 |
-| v1.3 Unit Hint Preservation | 2-4 | ✅ Shipped | 2026-01-12 |
+| Phase | Milestone | Plans | Status | Completed |
+|-------|-----------|-------|--------|-----------|
+| 5. Fix Recursive Units | v1.4 | 0/? | Not started | - |
+| 6. Error Markup Cleanup | v1.4 | 0/? | Not started | - |
+| 7. User Documentation | v1.4 | 0/? | Not started | - |

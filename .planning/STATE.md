@@ -5,13 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** None - v1.3 shipped
+**Current focus:** Milestone v1.4 Cleanup & Docs
 
 ## Current Position
 
-Status: Idle (no active milestone)
-Last milestone: v1.3 Unit Hint Preservation (shipped 2026-01-12)
-Last activity: 2026-01-12 — Milestone v1.3 archived
+Phase: 5 of 7 (Fix Recursive Units)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-12 — Milestone v1.4 created
+
+Progress: ░░░░░░░░░░ 0% (0/3 phases)
 
 ## Performance Metrics
 
@@ -50,9 +53,10 @@ Last activity: 2026-01-12 — Milestone v1.3 archived
 
 ### Deferred Issues
 
-ISS-014: Unit conversion fails for recursively defined units (MWh, mol/day)
-ISS-015: User documentation incomplete/outdated
-ISS-016: Error markup in input document not detected or cleaned
+None - all deferred issues moved to v1.4 milestone:
+- ISS-014 → Phase 5 (Fix Recursive Units)
+- ISS-015 → Phase 7 (User Documentation)
+- ISS-016 → Phase 6 (Error Markup Cleanup)
 
 ### Blockers/Concerns
 
@@ -63,10 +67,11 @@ None.
 - Milestone v1.3 complete: All 3 phases (2-4) finished
 - ISS-013 fixed: Inline unit hints survive processing
 - ISS-009 fixed: Custom division units work in standalone evaluations
+- Milestone v1.4 created: Cleanup & Docs, 3 phases (5-7)
 
 ## Session Continuity
 
 Last session: 2026-01-12
-Stopped at: Milestone v1.3 archived
+Stopped at: Milestone v1.4 initialization
 Resume file: None
-Next: Start new milestone when needed
+Next: Plan Phase 5 (Fix Recursive Units)
