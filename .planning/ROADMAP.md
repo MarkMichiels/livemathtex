@@ -98,7 +98,7 @@ Plans:
 - `tests/test_inline_unit_hints.py` - Add cycle tests
 
 Plans:
-- [ ] 04-01: Add cycle tests for unit hints and custom units
+- [x] 04-01: Add cycle tests for unit hints and custom units
 
 ## Progress
 
@@ -110,6 +110,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Fix Clear/Process Cycle | v1.2 | 2/2 | Complete | 2026-01-12 |
 | 2. Preserve Inline Unit Hints | v1.3 | 1/1 | Complete | 2026-01-12 |
 | 3. Fix Evaluation Unit Lookup | v1.3 | 1/1 | Complete | 2026-01-12 |
-| 4. Re-processing Verification | v1.3 | 0/1 | Planned | - |
+| 4. Re-processing Verification | v1.3 | 1/1 | Complete | 2026-01-12 |
 
-**Milestone v1.3 Progress:** 2/3 phases complete
+**Milestone v1.3 Progress:** 3/3 phases complete ✅
