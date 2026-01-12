@@ -5,6 +5,8 @@ Public API:
     process_text(content, source="<string>") -> (rendered_output, ir)
     process_text_v3(content, source="<string>", config=None) -> (rendered_output, ir_v3)
     process_file(input_path, output_path=None, verbose=False, ir_output_path=None) -> ir
+    clear_text(content) -> (cleared_content, count)
+    detect_error_markup(content) -> dict
 
 Configuration:
     LivemathConfig - Configuration options for processing
@@ -24,7 +26,7 @@ Example:
 """
 
 from .cli import main
-from .core import process_text, process_text_v3, process_file
+from .core import process_text, process_text_v3, process_file, clear_text, detect_error_markup
 from .config import LivemathConfig
 from .ir import LivemathIR
 from .ir.schema import LivemathIRV3
@@ -36,6 +38,8 @@ __all__ = [
     "process_text",
     "process_text_v3",
     "process_file",
+    "clear_text",
+    "detect_error_markup",
     # Configuration
     "LivemathConfig",
     # Result types

@@ -170,6 +170,52 @@ def clear_text(content: str) -> tuple[str, int]:
     return cleared, count
 
 
+def detect_error_markup(content: str) -> dict:
+    """
+    Detect existing error markup in content from previous processing.
+
+    Use this to check if a document contains error markup from a previous
+    processing run before re-processing.
+
+    Args:
+        content: Markdown content to check
+
+    Returns:
+        Dict with:
+        - has_errors: bool - True if error markup found
+        - count: int - Number of error patterns found
+        - has_meta: bool - True if livemathtex-meta comment found
+        - patterns: list[str] - Types of error patterns found
+    """
+    result = {
+        'has_errors': False,
+        'count': 0,
+        'has_meta': False,
+        'patterns': []
+    }
+
+    # Check for error color markup
+    error_matches = re.findall(r'\\color\{red\}', content)
+    if error_matches:
+        result['has_errors'] = True
+        result['count'] = len(error_matches)
+        result['patterns'].append('color{red}')
+
+    # Check for inline error text
+    inline_errors = re.findall(r'\\text\{\(Error:', content)
+    if inline_errors:
+        result['has_errors'] = True
+        result['count'] += len(inline_errors)
+        result['patterns'].append('text{Error}')
+
+    # Check for livemathtex metadata
+    if 'livemathtex-meta' in content:
+        result['has_meta'] = True
+        result['patterns'].append('livemathtex-meta')
+
+    return result
+
+
 def process_file(
     input_path: str,
     output_path: str = None,
