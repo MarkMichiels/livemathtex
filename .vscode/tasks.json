@@ -1,4 +1,8 @@
 {
+    "_comment": "⚠️ IMPORTANT: Keyboard shortcuts are NOT automatically configured!",
+    "_comment2": "Tasks defined here are available via 'Tasks: Run Task', but keybindings must be manually added.",
+    "_comment3": "See docs/EDITOR_INTEGRATION.md section 'Recommended Keyboard Shortcuts' for keybinding setup.",
+    "_comment4": "Copy keybindings to: ~/.config/Cursor/User/keybindings.json (or Code/User/keybindings.json)",
     "version": "2.0.0",
     "tasks": [
         {
@@ -37,6 +41,28 @@
             "presentation": {
                 "echo": true,
                 "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "LiveMathTeX: Clean (Smart)",
+            "type": "shell",
+            "command": "livemathtex",
+            "args": [
+                "copy",
+                "${file}"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
                 "focus": false,
                 "panel": "shared",
                 "showReuseMessage": false,
