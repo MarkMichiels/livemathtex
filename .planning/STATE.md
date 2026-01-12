@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** Milestone v1.4 Cleanup & Docs
+**Current focus:** Milestone v1.4 Cleanup & Docs - COMPLETE
 
 ## Current Position
 
-Phase: 6 of 7 (Error Markup Cleanup)
-Plan: 06-01 complete
-Status: Phase complete
-Last activity: 2026-01-12 — Phase 6 complete (ISS-016 fixed)
+Phase: 7 of 7 (User Documentation)
+Plan: 07-01 complete
+Status: Milestone complete
+Last activity: 2026-01-12 — Phase 7 complete (ISS-015 closed)
 
-Progress: ██████░░░░ 67% (2/3 phases)
+Progress: ██████████ 100% (3/3 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7 (2 from v1.2 + 3 from v1.3 + 2 from v1.4)
+- Total plans completed: 8 (2 from v1.2 + 3 from v1.3 + 3 from v1.4)
 - Average duration: ~10 min
-- Total execution time: ~68 min
+- Total execution time: ~80 min
 
 **By Phase:**
 
@@ -33,6 +33,7 @@ Progress: ██████░░░░ 67% (2/3 phases)
 | 4. Re-processing Verification | 1/1 | ~12 min | ~12 min |
 | 5. Fix Recursive Units | 1/1 | ~8 min | ~8 min |
 | 6. Error Markup Cleanup | 1/1 | ~10 min | ~10 min |
+| 7. User Documentation | 1/1 | ~12 min | ~12 min |
 
 ## Completed Milestones
 
@@ -41,6 +42,7 @@ Progress: ██████░░░░ 67% (2/3 phases)
 | v1.1 | v1.1.0 | 2026-01-12 | .planning/archive/v1.1/ |
 | v1.2 | — | 2026-01-12 | — |
 | v1.3 | v1.3.0 | 2026-01-12 | .planning/milestones/v1.3-ROADMAP.md |
+| v1.4 | — | 2026-01-12 | — |
 
 ## Accumulated Context
 
@@ -55,10 +57,7 @@ Progress: ██████░░░░ 67% (2/3 phases)
 
 ### Deferred Issues
 
-None - all deferred issues moved to v1.4 milestone:
-- ISS-014 → Phase 5 (Fix Recursive Units)
-- ISS-015 → Phase 7 (User Documentation)
-- ISS-016 → Phase 6 (Error Markup Cleanup)
+ISS-017: Unit conversion failures need better diagnostics (warnings vs errors) - Suggested for future milestone
 
 ### Blockers/Concerns
 
@@ -72,10 +71,12 @@ None.
 - Milestone v1.4 created: Cleanup & Docs, 3 phases (5-7)
 - Phase 5 complete: ISS-014 verified fixed (was side effect of ISS-009 fix)
 - Phase 6 complete: ISS-016 fixed (error markup detection and auto-cleanup)
+- Phase 7 complete: ISS-015 closed (user documentation updated)
+- Milestone v1.4 complete: All deferred issues addressed
 
 ## Session Continuity
 
 Last session: 2026-01-12
-Stopped at: Phase 6 complete
+Stopped at: Milestone v1.4 complete
 Resume file: None
-Next: Plan Phase 7 (User Documentation)
+Next: Create v1.4.0 release tag (optional)

@@ -13,7 +13,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.1 Foundation** - Phases 1-4 (shipped 2026-01-12)
 - ✅ **v1.2 Process/Clear Stability** - Phase 1 (shipped 2026-01-12)
 - ✅ **v1.3 Unit Hint Preservation** - Phases 2-4 (shipped 2026-01-12)
-- 🚧 **v1.4 Cleanup & Docs** - Phases 5-7 (in progress)
+- ✅ **v1.4 Cleanup & Docs** - Phases 5-7 (shipped 2026-01-12)
 
 ## Phases
 
@@ -52,9 +52,12 @@ See: [v1.3 Archive](.planning/milestones/v1.3-ROADMAP.md)
 
 </details>
 
-### 🚧 v1.4 Cleanup & Docs (In Progress)
+<details>
+<summary>✅ v1.4 Cleanup & Docs (Phases 5-7) - SHIPPED 2026-01-12</summary>
 
 **Milestone Goal:** Address deferred issues - recursive unit conversion, error markup cleanup, and user documentation
+
+**Issues Resolved:** ISS-014, ISS-015, ISS-016
 
 #### Phase 5: Fix Recursive Units ✅
 **Goal**: Fix unit conversion for recursively defined units like MWh, mol/day (ISS-014)
@@ -74,14 +77,16 @@ Plans:
 Plans:
 - [x] 06-01: Error markup detection and auto-cleanup
 
-#### Phase 7: User Documentation
+#### Phase 7: User Documentation ✅
 **Goal**: Update and complete user documentation (ISS-015)
 **Depends on**: Phase 6
-**Research**: Unlikely (internal documentation work)
-**Plans**: TBD
+**Completed**: 2026-01-12
+**Plans**: 1
 
 Plans:
-- [ ] 07-01: TBD (run /gsd:plan-phase 7 to break down)
+- [x] 07-01: Complete user documentation for v1.4 features
+
+</details>
 
 ## Progress
 
@@ -91,4 +96,6 @@ Plans:
 |-------|-----------|-------|--------|-----------|
 | 5. Fix Recursive Units | v1.4 | 1/1 | Complete | 2026-01-12 |
 | 6. Error Markup Cleanup | v1.4 | 1/1 | Complete | 2026-01-12 |
-| 7. User Documentation | v1.4 | 0/? | Not started | - |
+| 7. User Documentation | v1.4 | 1/1 | Complete | 2026-01-12 |
+
+**Milestone v1.4 Complete** - All deferred issues resolved (ISS-014, ISS-015, ISS-016)
