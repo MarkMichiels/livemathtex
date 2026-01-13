@@ -138,14 +138,15 @@ Plans:
 Plans:
 - [x] 11-01: Create token_classifier module and integrate with evaluator
 
-#### Phase 12: Unit Warnings
+#### Phase 12: Unit Warnings ✅
 **Goal**: Distinguish calculation errors from formatting warnings. Unit conversion failures show warnings (orange) with SI fallback, not red errors (ISS-017).
 **Depends on**: Phase 11
 **Research**: Unlikely (internal patterns)
-**Plans**: TBD
+**Completed**: 2026-01-13
+**Plans**: 1
 
 Plans:
-- [ ] 12-01: TBD (run /gsd:plan-phase 12 to break down)
+- [x] 12-01: Unit warnings with SI fallback (ISS-017)
 
 ## Progress
 
@@ -157,4 +158,4 @@ Plans:
 | 9. Structural Math Parsing | v1.5 | 1/1 | Complete | 2026-01-13 |
 | 10. Clear Refactor | v1.5 | 1/1 | Complete | 2026-01-13 |
 | 11. Token Classification | v1.5 | 1/1 | Complete | 2026-01-13 |
-| 12. Unit Warnings | v1.5 | 0/? | Not started | - |
+| 12. Unit Warnings | v1.5 | 1/1 | Complete | 2026-01-13 |
