@@ -128,6 +128,9 @@ def extract_math_blocks(text: str) -> List[ParsedMathBlock]:
     4. For each math block, parses LaTeX content with pylatexenc
     5. Returns blocks with both document and LaTeX-level positions
 
+    Note: Inline math ($...$) appears as children of 'inline' tokens,
+    while display math ($$...$$) appears as top-level 'math_block' tokens.
+
     Args:
         text: Raw markdown document
 
@@ -147,48 +150,66 @@ def extract_math_blocks(text: str) -> List[ParsedMathBlock]:
     # 4. Extract math blocks
     blocks: List[ParsedMathBlock] = []
 
-    for token in tokens:
-        # math_block = display math ($$...$$)
-        # math_inline = inline math ($...$)
-        if token.type not in ('math_block', 'math_inline'):
-            continue
+    # Track search position to handle multiple inline math on same line
+    last_search_pos = 0
 
-        # Token.map gives [start_line, end_line) - end is exclusive
-        # May be None for inline math
-        if token.map:
-            start_line = token.map[0]
-            end_line = token.map[1]
+    def process_math_token(token: Any, parent_map: Optional[List[int]] = None) -> None:
+        """Process a math token (either top-level or child)."""
+        nonlocal last_search_pos
+
+        # Determine line info from token.map or parent_map
+        token_map = token.map if token.map else parent_map
+
+        if token_map:
+            start_line = token_map[0]
+            end_line = token_map[1]
         else:
-            # For inline math without map, estimate from content position
-            # This is a fallback - dollarmath usually provides map
             start_line = 0
             end_line = 1
 
-        # Calculate document character offsets
-        doc_start_offset = line_to_char_offset(start_line, line_offsets)
-
-        # For display math blocks, we need to find the actual $$ position
-        # markdown-it-py's token.content is the inner content (without $$)
+        # Get inner content
         inner_content = token.content
 
-        # Determine delimiter and reconstruct full content
+        # Determine type
         is_display = token.type == 'math_block'
         delimiter = '$$' if is_display else '$'
         delimiter_len = len(delimiter)
 
-        # Find the actual position of this math block in the text
-        # Start from the line offset and search for the delimiter
-        search_start = doc_start_offset
-        actual_start = text.find(delimiter, search_start)
+        # Calculate search start position
+        doc_line_offset = line_to_char_offset(start_line, line_offsets)
+
+        # For inline math, we may have multiple on same line
+        # Use last_search_pos if it's on the same or later line
+        search_start = max(doc_line_offset, last_search_pos)
+
+        # Find the actual delimiter position
+        # For inline math, need to find $ but not $$
+        if is_display:
+            actual_start = text.find('$$', search_start)
+        else:
+            # Find single $ that's not part of $$
+            pos = search_start
+            actual_start = -1
+            while pos < len(text):
+                idx = text.find('$', pos)
+                if idx == -1:
+                    break
+                # Check it's not $$
+                if idx + 1 < len(text) and text[idx + 1] == '$':
+                    pos = idx + 2  # Skip $$
+                    continue
+                if idx > 0 and text[idx - 1] == '$':
+                    pos = idx + 1  # Part of $$, skip
+                    continue
+                actual_start = idx
+                break
 
         if actual_start == -1:
             # Fallback: use line offset
-            actual_start = doc_start_offset
+            actual_start = doc_line_offset
 
         # Calculate end position
         if is_display:
-            # Display math: $$content$$
-            # The content may span multiple lines, need to find closing $$
             content_start = actual_start + delimiter_len
             closing_pos = text.find('$$', content_start)
             if closing_pos != -1:
@@ -196,12 +217,33 @@ def extract_math_blocks(text: str) -> List[ParsedMathBlock]:
             else:
                 actual_end = actual_start + delimiter_len + len(inner_content) + delimiter_len
         else:
-            # Inline math: $content$
-            actual_end = actual_start + delimiter_len + len(inner_content) + delimiter_len
+            # Inline: find closing $ (not $$)
+            content_start = actual_start + delimiter_len
+            # Search for $ that's not $$
+            pos = content_start
+            closing_pos = -1
+            while pos < len(text):
+                idx = text.find('$', pos)
+                if idx == -1:
+                    break
+                # Check it's not $$
+                if idx + 1 < len(text) and text[idx + 1] == '$':
+                    pos = idx + 2
+                    continue
+                closing_pos = idx
+                break
+
+            if closing_pos != -1:
+                actual_end = closing_pos + delimiter_len
+            else:
+                actual_end = actual_start + delimiter_len + len(inner_content) + delimiter_len
 
         full_content = text[actual_start:actual_end]
 
-        # 5. Parse LaTeX content with pylatexenc
+        # Update search position for next inline math
+        last_search_pos = actual_end
+
+        # Parse LaTeX content
         latex_nodes = parse_latex_content(inner_content)
 
         blocks.append(ParsedMathBlock(
@@ -214,6 +256,17 @@ def extract_math_blocks(text: str) -> List[ParsedMathBlock]:
             end_line=end_line,
             latex_nodes=latex_nodes
         ))
+
+    # Process all tokens
+    for token in tokens:
+        if token.type == 'math_block':
+            # Top-level display math
+            process_math_token(token)
+        elif token.type == 'inline' and token.children:
+            # Inline tokens may contain math_inline children
+            for child in token.children:
+                if child.type == 'math_inline':
+                    process_math_token(child, parent_map=token.map)
 
     return blocks
 
