@@ -9,7 +9,10 @@ Tests focus on:
 """
 
 import pytest
-from livemathtex.core import clear_text_v2, process_text
+from livemathtex.core import clear_text, process_text
+
+# Alias for backward compatibility with test names
+clear_text_v2 = clear_text
 
 
 class TestBasicClearing:

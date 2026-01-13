@@ -31,8 +31,11 @@ from .ir.schema import LivemathIRV3, SymbolEntryV3, FormulaInfo, CustomUnitEntry
 from .config import LivemathConfig
 
 
-def clear_text(content: str) -> tuple[str, int]:
+def _clear_text_regex(content: str) -> tuple[str, int]:
     """
+    DEPRECATED: Legacy regex-based clear implementation.
+    Kept for reference/fallback. Use clear_text() instead.
+
     Clear computed values from a processed livemathtex document.
 
     Removes evaluation results (everything after ==) and error markup
@@ -216,11 +219,11 @@ def detect_error_markup(content: str) -> dict:
     return result
 
 
-def clear_text_v2(content: str) -> tuple[str, int]:
+def clear_text(content: str) -> tuple[str, int]:
     """
-    Clear computed values using span-based operations (v2 implementation).
+    Clear computed values from a processed livemathtex document.
 
-    Uses the hybrid parser from Phase 8/9 to identify math blocks and
+    Uses span-based operations with the hybrid parser to identify math blocks and
     calculation spans, then applies targeted edits without regex-based
     structural matching that can corrupt documents.
 
@@ -283,6 +286,9 @@ def clear_text_v2(content: str) -> tuple[str, int]:
 
             # For :=_== combined, clear only the result part after ==
             elif calc.operation == ":=_==" and calc.result_span:
+                # Skip if result is already empty (nothing to clear)
+                if not calc.result or not calc.result.strip():
+                    continue
                 count += 1
                 unit_replacement = ""
                 if calc.unit_hint and calc.unit_hint_span:
@@ -325,6 +331,23 @@ def clear_text_v2(content: str) -> tuple[str, int]:
     multiline_error = r'\n\\\\\s*\\color\{red\}\{\\text\{[\s\S]*?\}\}'
     cleared = re.sub(multiline_error, '', cleared)
 
+    # Clean up orphan artifacts (from old implementation patterns 6-7)
+    # Remove orphan line continuation before closing $
+    orphan_brace = r'\n?\\\\\s*\}\$'
+    cleared = re.sub(orphan_brace, '$', cleared)
+    orphan_newline = r'\n\\\\\s*\$'
+    cleared = re.sub(orphan_newline, '$', cleared)
+
+    # Fix incomplete definitions with trailing newlines
+    incomplete_def = r'(\$[^$]+:=\s*[^\n$]+)\n+\$'
+    cleared = re.sub(incomplete_def, r'\1$', cleared)
+
+    # Remove trailing whitespace after == before $ (after error removal)
+    # This handles cases like `$bad == $` → `$bad ==$`
+    # But preserves `$x == [kJ]$` (unit hints)
+    trailing_ws_after_eval = r'(==)\s+\$'
+    cleared = re.sub(trailing_ws_after_eval, r'\1$', cleared)
+
     # 4. Re-parse after error removal to get accurate spans
     # (Error removal may have changed offsets)
     try:
@@ -343,7 +366,10 @@ def clear_text_v2(content: str) -> tuple[str, int]:
             continue
 
         for calc in calcs:
-            if calc.operation == "==" and calc.result_span:
+            if calc.operation == "==" and calc.result_span and calc.operator_span:
+                # Skip if result is already empty (nothing to clear)
+                if not calc.result or not calc.result.strip():
+                    continue
                 count += 1
                 unit_replacement = ""
                 if calc.unit_hint and calc.unit_hint_span:
@@ -356,13 +382,20 @@ def clear_text_v2(content: str) -> tuple[str, int]:
                         unit = text_unit_match.group(1).replace('\\', '').strip()
                         unit_replacement = f" [{unit}]"
 
-                edits.append((
-                    calc.result_span.start,
-                    calc.result_span.end,
-                    unit_replacement
-                ))
+                # Extend span start to operator end to capture whitespace
+                edit_start = calc.operator_span.end
+                edit_end = calc.result_span.end
+                # Also include unit hint span if present
+                if calc.unit_hint_span:
+                    edit_end = calc.unit_hint_span.end
+                    unit_replacement = f" [{calc.unit_hint}]"
+
+                edits.append((edit_start, edit_end, unit_replacement))
 
             elif calc.operation == ":=_==" and calc.result_span:
+                # Skip if result is already empty (nothing to clear)
+                if not calc.result or not calc.result.strip():
+                    continue
                 count += 1
                 unit_replacement = ""
                 if calc.unit_hint and calc.unit_hint_span:
@@ -375,11 +408,21 @@ def clear_text_v2(content: str) -> tuple[str, int]:
                         unit = text_unit_match.group(1).replace('\\', '').strip()
                         unit_replacement = f" [{unit}]"
 
-                edits.append((
-                    calc.result_span.start,
-                    calc.result_span.end,
-                    unit_replacement
-                ))
+                # For :=_==, there's a secondary == operator
+                # We need to find where the == ends and clear from there
+                # The result_span starts after == + whitespace
+                # Extend start to capture whitespace before result
+                edit_start = calc.result_span.start
+                edit_end = calc.result_span.end
+                if calc.unit_hint_span:
+                    edit_end = calc.unit_hint_span.end
+                    unit_replacement = f" [{calc.unit_hint}]"
+
+                # Back up to include whitespace (simple approach: start at result - look for space)
+                while edit_start > 0 and cleared[edit_start - 1] in ' \t':
+                    edit_start -= 1
+
+                edits.append((edit_start, edit_end, unit_replacement))
 
     # 5. Apply edits in reverse order (end to start) to preserve offsets
     edits.sort(key=lambda x: x[0], reverse=True)
