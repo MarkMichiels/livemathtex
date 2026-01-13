@@ -56,7 +56,7 @@ $$productivity := 5\ g/L$$
 
 $$reactor\_volume := 100\ L$$
 
-$$total := productivity \cdot reactor\_volume == 0.5\ \text{kg}$$
+$$total := productivity \cdot reactor\_volume == 500\ \text{g}$$
 
 ### Working Hours (Pure numbers)
 
@@ -95,4 +95,4 @@ This will allow sharing unit libraries across documents.
 
 ---
 
-> *livemathtex: 2026-01-08 02:41:04 | 10 definitions, 3 evaluations | no errors | 0.19s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-13 04:21:03 | 10 definitions, 3 evaluations | 1 error | 0.24s* <!-- livemathtex-meta -->

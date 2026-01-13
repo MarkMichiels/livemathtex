@@ -44,12 +44,12 @@ $$time := 8\ h$$
 
 **Default (SI base units):**
 
-$$energy\_si := power \cdot time == 144\,000\,000\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$
-$$energy\_si := power \cdot time == 1.440e+08\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$ <!-- format:scientific -->
+$$energy\_si := power \cdot time == 40\ \text{h · kW}$$
+$$energy\_si := power \cdot time == 40\ \text{h · kW}$$ <!-- format:scientific -->
 
 **In custom unit (kW·h):**
 
-$$energy\_kWh := power \cdot time == 40\ \text{kW*h}$$ <!-- [kW*h] -->
+$$energy\_kWh := power \cdot time == 40\ \text{h · kW}$$ <!-- [kW*h] -->
 $$energy\_kWh := power \cdot time == 40\ \text{kWh}$$ <!-- [kWh] -->
 
 **In decimal format (no scientific notation):**
@@ -73,7 +73,7 @@ $$factor := 2$$
 
 **Default (SI = Pascal):**
 
-$$pressure\_si := pressure\_atm \cdot factor == 202\,600\ \text{kg}/\text{(m} \cdot \text{s}^{2)}$$
+$$pressure\_si := pressure\_atm \cdot factor == 2026\ \text{mbar}$$
 
 **In custom unit (mbar):**
 
@@ -230,19 +230,19 @@ $$neg := -12345678 == -12\,345\,678$$ <!-- format:decimal -->
 
 **Very small (auto → scientific):**
 
-$$tiny := 0.000000001 == 1.000e-09$$
+$$tiny := 0.000000001 == 1.0000e-09$$
 
 **Very small (forced scientific):**
 
-$$tiny\_sci := 0.000000001 == 1.000e-09$$ <!-- format:sci -->
+$$tiny\_sci := 0.000000001 == 1.0000e-09$$ <!-- format:sci -->
 
 **Very large (auto → scientific at 10⁹+):**
 
-$$huge := 1000000000000000 == 1.000e+15$$
+$$huge := 1000000000000000 == 1\,000\,000\,000\,000\,000$$
 
 **Very large (engineering):**
 
-$$huge\_eng := 1000000000000000 == 1.000e15$$ <!-- format:eng -->
+$$huge\_eng := 1000000000000000 == 1\,000\,000\,000\,000\,000$$ <!-- format:eng -->
 
 **Very large (forced decimal):**
 
@@ -319,4 +319,4 @@ These should display the correct converted values:
 
 ---
 
-> *livemathtex: 2026-01-12 04:03:53 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.58s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-13 04:20:59 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.77s* <!-- livemathtex-meta -->

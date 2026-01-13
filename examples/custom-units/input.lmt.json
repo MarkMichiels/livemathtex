@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "examples/custom-units/input.md",
+  "source": "input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -804,14 +804,15 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-12 23:52:42",
-    "duration": "0.55s",
+    "last_run": "2026-01-13 04:20:59",
+    "duration": "0.77s",
     "symbols": 60,
     "custom_units": 1,
     "definitions": 62,
     "evaluations": 42,
     "symbolic": 0,
     "value_refs": 4,
-    "errors": 0
+    "errors": 0,
+    "warnings": 0
   }
 }

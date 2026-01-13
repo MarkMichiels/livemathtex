@@ -4,63 +4,19 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-### ISS-024: Numerical calculations produce incorrect results due to using SymPy instead of Pint
-
-- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
-- **Type:** Architecture/Bug (Major Refactoring Required)
-- **Description:** All calculation problems stem from a fundamental architectural issue: **LiveMathTeX uses SymPy for numerical calculations, but SymPy is designed for symbolic mathematics, not numerical computation**. This causes incorrect results, especially with unit propagation (rate × time calculations fail).
-
-  **Core Problem:**
-  - SymPy is designed for symbolic math (differentiation, integration, simplification)
-  - SymPy is NOT designed for numerical calculations with units
-  - Unit propagation in SymPy is symbolic and doesn't automatically convert (e.g., `day` stays `day`, doesn't become `seconds`)
-  - Pint is already present in the codebase and handles numerical calculations with units correctly
-
-  **Evidence:**
-  - **Example bug:** `m_{26} = 49,020 g/day` × `d_{op} = 365 d` → Expected: `16,103 kg`, Actual: `0.1864 kg` (86,400x too low)
-  - **Pint test:** `49020 g/day * 365 day * 0.9` → `16,103.07 kg` ✅ CORRECT
-  - **SymPy test:** Same calculation → `0.1864 kg` ❌ WRONG
-  - **Root cause:** SymPy treats `365 * day` as symbolic expression, doesn't convert to `31,536,000 * second` automatically
-
-  **All problems are symptoms of this architectural choice:**
-  - Unit conversion failures (ISS-014, ISS-017)
-  - Incorrect numerical results (this issue)
-  - Unit propagation bugs (rate × time calculations)
-  - Performance issues (SymPy is slow for numerical calculations)
-
-  **Solution (from PINT_MIGRATION_ANALYSIS.md - Option B):**
-  - **Keep `latex2sympy2` as parser only** (LaTeX → expression tree)
-  - **Use Pint Quantities for numerical evaluation** (not SymPy)
-  - **Keep SymPy only for symbolic operations** (`=>` mode: differentiation, integration)
-
-  **Impact:** Critical (all numerical calculations are potentially incorrect, making documents unreliable for engineering use)
-- **Effort:** Substantial (major refactoring of evaluation engine)
-- **Suggested phase:** v2.0 (major architectural change)
-- **Files to change:**
-  - `src/livemathtex/engine/evaluator.py` - Major refactoring:
-    - Replace SymPy numerical evaluation with Pint-based evaluation
-    - Keep `latex2sympy2` for parsing LaTeX → expression tree
-    - Build evaluator that walks SymPy AST and evaluates with Pint Quantities
-    - Keep SymPy only for `=>` symbolic mode (separate pipeline)
-  - `src/livemathtex/engine/symbols.py` - Update `SymbolValue`:
-    - Store values as Pint Quantities (not SymPy Quantities)
-    - Update `value_with_unit` to return Pint Quantity
-  - `src/livemathtex/engine/pint_backend.py` - Enhance:
-    - Add `evaluate_expression_with_pint()` function that takes SymPy AST and evaluates with Pint
-    - Ensure all unit conversions use Pint (already mostly done)
-  - `tests/test_numerical_calculations.py` - Comprehensive tests:
-    - Rate × time: `$m := 49020\ g/day$` then `$C := m \cdot 365\ d ==$` → `16,103 kg`
-    - Energy calculations: `$P := 310.7\ kW$` then `$E := P \cdot 8760\ h ==$` → correct MWh
-    - All existing examples must pass with Pint evaluation
-  - Update all documentation to reflect Pint-based numerical evaluation
-- **References:**
-  - `.planning/history/PINT_MIGRATION_ANALYSIS.md` - Option B (recommended approach)
-  - Current architecture uses SymPy for everything (needs to change)
-- **Example:**
-  - Current (SymPy): `$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} == 0.1864\ \text{kg}$` ❌ WRONG
-  - Expected (Pint): `$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} == 16\,103\ \text{kg}$` ✅ CORRECT
+(None currently)
 
 ## Closed Issues
+
+### ISS-024: Numerical calculations produce incorrect results due to using SymPy instead of Pint
+
+**Resolved:** 2026-01-13 - Fixed in v1.6 Phase 14 (Pint Evaluator Core)
+**Solution:** Implemented hybrid architecture: latex2sympy for parsing, Pint for numeric evaluation.
+- Added `evaluate_sympy_ast_with_pint()` in pint_backend.py that walks SymPy AST and evaluates with Pint Quantities
+- Added `_compute_with_pint()` in evaluator.py as wrapper
+- Route numeric evaluations (`==` operator) through Pint, fall back to SymPy for dimensionless results
+- 15 new tests in `tests/test_pint_evaluator.py`, 360 total tests pass
+- Rate × time calculations now work correctly: `310.7 kW × 8760 h = 2721.732 MWh` ✅
 
 ### ISS-023: `_format_si_value()` produces malformed LaTeX causing KaTeX parse errors
 

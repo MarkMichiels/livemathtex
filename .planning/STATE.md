@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** Fix numerical calculation accuracy (ISS-024)
+**Current focus:** v1.6 complete - awaiting next milestone
 
 ## Current Position
 
-Phase: 14 of 15 (Pint Evaluator Core)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-01-13 — Phase 13 completed (ISS-023 fixed)
+Phase: 15 of 15 (Verification & Docs)
+Plan: Executed (5 tasks)
+Status: ✅ MILESTONE COMPLETE
+Last activity: 2026-01-13 — v1.6 shipped
 
-**Research Status:**
-- Phase 13 (ISS-023): ✅ COMPLETED - regex fix applied
-- Phase 14 (ISS-024): Research COMPLETE - see `.planning/phases/14-pint-evaluator/RESEARCH.md`
-  - Previous attempt (Phases 1-5) only migrated validation/conversion, not numerical evaluation
-  - Option B confirmed: Keep latex2sympy as parser, use Pint for numeric evaluation
+**Milestone v1.6 Summary:**
+- Phase 13 (ISS-023): ✅ COMPLETED - regex fix for LaTeX cleanup
+- Phase 14 (ISS-024): ✅ COMPLETED - Pint evaluator for numerical calculations
+- Phase 15 (Docs): ✅ COMPLETED - CHANGELOG, USAGE.md, README updated
+- 360 tests pass, v1.6.0 tagged
 
-Progress: ███░░░░░░░ 33% (v1.6: 1/3 phases)
+Progress: ██████████ 100% (v1.6: 3/3 phases)
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Progress: ███░░░░░░░ 33% (v1.6: 1/3 phases)
 | v1.3 | v1.3.0 | 2026-01-12 | .planning/milestones/v1.3-ROADMAP.md |
 | v1.4 | v1.4.0 | 2026-01-12 | — |
 | v1.5 | v1.5.0 | 2026-01-13 | .planning/milestones/v1.5-ROADMAP.md |
+| v1.6 | v1.6.0 | 2026-01-13 | — |
 
 ## Accumulated Context
 

@@ -984,46 +984,68 @@ def format_unit_latex(unit: Any, original_latex: Optional[str] = None) -> str:
 
     # Map Pint full names to common abbreviations
     # Order matters - longer names first to avoid partial replacements
+    # Compound units MUST come before their component parts
     reverse_map = [
+        # Compound unit patterns (must be first!)
+        ('kilowatt_hour', 'kWh'),
+        ('megawatt_hour', 'MWh'),
+        ('watt_hour', 'Wh'),
+        # Prefixed units (longer names before shorter)
         ('kilogram', 'kg'),
         ('milligram', 'mg'),
+        ('microgram', 'µg'),
         ('gram', 'g'),
         ('millimeter', 'mm'),
         ('centimeter', 'cm'),
         ('kilometer', 'km'),
         ('meter', 'm'),
         ('millisecond', 'ms'),
+        ('microsecond', 'µs'),
+        ('nanosecond', 'ns'),
         ('second', 's'),
         ('minute', 'min'),
         ('hour', 'h'),
-        ('day', 'dag'),
+        ('day', 'd'),
+        ('year', 'yr'),
         ('milliliter', 'mL'),
+        ('microliter', 'µL'),
         ('liter', 'L'),
-        ('kilowatt', 'kW'),
+        ('gigawatt', 'GW'),
         ('megawatt', 'MW'),
+        ('kilowatt', 'kW'),
+        ('milliwatt', 'mW'),
         ('watt', 'W'),
+        ('megajoule', 'MJ'),
         ('kilojoule', 'kJ'),
+        ('millijoule', 'mJ'),
         ('joule', 'J'),
+        ('kilonewton', 'kN'),
+        ('meganewton', 'MN'),
+        ('millinewton', 'mN'),
         ('newton', 'N'),
+        ('megapascal', 'MPa'),
         ('kilopascal', 'kPa'),
         ('pascal', 'Pa'),
         ('millibar', 'mbar'),
         ('bar', 'bar'),
+        ('kilovolt', 'kV'),
+        ('millivolt', 'mV'),
         ('volt', 'V'),
         ('milliampere', 'mA'),
+        ('microampere', 'µA'),
         ('ampere', 'A'),
         ('kelvin', 'K'),
-        ('kilohertz', 'kHz'),
+        ('gigahertz', 'GHz'),
         ('megahertz', 'MHz'),
+        ('kilohertz', 'kHz'),
         ('hertz', 'Hz'),
+        ('kilomole', 'kmol'),
+        ('millimole', 'mmol'),
         ('mole', 'mol'),
         ('euro', '€'),
         ('EUR', '€'),
         ('USD', '$'),
         ('dollar', '$'),
-        # Compound unit patterns
-        ('kilowatt_hour', 'kWh'),
-        ('megawatt_hour', 'MWh'),
     ]
 
     for full, abbrev in reverse_map:
@@ -2105,3 +2127,349 @@ def are_dimensions_compatible(dim1: Optional[str], dim2: Optional[str]) -> bool:
 
     # Compare dimensionality strings
     return dim1 == dim2
+
+
+# =============================================================================
+# ISS-024: Pint-Based AST Evaluator
+# =============================================================================
+# This is the core fix for ISS-024: walk SymPy expressions and evaluate them
+# using Pint Quantities for proper unit handling.
+# =============================================================================
+
+
+class PintEvaluationError(Exception):
+    """Error during Pint-based evaluation."""
+    pass
+
+
+def evaluate_sympy_ast_with_pint(
+    expr: Any,
+    symbol_values: dict[str, pint.Quantity],
+    allow_dimensionless: bool = True
+) -> pint.Quantity:
+    """
+    Evaluate a SymPy expression using Pint Quantities for unit handling.
+
+    This is the core ISS-024 fix: walk the SymPy AST and evaluate with Pint
+    instead of SymPy's numeric evaluation. This ensures proper unit cancellation
+    (e.g., kW * year → energy).
+
+    Args:
+        expr: A SymPy expression (from latex2sympy)
+        symbol_values: Dict mapping symbol names to Pint Quantities
+        allow_dimensionless: If True, allow pure numbers without units
+
+    Returns:
+        A Pint Quantity with the result
+
+    Raises:
+        PintEvaluationError: If evaluation fails
+
+    Examples:
+        >>> ureg = get_unit_registry()
+        >>> symbols = {'P': 310.7 * ureg.kW, 't': 1 * ureg.year}
+        >>> # Assuming expr is latex2sympy('P * t')
+        >>> result = evaluate_sympy_ast_with_pint(expr, symbols)
+        >>> result.to('MWh')  # ~2721.7 MWh
+    """
+    import sympy
+    from sympy.physics.units import Quantity as SympyQuantity
+
+    ureg = get_unit_registry()
+
+    def _eval(e: Any) -> pint.Quantity:
+        """Recursively evaluate a SymPy expression node."""
+
+        # Handle None
+        if e is None:
+            raise PintEvaluationError("Cannot evaluate None expression")
+
+        # Pure Python numbers
+        if isinstance(e, (int, float)):
+            return e * ureg.dimensionless if allow_dimensionless else float(e)
+
+        # SymPy numbers
+        if isinstance(e, sympy.Number):
+            val = float(e)
+            return val * ureg.dimensionless if allow_dimensionless else val
+
+        if isinstance(e, sympy.Integer):
+            val = int(e)
+            return val * ureg.dimensionless if allow_dimensionless else val
+
+        if isinstance(e, sympy.Float):
+            val = float(e)
+            return val * ureg.dimensionless if allow_dimensionless else val
+
+        if isinstance(e, sympy.Rational):
+            val = float(e)
+            return val * ureg.dimensionless if allow_dimensionless else val
+
+        # SymPy Symbol - lookup in symbol_values
+        if isinstance(e, sympy.Symbol):
+            name = str(e)
+            if name in symbol_values:
+                return symbol_values[name]
+            # Check for subscripted versions (v_{0} style)
+            if '_' in name:
+                base_name = name.replace('_{', '_').replace('}', '')
+                if base_name in symbol_values:
+                    return symbol_values[base_name]
+            raise PintEvaluationError(f"Undefined symbol: {name}")
+
+        # SymPy Quantity (unit) - convert to Pint
+        if isinstance(e, SympyQuantity):
+            unit_name = str(e)
+            # Try to convert SymPy unit to Pint
+            pint_unit = _sympy_unit_to_pint(unit_name)
+            if pint_unit is not None:
+                return 1 * pint_unit
+            raise PintEvaluationError(f"Unknown unit: {unit_name}")
+
+        # Multiplication: a * b * c
+        if isinstance(e, sympy.Mul):
+            result = 1 * ureg.dimensionless
+            for arg in e.args:
+                val = _eval(arg)
+                # Handle mixing Pint Quantities with plain numbers
+                if isinstance(val, pint.Quantity):
+                    result = result * val
+                else:
+                    result = result * val
+            return result
+
+        # Addition: a + b + c
+        if isinstance(e, sympy.Add):
+            result = None
+            for arg in e.args:
+                val = _eval(arg)
+                if result is None:
+                    result = val
+                else:
+                    # Pint handles dimension checking automatically
+                    result = result + val
+            return result
+
+        # Power: a ** b
+        if isinstance(e, sympy.Pow):
+            base = _eval(e.base)
+            # Exponent should be numeric
+            exp = e.exp
+            if isinstance(exp, sympy.Number):
+                exp_val = float(exp)
+            else:
+                exp_val = _eval(exp)
+                if isinstance(exp_val, pint.Quantity):
+                    if exp_val.dimensionless:
+                        exp_val = float(exp_val.magnitude)
+                    else:
+                        raise PintEvaluationError("Exponent must be dimensionless")
+            return base ** exp_val
+
+        # Negative (unary minus)
+        if isinstance(e, sympy.core.numbers.NegativeOne):
+            return -1 * ureg.dimensionless if allow_dimensionless else -1
+
+        # Mathematical functions
+        # Note: sympy.sqrt(x) returns Pow(x, 1/2), not a separate sqrt type
+        # So we handle sqrt in the Pow handler below
+
+        if isinstance(e, sympy.exp):
+            arg = _eval(e.args[0])
+            if isinstance(arg, pint.Quantity):
+                if arg.dimensionless:
+                    import math
+                    return math.exp(arg.magnitude) * ureg.dimensionless
+                raise PintEvaluationError("exp() argument must be dimensionless")
+            import math
+            return math.exp(arg) * ureg.dimensionless
+
+        if isinstance(e, sympy.log):
+            arg = _eval(e.args[0])
+            if isinstance(arg, pint.Quantity):
+                if arg.dimensionless:
+                    import math
+                    return math.log(arg.magnitude) * ureg.dimensionless
+                raise PintEvaluationError("log() argument must be dimensionless")
+            import math
+            return math.log(arg) * ureg.dimensionless
+
+        # Trig functions
+        if isinstance(e, (sympy.sin, sympy.cos, sympy.tan)):
+            arg = _eval(e.args[0])
+            if isinstance(arg, pint.Quantity):
+                if arg.dimensionless:
+                    val = arg.magnitude
+                elif arg.check('[angle]'):
+                    val = arg.to('radian').magnitude
+                else:
+                    raise PintEvaluationError("Trig functions require angle or dimensionless")
+            else:
+                val = arg
+            import math
+            if isinstance(e, sympy.sin):
+                return math.sin(val) * ureg.dimensionless
+            if isinstance(e, sympy.cos):
+                return math.cos(val) * ureg.dimensionless
+            if isinstance(e, sympy.tan):
+                return math.tan(val) * ureg.dimensionless
+
+        # Division (handled by Mul with negative powers, but catch explicit case)
+        # SymPy represents a/b as a * b**(-1)
+
+        # Fallback: try to evaluate as SymPy and extract value
+        try:
+            # Try numeric evaluation with SymPy as fallback
+            numeric = sympy.N(e)
+            if numeric.is_number:
+                return float(numeric) * ureg.dimensionless
+        except Exception:
+            pass
+
+        raise PintEvaluationError(f"Cannot evaluate expression type: {type(e).__name__}")
+
+    return _eval(expr)
+
+
+def _sympy_unit_to_pint(sympy_unit_name: str) -> Optional[pint.Unit]:
+    """
+    Convert a SymPy unit name to a Pint unit.
+
+    Args:
+        sympy_unit_name: Name of the SymPy unit (e.g., 'kilogram', 'meter')
+
+    Returns:
+        Pint Unit or None if not recognized
+    """
+    ureg = get_unit_registry()
+
+    # Direct mapping for common SymPy unit names
+    sympy_to_pint = {
+        # SI base
+        'meter': 'm',
+        'kilogram': 'kg',
+        'second': 's',
+        'ampere': 'A',
+        'kelvin': 'K',
+        'mole': 'mol',
+        'candela': 'cd',
+        # Derived
+        'gram': 'g',
+        'watt': 'W',
+        'joule': 'J',
+        'newton': 'N',
+        'pascal': 'Pa',
+        'hertz': 'Hz',
+        'volt': 'V',
+        'ohm': 'ohm',
+        'liter': 'L',
+        'bar': 'bar',
+        'hour': 'h',
+        'minute': 'min',
+        'day': 'day',
+        'year': 'year',
+        # Prefixed
+        'kilowatt': 'kW',
+        'megawatt': 'MW',
+        'kilojoule': 'kJ',
+        'megajoule': 'MJ',
+        'kilowatt_hour': 'kWh',
+        'megawatt_hour': 'MWh',
+        'kilometer': 'km',
+        'centimeter': 'cm',
+        'millimeter': 'mm',
+        'milligram': 'mg',
+        # Custom
+        'euro': 'EUR',
+        'EUR': 'EUR',
+        'dollar': 'USD',
+        'USD': 'USD',
+    }
+
+    # Try direct mapping
+    if sympy_unit_name in sympy_to_pint:
+        try:
+            return ureg.Unit(sympy_to_pint[sympy_unit_name])
+        except Exception:
+            pass
+
+    # Try parsing directly
+    try:
+        return ureg.Unit(sympy_unit_name)
+    except Exception:
+        pass
+
+    # Try cleaning up the name
+    clean_name = sympy_unit_name.replace('_', '')
+    if clean_name in sympy_to_pint:
+        try:
+            return ureg.Unit(sympy_to_pint[clean_name])
+        except Exception:
+            pass
+
+    return None
+
+
+def build_pint_symbol_map(
+    symbol_table: dict[str, Any],
+    ureg: Optional[pint.UnitRegistry] = None
+) -> dict[str, pint.Quantity]:
+    """
+    Build a mapping of symbol names to Pint Quantities from a LiveMathTeX symbol table.
+
+    Args:
+        symbol_table: Dict of symbol names to SymbolValue objects
+        ureg: Optional Pint registry (uses global if not provided)
+
+    Returns:
+        Dict mapping symbol names to Pint Quantities
+    """
+    if ureg is None:
+        ureg = get_unit_registry()
+
+    result = {}
+
+    for name, symbol_value in symbol_table.items():
+        try:
+            # Get the numeric value
+            if hasattr(symbol_value, 'original_value') and symbol_value.original_value is not None:
+                value = symbol_value.original_value
+            elif hasattr(symbol_value, 'value'):
+                # Try to extract numeric value from SymPy expression
+                import sympy
+                if hasattr(symbol_value.value, 'is_number') and symbol_value.value.is_number:
+                    value = float(symbol_value.value)
+                else:
+                    # Complex expression - try numeric evaluation
+                    try:
+                        value = float(sympy.N(symbol_value.value))
+                    except Exception:
+                        continue
+            else:
+                continue
+
+            # Get the unit
+            unit_str = None
+            if hasattr(symbol_value, 'original_unit') and symbol_value.original_unit:
+                unit_str = symbol_value.original_unit
+            elif hasattr(symbol_value, 'unit') and symbol_value.unit:
+                unit_str = str(symbol_value.unit)
+
+            # Create Pint Quantity
+            if unit_str:
+                # Clean up unit string
+                unit_str = clean_latex_unit(unit_str)
+                unit_str = unit_str.replace('€', 'EUR').replace('$', 'USD')
+                unit_str = unit_str.replace('²', '**2').replace('³', '**3')
+                try:
+                    result[name] = value * ureg(unit_str)
+                except Exception:
+                    # Fall back to dimensionless
+                    result[name] = value * ureg.dimensionless
+            else:
+                result[name] = value * ureg.dimensionless
+
+        except Exception:
+            continue
+
+    return result

@@ -15,7 +15,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.3 Unit Hint Preservation** - Phases 2-4 (shipped 2026-01-12)
 - ✅ **v1.4 Cleanup & Docs** - Phases 5-7 (shipped 2026-01-12)
 - ✅ **v1.5 Parser Architecture** - Phases 8-12 (shipped 2026-01-13)
-- 🚧 **v1.6 Pint Evaluation Engine** - Phases 13-15 (in progress)
+- ✅ **v1.6 Pint Evaluation Engine** - Phases 13-15 (shipped 2026-01-13)
 
 ## Phases
 
@@ -108,7 +108,7 @@ See: [v1.5 Archive](milestones/v1.5-ROADMAP.md)
 
 </details>
 
-### 🚧 v1.6 Pint Evaluation Engine (In Progress)
+### ✅ v1.6 Pint Evaluation Engine (Shipped 2026-01-13)
 
 **Milestone Goal:** Fix numerical calculation accuracy by replacing SymPy-based evaluation with Pint-based evaluation for numerical calculations.
 
@@ -123,21 +123,30 @@ See: [v1.5 Archive](milestones/v1.5-ROADMAP.md)
 Plans:
 - [x] 13-01: Fix LaTeX cleanup regex in evaluator.py (lines 1314, 1342)
 
-#### Phase 14: Pint Evaluator Core
+#### Phase 14: Pint Evaluator Core ✅
 **Goal**: Replace SymPy numerical evaluation with Pint-based evaluation (ISS-024 core fix)
 **Depends on**: Phase 13
+**Completed**: 2026-01-13
 **Research**: ✅ COMPLETE - see `.planning/phases/14-pint-evaluator/RESEARCH.md`
-**Key findings**: Previous migration (Phases 1-5) only migrated validation/conversion. Numerical evaluation still uses SymPy. Option B confirmed: Keep latex2sympy as parser, use Pint for numeric evaluation.
-**Plans**: TBD
+**Key findings**: Implemented hybrid architecture - latex2sympy for parsing, Pint for numeric evaluation.
+**Plans**: 5
 
 Plans:
-- [ ] 14-01: TBD (run /gsd:plan-phase 14 to break down)
+- [x] 14-01: Create `evaluate_sympy_ast_with_pint()` in pint_backend.py
+- [x] 14-02: Add `_compute_with_pint()` wrapper in evaluator.py
+- [x] 14-03: Route numeric evaluations (`==` operator) through Pint
+- [x] 14-04: Update tests and verify core calculation
+- [x] 14-05: Comprehensive tests (15 tests in test_pint_evaluator.py)
 
-#### Phase 15: Verification & Docs
+#### Phase 15: Verification & Docs ✅
 **Goal**: Comprehensive testing of rate×time calculations, update documentation for v1.6
 **Depends on**: Phase 14
-**Research**: Unlikely (testing patterns)
-**Plans**: TBD
+**Completed**: 2026-01-13
+**Plans**: 5
 
 Plans:
-- [ ] 15-01: TBD (run /gsd:plan-phase 15 to break down)
+- [x] 15-01: Update docs/USAGE.md with rate×time documentation
+- [x] 15-02: Create CHANGELOG.md for v1.6 release
+- [x] 15-03: Verify edge cases (15 tests in test_pint_evaluator.py)
+- [x] 15-04: Update README.md version to 1.6.0
+- [x] 15-05: Tag v1.6.0 release

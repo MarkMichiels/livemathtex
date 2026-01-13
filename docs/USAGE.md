@@ -458,6 +458,7 @@ $$ kosten := prijs \cdot energie == 208.5\ \text{€} $$
 
 - **Multiplication:** `€/kWh * kWh = €` (kWh cancels)
 - **Division:** `m / s = m/s` (creates compound unit)
+- **Rate × time:** `kW × h = kWh`, `g/day × days = g` (units cancel correctly)
 - **SI conversion:** Results are simplified to SI base units when possible
 
 **Example with area calculation:**
@@ -469,6 +470,27 @@ $$ oppervlakte := hoogte \cdot breedte == $$  <!-- 6.0 m² -->
 ```
 
 **See also:** `examples/custom-units/` and `examples/unit-library/` for complete examples.
+
+### Rate × Time Calculations
+
+LiveMathTeX correctly handles rate × time calculations where units should cancel:
+
+```latex
+$P_1 := 310.7\ kW$                    <!-- Power -->
+$t_1 := 8760\ h$                      <!-- Hours per year -->
+$E_1 := P_1 \cdot t_1 ==$ <!-- [MWh] -->  <!-- Energy: 2721.732 MWh -->
+```
+
+**Common patterns:**
+
+| Calculation | Example | Result |
+|------------|---------|--------|
+| Power × time → energy | `kW × h` | `kWh` or `MWh` |
+| Mass rate × time → mass | `g/day × days` | `g` or `kg` |
+| Volume flow × time → volume | `m³/h × h` | `m³` |
+| Cost rate × quantity | `€/kWh × kWh` | `€` |
+
+**Note:** In v1.6, numerical evaluation uses Pint for accurate unit cancellation. Previous versions could produce incorrect results for rate × time calculations.
 
 ---
 

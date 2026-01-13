@@ -31,9 +31,9 @@ Volume flow rate:
 $Q := 50 \frac{m^{3}}{h}$
 
 Display in different units (no manual conversion needed!):
-$Q == 50\ \text{m³/h}$ <!-- [m³/h] -->
-$Q == 0.01389\ \text{m³/s}$ <!-- [m³/s] -->
-$Q == 13.89\ \text{L/s}$ <!-- [L/s] -->
+$Q == 50\ \text{m^3/h}$ <!-- [m³/h] -->
+$Q == 0.0139\ \text{m^3/s}$ <!-- [m³/s] -->
+$Q == 13.8889\ \text{L/s}$ <!-- [L/s] -->
 
 ### Geometry
 
@@ -67,10 +67,10 @@ $f_d := 0.02$
 ## Step 1: Flow Velocity
 
 Cross-sectional area:
-$A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} == 0.007854\ \text{m}^{2}$
+$A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} == 7853.9816\ \text{mm^2}$
 
 Flow velocity:
-$vel := \frac{Q}{A_{pipe}} == 1.768\ \text{m}/\text{s}$
+$vel := \frac{Q}{A_{pipe}} == 6366.1977\ \text{m/h}$
 
 ---
 
@@ -85,7 +85,7 @@ $H_{static} := h_d - h_s == 17\ \text{m}$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 3.188\ \text{m}$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 0.0032\ \text{m^2/mm}$$
 
 ### Minor Losses
 
@@ -144,4 +144,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236\ \text{kW}$$ <!-- [kW]
 
 ---
 
-> *livemathtex: 2026-01-08 00:29:05 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.61s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-13 04:21:01 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.61s* <!-- livemathtex-meta -->

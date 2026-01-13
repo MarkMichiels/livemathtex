@@ -31,7 +31,15 @@ except ImportError:
             return sympy.Symbol(latex_str)
 
 from .symbols import SymbolTable
-from .pint_backend import get_sympy_unit_registry as get_unit_registry, UnitRegistry
+from .pint_backend import (
+    get_sympy_unit_registry as get_unit_registry,
+    UnitRegistry,
+    evaluate_sympy_ast_with_pint,
+    build_pint_symbol_map,
+    PintEvaluationError,
+    get_unit_registry as get_pint_registry,
+    format_unit_latex,
+)
 from .token_classifier import TokenClassifier
 from ..parser.models import Calculation
 from ..utils.errors import EvaluationError, UndefinedVariableError, UnitConversionWarning
@@ -363,7 +371,7 @@ class Evaluator:
     # =========================================================================
 
     def _is_value_definition(self, rhs: str) -> bool:
-        """
+        r"""
         Check if RHS is a direct value (number with optional unit).
 
         A value definition is one where the RHS is just a number,
@@ -678,32 +686,180 @@ class Evaluator:
         lhs_part, result_part = content.split("==", 1)
         lhs = lhs_part.strip()
 
-        # Compute with unit propagation - units from variables will be included
-        value = self._compute(lhs, propagate_units=True)
-
-        # Check for undefined variables (symbols that weren't substituted)
-        self._check_undefined_symbols(value, lhs)
-
-        # ISSUE-006: Check for dimensional compatibility in additions/subtractions
-        self._check_dimensional_compatibility(value, lhs)
-
-        # Use unit_comment from parser for display conversion
-        # ISS-017: Catch UnitConversionWarning and show SI fallback with orange warning
+        # ISS-024 FIX: Use Pint for evaluation to ensure proper unit cancellation
         try:
-            value, suffix = self._apply_conversion(value, calc.unit_comment)
-            skip_si_conversion = bool(calc.unit_comment)
-            result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion, config=cfg)
-        except UnitConversionWarning as w:
-            # Increment warning counter
-            self._warning_count += 1
-            # Show SI value with orange warning message
-            result_latex = f"{w.si_value}\n\\\\ {self._format_warning(f'Warning: {w}')}"
+            pint_result = self._compute_with_pint(lhs)
+            # Check if result has units - if dimensionless, fall back to SymPy formatting
+            # which properly handles scientific/engineering format settings
+            if str(pint_result.units) == 'dimensionless' or pint_result.dimensionless:
+                raise EvaluationError("Dimensionless - use SymPy formatting")
+            result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
+        except EvaluationError:
+            # Fallback to SymPy evaluation if Pint fails or result is dimensionless
+            value = self._compute(lhs, propagate_units=True)
+
+            # Check for undefined variables (symbols that weren't substituted)
+            self._check_undefined_symbols(value, lhs)
+
+            # ISSUE-006: Check for dimensional compatibility in additions/subtractions
+            self._check_dimensional_compatibility(value, lhs)
+
+            # Use unit_comment from parser for display conversion
+            # ISS-017: Catch UnitConversionWarning and show SI fallback with orange warning
+            try:
+                value, suffix = self._apply_conversion(value, calc.unit_comment)
+                skip_si_conversion = bool(calc.unit_comment)
+                result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion, config=cfg)
+            except UnitConversionWarning as w:
+                # Increment warning counter
+                self._warning_count += 1
+                # Show SI value with orange warning message
+                result_latex = f"{w.si_value}\n\\\\ {self._format_warning(f'Warning: {w}')}"
 
         # Format LHS too? "x * y" -> "x \cdot y"
         # The user said "input mee formatten". LHS of evaluation is input.
         lhs_normalized = self._normalize_latex(lhs)
 
         return f"{lhs_normalized} == {result_latex}"
+
+    def _format_pint_result(self, pint_result: 'pint.Quantity', unit_hint: Optional[str], config: LivemathConfig) -> str:
+        """
+        Format a Pint Quantity result to LaTeX.
+
+        Args:
+            pint_result: The Pint Quantity to format
+            unit_hint: Optional unit hint from comment (e.g., "MWh")
+            config: Configuration for formatting
+
+        Returns:
+            LaTeX formatted string
+        """
+        import pint
+        from .pint_backend import clean_latex_unit
+
+        ureg = get_pint_registry()
+
+        # Apply unit conversion if specified
+        if unit_hint:
+            target_unit = clean_latex_unit(unit_hint)
+            target_unit = target_unit.replace('€', 'EUR').replace('$', 'USD')
+            try:
+                pint_result = pint_result.to(target_unit)
+            except pint.DimensionalityError as e:
+                # Increment warning counter and show warning
+                self._warning_count += 1
+                si_value = self._format_pint_quantity_latex(pint_result.to_base_units(), config)
+                warning_msg = f"Warning: Cannot convert to '{unit_hint}' - dimensions incompatible"
+                return f"{si_value}\n\\\\ {self._format_warning(warning_msg)}"
+            except Exception:
+                pass  # Keep original units if conversion fails silently
+
+        return self._format_pint_quantity_latex(pint_result, config)
+
+    def _format_pint_quantity_latex(self, qty: 'pint.Quantity', config: LivemathConfig) -> str:
+        """
+        Format a Pint Quantity as LaTeX.
+
+        Args:
+            qty: Pint Quantity to format
+            config: Configuration for formatting
+
+        Returns:
+            LaTeX string like "1\\,234.5\\ \\text{MWh}"
+        """
+        import pint
+
+        # Get magnitude and unit
+        magnitude = qty.magnitude
+        unit = qty.units
+
+        # Format magnitude with config settings
+        digits = config.digits if config else 4
+
+        # Check for very small numbers that should use scientific notation
+        if abs(magnitude) < 0.001 and magnitude != 0:
+            # Use scientific notation
+            formatted_value = f"{magnitude:.{digits}e}"
+        elif abs(magnitude) >= 10000:
+            # Large numbers - use thousand separators
+            formatted_value = f"{magnitude:,.{digits}f}"
+            # Convert to LaTeX thousand separator
+            formatted_value = formatted_value.replace(',', '\\,')
+        else:
+            # Normal numbers
+            formatted_value = f"{magnitude:.{digits}f}"
+
+        # Strip trailing zeros if they're just .0000
+        if '.' in formatted_value:
+            formatted_value = formatted_value.rstrip('0').rstrip('.')
+
+        # Format unit as LaTeX
+        unit_str = str(unit)
+        if unit_str == 'dimensionless' or unit == qty._REGISTRY.dimensionless:
+            return formatted_value
+        else:
+            # Convert Pint unit to LaTeX using format_unit_latex
+            unit_latex = format_unit_latex(unit)
+            return f"{formatted_value}\\ \\text{{{unit_latex}}}"
+
+    def _pint_unit_to_latex(self, unit_str: str) -> str:
+        """
+        Convert a Pint unit string to LaTeX format.
+
+        Args:
+            unit_str: Pint unit string like "megawatt_hour"
+
+        Returns:
+            LaTeX like "\\text{MWh}"
+        """
+        # Common unit mappings
+        unit_map = {
+            'kilogram': 'kg',
+            'gram': 'g',
+            'milligram': 'mg',
+            'meter': 'm',
+            'kilometer': 'km',
+            'centimeter': 'cm',
+            'millimeter': 'mm',
+            'second': 's',
+            'hour': 'h',
+            'minute': 'min',
+            'day': 'd',
+            'year': 'yr',
+            'watt': 'W',
+            'kilowatt': 'kW',
+            'megawatt': 'MW',
+            'joule': 'J',
+            'kilojoule': 'kJ',
+            'megajoule': 'MJ',
+            'kilowatt_hour': 'kWh',
+            'megawatt_hour': 'MWh',
+            'liter': 'L',
+            'milliliter': 'mL',
+            'mole': 'mol',
+            'euro': '€',
+            'EUR': '€',
+            'kelvin': 'K',
+            'ampere': 'A',
+            'volt': 'V',
+            'pascal': 'Pa',
+            'bar': 'bar',
+        }
+
+        # Check for compound units with / or *
+        if '/' in unit_str or '*' in unit_str or '**' in unit_str:
+            # Parse compound unit
+            result = unit_str
+            for pint_name, latex_name in sorted(unit_map.items(), key=lambda x: len(x[0]), reverse=True):
+                result = result.replace(pint_name, latex_name)
+            # Convert ** to ^
+            result = result.replace('**', '^')
+            # Wrap in \text{} for safety
+            return f"\\text{{{result}}}"
+
+        # Simple unit
+        latex = unit_map.get(unit_str, unit_str)
+        return f"\\text{{{latex}}}"
 
     def _handle_assignment_evaluation(self, calc: Calculation, config: Optional[LivemathConfig] = None) -> str:
         """Handle combined assignment and evaluation: $var := expr ==$"""
@@ -770,19 +926,25 @@ class Evaluator:
             line=getattr(self, '_current_line', 0)
         )
 
-        # Use unit_comment for display conversion
-        # If unit_comment is specified, don't auto-convert to SI in _format_result
-        # ISS-017: Catch UnitConversionWarning and show SI fallback with orange warning
-        display_value = value * result_unit if result_unit else value
+        # ISS-024 FIX: Use Pint for display formatting to get proper unit cancellation
         try:
-            display_value, suffix = self._apply_conversion(display_value, calc.unit_comment)
-            skip_si_conversion = bool(calc.unit_comment)
-            result_latex = self._format_result(display_value, skip_si_conversion=skip_si_conversion, config=cfg)
-        except UnitConversionWarning as w:
-            # Increment warning counter
-            self._warning_count += 1
-            # Show SI value with orange warning message
-            result_latex = f"{w.si_value}\n\\\\ {self._format_warning(f'Warning: {w}')}"
+            pint_result = self._compute_with_pint(rhs)
+            result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
+        except EvaluationError:
+            # Fallback to SymPy formatting
+            # Use unit_comment for display conversion
+            # If unit_comment is specified, don't auto-convert to SI in _format_result
+            # ISS-017: Catch UnitConversionWarning and show SI fallback with orange warning
+            display_value = value * result_unit if result_unit else value
+            try:
+                display_value, suffix = self._apply_conversion(display_value, calc.unit_comment)
+                skip_si_conversion = bool(calc.unit_comment)
+                result_latex = self._format_result(display_value, skip_si_conversion=skip_si_conversion, config=cfg)
+            except UnitConversionWarning as w:
+                # Increment warning counter
+                self._warning_count += 1
+                # Show SI value with orange warning message
+                result_latex = f"{w.si_value}\n\\\\ {self._format_warning(f'Warning: {w}')}"
 
         # IMPORTANT: Keep original RHS LaTeX for definitions
         # Don't re-format it - user's notation should be preserved
@@ -2225,6 +2387,127 @@ class Evaluator:
             expr = expr.subs(subs_dict)
 
         return expr
+
+    def _compute_with_pint(self, expression_latex: str) -> 'pint.Quantity':
+        """
+        Parse and compute a LaTeX expression using Pint for unit handling.
+
+        This is the ISS-024 fix: use Pint instead of SymPy for numerical evaluation
+        to ensure proper unit cancellation (e.g., kW * year → energy).
+
+        Args:
+            expression_latex: LaTeX expression to parse
+
+        Returns:
+            A Pint Quantity with the computed result
+
+        Raises:
+            EvaluationError: If evaluation fails
+        """
+        import pint
+
+        # Step 1: Parse LaTeX to SymPy AST using existing _compute (without substitution)
+        # We need to get the AST structure, then evaluate with Pint
+        modified_latex = self._rewrite_with_internal_ids(expression_latex)
+
+        # Apply same preprocessing as _compute
+        modified_latex = modified_latex.replace(r'\ ', ' ')
+        modified_latex = modified_latex.replace(r'\,', ' ')
+        modified_latex = modified_latex.replace('€', 'EUR')
+        modified_latex = modified_latex.replace(r'\cdot', '*')
+        modified_latex = modified_latex.replace(r'\times', '*')
+        modified_latex = modified_latex.replace(r'\div', '/')
+
+        try:
+            expr = latex2sympy(modified_latex)
+        except Exception as e:
+            raise EvaluationError(f"Failed to parse LaTeX '{expression_latex}': {e}")
+
+        # Step 2: Build Pint symbol map from our symbol table
+        ureg = get_pint_registry()
+        symbol_map = {}
+
+        for sym in expr.free_symbols:
+            sym_name = str(sym)
+
+            # Handle internal IDs (v_0, v_1, etc.)
+            if sym_name.startswith('v_') and sym_name[2:].isdigit():
+                internal_id = f"v_{{{sym_name[2:]}}}"
+                latex_name = self.symbols.get_latex_name(internal_id)
+                if latex_name:
+                    for name in self.symbols.all_names():
+                        entry = self.symbols.get(name)
+                        if entry and entry.latex_name == latex_name:
+                            # Create Pint Quantity from stored value and unit
+                            pint_qty = self._symbol_to_pint_quantity(entry, ureg)
+                            if pint_qty is not None:
+                                symbol_map[sym_name] = pint_qty
+                            break
+
+            # Check symbol table directly
+            clean_name = self._normalize_symbol_name(sym_name)
+            entry = self.symbols.get(clean_name) or self.symbols.get('\\' + clean_name)
+            if entry:
+                pint_qty = self._symbol_to_pint_quantity(entry, ureg)
+                if pint_qty is not None:
+                    symbol_map[sym_name] = pint_qty
+
+        # Step 3: Evaluate using Pint
+        try:
+            result = evaluate_sympy_ast_with_pint(expr, symbol_map)
+            return result
+        except PintEvaluationError as e:
+            raise EvaluationError(f"Pint evaluation failed: {e}")
+
+    def _symbol_to_pint_quantity(self, entry: Any, ureg: 'pint.UnitRegistry') -> 'Optional[pint.Quantity]':
+        """
+        Convert a SymbolValue entry to a Pint Quantity.
+
+        Args:
+            entry: A SymbolValue from the symbol table
+            ureg: Pint unit registry
+
+        Returns:
+            Pint Quantity or None if conversion fails
+        """
+        try:
+            # Get numeric value
+            if hasattr(entry, 'original_value') and entry.original_value is not None:
+                value = entry.original_value
+            elif hasattr(entry, 'value'):
+                import sympy
+                if hasattr(entry.value, 'is_number') and entry.value.is_number:
+                    value = float(entry.value)
+                else:
+                    try:
+                        value = float(sympy.N(entry.value))
+                    except Exception:
+                        return None
+            else:
+                return None
+
+            # Get unit
+            unit_str = None
+            if hasattr(entry, 'original_unit') and entry.original_unit:
+                unit_str = entry.original_unit
+            elif hasattr(entry, 'unit') and entry.unit:
+                unit_str = str(entry.unit)
+
+            # Create Pint Quantity
+            if unit_str:
+                from .pint_backend import clean_latex_unit
+                unit_str = clean_latex_unit(unit_str)
+                unit_str = unit_str.replace('€', 'EUR').replace('$', 'USD')
+                unit_str = unit_str.replace('²', '**2').replace('³', '**3')
+                try:
+                    return value * ureg(unit_str)
+                except Exception:
+                    return value * ureg.dimensionless
+            else:
+                return value * ureg.dimensionless
+
+        except Exception:
+            return None
 
     def _normalize_latex(self, latex_str: str) -> str:
         """

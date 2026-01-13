@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | **Status** | Alpha (usable; interfaces may change) |
-| **Version** | 0.1.0 |
+| **Version** | 1.6.0 |
 | **Requires** | Python 3.10+ |
 
 LiveMathTeX is a small CLI that reads a Markdown file, evaluates LaTeX-style calculations (with units), and writes the results back into Markdown.
@@ -160,6 +160,7 @@ If you're using Cursor, this repo also includes command wrappers:
 | [ROADMAP.md](.planning/ROADMAP.md) | Development phases (GSD planning) |
 | [ARCHITECTURE.md](.planning/codebase/ARCHITECTURE.md) | Technical design (IR, parser/engine/renderer) |
 | [ISSUES.md](.planning/ISSUES.md) | Open issues and enhancements |
+| [CHANGELOG.md](CHANGELOG.md) | Version history |
 
 ---
 
