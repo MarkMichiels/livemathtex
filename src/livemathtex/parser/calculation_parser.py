@@ -87,7 +87,8 @@ def parse_calculation_line(
     line_span = Span(content_start, content_start + len(stripped))
 
     # Check for bare '=' error (not part of :=, ==, =>, ===)
-    if re.search(r'(?<!:)(?<!>)(?<!=)=(?!=)', stripped):
+    # Need to also exclude => (the = before >)
+    if re.search(r'(?<!:)(?<!>)(?<!=)=(?!=)(?!>)', stripped):
         return ParsedCalculation(
             operation="ERROR",
             operator_span=Span(content_start, content_start + len(stripped)),
@@ -190,7 +191,9 @@ def parse_calculation_line(
         unit_match = re.search(r'\[([^\]]+)\]\s*$', result_part)
         if unit_match and not unit_hint:
             unit_hint = unit_match.group(1).strip()
-            unit_hint_start = content_start + idx + 2 + result_part.find('[')
+            # Find [ position in original stripped string (not in result_part)
+            bracket_pos_in_stripped = stripped.find('[', idx + 2)
+            unit_hint_start = content_start + bracket_pos_in_stripped
             unit_hint_span = Span(unit_hint_start, unit_hint_start + len(unit_match.group(0)))
             result_part = result_part[:unit_match.start()].strip()
 
