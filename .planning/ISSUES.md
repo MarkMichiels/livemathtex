@@ -4,9 +4,72 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-(None currently)
+### ISS-026: Compound unit rate calculations (mg/L/day) produce incorrect results
+
+- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
+- **Type:** Bug
+- **Description:** Calculations with compound rate units containing division (e.g., `mg/L/day`) produce results that are 86.4x too large. The factor 86.4 suggests incorrect time unit conversion (86,400 seconds per day / 1000).
+
+  **Example of the bug:**
+  - Expression: `$m_{26} := V_L \cdot \gamma_{26} ==$` where `$V_L := 37824\ L$` and `$\gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$`
+  - Expected: 567 g/day (37,824 L × 15 mg/L/day = 567,360 mg/day = 567.36 g/day)
+  - Actual: 49,020 g/day (86.4x too large)
+  - Root cause: Likely incorrect parsing or evaluation of compound units with division notation (`\frac{\text{mg}}{\text{L} \cdot \text{d}}`)
+
+  **Impact:** High (affects all productivity/rate calculations with compound units)
+- **Effort:** Medium (requires investigation of compound unit parsing and evaluation)
+- **Suggested phase:** v1.7 (hotfix - critical bug)
+- **Related:** ISS-024 (rate × time calculations) - may be related but different issue
+- **Files to investigate:**
+  - `src/livemathtex/engine/pint_backend.py` - compound unit parsing
+  - `src/livemathtex/engine/evaluator.py` - unit evaluation
+  - `tests/test_pint_evaluator.py` - add regression test for compound rate units
+- **Test case:**
+  ```latex
+  $V_L := 37824\ L$
+  $\gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$
+  $m_{26} := V_L \cdot \gamma_{26} ==$ <!-- [g/day] -->
+  % Expected: 567.36 g/day
+  % Actual: 49,020 g/day (wrong)
+  ```
+
+### ISS-027: EUR to k€ unit conversion fails - dimension incompatibility
+
+- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
+- **Type:** Bug
+- **Description:** Unit conversion from EUR to k€ fails with "dimensions incompatible" warning, even though both are currency units and k€ is defined as `$k€ === 1000\ €$`.
+
+  **Example of the bug:**
+  - Expression: `$Cost_{26} := E_{26} \cdot c_{elec} ==$ <!-- [k€] -->` where `$c_{elec} := 139\ \frac{€}{MWh}$`
+  - Expected: Cost in k€ (e.g., 205 k€ for E_26 = 1,472 MWh)
+  - Actual: `6.48855 EUR` with warning: `Cannot convert from 'EUR' to 'k€' - dimensions incompatible`
+  - Root cause: EUR and € are not recognized as equivalent units, and k€ definition may not be properly linked to €
+
+  **Impact:** Medium (affects cost calculations, but values are still correct - just wrong unit display)
+- **Effort:** Low-Medium (requires fixing currency unit aliasing and k€ definition)
+- **Suggested phase:** v1.7 (enhancement)
+- **Files to change:**
+  - `src/livemathtex/engine/pint_backend.py` - currency unit handling
+  - `src/livemathtex/engine/evaluator.py` - unit conversion logic
+  - `tests/test_pint_evaluator.py` - add test for EUR/€/k€ conversions
+- **Test case:**
+  ```latex
+  $€ === €$
+  $k€ === 1000\ €$
+  $c_{elec} := 139\ \frac{€}{MWh}$
+  $E_{26} := 1472\ MWh$
+  $Cost_{26} := E_{26} \cdot c_{elec} ==$ <!-- [k€] -->
+  % Expected: 204.608 k€
+  % Actual: 204.608 EUR (with warning)
+  ```
+
 
 ## Closed Issues
+
+### ISS-025: Pint evaluator misses handlers for SymPy constants and has unsafe isinstance() check
+
+**Resolved:** 2026-01-13 - Fixed in v1.7 Phase 16
+**Solution:** Added handler for `sympy.core.numbers.NumberSymbol` base class to support Pi, E (Exp1), EulerGamma, GoldenRatio, and Catalan constants. Fixed unsafe `isinstance(e, SympyQuantity)` check with guard `SympyQuantity is not None`. Added 5 regression tests.
 
 ### ISS-024: Numerical calculations produce incorrect results due to using SymPy instead of Pint
 

@@ -160,15 +160,16 @@ Plans:
 
 **Issues to Resolve:** ISS-025, ISS-026, ISS-027
 
-#### Phase 16: Fix SymPy Constants Handling (ISS-025)
+#### Phase 16: Fix SymPy Constants Handling (ISS-025) ✅
 **Goal**: Fix `evaluate_sympy_ast_with_pint()` to handle SymPy mathematical constants (π, e) and fix unsafe isinstance() check
 **Depends on**: v1.6 complete
-**Status**: Not started
+**Status**: Complete
+**Completed**: 2026-01-13
 **Research**: Unlikely (bug fix with clear solution in ISSUES.md)
 **Plans**: 1
 
 Plans:
-- [ ] 16-01: Add handlers for SymPy constants and fix SympyQuantity isinstance check
+- [x] 16-01: Add handlers for SymPy constants and fix SympyQuantity isinstance check
 
 #### Phase 17: Fix Compound Rate Units (ISS-026)
 **Goal**: Fix calculations with compound rate units containing division (mg/L/day) that produce 86.4x wrong results
