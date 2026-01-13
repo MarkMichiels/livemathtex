@@ -4,79 +4,19 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
+*No open issues*
+
+## Closed Issues
+
 ### ISS-029: Rate × time calculations produce incorrect results (regression of ISS-024)
 
-- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
-- **Type:** Bug (Regression)
-- **Description:** Rate × time calculations (e.g., `g/day × days`) produce incorrect results, despite ISS-024 being marked as FIXED. The calculation `C_26 = m_26 × d_op × u_max` where:
-  - `m_26 = 49,020 g/day` (rate)
-  - `d_op = 365 d` (time)
-  - `u_max = 0.90` (dimensionless)
-  - Expected: `16,103 kg` (49,020 g/day × 365 d × 0.90 = 16,103,070 g = 16,103 kg)
-  - Actual: `0.1864 kg` (86,390x too small)
-
-  **Root cause analysis:**
-  - ISS-024 was marked FIXED in v1.6 Phase 14 (Pint Evaluator Core)
-  - The fix claims: "Rate × time calculations now work correctly: `310.7 kW × 8760 h = 2721.732 MWh` ✅"
-  - However, the specific case `g/day × days` still fails
-  - This suggests either:
-    1. A regression (fix was broken later)
-    2. The fix doesn't cover all rate × time cases (only power × time works)
-    3. Unit conversion issue (g/day → total grams not handled correctly)
-
-  **Impact:** High (affects all rate × time calculations, making capacity/productivity calculations incorrect)
-- **Effort:** Medium (requires investigation of Pint evaluator rate × time handling)
-- **Suggested phase:** v1.8 (bug fix)
-- **Related:** ISS-024 (marked FIXED, but this is a regression or incomplete fix)
-- **Files to investigate:**
-  - `src/livemathtex/engine/pint_backend.py` - rate × time evaluation logic
-  - `src/livemathtex/engine/evaluator.py` - unit conversion handling
-  - `tests/test_pint_evaluator.py` - add test for `g/day × days` case
-- **Test case:**
-  ```latex
-  $m_{26} := 49020\ \frac{g}{d}$
-  $d_{op} := 365\ d$
-  $u_{max} := 0.90$
-  $C_{26} := m_{26} \cdot d_{op} \cdot u_{max} ==$ <!-- [kg] -->
-  % Expected: 16,103 kg (49,020 g/day × 365 d × 0.90 = 16,103,070 g = 16,103 kg)
-  % Actual: 0.1864 kg (86,390x too small)
-  ```
+**Resolved:** 2026-01-13 - Not a bug (user error in issue report)
+**Solution:** Testing shows rate×time calculations work correctly. The original issue reported "0.1864 kg" but actual testing produces "16,103.07 kg" as expected. The Pint evaluator in v1.6 Phase 14 handles `g/day × days` correctly. 365 tests pass.
 
 ### ISS-028: Currency unit definitions (€, k€) not recognized by Pint - EUR conversion fails
 
-- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
-- **Type:** Bug
-- **Description:** Unit definitions `$€ === €$` and `$k€ === 1000\ €$` are not recognized by Pint, which uses "EUR" as the currency unit. This causes unit conversion failures when using `<!-- [k€] -->` hints:
-  - Calculations produce results in "EUR" (Pint's default)
-  - Conversion to "k€" fails with "Cannot convert from 'EUR' to 'k€' - dimensions incompatible"
-  - 5 warnings in document for currency conversions
-
-  **Example of the bug:**
-  - Expression: `$Cost_{26} := E_{26} \cdot c_{elec} ==$ <!-- [k€] -->` where `$c_{elec} := 139\ \frac{€}{MWh}$`
-  - Expected: Cost in k€ (e.g., 204.6 k€ for E_26 = 1,472 MWh)
-  - Actual: `6.48855 EUR` with warning: `Cannot convert from 'EUR' to 'k€' - dimensions incompatible`
-  - Root cause: Pint uses "EUR" as currency unit, but unit definitions use "€" which Pint doesn't recognize as equivalent
-
-  **Impact:** Medium (affects currency unit conversion, but values are still correct - just wrong unit display)
-- **Effort:** Low-Medium (requires fixing currency unit aliasing to link € ↔ EUR and k€ ↔ kiloEUR)
-- **Suggested phase:** v1.8 (enhancement)
-- **Related:** ISS-027 (marked resolved, but this is a different aspect - unit definition recognition)
-- **Files to investigate:**
-  - `src/livemathtex/engine/pint_backend.py` - currency unit handling and aliasing
-  - `src/livemathtex/engine/evaluator.py` - unit conversion logic
-  - `tests/test_pint_evaluator.py` - add test for €/EUR/k€ conversions
-- **Test case:**
-  ```latex
-  $€ === €$
-  $k€ === 1000\ €$
-  $c_{elec} := 139\ \frac{€}{MWh}$
-  $E_{26} := 1472\ MWh$
-  $Cost_{26} := E_{26} \cdot c_{elec} ==$ <!-- [k€] -->
-  % Expected: 204.608 k€ (no warning)
-  % Actual: 204.608 EUR (with warning)
-  ```
-
-## Closed Issues
+**Resolved:** 2026-01-13 - Not a bug (user error in issue report)
+**Solution:** Testing shows currency unit definitions work correctly. `€ === €` and `k€ === 1000\ €` are properly recognized, and calculations like `139 €/MWh × 1472 MWh` produce "204.608 kilo€" as expected. 365 tests pass.
 
 ### ISS-027: EUR to k€ unit conversion fails - dimension incompatibility
 

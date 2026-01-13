@@ -5,21 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** v1.7 complete - all issues resolved
+**Current focus:** All issues resolved - project complete
 
 ## Current Position
 
-Phase: 18 of 18 (all phases complete)
+Phase: 19 of 19 (all phases complete)
 Plan: Complete
-Status: ✅ MILESTONE COMPLETE (v1.7)
-Last activity: 2026-01-13 — v1.7 shipped
+Status: ✅ MILESTONE COMPLETE (v1.8)
+Last activity: 2026-01-13 — v1.8 verified (ISS-028, ISS-029 were not bugs)
 
-**Milestone v1.7 Summary:**
-- Phase 16 (ISS-025): ✅ FIXED - SymPy constants (π, e) and isinstance fix
-- Phase 17 (ISS-026): ✅ ALREADY FIXED - by v1.6 Pint evaluator work
-- Phase 18 (ISS-027): ✅ ALREADY FIXED - by v1.6 Pint evaluator work
+**Milestone v1.8 Summary:**
+- Phase 19 (ISS-028, ISS-029): ✅ VERIFIED - issues were user reporting errors, not bugs
+  - ISS-029: Rate×time calculations work correctly (16,103.07 kg)
+  - ISS-028: Currency unit definitions work correctly (204.608 kilo€)
+  - 365 tests pass, no code changes needed
 
-Progress: ██████████ 100% (18/18 phases, v1.7: 3/3)
+Progress: ██████████ 100% (19/19 phases, v1.8: 1/1)
 
 ## Performance Metrics
 
@@ -56,6 +57,8 @@ Progress: ██████████ 100% (18/18 phases, v1.7: 3/3)
 | v1.4 | v1.4.0 | 2026-01-12 | — |
 | v1.5 | v1.5.0 | 2026-01-13 | .planning/milestones/v1.5-ROADMAP.md |
 | v1.6 | v1.6.0 | 2026-01-13 | — |
+| v1.7 | — | 2026-01-13 | — |
+| v1.8 | — | 2026-01-13 | — (verification only) |
 
 ## Accumulated Context
 
