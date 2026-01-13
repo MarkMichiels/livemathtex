@@ -81,6 +81,7 @@ class MarkdownRenderer:
             symbolics = metadata.get('symbolics', 0)
             values = metadata.get('values', 0)
             errors = metadata.get('errors', 0)
+            warnings = metadata.get('warnings', 0)  # ISS-017: Track warnings separately
 
             # Build stats with descriptive names
             stats_parts = []
@@ -94,8 +95,17 @@ class MarkdownRenderer:
                 stats_parts.append(f"{values} value ref{'s' if values != 1 else ''}")
             stats_str = ", ".join(stats_parts) if stats_parts else "0 operations"
 
-            error_str = "no errors" if errors == 0 else f"{errors} error{'s' if errors != 1 else ''}"
-            footer = f"\n\n---\n\n> *livemathtex: {metadata.get('last_run')} | {stats_str} | {error_str} | {metadata.get('duration')}* <!-- livemathtex-meta -->\n"
+            # ISS-017: Build status string with both errors and warnings
+            status_parts = []
+            if errors == 0:
+                status_parts.append("no errors")
+            else:
+                status_parts.append(f"{errors} error{'s' if errors != 1 else ''}")
+            if warnings > 0:
+                status_parts.append(f"{warnings} warning{'s' if warnings != 1 else ''}")
+            status_str = ", ".join(status_parts)
+
+            footer = f"\n\n---\n\n> *livemathtex: {metadata.get('last_run')} | {stats_str} | {status_str} | {metadata.get('duration')}* <!-- livemathtex-meta -->\n"
         else:
             footer = "\n"
 

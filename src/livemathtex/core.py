@@ -175,9 +175,9 @@ def _clear_text_regex(content: str) -> tuple[str, int]:
 
 def detect_error_markup(content: str) -> dict:
     """
-    Detect existing error markup in content from previous processing.
+    Detect existing error/warning markup in content from previous processing.
 
-    Use this to check if a document contains error markup from a previous
+    Use this to check if a document contains error/warning markup from a previous
     processing run before re-processing.
 
     Args:
@@ -186,13 +186,17 @@ def detect_error_markup(content: str) -> dict:
     Returns:
         Dict with:
         - has_errors: bool - True if error markup found
+        - has_warnings: bool - True if warning markup found (ISS-017)
         - count: int - Number of error patterns found
+        - warning_count: int - Number of warning patterns found (ISS-017)
         - has_meta: bool - True if livemathtex-meta comment found
-        - patterns: list[str] - Types of error patterns found
+        - patterns: list[str] - Types of error/warning patterns found
     """
     result = {
         'has_errors': False,
+        'has_warnings': False,  # ISS-017
         'count': 0,
+        'warning_count': 0,  # ISS-017
         'has_meta': False,
         'patterns': []
     }
@@ -203,6 +207,13 @@ def detect_error_markup(content: str) -> dict:
         result['has_errors'] = True
         result['count'] = len(error_matches)
         result['patterns'].append('color{red}')
+
+    # ISS-017: Check for warning color markup
+    warning_matches = re.findall(r'\\color\{orange\}', content)
+    if warning_matches:
+        result['has_warnings'] = True
+        result['warning_count'] = len(warning_matches)
+        result['patterns'].append('color{orange}')
 
     # Check for inline error text
     inline_errors = re.findall(r'\\text\{\(Error:', content)
@@ -312,9 +323,9 @@ def clear_text(content: str) -> tuple[str, int]:
             # We'll handle this with regex below since error markup
             # is inserted by the renderer, not part of the parsed structure
 
-    # 3. Remove error markup with regex (safe - doesn't affect structure)
-    # This handles \color{red}{...} which is rendering output, not parsed
-    # We do this BEFORE applying span edits since error markup may be
+    # 3. Remove error/warning markup with regex (safe - doesn't affect structure)
+    # This handles \color{red}{...} and \color{orange}{...} which is rendering output
+    # We do this BEFORE applying span edits since error/warning markup may be
     # outside the parsed calculation spans
     cleared = content
 
@@ -323,6 +334,10 @@ def clear_text(content: str) -> tuple[str, int]:
     error_pattern = r'\\color\{red\}\{(?:[^{}]|\{[^{}]*\})*\}'
     cleared = re.sub(error_pattern, '', cleared)
 
+    # ISS-017: Warning patterns - \color{orange}{...} with nested braces
+    warning_pattern = r'\\color\{orange\}\{(?:[^{}]|\{[^{}]*\})*\}'
+    cleared = re.sub(warning_pattern, '', cleared)
+
     # Inline error text: \text{(Error: ...)}
     error_text_pattern = r'\\text\{\(Error:[^)]*\)\}'
     cleared = re.sub(error_text_pattern, '', cleared)
@@ -330,6 +345,10 @@ def clear_text(content: str) -> tuple[str, int]:
     # Multiline error blocks: newline + \\ + \color{red}{\text{...}}
     multiline_error = r'\n\\\\\s*\\color\{red\}\{\\text\{[\s\S]*?\}\}'
     cleared = re.sub(multiline_error, '', cleared)
+
+    # ISS-017: Multiline warning blocks: newline + \\ + \color{orange}{\text{...}}
+    multiline_warning = r'\n\\\\\s*\\color\{orange\}\{\\text\{[\s\S]*?\}\}'
+    cleared = re.sub(multiline_warning, '', cleared)
 
     # Clean up orphan artifacts (from old implementation patterns 6-7)
     # Remove orphan line continuation before closing $
@@ -493,7 +512,7 @@ def process_file(
     # 1a. Pre-process: If content appears to be already processed
     # (contains error markup or livemathtex-meta), clear it first.
     # This ensures idempotent processing of output files.
-    if '\\color{red}' in content or 'livemathtex-meta' in content:
+    if '\\color{red}' in content or '\\color{orange}' in content or 'livemathtex-meta' in content:
         content, _ = clear_text(content)
 
     # 2. Load config from files (levels 3-6 of hierarchy)
@@ -569,6 +588,9 @@ def process_file(
     duration = time.time() - start_time
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # ISS-017: Get warning count from evaluator
+    warning_count = evaluator.get_warning_count()
+
     # 8. Update IR with symbol values from evaluator
     _populate_ir_symbols(ir, evaluator)
 
@@ -582,6 +604,7 @@ def process_file(
         "symbolic": symbolic_count,
         "value_refs": value_count,
         "errors": error_count,
+        "warnings": warning_count,  # ISS-017
     }
 
     # 9. Render
@@ -592,7 +615,8 @@ def process_file(
         "evals": eval_count,
         "symbolics": symbolic_count,
         "values": value_count,
-        "errors": error_count
+        "errors": error_count,
+        "warnings": warning_count,  # ISS-017
     }
 
     renderer = MarkdownRenderer()
@@ -696,7 +720,7 @@ def process_text(
     # Pre-process: If content appears to be already processed
     # (contains error markup or livemathtex-meta), clear it first.
     # This ensures idempotent processing of output files.
-    if '\\color{red}' in content or 'livemathtex-meta' in content:
+    if '\\color{red}' in content or '\\color{orange}' in content or 'livemathtex-meta' in content:
         content, _ = clear_text(content)
 
     # 1. Parse document structure
@@ -767,6 +791,9 @@ def process_text(
     duration = time.time() - start_time
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # ISS-017: Get warning count from evaluator
+    warning_count = evaluator.get_warning_count()
+
     # Populate IR symbols
     _populate_ir_symbols(ir, evaluator)
 
@@ -779,6 +806,7 @@ def process_text(
         "symbolic": symbolic_count,
         "value_refs": value_count,
         "errors": error_count,
+        "warnings": warning_count,  # ISS-017
     }
 
     # Render
@@ -789,7 +817,8 @@ def process_text(
         "evals": eval_count,
         "symbolics": symbolic_count,
         "values": value_count,
-        "errors": error_count
+        "errors": error_count,
+        "warnings": warning_count,  # ISS-017
     }
 
     renderer = MarkdownRenderer()
@@ -884,6 +913,9 @@ def process_text_v3(
     duration = time.time() - start_time
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # ISS-017: Get warning count from evaluator
+    warning_count = evaluator.get_warning_count()
+
     # 5. Populate IR v3.0 symbols
     _populate_ir_symbols_v3(ir, evaluator)
 
@@ -897,6 +929,7 @@ def process_text_v3(
         "symbolic": symbolic_count,
         "value_refs": value_count,
         "errors": error_count,
+        "warnings": warning_count,  # ISS-017
     }
 
     # 6. Render
@@ -907,7 +940,8 @@ def process_text_v3(
         "evals": eval_count,
         "symbolics": symbolic_count,
         "values": value_count,
-        "errors": error_count
+        "errors": error_count,
+        "warnings": warning_count,  # ISS-017
     }
 
     renderer = MarkdownRenderer()
