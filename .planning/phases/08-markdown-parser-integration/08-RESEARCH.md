@@ -2,7 +2,8 @@
 
 **Phase:** 8 - Markdown Parser Integration
 **Goal:** Integrate markdown parser library for AST with exact source spans
-**Research Date:** 2026-01-13
+**Research Date:** 2026-01-13 (updated)
+**Confidence:** HIGH
 
 ## Research Questions
 
@@ -10,10 +11,11 @@
 2. Can we get character-level offsets, not just line numbers?
 3. How do these parsers handle math blocks (`$$...$$`)?
 4. What's the migration path from current regex-based parsing?
+5. **NEW:** Can we get character-level positions WITHIN LaTeX math blocks?
 
 ## Findings
 
-### Parser Comparison
+### Markdown Parser Comparison
 
 | Parser | Line Positions | Character Offsets | Math Support | Extensibility |
 |--------|----------------|-------------------|--------------|---------------|
@@ -23,13 +25,49 @@
 | **marko** | ❓ unclear | ❓ unclear | ❌ | ✅ extensions |
 | **python-markdown** | ❌ | ❌ | ✅ via extension | ✅ extensions |
 
-### Critical Finding: No Character-Level Offsets
+### LaTeX Parser Comparison
 
-**None of the major Python markdown parsers provide character-level source offsets.**
+| Parser | Character Positions | Line/Col Support | Fault Tolerant | Notes |
+|--------|---------------------|------------------|----------------|-------|
+| **pylatexenc** | ✅ `pos`, `pos_end` | ✅ `pos_to_lineno_colno()` | ✅ `tolerant_parsing` | Best choice |
+| **TexSoup** | ❌ | ❌ | ✅ | No fine offsets |
+| **Pandoc** | ✅ `--track-source-pos` | ✅ | ✅ | Heavy, external binary |
 
-- **markdown-it-py**: The `Token.map` attribute contains `[line_begin, line_end]` (0-indexed lines). Character-level tracking was explicitly "declined at planning phases as too expensive" in the original markdown-it JavaScript library.
-- **mistletoe**: Has `line_number` attribute on block tokens only; span/inline tokens lack position tracking.
-- **mistune**: AST output via `renderer='ast'` has no built-in position tracking at all.
+### Critical Finding: Hybrid Approach Required
+
+**Markdown parsers don't provide character-level offsets**, but **pylatexenc does** for LaTeX content.
+
+**Solution:** Two-layer parsing:
+1. **markdown-it-py** → Find math blocks with document positions
+2. **pylatexenc** → Parse LaTeX content with character-level precision
+
+### pylatexenc LatexWalker Details
+
+**Source:** [pylatexenc documentation](https://pylatexenc.readthedocs.io/en/latest/latexwalker/)
+
+Node position tracking:
+```python
+from pylatexenc.latexwalker import LatexWalker
+
+w = LatexWalker(r"x := 5 \cdot \text{kg}")
+nodes, pos, length = w.get_latex_nodes()
+
+# Each node has:
+# - node.pos      : start position in string
+# - node.pos_end  : end position (pylatexenc 3.0+)
+# - node.len      : length (deprecated, use pos_end - pos)
+
+# Convert to line/column:
+lineno, colno = w.pos_to_lineno_colno(node.pos)
+```
+
+Node types:
+- `LatexCharsNode`: Plain text characters
+- `LatexMacroNode`: Macros like `\text`, `\frac`
+- `LatexGroupNode`: Brace groups `{...}`
+- `LatexMathNode`: Math environments
+
+**Version note:** pylatexenc 3.0+ uses `pos_end` instead of `len`. Both work for compatibility.
 
 ### markdown-it-py Details
 
@@ -63,153 +101,137 @@ md = MarkdownIt().use(dollarmath_plugin, allow_space=True, allow_digits=True)
 tokens = md.parse(text)
 ```
 
-**SyntaxTreeNode**: Can convert flat token stream to hierarchical tree:
-```python
-from markdown_it.tree import SyntaxTreeNode
-tree = SyntaxTreeNode(tokens)
-```
-
-### Current LiveMathTeX Parser Analysis
-
-**File:** `src/livemathtex/parser/lexer.py`
-
-Current approach:
-- Regex-based: `MATH_BLOCK_RE` pattern finds `$$...$$` blocks
-- `SourceLocation` dataclass tracks: `start_line`, `end_line`, `start_col`, `end_col`
-- `_get_line_number()` calculates line positions from character offsets
-- Code block exclusion via `CODE_BLOCK_RE`
-
-**Problems addressed by this phase:**
-- ISS-021: Clear corruption around multiline error blocks (regex doesn't track document structure)
-- ISS-020: Structural parsing needed for robust clear/process cycle
-
-## Architecture Options
-
-### Option A: Full markdown-it-py Migration (Recommended)
-
-Use markdown-it-py as the document parser, calculate character offsets post-hoc.
-
-**Approach:**
-1. Parse document with markdown-it-py + dollarmath_plugin
-2. Convert line positions to character offsets using newline counting
-3. Extract math blocks as first-class nodes with precise boundaries
-4. Keep existing calculation parsing (operators, expressions) unchanged
-
-**Advantages:**
-- Battle-tested CommonMark parser
-- Reliable code fence detection (avoids parsing math in code blocks)
-- Extensible plugin architecture
-- Active maintenance by executablebooks
-
-**Character offset calculation:**
-```python
-def line_to_offset(text: str, line: int) -> int:
-    """Convert 0-indexed line number to character offset."""
-    lines = text.split('\n')
-    return sum(len(lines[i]) + 1 for i in range(line))
-```
-
-### Option B: Hybrid (Keep Current + Add Structure)
-
-Keep regex for math extraction, add markdown-it-py only for code block detection.
-
-**Disadvantages:**
-- Two parsing passes
-- Maintenance burden of two systems
-- Doesn't solve root cause (regex fragility)
-
-### Option C: Custom Parser with Spans
-
-Build custom parser tracking character offsets throughout.
-
-**Disadvantages:**
-- Significant engineering effort
-- CommonMark edge cases
-- Maintenance burden
-
-## Recommended Stack
+## Recommended Architecture: Hybrid Stack
 
 ```
 Document Input
       │
       ▼
 ┌─────────────────────────────┐
-│ markdown-it-py              │
+│ Layer 1: markdown-it-py     │
 │ + dollarmath_plugin         │
-│ → Token stream with map     │
+│ → Math block boundaries     │
+│ → Code fence exclusion      │
 └─────────────────────────────┘
       │
       ▼
 ┌─────────────────────────────┐
 │ Position Converter          │
 │ line_map → char_offsets     │
-│ → SourceLocation objects    │
+│ → Math block char positions │
 └─────────────────────────────┘
       │
       ▼
 ┌─────────────────────────────┐
-│ Math Block Parser           │
-│ (existing calculation       │
-│  extraction logic)          │
+│ Layer 2: pylatexenc         │
+│ LatexWalker per math block  │
+│ → Character-level positions │
+│ → LaTeX node structure      │
 └─────────────────────────────┘
       │
       ▼
-Document Model (existing)
+┌─────────────────────────────┐
+│ Unified Document Model      │
+│ MathBlock with:             │
+│ - document offsets          │
+│ - internal LaTeX positions  │
+└─────────────────────────────┘
+```
+
+### Why This Works
+
+1. **markdown-it-py** reliably finds `$$...$$` blocks and excludes code fences
+2. **Position converter** translates line positions to character offsets
+3. **pylatexenc** parses the LaTeX content with exact character positions
+4. **Offset combination**: `document_offset + latex_node.pos` = absolute position
+
+### Example Pipeline
+
+```python
+# 1. Parse markdown
+md = MarkdownIt().use(dollarmath_plugin)
+tokens = md.parse(document_text)
+
+# 2. For each math_block token
+for token in tokens:
+    if token.type == 'math_block':
+        # Get document position
+        start_line = token.map[0]
+        doc_offset = line_to_offset(document_text, start_line)
+
+        # 3. Parse LaTeX content
+        latex_content = token.content
+        walker = LatexWalker(latex_content, tolerant_parsing=True)
+        nodes, _, _ = walker.get_latex_nodes()
+
+        # 4. Combine positions
+        for node in nodes:
+            absolute_pos = doc_offset + node.pos
+            # Now we know exactly where this LaTeX element is in the document
 ```
 
 ## Dependencies
 
 **Required:**
-- `markdown-it-py>=3.0.0` - Core parser
+- `markdown-it-py>=3.0.0` - Markdown parser
 - `mdit-py-plugins>=0.4.0` - dollarmath plugin
+- `pylatexenc>=2.10` - LaTeX parser with position tracking
 
 **Installation:**
 ```bash
-pip install markdown-it-py mdit-py-plugins
+pip install markdown-it-py mdit-py-plugins pylatexenc
 ```
 
 ## Migration Path
 
-1. **Phase 8**: Add markdown-it-py integration alongside existing parser
-2. **Phase 9**: Parse math block internals using spans from Phase 8
+1. **Phase 8**: Add hybrid parser (markdown-it-py + pylatexenc)
+2. **Phase 9**: Use LaTeX node positions for operator parsing
 3. **Phase 10**: Rewrite `clear_text()` using span-based operations
-
-Keep existing `SourceLocation` model - just populate from markdown-it-py tokens instead of regex.
+4. **Phase 11**: Use LaTeX AST for token classification
 
 ## Common Pitfalls
 
-1. **Off-by-one errors**: markdown-it uses 0-indexed lines, current code may use 1-indexed
-2. **Newline handling**: `\r\n` vs `\n` affects offset calculations
-3. **Dollar sign in code**: dollarmath plugin needs `allow_space=True` to avoid conflicts
-4. **Nested math**: `$...$` inline vs `$$...$$` block have different token types
+1. **Off-by-one errors**: markdown-it uses 0-indexed lines, pylatexenc uses 0-indexed chars
+2. **Newline handling**: `\r\n` vs `\n` affects offset calculations - normalize first
+3. **Dollar sign in code**: dollarmath plugin needs `allow_space=True`
+4. **pylatexenc tolerant mode**: Use `tolerant_parsing=True` to handle malformed LaTeX
+5. **Position combination**: Remember to add math block's document offset to LaTeX node positions
+6. **pylatexenc 3.0 changes**: `len` deprecated, use `pos_end` or `pos_end - pos`
 
 ## Test Strategy
 
-1. Create test documents with:
-   - Code fences containing `$$`
-   - Math blocks with various operators
-   - Multiline math blocks
-   - Edge cases from ISS-021
+1. **Document-level tests:**
+   - Code fences containing `$$` (should be excluded)
+   - Multiple math blocks
+   - Math at document start/end
 
-2. Verify position accuracy:
-   - Extract math block → modify → reinsert at exact position
-   - Round-trip should produce identical document
+2. **Position accuracy tests:**
+   - `text[start:end] == content` for all extracted blocks
+   - Round-trip: extract → modify → reinsert produces correct result
+
+3. **LaTeX position tests:**
+   - Operator positions (`:=`, `==`) within math blocks
+   - Nested structures (`\frac{a}{b}`)
+   - Error positions for malformed LaTeX
 
 ## References
 
 - [markdown-it-py GitHub](https://github.com/executablebooks/markdown-it-py)
 - [mdit-py-plugins dollarmath](https://mdit-py-plugins.readthedocs.io/en/latest/#dollarmath)
-- [markdown-it Token structure](https://markdown-it.github.io/markdown-it/#Token)
-- [mistletoe GitHub](https://github.com/miyuchina/mistletoe)
-- [Python-Markdown Extension API](https://python-markdown.github.io/extensions/api/)
+- [pylatexenc documentation](https://pylatexenc.readthedocs.io/en/latest/latexwalker/)
+- [pylatexenc GitHub](https://github.com/phfaist/pylatexenc)
+- [pylatexenc node classes](https://pylatexenc.readthedocs.io/en/latest/latexnodes.nodes/)
 
 ## Conclusion
 
-**Recommendation:** Use **markdown-it-py with dollarmath_plugin** for document structure, with post-hoc character offset calculation. This provides:
+**Recommendation:** Use **hybrid approach** with:
+1. **markdown-it-py + dollarmath_plugin** for document structure
+2. **pylatexenc LatexWalker** for character-level LaTeX parsing
 
-- Reliable math block detection with line positions
-- Proper code fence handling (no false positives)
-- Extensible architecture for future needs
-- Minimal changes to existing calculation parsing
+This provides:
+- Reliable math block detection with proper code fence handling
+- Character-level precision within LaTeX content
+- Fault-tolerant parsing for malformed LaTeX
+- Foundation for future phases (token classification, clear refactor)
 
-The key insight is that character-level precision can be achieved by converting line positions to offsets - we don't need the parser to track characters natively.
+The key insight is that **two specialized parsers** (markdown + LaTeX) work better than trying to find one parser that does everything.
