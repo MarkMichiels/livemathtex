@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 9 of 12 (Structural Math Parsing)
+Phase: 10 of 12 (Clear Refactor)
 Plan: 01 complete
-Status: Phase 9 complete
-Last activity: 2026-01-13 — Phase 9 plan 01 executed
+Status: Phase 10 complete
+Last activity: 2026-01-13 — Phase 10 plan 01 executed
 
-Progress: ████░░░░░░ 40% (2/5 phases)
+Progress: ██████░░░░ 60% (3/5 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10 (2 from v1.2 + 3 from v1.3 + 3 from v1.4 + 2 from v1.5)
+- Total plans completed: 11 (2 from v1.2 + 3 from v1.3 + 3 from v1.4 + 3 from v1.5)
 - Average duration: ~11 min
-- Total execution time: ~107 min
+- Total execution time: ~122 min
 
 **By Phase:**
 
@@ -36,6 +36,7 @@ Progress: ████░░░░░░ 40% (2/5 phases)
 | 7. User Documentation | 1/1 | ~12 min | ~12 min |
 | 8. Markdown Parser Integration | 1/1 | ~15 min | ~15 min |
 | 9. Structural Math Parsing | 1/1 | ~12 min | ~12 min |
+| 10. Clear Refactor | 1/1 | ~15 min | ~15 min |
 
 ## Completed Milestones
 
@@ -59,12 +60,14 @@ Progress: ████░░░░░░ 40% (2/5 phases)
 
 ### Deferred Issues
 
-None - all issues being addressed in v1.5:
+Remaining issues being addressed in v1.5:
 - ISS-017 → Phase 12 (Unit Warnings)
 - ISS-018 → Phase 11 (Token Classification)
-- ISS-019 → Phase 8 (Parser Integration)
-- ISS-020 → Phases 8-9 (Structural Parsing)
-- ISS-021 → Phase 10 (Clear Refactor)
+
+Resolved:
+- ISS-019 → Phase 8 (Parser Integration) ✓
+- ISS-020 → Phases 8-9 (Structural Parsing) ✓
+- ISS-021 → Phase 10 (Clear Refactor) ✓
 
 ### Blockers/Concerns
 
@@ -81,9 +84,18 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-13
-Stopped at: Phase 9 complete
+Stopped at: Phase 10 complete
 Resume file: None
-Next: Plan Phase 10 (Clear Refactor)
+Next: Plan Phase 11 (Token Classification)
+
+### Implementation Notes (Phase 10)
+
+- **Refactored:** `clear_text()` now uses span-based operations
+- **Old function:** Preserved as `_clear_text_regex()` for reference
+- **Two-pass approach:** Remove error markup first, then re-parse for accurate spans
+- **Unit preservation:** Properly extracts units from `\text{}` in results
+- **ISS-021 fixed:** Document corruption around multiline errors eliminated
+- **Tests:** 27 tests in `tests/test_clear_v2.py`, 302 total tests pass
 
 ### Implementation Notes (Phase 9)
 

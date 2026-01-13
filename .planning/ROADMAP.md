@@ -118,14 +118,15 @@ Plans:
 Plans:
 - [x] 09-01: Parse calculations with character-level spans
 
-#### Phase 10: Clear Refactor
+#### Phase 10: Clear Refactor ✅
 **Goal**: Rewrite `clear_text()` to use span-based operations instead of regex. Fixes ISS-021 (document corruption around multiline error blocks).
 **Depends on**: Phase 9
 **Research**: Unlikely (internal refactoring)
-**Plans**: TBD
+**Completed**: 2026-01-13
+**Plans**: 1
 
 Plans:
-- [ ] 10-01: TBD (run /gsd:plan-phase 10 to break down)
+- [x] 10-01: Span-based clear_text implementation
 
 #### Phase 11: Token Classification
 **Goal**: Centralize "is this a unit, variable, or function?" logic. Handle multi-letter identifiers properly (ISS-018). Either treat as single symbol or provide clear error.
@@ -153,6 +154,6 @@ Plans:
 |-------|-----------|-------|--------|-----------|
 | 8. Markdown Parser Integration | v1.5 | 1/1 | Complete | 2026-01-13 |
 | 9. Structural Math Parsing | v1.5 | 1/1 | Complete | 2026-01-13 |
-| 10. Clear Refactor | v1.5 | 0/? | Not started | - |
+| 10. Clear Refactor | v1.5 | 1/1 | Complete | 2026-01-13 |
 | 11. Token Classification | v1.5 | 0/? | Not started | - |
 | 12. Unit Warnings | v1.5 | 0/? | Not started | - |
