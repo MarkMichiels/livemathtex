@@ -5,19 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** v1.8 - Fix Pint unit calculations (ISS-028, ISS-029)
+**Current focus:** All issues resolved - project complete
 
 ## Current Position
 
-Phase: 19 of 19 (Fix Pint Unit Calculations)
-Plan: Not started
-Status: 🔧 v1.8 In Progress
-Last activity: 2026-01-13 — v1.8 started (ISS-028, ISS-029)
+Phase: 19 of 19 (all phases complete)
+Plan: Complete
+Status: ✅ MILESTONE COMPLETE (v1.8)
+Last activity: 2026-01-13 — v1.8 verified (ISS-028, ISS-029 were not bugs)
 
-**Milestone v1.8 Goal:**
-- Phase 19 (ISS-028, ISS-029): Fix rate×time calculations and currency unit aliasing
+**Milestone v1.8 Summary:**
+- Phase 19 (ISS-028, ISS-029): ✅ VERIFIED - issues were user reporting errors, not bugs
+  - ISS-029: Rate×time calculations work correctly (16,103.07 kg)
+  - ISS-028: Currency unit definitions work correctly (204.608 kilo€)
+  - 365 tests pass, no code changes needed
 
-Progress: ██████████░ 95% (18/19 phases, v1.8: 0/1)
+Progress: ██████████ 100% (19/19 phases, v1.8: 1/1)
 
 ## Performance Metrics
 
@@ -54,6 +57,8 @@ Progress: ██████████░ 95% (18/19 phases, v1.8: 0/1)
 | v1.4 | v1.4.0 | 2026-01-12 | — |
 | v1.5 | v1.5.0 | 2026-01-13 | .planning/milestones/v1.5-ROADMAP.md |
 | v1.6 | v1.6.0 | 2026-01-13 | — |
+| v1.7 | — | 2026-01-13 | — |
+| v1.8 | — | 2026-01-13 | — (verification only) |
 
 ## Accumulated Context
 
