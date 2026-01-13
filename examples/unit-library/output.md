@@ -95,4 +95,4 @@ This will allow sharing unit libraries across documents.
 
 ---
 
-> *livemathtex: 2026-01-13 04:21:03 | 10 definitions, 3 evaluations | 1 error | 0.24s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-13 23:53:56 | 10 definitions, 3 evaluations | no errors | 0.27s* <!-- livemathtex-meta -->

@@ -208,11 +208,11 @@ Electricity example with different views:
 $$combo\_power := 5\ kW$$
 $$combo\_hours := 8\ h$$
 
-$$combo\_energy := combo\_power \cdot combo\_hours == 144\,000\,000\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$
+$$combo\_energy := combo\_power \cdot combo\_hours == 40\ \text{h · kW}$$
 
 $$combo\_kwh := combo\_power \cdot combo\_hours == 40\ \text{kWh}$$ <!-- [kWh] -->
 
-$$combo\_sci := combo\_power \cdot combo\_hours == 1.440e+08\ \text{kg} \cdot \text{m}^{2}/\text{s}^{2}$$ <!-- format:sci -->
+$$combo\_sci := combo\_power \cdot combo\_hours == 40\ \text{h · kW}$$ <!-- format:sci -->
 
 $$combo\_full := combo\_power \cdot combo\_hours == 40\ \text{kWh}$$ <!-- [kWh] digits:2 -->
 
@@ -230,19 +230,19 @@ $$neg := -12345678 == -12\,345\,678$$ <!-- format:decimal -->
 
 **Very small (auto → scientific):**
 
-$$tiny := 0.000000001 == 1.0000e-09$$
+$$tiny := 0.000000001 == 1.000e-09$$
 
 **Very small (forced scientific):**
 
-$$tiny\_sci := 0.000000001 == 1.0000e-09$$ <!-- format:sci -->
+$$tiny\_sci := 0.000000001 == 1.000e-09$$ <!-- format:sci -->
 
 **Very large (auto → scientific at 10⁹+):**
 
-$$huge := 1000000000000000 == 1\,000\,000\,000\,000\,000$$
+$$huge := 1000000000000000 == 1.000e+15$$
 
 **Very large (engineering):**
 
-$$huge\_eng := 1000000000000000 == 1\,000\,000\,000\,000\,000$$ <!-- format:eng -->
+$$huge\_eng := 1000000000000000 == 1.000e15$$ <!-- format:eng -->
 
 **Very large (forced decimal):**
 
@@ -319,4 +319,4 @@ These should display the correct converted values:
 
 ---
 
-> *livemathtex: 2026-01-13 04:20:59 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.77s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-13 23:46:30 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.86s* <!-- livemathtex-meta -->

@@ -886,6 +886,14 @@ def process_text_v3(
 
             expr_overrides = lexer.extract_config_from_comment(block)
 
+            # ISS-013: Track inline unit hint from calculations for renderer
+            # If a calculation has unit_comment but the block doesn't, propagate it
+            inline_unit_hint = None
+            for calc in calculations:
+                if calc.unit_comment and not block.unit_comment:
+                    inline_unit_hint = calc.unit_comment
+                    break  # Use first found
+
             for calc in calculations:
                 if calc.operation == ':=':
                     assign_count += 1
@@ -908,7 +916,8 @@ def process_text_v3(
                     error_count += 1
                     block_calcs_results.append(f"{calc.latex} \\quad \\text{{(Error: {e})}}")
 
-            results[block] = "\n".join(block_calcs_results)
+            # ISS-013: Store result with optional inline unit hint for renderer
+            results[block] = ("\n".join(block_calcs_results), inline_unit_hint)
 
     duration = time.time() - start_time
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

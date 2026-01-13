@@ -114,8 +114,8 @@
     "v_{8}": {
       "latex_name": "A_{pipe}",
       "original": {
-        "value": 0.007853981633974483,
-        "unit": "m^2"
+        "value": 7853.981633974483,
+        "unit": "millimeter ** 2"
       },
       "base": {
         "value": 0.007853981633974483,
@@ -127,8 +127,8 @@
     "v_{9}": {
       "latex_name": "vel",
       "original": {
-        "value": 1.7683882565766147,
-        "unit": "m/s"
+        "value": 0.006366197723675813,
+        "unit": "meter ** 3 / hour / millimeter ** 2"
       },
       "base": {
         "value": 1.7683882565766147,
@@ -141,7 +141,7 @@
       "latex_name": "H_{static}",
       "original": {
         "value": 17.0,
-        "unit": "m"
+        "unit": "meter"
       },
       "base": {
         "value": 17.0,
@@ -153,11 +153,11 @@
     "v_{11}": {
       "latex_name": "H_f",
       "original": {
-        "value": 3.1877645524954934,
-        "unit": "m"
+        "value": 4.1313428600341594e-08,
+        "unit": "meter ** 6 * second ** 2 / hour ** 2 / millimeter ** 5"
       },
       "base": {
-        "value": 3.1877645524954934,
+        "value": 3.1877645524954925,
         "unit": "meter"
       },
       "conversion_ok": true,
@@ -179,8 +179,8 @@
     "v_{13}": {
       "latex_name": "H_m",
       "original": {
-        "value": 0.7969411381238733,
-        "unit": "m"
+        "value": 1.0328357150085399e-05,
+        "unit": "meter ** 5 * second ** 2 / hour ** 2 / millimeter ** 4"
       },
       "base": {
         "value": 0.7969411381238733,
@@ -193,7 +193,7 @@
       "latex_name": "TDH",
       "original": {
         "value": 20.984705690619368,
-        "unit": "m"
+        "unit": "meter"
       },
       "base": {
         "value": 20.984705690619368,
@@ -205,8 +205,8 @@
     "v_{15}": {
       "latex_name": "P_{hyd}",
       "original": {
-        "value": 2859.166150346889,
-        "unit": "kg · m^2/s^3"
+        "value": 10292998.1412488,
+        "unit": "kilogram * meter ** 2 / hour / second ** 2"
       },
       "base": {
         "value": 2859.166150346889,
@@ -244,8 +244,8 @@
     "v_{18}": {
       "latex_name": "P_{motor}",
       "original": {
-        "value": 4235.801704217613,
-        "unit": "kg · m^2/s^3"
+        "value": 15248886.135183407,
+        "unit": "kilogram * meter ** 2 / hour / second ** 2"
       },
       "base": {
         "value": 4235.801704217613,
@@ -257,8 +257,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 04:21:01",
-    "duration": "0.61s",
+    "last_run": "2026-01-13 23:46:33",
+    "duration": "0.60s",
     "symbols": 19,
     "custom_units": 0,
     "definitions": 19,

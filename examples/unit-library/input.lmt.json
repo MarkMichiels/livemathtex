@@ -57,15 +57,14 @@
       "latex_name": "cost",
       "original": {
         "value": 3336.0000000000005,
-        "unit": "€"
+        "unit": "EUR"
       },
       "base": {
         "value": 3336.0000000000005,
-        "unit": "€"
+        "unit": "EUR"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
     "v_{3}": {
       "latex_name": "productivity",
@@ -96,8 +95,8 @@
     "v_{5}": {
       "latex_name": "total",
       "original": {
-        "value": 0.5,
-        "unit": "kg"
+        "value": 500.0,
+        "unit": "gram"
       },
       "base": {
         "value": 0.5,
@@ -161,8 +160,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 04:21:03",
-    "duration": "0.24s",
+    "last_run": "2026-01-13 23:52:21",
+    "duration": "0.25s",
     "symbols": 10,
     "custom_units": 3,
     "definitions": 10,

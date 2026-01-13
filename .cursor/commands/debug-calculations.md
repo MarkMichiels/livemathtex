@@ -8,7 +8,7 @@ Same workflow as `/build-calculations`, but automatically detects issues and cre
 
 **Design intent:** Systematically debug calculation problems, distinguish user errors from LiveMathTeX bugs, and document bugs as issues for future fixes.
 
-**Loop mode (`--loop`):** When enabled, automatically monitors created issues and restarts the workflow when issues are resolved. Continues testing and creating issues until the document is fully correct or no new issues can be created.
+**Loop mode (default):** Automatically monitors created issues and restarts the workflow when issues are resolved. Continues testing and creating issues until the document is fully correct, no new issues can be created, or maximum cycles reached (6 cycles = 1 hour).
 
 **⚠️ WORKSPACE-AWARE COMMAND:** This command works across your entire workspace. Documents can be in any repository (mark-private, proviron, axabio-literature, etc.), but LiveMathTeX planning files (ISSUES.md, LESSONS_LEARNED.md) are in the `livemathtex` repository.
 
@@ -34,14 +34,43 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 
 ---
 
-## 🚨 MANDATORY: Create Todo List FIRST
+## 🚨 MANDATORY: Read Issues and Create Todo List FIRST
 
-**BEFORE doing ANYTHING else**, create this exact todo list using `todo_write` with `merge: false`:
+**BEFORE doing ANYTHING else:**
+
+1. **Read existing issues for context:**
+   ```bash
+   # Detect livemathtex repository
+   LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
+     find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+     find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+     echo ".")
+
+   # Read ISSUES.md to understand current state
+   cat "$LMT_REPO/.planning/ISSUES.md"
+   ```
+
+   **Purpose:**
+   - Understand what issues already exist
+   - See which issues are open vs resolved
+   - Identify patterns and known problems
+   - Avoid creating duplicate issues
+   - Understand workarounds that are already documented
+
+   **⚠️ BRANCH AWARENESS:**
+   - Issues are in the **local branch** (not necessarily synced with remote)
+   - Check current branch: `git branch --show-current`
+   - If working in a feature branch, issues may be branch-specific
+   - When creating issues, they are added to the **local** ISSUES.md file
+   - Consider if issues should be merged to main branch later
+
+2. **Create this exact todo list** using `todo_write` with `merge: false`:
 
 **Standard mode (no loop):**
 ```json
 [
-  {"id": "clean-1", "content": "CLEAN: Clean source document to remove error markup", "status": "in_progress"},
+  {"id": "context-0", "content": "CONTEXT: Read ISSUES.md and LESSONS_LEARNED.md to understand current state", "status": "in_progress"},
+  {"id": "clean-1", "content": "CLEAN: Clean source document to remove error markup", "status": "pending"},
   {"id": "expect-1", "content": "EXPECT: Calculate expected values manually and add to output document", "status": "pending"},
   {"id": "process-1", "content": "PROCESS: Run livemathtex process to compute actual values", "status": "pending"},
   {"id": "diff-1", "content": "DIFF: Compare expected vs actual values to identify discrepancies", "status": "pending"},
@@ -52,10 +81,11 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 ]
 ```
 
-**Loop mode (`--loop` enabled):**
+**Standard workflow (always includes loop):**
 ```json
 [
-  {"id": "clean-1", "content": "CLEAN: Clean source document to remove error markup", "status": "in_progress"},
+  {"id": "context-0", "content": "CONTEXT: Read ISSUES.md and LESSONS_LEARNED.md to understand current state", "status": "in_progress"},
+  {"id": "clean-1", "content": "CLEAN: Clean source document to remove error markup", "status": "pending"},
   {"id": "expect-1", "content": "EXPECT: Calculate expected values manually and add to output document", "status": "pending"},
   {"id": "process-1", "content": "PROCESS: Run livemathtex process to compute actual values", "status": "pending"},
   {"id": "diff-1", "content": "DIFF: Compare expected vs actual values to identify discrepancies", "status": "pending"},
@@ -63,7 +93,7 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
   {"id": "issue-1", "content": "ISSUE: Create ISS entry if bug detected", "status": "pending"},
   {"id": "fix-1", "content": "FIX: Fix user errors and document workarounds for bugs", "status": "pending"},
   {"id": "learn-1", "content": "LEARN: Document findings in lessons learned", "status": "pending"},
-  {"id": "loop-1", "content": "LOOP: Check if issues are resolved and restart workflow if needed", "status": "pending"}
+  {"id": "loop-1", "content": "LOOP: Wait and check if issues are resolved, restart workflow if needed (max 6 cycles = 1 hour)", "status": "pending"}
 ]
 ```
 
@@ -71,6 +101,7 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 
 | Phase | Depends on | Explanation |
 |-------|------------|-------------|
+| `clean-1` | `context-0` completed | Must understand existing issues before starting |
 | `expect-1` | `clean-1` completed | Cannot add expected values without clean source |
 | `process-1` | `expect-1` completed | Cannot process without expected values for comparison |
 | `diff-1` | `process-1` completed | Cannot compare without actual values |
@@ -186,7 +217,7 @@ graph TB
 
 **Investigation Steps:**
 
-1. **Check known issues (in livemathtex repo):**
+1. **🚨 CRITICAL: Check known issues FIRST (in livemathtex repo):**
    ```bash
    # Detect livemathtex repository
    LMT_REPO=$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || \
@@ -194,12 +225,23 @@ graph TB
      find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
      echo ".")
 
-   # Search planning files
-   grep -i "pattern" "$LMT_REPO/.planning/ISSUES.md"
-   grep -i "pattern" "$LMT_REPO/.planning/LESSONS_LEARNED.md"
+   # Search planning files for similar issues
+   # Search by error message pattern
+   grep -i "error message" "$LMT_REPO/.planning/ISSUES.md"
+   grep -i "error message" "$LMT_REPO/.planning/LESSONS_LEARNED.md"
+
+   # Search by calculation type
+   grep -i "unit conversion" "$LMT_REPO/.planning/ISSUES.md"
+   grep -i "SymPy constant" "$LMT_REPO/.planning/ISSUES.md"
+
+   # Search by symptom
+   grep -i "1,000,000x" "$LMT_REPO/.planning/ISSUES.md"
+   grep -i "order of magnitude" "$LMT_REPO/.planning/ISSUES.md"
    ```
 
    **Note:** Planning files are in livemathtex repo. The command automatically detects the repository location.
+
+   **⚠️ IMPORTANT:** If a similar issue is found (even if marked as resolved), reference it in the classification and do NOT create a duplicate issue. Instead, document the workaround referencing the existing issue.
 
 2. **Check error messages:**
    - If LiveMathTeX reports error → Likely bug
@@ -221,30 +263,127 @@ graph TB
 
 ### Step 6: Create ISS Entry (issue-1)
 
-**Goal:** Document LiveMathTeX bugs as issues for future fixes.
+**Goal:** Document LiveMathTeX bugs as issues for future fixes, with isolated test cases for reproducibility.
 
 **Action:**
 
 **For each discrepancy classified as "LiveMathTeX Bug":**
 
-1. **Run `/gsd:create-issue`** to document the bug:
+1. **🚨 CRITICAL: Check if issue already exists** before creating a new one:
+
+   **Note:** You should have already read ISSUES.md in Phase 0, but double-check here for the specific pattern.
+
+   ```bash
+   # Detect livemathtex repository
+   LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
+     find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+     find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+     echo ".")
+
+   # Check current branch (issues are branch-local)
+   CURRENT_BRANCH=$(git -C "$LMT_REPO" branch --show-current 2>/dev/null || echo "unknown")
+   echo "Checking issues in branch: $CURRENT_BRANCH"
+
+   # Search for similar issues in ISSUES.md (local branch)
+   grep -i "pattern" "$LMT_REPO/.planning/ISSUES.md"
+   grep -i "pattern" "$LMT_REPO/.planning/LESSONS_LEARNED.md"
+   ```
+
+   **Search criteria:**
+   - Search for error messages or patterns
+   - Search for calculation types (e.g., "unit conversion", "π", "SymPy constant")
+   - Search for similar symptoms (e.g., "1,000,000x too large", "order of magnitude error")
+   - Check if issue is already documented (even if marked as resolved)
+
+   **If issue already exists:**
+   - Reference existing issue in the bug classification
+   - Skip creating duplicate issue
+   - Document workaround referencing existing issue
+   - Continue to next discrepancy
+
+2. **Isolate bug in test document** (REQUIRED before creating issue):
+
+   **Goal:** Create a minimal, reproducible test case in a separate file that isolates the bug.
+
+   **Action:**
+   - Create test file in `$LMT_REPO/tests/test_iss_XXX_<description>.md` (where XXX is the next issue number)
+   - Extract ONLY the failing calculation(s) and minimal dependencies
+   - Include unit validation section if units are involved
+   - Add SI base units in comments to help identify unit issues early
+   - Follow the SAME output format as the original document (inline, output file, timestamp, etc.)
+   - Test the isolated case to confirm it reproduces the bug
+
+   **Test file structure:**
+   ```markdown
+   <!-- livemathtex: output=inplace, json=true, digits=4 -->
+   <!-- NOTE: Use SAME settings as original document! -->
+
+   # Test ISS-XXX: <Bug Description>
+
+   This test reproduces the bug where <description>.
+
+   ## Unit Validation (if units involved)
+
+   <!-- Test all units used in this document -->
+   $u_{unit1} := 1\ unit1$ <!-- [unit1] SI base: [dimension] -->
+   ...
+
+   ## Test Case
+
+   **Setup:** <minimal setup>
+   **Expected:** <expected behavior>
+   **Actual:** <actual behavior>
+
+   ### Calculation
+
+   <!-- ONLY the failing calculation and minimal dependencies -->
+   $var1 := value1$
+   $var2 := value2$
+   $result := calculation == expected_value$ <!-- [unit] -->
+
+   **Expected result:** `expected_value unit`
+   **Actual result:** `actual_value unit` (description of error)
+
+   ### Steps to Reproduce
+
+   1. Run: `livemathtex clear test_iss_XXX_<description>.md`
+   2. Run: `livemathtex process test_iss_XXX_<description>.md`
+   3. Check result - should show `<expected>` but shows `<actual>`
+
+   ### Root Cause
+
+   <Analysis of root cause>
+
+   ---
+   ```
+
+   **⚠️ CRITICAL: Follow original document's output format:**
+   - If original uses `output=inplace` → Use `output=inplace` in test file
+   - If original uses `output=file` → Use `output=file` in test file
+   - If original uses `json=true` → Use `json=true` in test file
+   - If original uses `digits=4` → Use `digits=4` in test file
+   - **DO NOT** create extra output files - follow the configured format exactly
+
+3. **Run `/gsd:create-issue`** to document the bug:
    ```
    /gsd:create-issue
    ```
 
    **Important:** This creates the issue in the **livemathtex repository** (where you run the command from, or explicitly specify livemathtex repo).
 
-2. **Provide context:**
+4. **Provide context:**
    - Describe the calculation that fails
    - Show expected vs actual values
    - Show error message (if any)
+   - **Reference the test file:** `tests/test_iss_XXX_<description>.md` (REQUIRED)
    - Reference related issues if applicable
-   - Note which repository the document is in (if not livemathtex)
+   - Note which repository the original document is in (if not livemathtex)
 
-3. **Verify issue created:**
+5. **Verify issue created:**
    - Check `$LMT_REPO/.planning/ISSUES.md` for new entry (where `$LMT_REPO` is the livemathtex repository root)
    - Verify ISS number assigned
    - Verify issue description is clear
+   - Verify test file reference is included
 
 **Example Issue Description:**
 ```
@@ -253,10 +392,15 @@ Calculation with \pi fails:
 - Expected: 0.02419 m (with d_{weld} = 38 mm)
 - Actual: Error: isinstance() arg 2 must be a type...
 - Root cause: SymPy constant Pi not handled in Pint evaluator
-- Related: ISS-025 (already documented)
+- Test file: tests/test_iss_025_pi_constant.md (isolated test case)
+- Related: None (new issue)
 ```
 
-**Self-check:** All bugs documented as issues before proceeding.
+**Self-check:**
+- ✅ All bugs documented as issues before proceeding
+- ✅ Each bug has isolated test file in `tests/` directory
+- ✅ Test file follows original document's output format
+- ✅ Issue does not already exist (checked ISSUES.md)
 
 ---
 
@@ -288,9 +432,15 @@ $d_{tube} := \frac{2 \cdot d_{weld}}{\pi} ==$ <!-- [m] -->
 3. **Iterate until all user errors fixed:**
    - Return to Step 1 (clean)
    - Recalculate expected values
-   - Process again
+   - Process again (using SAME output format as document configuration)
    - Compare again
    - Continue until all user errors resolved
+
+**⚠️ CRITICAL: When processing, follow document's output format:**
+- Check document's LiveMathTeX configuration (first comment block)
+- Use the configured output format (inplace, file, timestamp, etc.)
+- **DO NOT** create extra files or use different formats
+- **DO NOT** assume a default format
 
 **Self-check:** All user errors fixed, all bugs documented with workarounds.
 
@@ -321,51 +471,102 @@ $d_{tube} := \frac{2 \cdot d_{weld}}{\pi} ==$ <!-- [m] -->
 
 ---
 
-## PHASE 9: Loop Mode (Optional)
+## PHASE 9: Loop Mode (Default)
 
 ### Step 9: Monitor Issues and Restart (loop-1)
 
-**Goal:** When `--loop` is enabled, automatically monitor created issues and restart the workflow when issues are resolved. Continue testing until the document is fully correct.
+**Goal:** Automatically monitor created issues and restart the workflow when issues are resolved. Continue testing until the document is fully correct, no new issues can be created, or maximum cycles reached (6 cycles = 1 hour).
 
-**When to use loop mode:**
-- ✅ When you expect issues to be fixed externally (by another developer, or by fixing the code yourself)
-- ✅ When you want to continuously test and improve the document
-- ✅ When you want to maximize test coverage and find all bugs
+**Default behavior:** Loop mode is always enabled. The workflow will automatically wait and check for resolved issues, then restart from the beginning.
 
-**Action (only if `--loop` enabled):**
+**Action (always executed - loop mode is default):**
 
 1. **After completing workflow (phases 1-8), check if issues were created:**
    ```bash
    # Detect livemathtex repository
-   LMT_REPO=$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || \
+   LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
      find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
      find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
      echo ".")
 
-   # Count unresolved issues created in this session
-   grep -c "^\*\*ISS-" "$LMT_REPO/.planning/ISSUES.md" | grep -v "RESOLVED\|FIXED\|DONE\|CLOSED"
+   # Get list of issues created in this session (store for tracking)
+   grep -E "^\*\*ISS-[0-9]+" "$LMT_REPO/.planning/ISSUES.md" | sed 's/^### //' | cut -d: -f1 > /tmp/debug-calc-initial-issues.txt 2>/dev/null || true
+   INITIAL_ISSUE_COUNT=$(wc -l < /tmp/debug-calc-initial-issues.txt 2>/dev/null || echo "0")
    ```
 
-2. **If issues were created:**
-   - **Wait 10 minutes** (to allow time for fixes, avoid LLM overhead)
-   - **Check issue status** in `$LMT_REPO/.planning/ISSUES.md`:
-     - Look for status markers: `RESOLVED`, `FIXED`, `DONE`, `CLOSED`
-     - Check if issues are marked as resolved
+2. **If issues were created, start loop with actual terminal wait:**
 
-3. **If issues are resolved:**
+   **⚠️ CRITICAL: Use `run_terminal_cmd` to execute the loop - this is a REAL terminal command that actually waits and restarts.**
+
+   ```bash
+   # Detect livemathtex repository
+   LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
+     find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+     find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+     echo ".")
+
+   CYCLE=1
+   MAX_CYCLES=6  # 6 cycles × 10 min = 60 minutes (1 hour) max
+
+   while [ $CYCLE -le $MAX_CYCLES ]; do
+     echo "=== Loop Cycle $CYCLE/$MAX_CYCLES ==="
+     echo "Waiting 10 minutes for issues to be resolved..."
+
+     # ACTUAL TERMINAL WAIT - executes sleep 600 (10 minutes)
+     sleep 600
+
+     # Check issue status
+     RESOLVED_ISSUES=$(grep -E "^\*\*ISS-[0-9]+" "$LMT_REPO/.planning/ISSUES.md" | \
+       grep -E "RESOLVED|FIXED|DONE|CLOSED" | wc -l)
+     TOTAL_ISSUES=$(grep -E "^\*\*ISS-[0-9]+" "$LMT_REPO/.planning/ISSUES.md" | wc -l)
+
+     echo "Status: $RESOLVED_ISSUES/$TOTAL_ISSUES issues resolved"
+
+     if [ "$RESOLVED_ISSUES" -eq "$TOTAL_ISSUES" ] && [ "$TOTAL_ISSUES" -gt 0 ]; then
+       echo "✅ All issues resolved! Restarting workflow from beginning..."
+       # Exit loop - workflow will restart from Phase 1
+       break
+     elif [ "$TOTAL_ISSUES" -eq 0 ]; then
+       echo "✅ No issues found. Document complete."
+       break
+     else
+       echo "⏳ Issues still pending ($RESOLVED_ISSUES/$TOTAL_ISSUES resolved). Continuing loop..."
+       CYCLE=$((CYCLE + 1))
+     fi
+   done
+
+   # If max cycles reached without resolution
+   if [ $CYCLE -gt $MAX_CYCLES ]; then
+     echo "⏰ Maximum cycles reached (6 cycles = 1 hour). Stopping loop."
+     echo "Issues may still be pending. Document has workarounds documented."
+   fi
+   ```
+
+   **Implementation in AI assistant:**
+   - Use `run_terminal_cmd` with `is_background: false` to execute the loop
+   - The `sleep 600` command will actually wait 10 minutes
+   - After each wait, check issue status
+   - If all resolved, break loop and **restart workflow from Phase 1** (clean source)
+   - If not resolved and cycles remaining, continue loop
+   - If max cycles (6) reached, stop loop and end command
+
+3. **After loop completes (issues resolved or max cycles reached):**
+
+   **If issues resolved:**
    - **Restart workflow from beginning** (Phase 1: Clean source document)
    - **Continue testing** - process may now work correctly
    - **Create new issues** if new bugs are discovered
-   - **Park blocking issues** - if certain issues block testing, work around them and continue
+   - After completing phases 1-8 again, check if new issues created → loop again
 
-4. **If issues are NOT resolved:**
-   - **Wait another 10 minutes** and check again
-   - **Continue waiting** until issues are resolved or user stops the loop
+   **If max cycles reached:**
+   - **End command** - document has workarounds documented
+   - Report final status with pending issues
 
-5. **Continue looping until:**
-   - ✅ All calculations work correctly (no discrepancies)
-   - ✅ No new issues can be created (all bugs documented)
-   - ✅ Document is fully correct
+4. **Loop termination:**
+   - ✅ All calculations work correctly (no discrepancies) → End command
+   - ✅ No issues found → End command
+   - ✅ Maximum cycles reached (6 cycles = 1 hour) → End command
+   - ⚠️ Issues still pending after max cycles → End command (workarounds documented)
 
 **Parking blocking issues:**
 - If an issue blocks testing of other calculations:
@@ -505,10 +706,20 @@ Cycle 3 (after 10 min):
 - ✅ Variable definition order issues
 
 **When in doubt:**
-- Check `$LMT_REPO/.planning/ISSUES.md` for similar issues (where `$LMT_REPO` is the livemathtex repository root)
+- **🚨 FIRST: Check `$LMT_REPO/.planning/ISSUES.md` for similar issues** (where `$LMT_REPO` is the livemathtex repository root)
+  - Search by error message, calculation type, or symptom
+  - Check BOTH open and resolved issues (resolved issues may have workarounds)
+  - If similar issue found → Reference it, do NOT create duplicate
 - Check `$LMT_REPO/.planning/LESSONS_LEARNED.md` for patterns
 - Investigate manually: if manual calculation matches expected → bug
 - If manual calculation matches actual → user error
+
+**Before creating issue:**
+1. ✅ Check if issue already exists in `ISSUES.md`
+2. ✅ Create isolated test file in `tests/test_iss_XXX_<description>.md`
+3. ✅ Test file follows original document's output format
+4. ✅ Test file reproduces the bug reliably
+5. ✅ Reference test file in issue description
 
 ---
 
@@ -543,36 +754,48 @@ grep -i "pattern" "$LMT_REPO/.planning/ISSUES.md"
 
 ---
 
-## Loop Mode Usage
+## Loop Mode (Default Behavior)
 
-### Enabling Loop Mode
+**Loop mode is always enabled by default.** The command automatically monitors issues and restarts the workflow when issues are resolved.
 
-**To enable loop mode, specify `--loop` when calling the command:**
-
+**No special flags needed:**
 ```
-/debug-calculations --loop
+/debug-calculations
 ```
 
-**Or in conversation:**
-- "Debug calculations with loop mode"
-- "Run debug-calculations with --loop option"
-- "Debug calculations and monitor issues"
+**The command will:**
+- Complete phases 1-8 (clean, expect, process, diff, classify, issue, fix, learn)
+- If issues were created, wait 10 minutes and check if resolved
+- If resolved, restart workflow from Phase 1 (clean source)
+- Continue looping until all calculations work OR max cycles reached (6 cycles = 1 hour)
+- End command after loop completes
 
 ### How Loop Mode Works
 
 1. **Complete normal workflow** (phases 1-8)
 2. **If issues were created:**
-   - Wait 10 minutes (to allow time for fixes)
+   - **Execute `sleep 600` terminal command** (waits 10 minutes = 600 seconds)
+   - This is a **real terminal wait** - not just a description
+   - Use `run_terminal_cmd` with `is_background: false` to execute the wait
+3. **After wait completes:**
    - Check `$LMT_REPO/.planning/ISSUES.md` for resolved status
    - Look for status markers: `RESOLVED`, `FIXED`, `DONE`, `CLOSED`
-3. **If issues resolved:**
+   - Count resolved vs total issues
+4. **If issues resolved:**
    - Restart workflow from Phase 1 (clean source)
    - Continue testing (previously failing calculations may now work)
    - Create new issues if new bugs discovered
-4. **Continue looping** until:
+5. **If issues NOT resolved:**
+   - **Execute `sleep 600` again** (wait another 10 minutes)
+   - Check again
+   - Continue until all resolved or max cycles reached
+6. **Continue looping** until:
    - All calculations work correctly
    - No new issues can be created
    - Document is fully correct
+   - Maximum cycles reached (safety limit, default: 10 cycles = 100 minutes)
+
+**⚠️ CRITICAL:** The loop uses **actual terminal commands** (`sleep 600`) to wait. This must be executed using `run_terminal_cmd` tool, not just described. The loop will continue running until issues are resolved or the maximum cycle limit is reached.
 
 ### Checking Issue Status
 

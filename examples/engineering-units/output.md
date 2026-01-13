@@ -70,7 +70,7 @@ Cross-sectional area:
 $A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} == 7853.9816\ \text{mm^2}$
 
 Flow velocity:
-$vel := \frac{Q}{A_{pipe}} == 6366.1977\ \text{m/h}$
+$vel := \frac{Q}{A_{pipe}} == 0.0064\ \text{m^3/h/mm^2}$
 
 ---
 
@@ -85,27 +85,27 @@ $H_{static} := h_d - h_s == 17\ \text{m}$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 0.0032\ \text{m^2/mm}$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 4.1313e-08\ \text{m^6 · s^2/h^2/mm^5}$$
 
 ### Minor Losses
 
 K-factor for fittings (dimensionless):
 $K_{fit} := 5$
 
-$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 0.7969\ \text{m}$$
+$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 1.0328e-05\ \text{m^5 · s^2/h^2/mm^4}$$
 
 ---
 
 ## Step 3: Total Dynamic Head (TDH)
 
-$$TDH := H_{static} + H_f + H_m == 20.98\ \text{m}$$
+$$TDH := H_{static} + H_f + H_m == 20.9847\ \text{m}$$
 
 ---
 
 ## Step 4: Hydraulic Power
 
 Hydraulic power:
-$$P_{hyd} := \rho \cdot g_{acc} \cdot Q \cdot TDH == 2.859\ \text{kW}$$ <!-- [kW] -->
+$$P_{hyd} := \rho \cdot g_{acc} \cdot Q \cdot TDH == 2.8592\ \text{kW}$$ <!-- [kW] -->
 
 ---
 
@@ -118,7 +118,7 @@ Motor efficiency (assumed, dimensionless):
 $eta_m := 0.90$
 
 Required motor power:
-$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236\ \text{kW}$$ <!-- [kW] -->
+$$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.2358\ \text{kW}$$ <!-- [kW] -->
 
 ---
 
@@ -144,4 +144,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.236\ \text{kW}$$ <!-- [kW]
 
 ---
 
-> *livemathtex: 2026-01-13 04:21:01 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.61s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-13 23:46:33 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.60s* <!-- livemathtex-meta -->

@@ -51,17 +51,17 @@ From energy balance: $Q = m \cdot c_p \cdot \Delta T$
 
 ### Hot Fluid
 Temperature drop:
-$\Delta T_h := \frac{Q}{m_h \cdot c_p} == 17.9169$
+$\Delta T_h := \frac{Q}{m_h \cdot c_p} == 17.92$
 
 Outlet temperature:
-$T_{h,out} := T_{h,in} - \Delta T_h == 72.0831$
+$T_{h,out} := T_{h,in} - \Delta T_h == 72.08$
 
 ### Cold Fluid
 Temperature rise:
-$\Delta T_c := \frac{Q}{m_c \cdot c_p} == 11.9446$
+$\Delta T_c := \frac{Q}{m_c \cdot c_p} == 11.94$
 
 Outlet temperature:
-$T_{c,out} := T_{c,in} + \Delta T_c == 31.9446$
+$T_{c,out} := T_{c,in} + \Delta T_c == 31.94$
 
 ---
 
@@ -71,7 +71,7 @@ For counter-flow arrangement, temperature differences at each end:
 
 $\Delta T_1 := T_{h,in} - T_{c,out} == 58.06$
 
-$\Delta T_2 := T_{h,out} - T_{c,in} == 52.0831$
+$\Delta T_2 := T_{h,out} - T_{c,in} == 52.08$
 
 LMTD calculation (using natural log):
 $ratio := \frac{\Delta T_1}{\Delta T_2} == 1.115$
@@ -93,7 +93,7 @@ $$A_0 := \frac{Q}{U_0 \cdot LMTD} == 5.453$$
 ### Heat Capacity Rates (W/K)
 $C_h := m_h \cdot c_p == 8372$
 
-$C_c := m_c \cdot c_p == 12\,558$
+$C_c := m_c \cdot c_p == 12\,560$
 
 Since $C_h < C_c$:
 $Cmin := C_h$
@@ -138,4 +138,4 @@ $A_m := \frac{A_0}{length} == 2.727$
 
 ---
 
-> *livemathtex: 2026-01-13 04:21:00 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.69s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-13 23:46:32 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.92s* <!-- livemathtex-meta -->

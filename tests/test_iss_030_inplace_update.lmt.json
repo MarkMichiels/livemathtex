@@ -1,0 +1,219 @@
+{
+  "version": "3.0",
+  "source": "tests/test_iss_030_inplace_update.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {
+    "v_{0}": {
+      "latex_name": "u_{d}",
+      "original": {
+        "value": 1.0,
+        "unit": "d"
+      },
+      "base": {
+        "value": 86400.0,
+        "unit": "second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{1}": {
+      "latex_name": "u_{day}",
+      "original": {
+        "value": 1.0,
+        "unit": "day"
+      },
+      "base": {
+        "value": 86400.0,
+        "unit": "second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{2}": {
+      "latex_name": "u_{mol_d}",
+      "original": {
+        "value": 1.0,
+        "unit": "mol/d"
+      },
+      "base": {
+        "value": 1.1574074074074073e-05,
+        "unit": "mole / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{3}": {
+      "latex_name": "u_{mol_day}",
+      "original": {
+        "value": 1.0,
+        "unit": "mol/day"
+      },
+      "base": {
+        "value": 1.1574074074074073e-05,
+        "unit": "mole / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{4}": {
+      "latex_name": "u_{umol}",
+      "original": {
+        "value": 1.0,
+        "unit": "µmol"
+      },
+      "base": {
+        "value": 1e-06,
+        "unit": "mole"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{5}": {
+      "latex_name": "u_{micromol}",
+      "original": {
+        "value": 1.0,
+        "unit": "micromol"
+      },
+      "base": {
+        "value": 1e-06,
+        "unit": "mole"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{6}": {
+      "latex_name": "u_{umol_J}",
+      "original": {
+        "value": 1.0,
+        "unit": "µmol/J"
+      },
+      "base": {
+        "value": 1e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{7}": {
+      "latex_name": "u_{W}",
+      "original": {
+        "value": 1.0,
+        "unit": "W"
+      },
+      "base": {
+        "value": 1.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{8}": {
+      "latex_name": "u_{J}",
+      "original": {
+        "value": 1.0,
+        "unit": "J"
+      },
+      "base": {
+        "value": 1.0,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{9}": {
+      "latex_name": "u_{s}",
+      "original": {
+        "value": 1.0,
+        "unit": "s"
+      },
+      "base": {
+        "value": 1.0,
+        "unit": "second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{10}": {
+      "latex_name": "PPE_{red}",
+      "original": {
+        "value": 4.29,
+        "unit": "µmol/J"
+      },
+      "base": {
+        "value": 4.29e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{11}": {
+      "latex_name": "f_{geom}",
+      "original": {
+        "value": 0.9143,
+        "unit": null
+      },
+      "base": {
+        "value": 0.9143,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{12}": {
+      "latex_name": "PPE_{eff}",
+      "original": {
+        "value": 3.9223470000000002,
+        "unit": "mol · s^2/(kg · m^2)"
+      },
+      "base": {
+        "value": 3.9223470000000002,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{13}": {
+      "latex_name": "P_{LED,dc}",
+      "original": {
+        "value": 1920.0,
+        "unit": "W"
+      },
+      "base": {
+        "value": 1920.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{14}": {
+      "latex_name": "PAR_{rct}",
+      "original": {
+        "value": 7530.906240000001,
+        "unit": "mol/s"
+      },
+      "base": {
+        "value": 7530.906240000001,
+        "unit": "mole / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-13 23:01:41",
+    "duration": "0.25s",
+    "symbols": 15,
+    "custom_units": 0,
+    "definitions": 15,
+    "evaluations": 2,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0,
+    "warnings": 0
+  }
+}

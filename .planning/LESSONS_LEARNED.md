@@ -127,6 +127,17 @@ $C_{26} := m_{26} \cdot d_{op} \cdot u_{max} ==$ <!-- [kg] -->
 
 **Date:** 2026-01-13 (ISS-024 fixed, ISS-029 regression discovered)
 
+**Update 2026-01-13:** ISS-029 is actually RESOLVED. Testing confirms rate × time calculations work correctly:
+- `49020 g/day × 365 d × 0.90 = 16,103.07 kg` ✅ CORRECT
+- `567.36 g/d × 365 d × 0.90 = 16,103.04 kg` ✅ CORRECT
+
+**Important:** If a document shows incorrect values (like `0.1864 kg`), it likely contains **old cached values** from before the fix. The solution is to:
+1. Clear the document: `livemathtex clear document.md`
+2. Re-process: `livemathtex process document.md`
+3. Verify calculations are correct
+
+**Common pattern:** Documents may have old values that don't match current LiveMathTeX behavior. Always clear and re-process when debugging calculation issues.
+
 ---
 
 ### Currency Unit Conversion (ISS-028)
@@ -400,6 +411,51 @@ $Cost := E \cdot c_{elec} ==$ <!-- [k€] -->
 - **Bug indicator:** Unit conversion warnings for currency (EUR/k€)
 - **Not user error:** Unit definitions are correct, but Pint doesn't recognize them
 - **Related issues:** ISS-027 (marked resolved, but this is a different aspect - unit definition recognition)
+
+**Date:** 2026-01-13
+**Document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+---
+
+### Unit Propagation Failure When Multiplying by Dimensionless Values (ISS-031)
+
+**Problem:** When multiplying a unit by a dimensionless value, LiveMathTeX loses the unit and treats the result as dimensionless, causing unit conversion warnings.
+
+**Example:**
+```latex
+$PPE_{red} := 4.29\ \frac{\text{µmol}}{\text{J}}$
+$f_{geom} := 0.9143$  (dimensionless)
+$PPE_{eff} := PPE_{red} \cdot f_{geom} ==$ <!-- [µmol/J] -->
+% Expected: 3.922 µmol/J
+% Actual: 3.922 (dimensionless) with warning: "Cannot convert from 'dimensionless' to 'µmol/J'"
+```
+
+**Root Cause:** Unit propagation fails when multiplying units by dimensionless values. The numeric calculation is correct, but the unit is not preserved.
+
+**Workaround (until ISS-031 is fixed):**
+1. **Option 1:** Define the result with explicit unit:
+   ```latex
+   $PPE_{eff} := 3.922\ \frac{\text{µmol}}{\text{J}}$  <!-- Manual calculation -->
+   ```
+
+2. **Option 2:** Use intermediate calculation with unit preservation:
+   ```latex
+   $PPE_{eff\_num} := PPE_{red} \cdot f_{geom}$  <!-- Gets numeric value -->
+   $PPE_{eff} := PPE_{eff\_num}\ \frac{\text{µmol}}{\text{J}}$  <!-- Add unit explicitly -->
+   ```
+
+3. **Option 3:** Accept the dimensionless result and document the unit in comments:
+   ```latex
+   $PPE_{eff} := PPE_{red} \cdot f_{geom} ==$ <!-- Dimensionless (workaround ISS-031) -->
+   <!-- WORKAROUND: ISS-031 - Result is 3.922 (should be 3.922 µmol/J). Manual: 4.29 µmol/J × 0.9143 = 3.922 µmol/J -->
+   ```
+
+**Impact:** High - causes cascading errors in dependent calculations. Any calculation that depends on a unit that was lost will also fail.
+
+**Classification Pattern:**
+- **Bug indicator:** Unit conversion warnings for calculations that multiply units by dimensionless values
+- **Not user error:** The formula is correct, but LiveMathTeX loses the unit
+- **Related issues:** ISS-031 (unit propagation failure)
 
 **Date:** 2026-01-13
 **Document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`

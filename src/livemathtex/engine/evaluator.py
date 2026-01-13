@@ -870,7 +870,7 @@ class Evaluator:
         rhs_part, result_part = part2.split("==", 1)
         rhs = rhs_part.strip()
 
-        from .pint_backend import sympy_strip_unit_from_value as strip_unit_from_value
+        from .pint_backend import sympy_strip_unit_from_value as strip_unit_from_value, format_pint_unit
 
         # Try to strip unit from RHS (in case it's a simple value with unit)
         value_latex, unit_latex, sympy_unit = strip_unit_from_value(rhs)
@@ -896,45 +896,102 @@ class Evaluator:
         # Store with normalized name (e.g., \Delta T_h -> Delta_T_h)
         normalized_lhs = self._normalize_symbol_name(lhs)
 
-        # Extract unit from computed result if it has units
-        result_unit = None
-        result_unit_latex = unit_latex or ""
-        if sympy_unit is None:
-            # No explicit unit - extract from computed value
-            result_unit, result_unit_latex = self._extract_unit_from_value(value)
-            if result_unit is not None:
-                # Store just the numeric part
-                value = self._extract_numeric_value(value)
-        else:
-            result_unit = sympy_unit
-
-        # Extract numeric original value
-        original_value = self._extract_numeric_value(value) if value is not None else None
-
-        # Convert to SI if there's a unit
-        si_value, si_unit, valid = self._convert_to_si(value, result_unit)
-
-        self.symbols.set(
-            normalized_lhs,
-            value=si_value,
-            unit=si_unit,
-            raw_latex=rhs,
-            latex_name=lhs,
-            original_value=original_value,
-            original_unit=result_unit_latex or None,
-            valid=valid,
-            line=getattr(self, '_current_line', 0)
-        )
-
-        # ISS-024 FIX: Use Pint for display formatting to get proper unit cancellation
+        # ISS-030 FIX: Use Pint magnitudes for storage to correctly handle prefix units
+        # SymPy expands prefixes (µmol → 1e-6 * mol) but the magnitude gets lost during
+        # unit extraction because _extract_unit_from_value returns the base unit without prefix.
+        # Pint correctly maintains the magnitude through the calculation.
+        #
+        # Strategy: Keep SymPy units for storage (needed for value_with_unit multiplication),
+        # but use Pint magnitudes (which are correct even with prefixes).
+        pint_storage_used = False
+        pint_result = None
         try:
             pint_result = self._compute_with_pint(rhs)
-            result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
+
+            # Check if result has meaningful units (not just dimensionless)
+            if not (str(pint_result.units) == 'dimensionless' or pint_result.dimensionless):
+                # Get Pint magnitudes (these are correct for prefix units)
+                pint_original_value = float(pint_result.magnitude)
+                pint_original_unit_str = format_pint_unit(pint_result.units)
+
+                base_result = pint_result.to_base_units()
+                pint_si_value = float(base_result.magnitude)
+
+                # Still use SymPy unit for storage (needed for value_with_unit property)
+                # Extract the SymPy unit from the SymPy-computed value
+                result_unit = None
+                result_unit_latex = unit_latex or ""
+                if sympy_unit is None:
+                    result_unit, result_unit_latex = self._extract_unit_from_value(value)
+                else:
+                    result_unit = sympy_unit
+
+                # Convert SymPy unit to SI for storage (keep SymPy unit object, not string)
+                _, si_unit, valid = self._convert_to_si(1, result_unit) if result_unit else (1, None, True)
+
+                pint_storage_used = True
+
+                self.symbols.set(
+                    normalized_lhs,
+                    value=pint_si_value,  # Use Pint magnitude (correct for prefixes)
+                    unit=si_unit,  # Keep SymPy unit object
+                    raw_latex=rhs,
+                    latex_name=lhs,
+                    original_value=pint_original_value,  # Use Pint magnitude
+                    original_unit=pint_original_unit_str or result_unit_latex,  # Use Pint unit string
+                    valid=valid,
+                    line=getattr(self, '_current_line', 0)
+                )
         except EvaluationError:
+            pass  # Fall through to SymPy-based storage
+
+        # Fallback: Use SymPy-based storage if Pint didn't work
+        if not pint_storage_used:
+            # Extract unit from computed result if it has units
+            result_unit = None
+            result_unit_latex = unit_latex or ""
+            if sympy_unit is None:
+                # No explicit unit - extract from computed value
+                result_unit, result_unit_latex = self._extract_unit_from_value(value)
+                if result_unit is not None:
+                    # Store just the numeric part
+                    value = self._extract_numeric_value(value)
+            else:
+                result_unit = sympy_unit
+
+            # Extract numeric original value
+            original_value = self._extract_numeric_value(value) if value is not None else None
+
+            # Convert to SI if there's a unit
+            si_value, si_unit, valid = self._convert_to_si(value, result_unit)
+
+            self.symbols.set(
+                normalized_lhs,
+                value=si_value,
+                unit=si_unit,
+                raw_latex=rhs,
+                latex_name=lhs,
+                original_value=original_value,
+                original_unit=result_unit_latex or None,
+                valid=valid,
+                line=getattr(self, '_current_line', 0)
+            )
+
+            # Also compute Pint result for display (may succeed even if storage failed)
+            try:
+                pint_result = self._compute_with_pint(rhs)
+            except EvaluationError:
+                pint_result = None
+
+        # ISS-024 FIX: Use Pint for display formatting to get proper unit cancellation
+        if pint_storage_used or (pint_result is not None and not (str(pint_result.units) == 'dimensionless' or pint_result.dimensionless)):
+            result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
+        else:
             # Fallback to SymPy formatting
             # Use unit_comment for display conversion
             # If unit_comment is specified, don't auto-convert to SI in _format_result
             # ISS-017: Catch UnitConversionWarning and show SI fallback with orange warning
+            result_unit = sympy_unit if sympy_unit is not None else (self._extract_unit_from_value(value)[0] if hasattr(value, 'as_coeff_Mul') else None)
             display_value = value * result_unit if result_unit else value
             try:
                 display_value, suffix = self._apply_conversion(display_value, calc.unit_comment)
@@ -2430,9 +2487,16 @@ class Evaluator:
         for sym in expr.free_symbols:
             sym_name = str(sym)
 
-            # Handle internal IDs (v_0, v_1, etc.)
-            if sym_name.startswith('v_') and sym_name[2:].isdigit():
-                internal_id = f"v_{{{sym_name[2:]}}}"
+            # Handle internal IDs - SymPy has different formats for single vs multi-digit:
+            # - Single digit: v_0, v_1, ..., v_9 -> parsed as 'v_0' (no braces)
+            # - Multi digit: v_{10}, v_{15} -> parsed as 'v_{15}' (with braces)
+            # But our internal ID format always uses braces: v_{0}, v_{1}, v_{15}
+            import re
+            internal_id_match = re.match(r'^v_\{?(\d+)\}?$', sym_name)
+            if internal_id_match:
+                digit_part = internal_id_match.group(1)
+                # Convert to our internal ID format (always with braces)
+                internal_id = f"v_{{{digit_part}}}"
                 latex_name = self.symbols.get_latex_name(internal_id)
                 if latex_name:
                     for name in self.symbols.all_names():

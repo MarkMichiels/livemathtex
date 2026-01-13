@@ -45,15 +45,14 @@
       "latex_name": "final\\_price",
       "original": {
         "value": 80.0,
-        "unit": "€"
+        "unit": "EUR"
       },
       "base": {
         "value": 80.0,
-        "unit": "€"
+        "unit": "EUR"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
     "v_{3}": {
       "latex_name": "power",
@@ -84,8 +83,8 @@
     "v_{5}": {
       "latex_name": "energy\\_si",
       "original": {
-        "value": 144000000.0,
-        "unit": "kg · m^2/s^2"
+        "value": 40.0,
+        "unit": "hour * kilowatt"
       },
       "base": {
         "value": 144000000.0,
@@ -97,8 +96,8 @@
     "v_{6}": {
       "latex_name": "energy\\_kWh",
       "original": {
-        "value": 144000000.0,
-        "unit": "kg · m^2/s^2"
+        "value": 40.0,
+        "unit": "hour * kilowatt"
       },
       "base": {
         "value": 144000000.0,
@@ -110,8 +109,8 @@
     "v_{7}": {
       "latex_name": "energy\\_decimal",
       "original": {
-        "value": 144000000.0,
-        "unit": "kg · m^2/s^2"
+        "value": 40.0,
+        "unit": "hour * kilowatt"
       },
       "base": {
         "value": 144000000.0,
@@ -149,11 +148,11 @@
     "v_{10}": {
       "latex_name": "pressure\\_si",
       "original": {
-        "value": 202600.00000000003,
-        "unit": "kg/(m · s^2)"
+        "value": 2026.0,
+        "unit": "millibar"
       },
       "base": {
-        "value": 202600.00000000003,
+        "value": 202600.0,
         "unit": "kilogram / meter / second ** 2"
       },
       "conversion_ok": true,
@@ -162,11 +161,11 @@
     "v_{11}": {
       "latex_name": "pressure\\_mbar",
       "original": {
-        "value": 202600.00000000003,
-        "unit": "kg/(m · s^2)"
+        "value": 2026.0,
+        "unit": "millibar"
       },
       "base": {
-        "value": 202600.00000000003,
+        "value": 202600.0,
         "unit": "kilogram / meter / second ** 2"
       },
       "conversion_ok": true,
@@ -203,15 +202,14 @@
       "latex_name": "cost",
       "original": {
         "value": 208.50000000000003,
-        "unit": "€"
+        "unit": "EUR"
       },
       "base": {
         "value": 208.50000000000003,
-        "unit": "€"
+        "unit": "EUR"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
     "v_{15}": {
       "latex_name": "cost\\_per\\_kg",
@@ -244,15 +242,14 @@
       "latex_name": "total",
       "original": {
         "value": 100.0,
-        "unit": "€"
+        "unit": "EUR"
       },
       "base": {
         "value": 100.0,
-        "unit": "€"
+        "unit": "EUR"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
     "v_{18}": {
       "latex_name": "big",
@@ -621,8 +618,8 @@
     "v_{46}": {
       "latex_name": "combo\\_energy",
       "original": {
-        "value": 144000000.0,
-        "unit": "kg · m^2/s^2"
+        "value": 40.0,
+        "unit": "hour * kilowatt"
       },
       "base": {
         "value": 144000000.0,
@@ -634,8 +631,8 @@
     "v_{47}": {
       "latex_name": "combo\\_kwh",
       "original": {
-        "value": 144000000.0,
-        "unit": "kg · m^2/s^2"
+        "value": 40.0,
+        "unit": "hour * kilowatt"
       },
       "base": {
         "value": 144000000.0,
@@ -647,8 +644,8 @@
     "v_{48}": {
       "latex_name": "combo\\_sci",
       "original": {
-        "value": 144000000.0,
-        "unit": "kg · m^2/s^2"
+        "value": 40.0,
+        "unit": "hour * kilowatt"
       },
       "base": {
         "value": 144000000.0,
@@ -660,8 +657,8 @@
     "v_{49}": {
       "latex_name": "combo\\_full",
       "original": {
-        "value": 144000000.0,
-        "unit": "kg · m^2/s^2"
+        "value": 40.0,
+        "unit": "hour * kilowatt"
       },
       "base": {
         "value": 144000000.0,
@@ -804,8 +801,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 04:20:59",
-    "duration": "0.77s",
+    "last_run": "2026-01-13 23:46:30",
+    "duration": "0.86s",
     "symbols": 60,
     "custom_units": 1,
     "definitions": 62,

@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "examples/error-handling/input.md",
+  "source": "input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -227,7 +227,7 @@
       "latex_name": "prod",
       "original": {
         "value": 15.0,
-        "unit": "kg · m"
+        "unit": "kilogram * meter"
       },
       "base": {
         "value": 15.0,
@@ -240,7 +240,7 @@
       "latex_name": "velocity_1",
       "original": {
         "value": 0.30000000000000004,
-        "unit": "m/s"
+        "unit": "meter / second"
       },
       "base": {
         "value": 0.30000000000000004,
@@ -278,8 +278,8 @@
     "v_{20}": {
       "latex_name": "total_d",
       "original": {
-        "value": 1500.0,
-        "unit": "m"
+        "value": 1.5,
+        "unit": "kilometer"
       },
       "base": {
         "value": 1500.0,
@@ -343,11 +343,11 @@
     "v_{25}": {
       "latex_name": "F_{1,N}",
       "original": {
-        "value": 98.10000000000002,
-        "unit": "kg · m/s^2"
+        "value": 98.10000000000001,
+        "unit": "kilogram * meter / second ** 2"
       },
       "base": {
-        "value": 98.10000000000002,
+        "value": 98.10000000000001,
         "unit": "kilogram * meter / second ** 2"
       },
       "conversion_ok": true,
@@ -356,14 +356,15 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-12 23:52:45",
-    "duration": "0.54s",
+    "last_run": "2026-01-13 23:52:22",
+    "duration": "0.65s",
     "symbols": 26,
     "custom_units": 1,
     "definitions": 43,
     "evaluations": 20,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 19
+    "errors": 19,
+    "warnings": 0
   }
 }

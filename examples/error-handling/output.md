@@ -208,8 +208,8 @@ $invalid_2 := time_1 - vel_1 ==
 
 Different units CAN be multiplied or divided:
 
-$prod := mass_1 \cdot dist_1 == 15\ \text{kg} \cdot \text{m}$
-$velocity_1 := dist_1 / time_1 == 0.3\ \text{m}/\text{s}$
+$prod := mass_1 \cdot dist_1 == 15\ \text{kg · m}$
+$velocity_1 := dist_1 / time_1 == 0.3\ \text{m/s}$
 
 ### Compatible units work fine
 
@@ -217,7 +217,7 @@ Same dimensions (even different scales) can be added:
 
 $d_1 := 1\ km$
 $d_2 := 500\ m$
-$total_d := d_1 + d_2 == 1500\ \text{m}$
+$total_d := d_1 + d_2 == 1.5\ \text{km}$
 
 ---
 
@@ -235,7 +235,7 @@ $g_{acc} := 9.81\ \frac{m}{s^2}$
 ### Formula definitions (operators between defined variables)
 
 $F_1 := m_1 \cdot g_{acc}$
-$F_1 == 98.1\ \text{kg} \cdot \text{m}/\text{s}^{2}$
+$F_1 == 98.1\ \text{kg · m/s^2}$
 
 ### Unit conversions
 
@@ -259,4 +259,4 @@ $F_{1,N} := F_1 == 98.1\ \text{N}$ <!-- [N] -->
 
 ---
 
-> *livemathtex: 2026-01-12 03:54:44 | 43 definitions, 20 evaluations | 15 errors | 0.56s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-13 23:53:56 | 43 definitions, 20 evaluations | 15 errors | 0.58s* <!-- livemathtex-meta -->

@@ -37,7 +37,7 @@
       "latex_name": "F_1",
       "original": {
         "value": 98.10000000000001,
-        "unit": "kg · m/s^2"
+        "unit": "kilogram * meter / second ** 2"
       },
       "base": {
         "value": 98.10000000000001,
@@ -76,7 +76,7 @@
       "latex_name": "F_2",
       "original": {
         "value": 245.25,
-        "unit": "kg · m/s^2"
+        "unit": "kilogram * meter / second ** 2"
       },
       "base": {
         "value": 245.25,
@@ -89,7 +89,7 @@
       "latex_name": "F_2N",
       "original": {
         "value": 245.25,
-        "unit": "kg · m/s^2"
+        "unit": "kilogram * meter / second ** 2"
       },
       "base": {
         "value": 245.25,
@@ -102,7 +102,7 @@
       "latex_name": "F_2kN",
       "original": {
         "value": 245.25,
-        "unit": "kg · m/s^2"
+        "unit": "kilogram * meter / second ** 2"
       },
       "base": {
         "value": 245.25,
@@ -115,7 +115,7 @@
       "latex_name": "F_2N_inline",
       "original": {
         "value": 245.25,
-        "unit": "kg · m/s^2"
+        "unit": "kilogram * meter / second ** 2"
       },
       "base": {
         "value": 245.25,
@@ -128,7 +128,7 @@
       "latex_name": "F_2kN_inline",
       "original": {
         "value": 245.25,
-        "unit": "kg · m/s^2"
+        "unit": "kilogram * meter / second ** 2"
       },
       "base": {
         "value": 245.25,
@@ -166,8 +166,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 04:21:02",
-    "duration": "0.34s",
+    "last_run": "2026-01-13 23:46:36",
+    "duration": "0.35s",
     "symbols": 12,
     "custom_units": 0,
     "definitions": 14,
