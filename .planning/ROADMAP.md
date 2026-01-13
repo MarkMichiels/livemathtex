@@ -17,6 +17,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.5 Parser Architecture** - Phases 8-12 (shipped 2026-01-13)
 - ✅ **v1.6 Pint Evaluation Engine** - Phases 13-15 (shipped 2026-01-13)
 - ✅ **v1.7 Pint Evaluator Hotfixes** - Phases 16-18 (shipped 2026-01-13)
+- 🔧 **v1.8 Pint Unit Handling Fixes** - Phase 19 (in progress)
 
 ## Phases
 
@@ -188,3 +189,27 @@ Plans:
 
 Plans:
 - [x] N/A - Already fixed in Phase 14 (ISS-024)
+
+</details>
+
+### 🔧 v1.8 Pint Unit Handling Fixes (In Progress)
+
+**Milestone Goal:** Fix rate×time calculation regression and currency unit aliasing discovered during production document processing.
+
+**Issues to Resolve:** ISS-028, ISS-029
+
+#### Phase 19: Fix Pint Unit Calculations (ISS-028, ISS-029)
+**Goal**: Fix rate×time calculations (g/day × days) and currency unit aliasing (€ ↔ EUR)
+**Depends on**: v1.7 complete
+**Status**: Pending
+**Research**: Unlikely (bug fixes with clear reproduction cases in ISSUES.md)
+**Plans**: TBD
+
+**Bug Details:**
+- ISS-029 (High): Rate × time calculations produce incorrect results (86,390x too small)
+  - `49,020 g/day × 365 d × 0.90` → Expected: 16,103 kg, Actual: 0.1864 kg
+- ISS-028 (Medium): Currency unit € not recognized as equivalent to EUR
+  - Conversion to k€ fails with dimension incompatibility warning
+
+Plans:
+- [ ] 19-01: TBD (planning phase)

@@ -56,6 +56,33 @@ git diff output_expected.md output_actual.md
 
 ---
 
+## Classification Patterns
+
+### How to Distinguish Bugs from User Errors
+
+**LiveMathTeX Bugs (create issue):**
+- ✅ Order of magnitude errors (86,390x, 31,500x, etc.) - usually indicates calculation bug
+- ✅ Rate × time calculations producing wrong results (ISS-029)
+- ✅ Unit conversion failures with correct formulas (ISS-028)
+- ✅ Error messages from LiveMathTeX
+- ✅ Known issue patterns (check `ISSUES.md`)
+
+**User Errors (fix in source):**
+- ✅ Unit hint doesn't match result type
+- ✅ Incorrect calculation formula (e.g., using `× 90` instead of `× 0.90`)
+- ✅ Missing variable definitions
+- ✅ Wrong unit definitions
+
+**When in doubt:**
+- Check `ISSUES.md` for similar issues
+- Check `LESSONS_LEARNED.md` for patterns
+- Investigate manually: if manual calculation matches expected → bug
+- If manual calculation matches actual → user error
+
+**Date:** 2026-01-13
+
+---
+
 ## Calculation Issues
 
 ### SymPy Constants Not Handled (ISS-025)
@@ -75,9 +102,9 @@ $d_{tube} := \frac{2 \cdot d_{weld}}{\pi} ==$  <!-- Error! -->
 
 ---
 
-### Rate × Time Calculations (ISS-024 - FIXED)
+### Rate × Time Calculations (ISS-024 - FIXED, ISS-029 - REGRESSION)
 
-**Problem:** Calculations like `g/day × days` produced incorrect results (86,400x too low).
+**Problem:** Calculations like `g/day × days` produced incorrect results (86,390x too low).
 
 **Example:**
 ```latex
@@ -88,9 +115,44 @@ $C_{26} := m_{26} \cdot d_{op} \cdot 0.9 ==$  <!-- Expected: 16,103 kg, Got: 0.1
 
 **Root Cause:** SymPy doesn't automatically convert time units (days → seconds) during multiplication.
 
-**Solution:** Fixed in v1.6 Phase 14 - now uses Pint for numerical evaluation.
+**Solution (ISS-024):** Fixed in v1.6 Phase 14 - now uses Pint for numerical evaluation.
 
-**Date:** 2026-01-13 (fixed)
+**Regression (ISS-029):** Despite ISS-024 being marked FIXED, the specific case `g/day × days` still fails. The fix may only work for power × time (`kW × h`), not all rate × time cases.
+
+**Workaround:** Calculate manually and document in comments:
+```latex
+$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} ==$ <!-- [kg] -->
+<!-- WORKAROUND: ISS-029 - Manual: 49,020 g/day × 365 d × 0.90 = 16,103 kg -->
+```
+
+**Date:** 2026-01-13 (ISS-024 fixed, ISS-029 regression discovered)
+
+---
+
+### Currency Unit Conversion (ISS-028)
+
+**Problem:** Unit definitions `$€ === €$` and `$k€ === 1000\ €$` are not recognized by Pint, which uses "EUR" as the currency unit. This causes unit conversion failures when using `<!-- [k€] -->` hints.
+
+**Example:**
+```latex
+$€ === €$
+$k€ === 1000\ €$
+$c_{elec} := 139\ \frac{€}{MWh}$
+$E_{26} := 1472\ MWh$
+$Cost_{26} := E_{26} \cdot c_{elec} ==$ <!-- [k€] -->
+% Expected: 204.608 k€
+% Actual: 6.48855 EUR (with warning: Cannot convert from 'EUR' to 'k€')
+```
+
+**Root Cause:** Pint uses "EUR" as currency unit, but unit definitions use "€" which Pint doesn't recognize as equivalent.
+
+**Workaround:** Calculate manually and document in comments:
+```latex
+$Cost_{26} := E_{26} \cdot c_{elec} ==$ <!-- [k€] -->
+<!-- WORKAROUND: ISS-028 - Manual: 1,472 MWh × 139 €/MWh = 204,608 € = 204.608 k€ -->
+```
+
+**Date:** 2026-01-13
 
 ---
 

@@ -5,21 +5,19 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** v1.7 complete - all issues resolved
+**Current focus:** v1.8 - Fix Pint unit calculations (ISS-028, ISS-029)
 
 ## Current Position
 
-Phase: 18 of 18 (all phases complete)
-Plan: Complete
-Status: ✅ MILESTONE COMPLETE (v1.7)
-Last activity: 2026-01-13 — v1.7 shipped
+Phase: 19 of 19 (Fix Pint Unit Calculations)
+Plan: Not started
+Status: 🔧 v1.8 In Progress
+Last activity: 2026-01-13 — v1.8 started (ISS-028, ISS-029)
 
-**Milestone v1.7 Summary:**
-- Phase 16 (ISS-025): ✅ FIXED - SymPy constants (π, e) and isinstance fix
-- Phase 17 (ISS-026): ✅ ALREADY FIXED - by v1.6 Pint evaluator work
-- Phase 18 (ISS-027): ✅ ALREADY FIXED - by v1.6 Pint evaluator work
+**Milestone v1.8 Goal:**
+- Phase 19 (ISS-028, ISS-029): Fix rate×time calculations and currency unit aliasing
 
-Progress: ██████████ 100% (18/18 phases, v1.7: 3/3)
+Progress: ██████████░ 95% (18/19 phases, v1.8: 0/1)
 
 ## Performance Metrics
 
