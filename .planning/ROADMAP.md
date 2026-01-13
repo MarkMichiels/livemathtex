@@ -128,14 +128,15 @@ Plans:
 Plans:
 - [x] 10-01: Span-based clear_text implementation
 
-#### Phase 11: Token Classification
+#### Phase 11: Token Classification ✅
 **Goal**: Centralize "is this a unit, variable, or function?" logic. Handle multi-letter identifiers properly (ISS-018). Either treat as single symbol or provide clear error.
 **Depends on**: Phase 10
 **Research**: Unlikely (internal patterns)
-**Plans**: TBD
+**Completed**: 2026-01-13
+**Plans**: 1
 
 Plans:
-- [ ] 11-01: TBD (run /gsd:plan-phase 11 to break down)
+- [x] 11-01: Create token_classifier module and integrate with evaluator
 
 #### Phase 12: Unit Warnings
 **Goal**: Distinguish calculation errors from formatting warnings. Unit conversion failures show warnings (orange) with SI fallback, not red errors (ISS-017).
@@ -155,5 +156,5 @@ Plans:
 | 8. Markdown Parser Integration | v1.5 | 1/1 | Complete | 2026-01-13 |
 | 9. Structural Math Parsing | v1.5 | 1/1 | Complete | 2026-01-13 |
 | 10. Clear Refactor | v1.5 | 1/1 | Complete | 2026-01-13 |
-| 11. Token Classification | v1.5 | 0/? | Not started | - |
+| 11. Token Classification | v1.5 | 1/1 | Complete | 2026-01-13 |
 | 12. Unit Warnings | v1.5 | 0/? | Not started | - |
