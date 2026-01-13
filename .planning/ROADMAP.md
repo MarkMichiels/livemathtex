@@ -114,20 +114,20 @@ See: [v1.5 Archive](milestones/v1.5-ROADMAP.md)
 
 **Issues to Resolve:** ISS-023, ISS-024
 
-#### Phase 13: SI Value Fix
+#### Phase 13: SI Value Fix ✅
 **Goal**: Fix `_format_si_value()` LaTeX cleanup that produces malformed output (ISS-023)
 **Depends on**: v1.5 complete
-**Research**: Unlikely (internal patterns, quick fix)
-**Plans**: TBD
+**Completed**: 2026-01-13
+**Plans**: 1
 
 Plans:
-- [ ] 13-01: TBD (run /gsd:plan-phase 13 to break down)
+- [x] 13-01: Fix LaTeX cleanup regex in evaluator.py (lines 1314, 1342)
 
 #### Phase 14: Pint Evaluator Core
 **Goal**: Replace SymPy numerical evaluation with Pint-based evaluation (ISS-024 core fix)
 **Depends on**: Phase 13
-**Research**: Likely (Pint evaluation patterns, AST walking for unit-aware computation)
-**Research topics**: Pint Quantity arithmetic, SymPy AST traversal, hybrid symbolic/numerical evaluation
+**Research**: ✅ COMPLETE - see `.planning/phases/14-pint-evaluator/RESEARCH.md`
+**Key findings**: Previous migration (Phases 1-5) only migrated validation/conversion. Numerical evaluation still uses SymPy. Option B confirmed: Keep latex2sympy as parser, use Pint for numeric evaluation.
 **Plans**: TBD
 
 Plans:

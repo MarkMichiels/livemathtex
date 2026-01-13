@@ -60,39 +60,12 @@ Enhancements discovered during execution. Not critical - address in future phase
   - Current (SymPy): `$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} == 0.1864\ \text{kg}$` ❌ WRONG
   - Expected (Pint): `$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} == 16\,103\ \text{kg}$` ✅ CORRECT
 
+## Closed Issues
+
 ### ISS-023: `_format_si_value()` produces malformed LaTeX causing KaTeX parse errors
 
-- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
-- **Type:** Bug
-- **Description:** When unit conversion fails and `UnitConversionWarning` is raised, the system displays the SI value using `_format_si_value()`. This method attempts to clean up LaTeX output from SymPy by removing `\text{}` wrappers, but the implementation is too aggressive: it removes **all** closing braces `}`, not just the ones matching `\text{` openings. This breaks LaTeX syntax and causes KaTeX parse errors in rendered output.
-
-  **Example of the bug:**
-  - SymPy LaTeX output: `\frac{7.62969 \times 10^{7} \text{kg}}{\text{m}^{3}}`
-  - After `.replace('\\text{', '')`: `\frac{7.62969 \times 10^{7} kg}{m^{3}}` (correct)
-  - After `.replace('}', '')`: `\frac{7.62969 \times 10^{7} kg{m^{3` (MALFORMED - missing closing braces)
-  - Result: KaTeX parse error `Expected '}', got 'EOF'`
-
-  **Current code (line 1339):**
-  ```python
-  result = result.replace('\\cdot', '*').replace('\\text{', '').replace('}', '')
-  ```
-
-  **Expected behavior:** The SI value should be displayed in valid LaTeX that KaTeX can parse. The cleanup should only remove `\text{}` wrappers (matching pairs), not all closing braces.
-
-  **Impact:** High (renders documents with KaTeX parse errors, making them unreadable in Markdown viewers)
-- **Effort:** Quick (fix the cleanup logic)
-- **Suggested phase:** v1.4 (hotfix)
-- **Files to change:**
-  - `src/livemathtex/engine/evaluator.py` - Fix `_format_si_value()` method (line 1320-1343):
-    - Option A: Use regex to match and remove only `\text{...}` pairs: `re.sub(r'\\text\{([^}]+)\}', r'\1', result)`
-    - Option B: Keep SymPy's LaTeX output as-is (it's already valid LaTeX) and only replace `\cdot` with `*` if needed
-    - Option C: Use a proper LaTeX parser/cleaner to safely remove `\text{}` wrappers
-  - `tests/test_unit_conversion.py` - Add test that verifies SI fallback output is valid LaTeX (can be parsed by KaTeX or similar)
-- **Example:**
-  - Current: `$E == \frac{7.62969 * 10^{7 kg{m^{3\n\\ \color{orange}{\text{Warning: ...}}}$` (KaTeX parse error)
-  - Expected: `$E == \frac{7.62969 \times 10^{7} \text{kg}}{\text{m}^{3}}\n\\ \color{orange}{\text{Warning: ...}}}$` (valid LaTeX)
-
-## Closed Issues
+**Resolved:** 2026-01-13 - Fixed in v1.6 Phase 13 (SI Value Fix)
+**Solution:** Changed `.replace('\\text{', '').replace('}', '')` to `re.sub(r'\\text\{([^}]+)\}', r'\1', ...)` in both `_extract_unit_string()` (line 1314) and `_format_si_value()` (line 1342). This properly removes `\text{}` wrappers without breaking other LaTeX braces. 345 tests pass.
 
 ### ISS-021: `livemathtex clear` can corrupt documents around multiline error blocks ✅ FIXED
 

@@ -56,11 +56,11 @@
     "v_{2}": {
       "latex_name": "cost",
       "original": {
-        "value": 3335.9999999999995,
+        "value": 3336.0000000000005,
         "unit": "€"
       },
       "base": {
-        "value": 3335.9999999999995,
+        "value": 3336.0000000000005,
         "unit": "€"
       },
       "conversion_ok": false,
@@ -161,7 +161,7 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-08 02:41:04",
+    "last_run": "2026-01-12 23:52:48",
     "duration": "0.19s",
     "symbols": 10,
     "custom_units": 3,
@@ -169,6 +169,6 @@
     "evaluations": 3,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 0
+    "errors": 1
   }
 }

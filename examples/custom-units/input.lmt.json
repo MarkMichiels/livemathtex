@@ -11,24 +11,6 @@
       "type": "base",
       "pint_definition": "€ = [€]",
       "line": 0
-    },
-    "kW": {
-      "latex": "kW",
-      "type": "alias",
-      "pint_definition": "kW = kilo \\cdot W",
-      "line": 0
-    },
-    "mbar": {
-      "latex": "mbar",
-      "type": "alias",
-      "pint_definition": "mbar = milli \\cdot bar",
-      "line": 0
-    },
-    "kWh": {
-      "latex": "kWh",
-      "type": "alias",
-      "pint_definition": "kWh = kilo \\cdot W \\cdot hour",
-      "line": 0
     }
   },
   "symbols": {
@@ -103,7 +85,7 @@
       "latex_name": "energy\\_si",
       "original": {
         "value": 144000000.0,
-        "unit": "kg·m^2/s^2"
+        "unit": "kg · m^2/s^2"
       },
       "base": {
         "value": 144000000.0,
@@ -116,7 +98,7 @@
       "latex_name": "energy\\_kWh",
       "original": {
         "value": 144000000.0,
-        "unit": "kg·m^2/s^2"
+        "unit": "kg · m^2/s^2"
       },
       "base": {
         "value": 144000000.0,
@@ -129,7 +111,7 @@
       "latex_name": "energy\\_decimal",
       "original": {
         "value": 144000000.0,
-        "unit": "kg·m^2/s^2"
+        "unit": "kg · m^2/s^2"
       },
       "base": {
         "value": 144000000.0,
@@ -167,11 +149,11 @@
     "v_{10}": {
       "latex_name": "pressure\\_si",
       "original": {
-        "value": 202600.0,
-        "unit": "kg/(m·s^2)"
+        "value": 202600.00000000003,
+        "unit": "kg/(m · s^2)"
       },
       "base": {
-        "value": 202600.0,
+        "value": 202600.00000000003,
         "unit": "kilogram / meter / second ** 2"
       },
       "conversion_ok": true,
@@ -180,11 +162,11 @@
     "v_{11}": {
       "latex_name": "pressure\\_mbar",
       "original": {
-        "value": 202600.0,
-        "unit": "kg/(m·s^2)"
+        "value": 202600.00000000003,
+        "unit": "kg/(m · s^2)"
       },
       "base": {
-        "value": 202600.0,
+        "value": 202600.00000000003,
         "unit": "kilogram / meter / second ** 2"
       },
       "conversion_ok": true,
@@ -220,11 +202,11 @@
     "v_{14}": {
       "latex_name": "cost",
       "original": {
-        "value": 208.49999999999997,
+        "value": 208.50000000000003,
         "unit": "€"
       },
       "base": {
-        "value": 208.49999999999997,
+        "value": 208.50000000000003,
         "unit": "€"
       },
       "conversion_ok": false,
@@ -640,7 +622,7 @@
       "latex_name": "combo\\_energy",
       "original": {
         "value": 144000000.0,
-        "unit": "kg·m^2/s^2"
+        "unit": "kg · m^2/s^2"
       },
       "base": {
         "value": 144000000.0,
@@ -653,7 +635,7 @@
       "latex_name": "combo\\_kwh",
       "original": {
         "value": 144000000.0,
-        "unit": "kg·m^2/s^2"
+        "unit": "kg · m^2/s^2"
       },
       "base": {
         "value": 144000000.0,
@@ -666,7 +648,7 @@
       "latex_name": "combo\\_sci",
       "original": {
         "value": 144000000.0,
-        "unit": "kg·m^2/s^2"
+        "unit": "kg · m^2/s^2"
       },
       "base": {
         "value": 144000000.0,
@@ -679,7 +661,7 @@
       "latex_name": "combo\\_full",
       "original": {
         "value": 144000000.0,
-        "unit": "kg·m^2/s^2"
+        "unit": "kg · m^2/s^2"
       },
       "base": {
         "value": 144000000.0,
@@ -778,18 +760,58 @@
       },
       "conversion_ok": true,
       "line": 0
+    },
+    "v_{57}": {
+      "latex_name": "E",
+      "original": {
+        "value": 5000.0,
+        "unit": "kWh"
+      },
+      "base": {
+        "value": 18000000000.0,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{58}": {
+      "latex_name": "cost\\_eur",
+      "original": {
+        "value": 750.0,
+        "unit": "€"
+      },
+      "base": {
+        "value": 750.0,
+        "unit": "€"
+      },
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
+    },
+    "v_{59}": {
+      "latex_name": "SEC",
+      "original": {
+        "value": 0.5,
+        "unit": "kWh"
+      },
+      "base": {
+        "value": 1800000.0,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-08 00:29:03",
-    "duration": "0.63s",
-    "symbols": 57,
-    "custom_units": 4,
-    "definitions": 59,
+    "last_run": "2026-01-12 23:52:42",
+    "duration": "0.55s",
+    "symbols": 60,
+    "custom_units": 1,
+    "definitions": 62,
     "evaluations": 42,
     "symbolic": 0,
-    "value_refs": 0,
+    "value_refs": 4,
     "errors": 0
   }
 }

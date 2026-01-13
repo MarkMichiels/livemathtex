@@ -16,6 +16,7 @@ See ARCHITECTURE.md for full documentation.
 """
 
 from typing import Dict, Any, Optional, List, Tuple
+import re
 import sympy
 import sympy.physics.units as u
 from sympy.parsing.latex import parse_latex
@@ -1310,7 +1311,8 @@ class Evaluator:
             if hasattr(si_form, 'as_coeff_Mul'):
                 coeff, unit_part = si_form.as_coeff_Mul()
                 if unit_part != 1:
-                    return sympy.latex(unit_part).replace('\\text{', '').replace('}', '')
+                    # ISS-023 fix: Use regex to remove \text{} wrappers properly
+                    return re.sub(r'\\text\{([^}]+)\}', r'\1', sympy.latex(unit_part))
         except:
             pass
 
@@ -1336,7 +1338,8 @@ class Evaluator:
             # Convert to LaTeX-friendly string
             result = sympy.latex(si_form)
             # Clean up for display
-            result = result.replace('\\cdot', '*').replace('\\text{', '').replace('}', '')
+            # ISS-023 fix: Use regex to remove \text{} wrappers properly (don't remove all })
+            result = re.sub(r'\\text\{([^}]+)\}', r'\1', result.replace('\\cdot', '*'))
             return result
         except:
             # Fallback to string representation

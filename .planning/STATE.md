@@ -9,19 +9,25 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 13 of 15 (SI Value Fix)
+Phase: 14 of 15 (Pint Evaluator Core)
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-01-13 — Milestone v1.6 created
+Last activity: 2026-01-13 — Phase 13 completed (ISS-023 fixed)
 
-Progress: ░░░░░░░░░░ 0% (v1.6: 0/3 phases)
+**Research Status:**
+- Phase 13 (ISS-023): ✅ COMPLETED - regex fix applied
+- Phase 14 (ISS-024): Research COMPLETE - see `.planning/phases/14-pint-evaluator/RESEARCH.md`
+  - Previous attempt (Phases 1-5) only migrated validation/conversion, not numerical evaluation
+  - Option B confirmed: Keep latex2sympy as parser, use Pint for numeric evaluation
+
+Progress: ███░░░░░░░ 33% (v1.6: 1/3 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13 (2 from v1.2 + 3 from v1.3 + 3 from v1.4 + 5 from v1.5)
+- Total plans completed: 14 (2 from v1.2 + 3 from v1.3 + 3 from v1.4 + 5 from v1.5 + 1 from v1.6)
 - Average duration: ~11 min
-- Total execution time: ~148 min
+- Total execution time: ~158 min
 
 **By Phase:**
 
@@ -39,6 +45,7 @@ Progress: ░░░░░░░░░░ 0% (v1.6: 0/3 phases)
 | 10. Clear Refactor | 1/1 | ~15 min | ~15 min |
 | 11. Token Classification | 1/1 | ~13 min | ~13 min |
 | 12. Unit Warnings | 1/1 | ~13 min | ~13 min |
+| 13. SI Value Fix | 1/1 | ~10 min | ~10 min |
 
 ## Completed Milestones
 
@@ -66,7 +73,7 @@ Progress: ░░░░░░░░░░ 0% (v1.6: 0/3 phases)
 ### Deferred Issues
 
 v1.6 issues to address:
-- ISS-023 → Phase 13 (SI Value Fix) - malformed LaTeX in `_format_si_value()`
+- ISS-023 → Phase 13 (SI Value Fix) ✅ FIXED
 - ISS-024 → Phase 14 (Pint Evaluator Core) - SymPy→Pint numerical evaluation
 
 All v1.5 issues resolved:

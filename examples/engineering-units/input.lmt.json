@@ -206,7 +206,7 @@
       "latex_name": "P_{hyd}",
       "original": {
         "value": 2859.166150346889,
-        "unit": "kg·m^2/s^3"
+        "unit": "kg · m^2/s^3"
       },
       "base": {
         "value": 2859.166150346889,
@@ -245,7 +245,7 @@
       "latex_name": "P_{motor}",
       "original": {
         "value": 4235.801704217613,
-        "unit": "kg·m^2/s^3"
+        "unit": "kg · m^2/s^3"
       },
       "base": {
         "value": 4235.801704217613,
@@ -257,8 +257,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-08 00:29:05",
-    "duration": "0.61s",
+    "last_run": "2026-01-12 23:52:44",
+    "duration": "0.48s",
     "symbols": 19,
     "custom_units": 0,
     "definitions": 19,
