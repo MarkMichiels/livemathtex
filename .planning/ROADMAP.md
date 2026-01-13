@@ -18,6 +18,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.6 Pint Evaluation Engine** - Phases 13-15 (shipped 2026-01-13)
 - ✅ **v1.7 Pint Evaluator Hotfixes** - Phases 16-18 (shipped 2026-01-13)
 - ✅ **v1.8 Pint Unit Handling Fixes** - Phase 19 (verified 2026-01-13 - issues not bugs)
+- 🔄 **v1.9 µmol Unit Conversion Fix** - Phase 20 (in progress)
 
 ## Phases
 
@@ -212,3 +213,19 @@ Plans:
 
 Plans:
 - [x] 19-01: Verified - no code changes needed (issues were not bugs)
+
+### 🔄 v1.9 µmol Unit Conversion Fix (In Progress)
+
+**Milestone Goal:** Fix µmol unit storage in JSON output causing 1,000,000x calculation errors.
+
+**Issues to Resolve:** ISS-030
+
+#### Phase 20: Fix µmol JSON Serialization (ISS-030)
+**Goal**: Fix unit conversion when storing values in JSON - µmol should be stored as mol with correct magnitude conversion
+**Depends on**: v1.8 complete
+**Status**: Pending
+**Research**: Unlikely (bug with clear root cause in ISSUES.md)
+**Plans**: 1
+
+Plans:
+- [ ] 20-01: Fix JSON unit serialization for prefix units (µmol→mol conversion)

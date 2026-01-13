@@ -5,22 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** All issues resolved - project complete
+**Current focus:** Fix µmol JSON serialization bug (ISS-030)
 
 ## Current Position
 
-Phase: 19 of 19 (all phases complete)
-Plan: Complete
-Status: ✅ MILESTONE COMPLETE (v1.8)
-Last activity: 2026-01-13 — v1.8 verified (ISS-028, ISS-029 were not bugs)
+Phase: 20 of 20 (µmol JSON fix)
+Plan: 1 of 1
+Status: 🔄 IN PROGRESS (v1.9)
+Last activity: 2026-01-13 — Planning Phase 20 (ISS-030)
 
-**Milestone v1.8 Summary:**
-- Phase 19 (ISS-028, ISS-029): ✅ VERIFIED - issues were user reporting errors, not bugs
-  - ISS-029: Rate×time calculations work correctly (16,103.07 kg)
-  - ISS-028: Currency unit definitions work correctly (204.608 kilo€)
-  - 365 tests pass, no code changes needed
+**Milestone v1.9 Summary:**
+- Phase 20 (ISS-030): 🔄 IN PROGRESS - Fix µmol JSON serialization bug
+  - Bug: µmol prefix magnitude lost during storage (1,000,000x errors)
+  - Fix: Use Pint for storage values, not just display
 
-Progress: ██████████ 100% (19/19 phases, v1.8: 1/1)
+Progress: █████████░ 95% (19/20 phases, v1.9: 0/1)
 
 ## Performance Metrics
 
