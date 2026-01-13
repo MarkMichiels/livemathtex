@@ -52,3 +52,185 @@ class ParsedCalculation:
 
     # Error info
     error_message: Optional[str] = None
+
+
+def parse_calculation_line(
+    line: str,
+    line_start_offset: int,
+    unit_comment: Optional[str] = None
+) -> Optional[ParsedCalculation]:
+    """Parse a single line of LaTeX into a ParsedCalculation.
+
+    Args:
+        line: Single line of LaTeX (not stripped - preserves positions)
+        line_start_offset: Character offset of line start in document
+        unit_comment: Unit hint from HTML comment (if any)
+
+    Returns:
+        ParsedCalculation or None if line has no operators
+    """
+    # Strip for content analysis but track original positions
+    stripped = line.strip()
+    if not stripped:
+        return None
+
+    # Find where stripped content starts in original line
+    leading_ws = len(line) - len(line.lstrip())
+    content_start = line_start_offset + leading_ws
+
+    # Check for operators (in priority order)
+    has_operators = bool(re.search(r'===|:=|==|=>', stripped))
+
+    if not has_operators:
+        return None
+
+    line_span = Span(content_start, content_start + len(stripped))
+
+    # Check for bare '=' error (not part of :=, ==, =>, ===)
+    if re.search(r'(?<!:)(?<!>)(?<!=)=(?!=)', stripped):
+        return ParsedCalculation(
+            operation="ERROR",
+            operator_span=Span(content_start, content_start + len(stripped)),
+            line=stripped,
+            line_span=line_span,
+            error_message="Invalid operator '='. Use ':=' for definition or '==' for evaluation."
+        )
+
+    # 1. Check for === (unit definition) - must come before ==
+    if '===' in stripped:
+        idx = stripped.find('===')
+        lhs = stripped[:idx].strip()
+        rhs = stripped[idx + 3:].strip()
+
+        lhs_start = content_start + stripped.find(lhs)
+        op_start = content_start + idx
+        rhs_start = content_start + idx + 3 + (len(stripped[idx + 3:]) - len(stripped[idx + 3:].lstrip()))
+
+        return ParsedCalculation(
+            operation="===",
+            operator_span=Span(op_start, op_start + 3),
+            lhs=lhs,
+            lhs_span=Span(lhs_start, lhs_start + len(lhs)),
+            rhs=rhs,
+            rhs_span=Span(rhs_start, rhs_start + len(rhs)),
+            line=stripped,
+            line_span=line_span,
+            unit_hint=unit_comment
+        )
+
+    # 2. Check for := (assignment)
+    if ':=' in stripped:
+        assign_idx = stripped.find(':=')
+        lhs = stripped[:assign_idx].strip()
+        rest = stripped[assign_idx + 2:]
+
+        lhs_start = content_start + stripped.find(lhs) if lhs else content_start
+        assign_op_start = content_start + assign_idx
+
+        # Check for secondary == (combined assignment+eval)
+        if '==' in rest:
+            eval_idx = rest.find('==')
+            expr = rest[:eval_idx].strip()
+            result_part = rest[eval_idx + 2:].strip()
+
+            # Check for inline unit hint [unit] at end
+            unit_hint = unit_comment
+            unit_hint_span = None
+            unit_match = re.search(r'\[([^\]]+)\]\s*$', result_part)
+            if unit_match and not unit_hint:
+                unit_hint = unit_match.group(1).strip()
+                unit_hint_start = content_start + assign_idx + 2 + eval_idx + 2 + result_part.find('[')
+                unit_hint_span = Span(unit_hint_start, unit_hint_start + len(unit_match.group(0)))
+                result_part = result_part[:unit_match.start()].strip()
+
+            expr_start = content_start + assign_idx + 2 + (len(rest[:eval_idx]) - len(rest[:eval_idx].lstrip()))
+            eval_op_start = content_start + assign_idx + 2 + eval_idx
+            result_start = eval_op_start + 2 + (len(rest[eval_idx + 2:]) - len(rest[eval_idx + 2:].lstrip()))
+
+            return ParsedCalculation(
+                operation=":=_==",
+                operator_span=Span(assign_op_start, assign_op_start + 2),  # Point to :=
+                lhs=lhs,
+                lhs_span=Span(lhs_start, lhs_start + len(lhs)) if lhs else None,
+                rhs=expr,
+                rhs_span=Span(expr_start, expr_start + len(expr)),
+                result=result_part,
+                result_span=Span(result_start, result_start + len(result_part)),
+                line=stripped,
+                line_span=line_span,
+                unit_hint=unit_hint,
+                unit_hint_span=unit_hint_span
+            )
+
+        # Simple assignment (no ==)
+        rhs = rest.strip()
+        rhs_start = content_start + assign_idx + 2 + (len(rest) - len(rest.lstrip()))
+
+        return ParsedCalculation(
+            operation=":=",
+            operator_span=Span(assign_op_start, assign_op_start + 2),
+            lhs=lhs,
+            lhs_span=Span(lhs_start, lhs_start + len(lhs)) if lhs else None,
+            rhs=rhs,
+            rhs_span=Span(rhs_start, rhs_start + len(rhs)),
+            line=stripped,
+            line_span=line_span,
+            unit_hint=unit_comment
+        )
+
+    # 3. Check for == (evaluation)
+    if '==' in stripped:
+        idx = stripped.find('==')
+        expr = stripped[:idx].strip()
+        result_part = stripped[idx + 2:].strip()
+
+        # Check for inline unit hint [unit] at end
+        unit_hint = unit_comment
+        unit_hint_span = None
+        unit_match = re.search(r'\[([^\]]+)\]\s*$', result_part)
+        if unit_match and not unit_hint:
+            unit_hint = unit_match.group(1).strip()
+            unit_hint_start = content_start + idx + 2 + result_part.find('[')
+            unit_hint_span = Span(unit_hint_start, unit_hint_start + len(unit_match.group(0)))
+            result_part = result_part[:unit_match.start()].strip()
+
+        expr_start = content_start + stripped.find(expr) if expr else content_start
+        op_start = content_start + idx
+        result_start = content_start + idx + 2 + (len(stripped[idx + 2:]) - len(stripped[idx + 2:].lstrip()))
+
+        return ParsedCalculation(
+            operation="==",
+            operator_span=Span(op_start, op_start + 2),
+            lhs=expr,
+            lhs_span=Span(expr_start, expr_start + len(expr)) if expr else None,
+            result=result_part,
+            result_span=Span(result_start, result_start + len(result_part)),
+            line=stripped,
+            line_span=line_span,
+            unit_hint=unit_hint,
+            unit_hint_span=unit_hint_span
+        )
+
+    # 4. Check for => (symbolic)
+    if '=>' in stripped:
+        idx = stripped.find('=>')
+        expr = stripped[:idx].strip()
+        result_part = stripped[idx + 2:].strip()
+
+        expr_start = content_start + stripped.find(expr) if expr else content_start
+        op_start = content_start + idx
+        result_start = content_start + idx + 2 + (len(stripped[idx + 2:]) - len(stripped[idx + 2:].lstrip()))
+
+        return ParsedCalculation(
+            operation="=>",
+            operator_span=Span(op_start, op_start + 2),
+            lhs=expr,
+            lhs_span=Span(expr_start, expr_start + len(expr)) if expr else None,
+            result=result_part,
+            result_span=Span(result_start, result_start + len(result_part)),
+            line=stripped,
+            line_span=line_span,
+            unit_hint=unit_comment
+        )
+
+    return None
