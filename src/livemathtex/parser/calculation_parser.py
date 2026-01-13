@@ -234,3 +234,77 @@ def parse_calculation_line(
         )
 
     return None
+
+
+def parse_math_block_calculations(
+    block: "ParsedMathBlock",
+    unit_comment: Optional[str] = None,
+    value_comment: Optional[str] = None
+) -> List[ParsedCalculation]:
+    """Parse calculations from a math block.
+
+    Args:
+        block: ParsedMathBlock from Phase 8 parser
+        unit_comment: Unit hint from HTML comment
+        value_comment: Value lookup syntax from HTML comment
+
+    Returns:
+        List of ParsedCalculation objects
+    """
+    calculations: List[ParsedCalculation] = []
+
+    # Handle value_comment case (special value lookup)
+    if value_comment:
+        # Parse value comment: "VAR [\unit] :precision"
+        value_str = value_comment.strip()
+
+        # Extract precision (at end, after :)
+        precision_match = re.search(r'\s*:\s*(\d+)\s*$', value_str)
+        if precision_match:
+            value_str = value_str[:precision_match.start()].strip()
+
+        # Extract unit (in square brackets)
+        target_unit = None
+        unit_match = re.search(r'\s*\[(.*?)\]\s*$', value_str)
+        if unit_match:
+            target_unit = unit_match.group(1).strip()
+            value_str = value_str[:unit_match.start()].strip()
+
+        # Remaining is the variable name
+        var_name = value_str.strip()
+
+        # Create a value calculation - spans point to the whole block
+        calculations.append(ParsedCalculation(
+            operation="value",
+            operator_span=Span(block.doc_start_offset, block.doc_end_offset),
+            lhs=var_name,
+            lhs_span=Span(block.doc_start_offset, block.doc_end_offset),
+            line=block.inner_content.strip(),
+            line_span=Span(block.doc_start_offset, block.doc_end_offset),
+            unit_hint=target_unit
+        ))
+        return calculations
+
+    # Calculate delimiter length
+    delimiter_len = 2 if block.is_display else 1
+
+    # Split inner content by newlines
+    lines = block.inner_content.split('\n')
+
+    # Calculate cumulative offset for each line
+    cumulative_offset = 0
+
+    for line in lines:
+        # Calculate line start offset in document
+        # doc_start_offset + delimiter_len + cumulative_offset
+        line_start = block.doc_start_offset + delimiter_len + cumulative_offset
+
+        # Parse this line
+        calc = parse_calculation_line(line, line_start, unit_comment)
+        if calc is not None:
+            calculations.append(calc)
+
+        # Update cumulative offset (line length + newline)
+        cumulative_offset += len(line) + 1  # +1 for newline
+
+    return calculations
