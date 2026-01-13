@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** Milestone v1.5 Parser Architecture - COMPLETE
+**Current focus:** None (v1.5 shipped)
 
 ## Current Position
 
-Phase: 12 of 12 (Unit Warnings)
-Plan: 01 complete
-Status: Milestone v1.5 complete
-Last activity: 2026-01-13 — Phase 12 plan 01 executed
+Phase: None (milestone complete)
+Plan: None
+Status: Milestone v1.5 shipped - v1.5.0 tagged
+Last activity: 2026-01-13 — v1.5.0 released
 
-Progress: ██████████ 100% (5/5 phases)
+Progress: ██████████ 100% (all milestones complete)
 
 ## Performance Metrics
 
@@ -48,7 +48,7 @@ Progress: ██████████ 100% (5/5 phases)
 | v1.2 | — | 2026-01-12 | — |
 | v1.3 | v1.3.0 | 2026-01-12 | .planning/milestones/v1.3-ROADMAP.md |
 | v1.4 | v1.4.0 | 2026-01-12 | — |
-| v1.5 | — | 2026-01-13 | — |
+| v1.5 | v1.5.0 | 2026-01-13 | .planning/milestones/v1.5-ROADMAP.md |
 
 ## Accumulated Context
 
@@ -88,9 +88,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-13
-Stopped at: Milestone v1.5 complete
+Stopped at: v1.5.0 released and archived
 Resume file: None
-Next: Tag v1.5.0 release
+Next: Define next milestone or project complete
 
 ### Implementation Notes (Phase 12)
 

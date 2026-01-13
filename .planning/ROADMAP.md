@@ -14,7 +14,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.2 Process/Clear Stability** - Phase 1 (shipped 2026-01-12)
 - ✅ **v1.3 Unit Hint Preservation** - Phases 2-4 (shipped 2026-01-12)
 - ✅ **v1.4 Cleanup & Docs** - Phases 5-7 (shipped 2026-01-12)
-- 🚧 **v1.5 Parser Architecture** - Phases 8-12 (in progress)
+- ✅ **v1.5 Parser Architecture** - Phases 8-12 (shipped 2026-01-13)
 
 ## Phases
 
@@ -89,73 +89,20 @@ Plans:
 
 </details>
 
-### 🚧 v1.5 Parser Architecture (In Progress)
+<details>
+<summary>✅ v1.5 Parser Architecture (Phases 8-12) - SHIPPED 2026-01-13</summary>
 
-**Milestone Goal:** Replace regex-driven processing with structural parsing for robustness and extensibility. Addresses ISS-017, ISS-018, ISS-019, ISS-020, ISS-021.
+**Milestone Goal:** Replace regex-driven processing with structural parsing for robustness and extensibility.
 
-**Constraints:**
-- Keep documents clean - no extra visible markup for users
-- Maintain backward compatibility - existing documents should process identically
-- Idempotency is non-negotiable - processing must remain stable on repeated runs
+See: [v1.5 Archive](milestones/v1.5-ROADMAP.md)
 
-#### Phase 8: Markdown Parser Integration ✅
-**Goal**: Integrate markdown parser library (markdown-it-py or mistune) for AST with exact source spans. Extract math blocks as first-class nodes.
-**Depends on**: v1.4 complete
-**Research**: Complete (hybrid approach: markdown-it-py + pylatexenc)
-**Completed**: 2026-01-13
-**Plans**: 1
+**Summary:**
+- Phase 8: Markdown Parser Integration - Hybrid parser (markdown-it-py + pylatexenc)
+- Phase 9: Structural Math Parsing - ParsedCalculation with character-level spans
+- Phase 10: Clear Refactor - Span-based clear_text implementation (ISS-021)
+- Phase 11: Token Classification - Multi-letter identifier diagnostics (ISS-018, ISS-022)
+- Phase 12: Unit Warnings - Orange warnings with SI fallback (ISS-017)
 
-Plans:
-- [x] 08-01: Integrate hybrid parser (markdown-it-py + pylatexenc)
+**Issues Resolved:** ISS-017, ISS-018, ISS-019, ISS-020, ISS-021, ISS-022
 
-#### Phase 9: Structural Math Parsing ✅
-**Goal**: Within math blocks, parse calculations into internal structure with spans/offsets for operators (:=, ==, ===, =>), lhs/rhs, rendered result parts, error markup.
-**Depends on**: Phase 8
-**Research**: Unlikely (internal patterns, builds on Phase 8)
-**Completed**: 2026-01-13
-**Plans**: 1
-
-Plans:
-- [x] 09-01: Parse calculations with character-level spans
-
-#### Phase 10: Clear Refactor ✅
-**Goal**: Rewrite `clear_text()` to use span-based operations instead of regex. Fixes ISS-021 (document corruption around multiline error blocks).
-**Depends on**: Phase 9
-**Research**: Unlikely (internal refactoring)
-**Completed**: 2026-01-13
-**Plans**: 1
-
-Plans:
-- [x] 10-01: Span-based clear_text implementation
-
-#### Phase 11: Token Classification ✅
-**Goal**: Centralize "is this a unit, variable, or function?" logic. Handle multi-letter identifiers properly (ISS-018). Either treat as single symbol or provide clear error.
-**Depends on**: Phase 10
-**Research**: Unlikely (internal patterns)
-**Completed**: 2026-01-13
-**Plans**: 1
-
-Plans:
-- [x] 11-01: Create token_classifier module and integrate with evaluator
-
-#### Phase 12: Unit Warnings ✅
-**Goal**: Distinguish calculation errors from formatting warnings. Unit conversion failures show warnings (orange) with SI fallback, not red errors (ISS-017).
-**Depends on**: Phase 11
-**Research**: Unlikely (internal patterns)
-**Completed**: 2026-01-13
-**Plans**: 1
-
-Plans:
-- [x] 12-01: Unit warnings with SI fallback (ISS-017)
-
-## Progress
-
-**Execution Order:** Phases execute in numeric order: 8 → 9 → 10 → 11 → 12
-
-| Phase | Milestone | Plans | Status | Completed |
-|-------|-----------|-------|--------|-----------|
-| 8. Markdown Parser Integration | v1.5 | 1/1 | Complete | 2026-01-13 |
-| 9. Structural Math Parsing | v1.5 | 1/1 | Complete | 2026-01-13 |
-| 10. Clear Refactor | v1.5 | 1/1 | Complete | 2026-01-13 |
-| 11. Token Classification | v1.5 | 1/1 | Complete | 2026-01-13 |
-| 12. Unit Warnings | v1.5 | 1/1 | Complete | 2026-01-13 |
+</details>

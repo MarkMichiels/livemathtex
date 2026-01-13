@@ -4,7 +4,7 @@
 
 LiveMathTeX is a CLI tool that processes Markdown documents containing LaTeX calculations, evaluating them with unit support via SymPy and Pint.
 
-**Latest:** v1.3 (shipped 2026-01-12) - Unit hint preservation and custom unit evaluation
+**Latest:** v1.5 (shipped 2026-01-13) - Parser architecture overhaul with span-based operations
 
 ## Core Value
 
@@ -24,12 +24,18 @@ Processing must be idempotent - running process on an already-processed file sho
 - ✓ Process/clear cycle stability (ISS-012) — v1.2
 - ✓ Inline unit hints survive processing/re-processing (ISS-013) — v1.3
 - ✓ Custom unit evaluation lookup works for all syntaxes (ISS-009) — v1.3
+- ✓ Recursive unit conversion (ISS-014) — v1.4
+- ✓ Error markup cleanup in input documents (ISS-016) — v1.4
+- ✓ Structural parsing replaces regex (ISS-019, ISS-020) — v1.5
+- ✓ Span-based clear_text fixes document corruption (ISS-021) — v1.5
+- ✓ Multi-letter identifier diagnostics (ISS-018, ISS-022) — v1.5
+- ✓ Unit warnings with SI fallback (ISS-017) — v1.5
 
 ### Active
 
 <!-- Current scope. Building toward these. -->
 
-None currently.
+None currently. All known issues resolved.
 
 ### Out of Scope
 
@@ -40,9 +46,11 @@ None currently.
 
 ## Context
 
-**ISS-013** discovered post-v1.1: The inline unit hint syntax `$E == [kJ]$` is cleaner than HTML comments but breaks re-processing. The `[kJ]` is extracted during processing and replaced with `\text{kJ}` in the result. When re-processing, the hint is lost and results fall back to SI base units.
-
-**ISS-009** partially resolved: Division-based unit definitions now register correctly with Pint (`is_known_unit('SEC') = True`). However, standalone evaluations `$ratio ==` don't find the custom unit - only combined `:= ==` syntax works.
+**v1.5 Architecture:** The codebase now uses structural parsing (markdown-it-py + pylatexenc) instead of regex patterns. This provides:
+- Character-level spans for all operations
+- Proper handling of multiline constructs
+- Better error diagnostics for multi-letter identifiers
+- Warnings (orange) vs errors (red) distinction
 
 ## Constraints
 
@@ -60,4 +68,4 @@ None currently.
 | Pre-processing approach | Clear already-processed content before parsing | ✓ Resolved v1.2 |
 
 ---
-*Last updated: 2026-01-12 — v1.3 shipped*
+*Last updated: 2026-01-13 — v1.5 shipped*
