@@ -50,7 +50,7 @@ cat /tmp/livemathtex_test.md
 
 ## Usage After Setup
 
-Use `/livemathtex` command or run directly:
+Use `/build-calculations` or `/debug-calculations` commands, or run directly:
 
 ```bash
 livemathtex process your_file.md
@@ -116,4 +116,6 @@ chmod +x .venv/bin/livemathtex
 
 - **[SETUP.md](../../docs/SETUP.md)** - Detailed installation guide
 - **[README.md](../../README.md)** - Project overview
-- **`/livemathtex`** - Process files after setup
+- **`/livemathtex`** - Command reference and overview
+- **`/build-calculations`** - Iterative build workflow
+- **`/debug-calculations`** - Debug workflow with issue detection

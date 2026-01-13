@@ -4,7 +4,39 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
+### ISS-028: Currency unit definitions (€, k€) not recognized by Pint - EUR conversion fails
 
+- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
+- **Type:** Bug
+- **Description:** Unit definitions `$€ === €$` and `$k€ === 1000\ €$` are not recognized by Pint, which uses "EUR" as the currency unit. This causes unit conversion failures when using `<!-- [k€] -->` hints:
+  - Calculations produce results in "EUR" (Pint's default)
+  - Conversion to "k€" fails with "Cannot convert from 'EUR' to 'k€' - dimensions incompatible"
+  - 5 warnings in document for currency conversions
+
+  **Example of the bug:**
+  - Expression: `$Cost_{26} := E_{26} \cdot c_{elec} ==$ <!-- [k€] -->` where `$c_{elec} := 139\ \frac{€}{MWh}$`
+  - Expected: Cost in k€ (e.g., 204.6 k€ for E_26 = 1,472 MWh)
+  - Actual: `6.48855 EUR` with warning: `Cannot convert from 'EUR' to 'k€' - dimensions incompatible`
+  - Root cause: Pint uses "EUR" as currency unit, but unit definitions use "€" which Pint doesn't recognize as equivalent
+
+  **Impact:** Medium (affects currency unit conversion, but values are still correct - just wrong unit display)
+- **Effort:** Low-Medium (requires fixing currency unit aliasing to link € ↔ EUR and k€ ↔ kiloEUR)
+- **Suggested phase:** v1.8 (enhancement)
+- **Related:** ISS-027 (marked resolved, but this is a different aspect - unit definition recognition)
+- **Files to investigate:**
+  - `src/livemathtex/engine/pint_backend.py` - currency unit handling and aliasing
+  - `src/livemathtex/engine/evaluator.py` - unit conversion logic
+  - `tests/test_pint_evaluator.py` - add test for €/EUR/k€ conversions
+- **Test case:**
+  ```latex
+  $€ === €$
+  $k€ === 1000\ €$
+  $c_{elec} := 139\ \frac{€}{MWh}$
+  $E_{26} := 1472\ MWh$
+  $Cost_{26} := E_{26} \cdot c_{elec} ==$ <!-- [k€] -->
+  % Expected: 204.608 k€ (no warning)
+  % Actual: 204.608 EUR (with warning)
+  ```
 
 ## Closed Issues
 

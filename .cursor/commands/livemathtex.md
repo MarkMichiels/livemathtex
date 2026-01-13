@@ -1,14 +1,88 @@
 ---
-description: Process Markdown files with LiveMathTeX calculations
+description: LiveMathTeX command reference and overview
 ---
 
-# LiveMathTeX — Markdown Calculations (AI Command)
+# LiveMathTeX Command Reference
 
-LiveMathTeX evaluates LaTeX math blocks inside Markdown and writes the computed results back into the Markdown output.
+**LiveMathTeX** evaluates LaTeX math blocks inside Markdown and writes computed results back into the document.
 
 **Design intent:** Treat the document as the source of truth. Every number shown should be traceable to a formula in the same document (no manual/hardcoded calculated numbers).
 
-## 🚨 CRITICAL: Use Units Rigorously!
+---
+
+## Quick Start
+
+1. **`/setup`** - Install and verify LiveMathTeX
+2. **`/build-calculations`** - Iteratively build and verify calculations
+3. **`/debug-calculations`** - Debug calculations and create issues for bugs
+
+---
+
+## Available Commands
+
+### **`/livemathtex`**
+Show this command reference (init/overview).
+
+**Use when:** Starting a new chat to learn what LiveMathTeX can do.
+
+**Output:** Complete command reference with syntax, examples, and best practices.
+
+---
+
+### **`/setup`**
+Install and setup LiveMathTeX for first-time use.
+
+**Use when:** First time using LiveMathTeX or setting up on a new machine.
+
+**What it does:**
+- Guides installation from source
+- Verifies installation works
+- Configures VS Code/Cursor integration (F9 keybinding)
+
+**Usage:** `/setup`
+
+---
+
+### **`/build-calculations`**
+Iteratively build and verify calculations until correct.
+
+**Use when:** Building a new document or fixing calculations in an existing document.
+
+**Workflow:**
+1. Clean source document (remove error markup)
+2. Calculate expected values manually
+3. Add expected values to output document
+4. Process with LiveMathTeX
+5. Compare expected vs actual (git diff)
+6. Fix discrepancies
+7. Iterate until all correct
+
+**Usage:** `/build-calculations`
+
+**See:** Full workflow documentation in command file.
+
+---
+
+### **`/debug-calculations`**
+Same as `/build-calculations`, but detects issues and creates ISS entries for bugs.
+
+**Use when:** Debugging calculation problems and need to distinguish user errors from LiveMathTeX bugs.
+
+**Workflow:**
+- Same as `/build-calculations`
+- Plus: Classifies discrepancies (bug vs user error)
+- Plus: Creates ISS entries for LiveMathTeX bugs
+- Plus: Documents workarounds for bugs
+
+**Usage:** `/debug-calculations`
+
+**See:** Full workflow documentation in command file.
+
+---
+
+## Core Concepts
+
+### 🚨 CRITICAL: Use Units Rigorously!
 
 **The entire point of LiveMathTeX is verification.** AI assistants can calculate values themselves, but LiveMathTeX provides a **double-check** through explicit unit-aware computation.
 
@@ -33,76 +107,59 @@ $E := P \cdot t == 2721727$  % ← Computed, but what unit? No verification!
 - **Self-documenting:** Units in the document explain what each variable means
 - **The AI already knows the answer** - LiveMathTeX's value is the independent verification, not the computation itself
 
-## Capabilities (what it can do)
+---
 
-- Parse Markdown and execute math blocks (`$...$` and `$$...$$`)
-- **Define** variables/functions with `:=`
-- **Evaluate** expressions with `==`
-- **Symbolic** output with `=>` (e.g., `diff(...)`)
-- **Define/alias units** with `===` (place before first use)
-- **Display results in a requested unit** via `<!-- [unit] -->` comments
-- **Fill table cells with number-only values** via `<!-- value:... -->`
-- Generate + inspect an **IR JSON** (`.lmt.json`) for debugging/traceability
+## Syntax Reference
 
-## AI Assistant Workflow
+### Operators (inside `$...$` / `$$...$$`)
 
-### Standard Processing Workflow
+- `===` - Unit definition / alias
+- `:=` - Define (store variable/function)
+- `==` - Evaluate (prints numeric result)
+- `:= ... ==` - Define + evaluate
+- `=>` - Symbolic result
 
-1. **Process document:**
-   ```bash
-   livemathtex process input.md
-   ```
+### Comments (must be on the **same line** as the math block)
 
-2. **Check for errors:**
-   - If errors reported: Use `livemathtex inspect input.lmt.json` to debug
-   - If "no errors" but error markup visible: Document has leftover errors from previous run
+- **Display conversion:** `$Q ==$ <!-- [m³/h] -->`
+- **Value directive (number-only cell):** `$ $ <!-- value:Q [m³/h] :2 -->`
+  - Note: `value:` outputs the **number only** (it fills the `$ $` placeholder). It does **not** append units.
+- **Expression-level overrides:** `<!-- digits:6 format:sci trailing_zeros -->`
 
-3. **Clean up errors:**
-   ```bash
-   livemathtex clear output.md  # Remove error markup
-   livemathtex process output.md  # Reprocess
-   ```
+### Document Directives (place near the top; comma-separated `key=value`)
 
-### Debugging Workflow
+```markdown
+<!-- livemathtex: digits=6, format=engineering, output=inplace, json=true -->
+```
 
-**When you see errors or unexpected results:**
+- `output`: `timestamped` (default), `inplace`, or a filename (e.g., `output.md`)
 
-1. **Generate IR JSON:**
-   ```bash
-   livemathtex process input.md --verbose
-   ```
+---
 
-2. **Inspect errors:**
-   ```bash
-   livemathtex inspect input.lmt.json
-   ```
-   Shows: symbols, units, errors with line numbers
+## Units
 
-3. **Common issues:**
-   - **Undefined variable:** Check definition order (define before use)
-   - **Unit conversion failed:** See ISS-014 (recursive units like MWh, mol/day)
-   - **Error markup in input:** Use `livemathtex clear` first (see ISS-016)
+- By default, results are formatted in **SI base units** unless a display unit is requested via `<!-- [unit] -->`.
+- **Pint already knows most units** - you don't need to define them:
+  - SI base: `m`, `kg`, `s`, `A`, `K`, `mol`, `cd`
+  - Derived: `N`, `J`, `W`, `Pa`, `Hz`, `V`, `ohm`
+  - Prefixed: `kW`, `MW`, `mm`, `km`, `kWh`, `MWh`, `mg`, `mL`
+  - Time: `year`, `yr`, `day`, `d`, `hour`, `h`
+  - **Compound units work automatically:** `mol/day`, `g/day`, `mg/L/day`, `kg/year`, `MWh/kg` (no definition needed!)
 
-### Best Practices
+**Only define custom units:**
+- Currency: `€`, `$`, `EUR`, `USD`
+- Non-standard abbreviations: `dag === day` (Dutch for day)
+- Industry-specific units
 
-- **Never type computed numbers manually.** Create variables and reference them.
-- **Always use units** in definitions for verification:
-  ```latex
-  $P := 310.7\ \text{kW}$  # ✅ Good - unit documented
-  $P := 310.7$             # ❌ Bad - what unit?
-  ```
-- **Put unit declarations and input values before dependent formulas.**
-- **Prefer timestamped output** (default). Only overwrite input when explicitly requested.
-- **Use `clear` before reprocessing** if document has error markup from previous runs.
-- **Never use custom scripts** to remove error markup - use `livemathtex clear` instead.
+```markdown
+$ € === € $                    # Currency (not in Pint)
+$ dag === day $                 # Alias (Dutch abbreviation)
+$ kWh === kW \cdot h $          # Only if you need custom definition
+```
 
-### Error Detection Limitations
+**⚠️ Don't redefine existing units:** Pint already knows `Wh`, `kWh`, `MWh`, `yr`, `d`, etc. Redefining them causes errors.
 
-**⚠️ Known issues (ISS-016):**
-- LiveMathTeX only detects **new errors** generated during processing
-- **Existing error markup in input** is not detected or counted
-- If you see error markup but "no errors" reported, the document has leftover errors from a previous run
-- **Solution:** Always use `livemathtex clear` before processing documents with error markup
+---
 
 ## CLI Commands
 
@@ -128,12 +185,7 @@ livemathtex inspect input.lmt.json
 ```
 
 ### `clear` - Reset document
-**✅ Available** - Removes computed values and error markup from processed documents.
-
-**Use cases:**
-- Clean up a document with errors before reprocessing
-- Reset document to input state
-- Remove error markup from previous runs
+Removes computed values and error markup from processed documents.
 
 **What it removes:**
 - Computed values after `==` (e.g., `$x == 42$` → `$x ==$`)
@@ -154,64 +206,24 @@ livemathtex clear output.md -o input.md  # Write to different file
 
 **⚠️ Important:** Always use `livemathtex clear` to remove error markup. **Never** use custom scripts or manual regex replacements - they can damage LaTeX structure.
 
-## Syntax cheat sheet
+---
 
-### Operators (inside `$...$` / `$$...$$`)
+## Best Practices
 
-- `===` unit definition / alias
-- `:=` define (store variable/function)
-- `==` evaluate (prints numeric result)
-- `:= ... ==` define + evaluate
-- `=>` symbolic result
+- **Never type computed numbers manually.** Create variables and reference them.
+- **Always use units** in definitions for verification:
+  ```latex
+  $P := 310.7\ \text{kW}$  # ✅ Good - unit documented
+  $P := 310.7$             # ❌ Bad - what unit?
+  ```
+- **Put unit declarations and input values before dependent formulas.**
+- **Prefer timestamped output** (default). Only overwrite input when explicitly requested.
+- **Use `clear` before reprocessing** if document has error markup from previous runs.
+- **Use `/build-calculations` workflow** for systematic verification.
 
-### Comments (must be on the **same line** as the math block)
+---
 
-- **Display conversion:** `$Q ==$ <!-- [m³/h] -->`
-- **Value directive (number-only cell):** `$ $ <!-- value:Q [m³/h] :2 -->`
-  - Note: `value:` outputs the **number only** (it fills the `$ $` placeholder). It does **not** append units.
-- **Expression-level overrides (colon syntax):** `<!-- digits:6 format:sci trailing_zeros -->`
-
-### Document directives (place near the top; comma-separated `key=value`)
-
-```markdown
-<!-- livemathtex: digits=6, format=engineering, output=inplace, json=true -->
-```
-
-- `output`: `timestamped` (default), `inplace`, or a filename (e.g., `output.md`)
-
-## Units (important)
-
-- By default, results are formatted in **SI base units** unless a display unit is requested via `<!-- [unit] -->`.
-- **Pint already knows most units** - you don't need to define them:
-  - SI base: `m`, `kg`, `s`, `A`, `K`, `mol`, `cd`
-  - Derived: `N`, `J`, `W`, `Pa`, `Hz`, `V`, `ohm`
-  - Prefixed: `kW`, `MW`, `mm`, `km`, `kWh`, `MWh`, `mg`, `mL`
-  - Time: `year`, `yr`, `day`, `d`, `hour`, `h`
-  - **Compound units work automatically:** `mol/day`, `g/day`, `mg/L/day`, `kg/year`, `MWh/kg` (no definition needed!)
-
-**Only define custom units:**
-- Currency: `€`, `$`, `EUR`, `USD`
-- Non-standard abbreviations: `dag === day` (Dutch for day)
-- Industry-specific units
-
-```markdown
-$ € === € $                    # Currency (not in Pint)
-$ dag === day $                 # Alias (Dutch abbreviation)
-$ kWh === kW \cdot h $          # Only if you need custom definition
-```
-
-**⚠️ Don't redefine existing units:** Pint already knows `Wh`, `kWh`, `MWh`, `yr`, `d`, etc. Redefining them causes errors.
-
-## Tables (recommended patterns)
-
-- **Preferred:** Put formulas directly in table cells:
-  - `| Energy | $E_{year} ==$ <!-- [MWh] --> |`
-- Use `value:` only when you need a number-only cell:
-  - `| Flow | $ $ <!-- value:Q [m³/h] :2 --> | m³/h |`
-
-Known limitation: `value:` has limited unit support for custom/complex units (see [BACKLOG.md](../../docs/BACKLOG.md#issue-001-value-directive-doesnt-support-complexcustom-units), ISSUE-001).
-
-## Common pitfalls (fix fast)
+## Common Pitfalls
 
 - **Math inside fenced code blocks** (```...``` or ~~~...~~~) is **ignored**
 - **Inline `$...$` cannot contain newlines** → use `$$...$$`
@@ -222,15 +234,48 @@ Known limitation: `value:` has limited unit support for custom/complex units (se
 - **Compound units:** Don't define `mol/day`, `g/day`, `MWh/kg` - they work automatically
 - **Unit conversion failures:** For recursive units (MWh, mol/day), see ISS-014 - conversion may fail but calculation is correct
 
+---
+
 ## Known Issues
 
+- **ISS-024:** Numerical calculations produce incorrect results (FIXED in v1.6 - now uses Pint)
+- **ISS-025:** SymPy constants not handled (π, e, etc. cause errors) - OPEN
 - **ISS-014:** Unit conversion fails for recursively defined units (MWh, mol/day, MWh/kg). Calculation is correct, but conversion to target unit fails. Workaround: Results show in SI base units.
-- **ISS-016:** Error markup in input document not detected. If you see error markup but "no errors" reported, use `livemathtex clear` first.
+- **ISS-016:** Error markup in input document not detected (FIXED - use `livemathtex clear` first)
 
-## Deep references
+**See:** `.planning/ISSUES.md` for complete list.
+
+---
+
+## Workflow Recommendations
+
+### For New Documents
+
+1. **`/setup`** - Verify installation
+2. **`/build-calculations`** - Build document iteratively
+3. **`/livemathtex`** - Reference syntax as needed
+
+### For Debugging Problems
+
+1. **`/debug-calculations`** - Systematic debugging with issue detection
+2. **`/livemathtex`** - Check syntax and best practices
+
+### For Quick Processing
+
+```bash
+livemathtex process input.md
+```
+
+---
+
+## Deep References
 
 - **[USAGE.md](../../docs/USAGE.md)** — full syntax & configuration
 - **[ARCHITECTURE.md](../../docs/ARCHITECTURE.md)** — IR + internals
 - **[ISSUES.md](../../.planning/ISSUES.md)** — known bugs and enhancements
+- **[LESSONS_LEARNED.md](../../.planning/LESSONS_LEARNED.md)** — patterns and solutions
 - **[Examples](../../examples/)** — known-good patterns
-- **`/livemathtex-setup`** — installation guide
+
+---
+
+**Use this command at the start of a chat to learn what LiveMathTeX can do and how to use it effectively.**
