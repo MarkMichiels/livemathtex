@@ -16,7 +16,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.4 Cleanup & Docs** - Phases 5-7 (shipped 2026-01-12)
 - ✅ **v1.5 Parser Architecture** - Phases 8-12 (shipped 2026-01-13)
 - ✅ **v1.6 Pint Evaluation Engine** - Phases 13-15 (shipped 2026-01-13)
-- 🔧 **v1.7 Pint Evaluator Hotfixes** - Phases 16-18 (in progress)
+- ✅ **v1.7 Pint Evaluator Hotfixes** - Phases 16-18 (shipped 2026-01-13)
 
 ## Phases
 
@@ -154,7 +154,7 @@ Plans:
 
 </details>
 
-### 🔧 v1.7 Pint Evaluator Hotfixes (In Progress)
+### ✅ v1.7 Pint Evaluator Hotfixes (Shipped 2026-01-13)
 
 **Milestone Goal:** Fix critical bugs discovered during real-world usage of Pint evaluator with production documents.
 
@@ -171,22 +171,20 @@ Plans:
 Plans:
 - [x] 16-01: Add handlers for SymPy constants and fix SympyQuantity isinstance check
 
-#### Phase 17: Fix Compound Rate Units (ISS-026)
+#### Phase 17: Fix Compound Rate Units (ISS-026) ✅ (Already Fixed)
 **Goal**: Fix calculations with compound rate units containing division (mg/L/day) that produce 86.4x wrong results
 **Depends on**: Phase 16
-**Status**: Not started
-**Research**: Likely (need to investigate compound unit parsing)
-**Plans**: 1
+**Status**: Already fixed by v1.6 Pint evaluator work
+**Resolution**: Verified 2026-01-13 - compound rate unit calculations work correctly
 
 Plans:
-- [ ] 17-01: Investigate and fix compound unit rate calculations
+- [x] N/A - Already fixed in Phase 14 (ISS-024)
 
-#### Phase 18: Fix Currency Unit Conversion (ISS-027)
+#### Phase 18: Fix Currency Unit Conversion (ISS-027) ✅ (Already Fixed)
 **Goal**: Fix EUR to k€ conversion - ensure EUR/€ are recognized as equivalent and k€ definition works
 **Depends on**: Phase 17
-**Status**: Not started
-**Research**: Unlikely (unit aliasing fix)
-**Plans**: 1
+**Status**: Already fixed by v1.6 Pint evaluator work
+**Resolution**: Verified 2026-01-13 - custom unit prefixes work correctly
 
 Plans:
-- [ ] 18-01: Fix currency unit aliasing and k€ definition
+- [x] N/A - Already fixed in Phase 14 (ISS-024)

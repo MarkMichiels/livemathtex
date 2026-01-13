@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** v1.7 hotfixes - fixing Pint evaluator bugs (ISS-025, ISS-026, ISS-027)
+**Current focus:** v1.7 complete - all issues resolved
 
 ## Current Position
 
-Phase: 17 of 18 (Fix Compound Rate Units)
-Plan: Not started
-Status: 🔧 IN PROGRESS (v1.7 Hotfixes)
-Last activity: 2026-01-13 — Phase 16 complete (ISS-025 fixed)
+Phase: 18 of 18 (all phases complete)
+Plan: Complete
+Status: ✅ MILESTONE COMPLETE (v1.7)
+Last activity: 2026-01-13 — v1.7 shipped
 
-**Milestone v1.7 Scope:**
-- Phase 16 (ISS-025): ✅ COMPLETE - SymPy constants (π, e) and isinstance fix
-- Phase 17 (ISS-026): ⏳ NOT STARTED - Compound rate unit calculations
-- Phase 18 (ISS-027): ⏳ NOT STARTED - Currency unit conversion
+**Milestone v1.7 Summary:**
+- Phase 16 (ISS-025): ✅ FIXED - SymPy constants (π, e) and isinstance fix
+- Phase 17 (ISS-026): ✅ ALREADY FIXED - by v1.6 Pint evaluator work
+- Phase 18 (ISS-027): ✅ ALREADY FIXED - by v1.6 Pint evaluator work
 
-Progress: ████████████░░░░░░ 89% (16/18 phases, v1.7: 1/3)
+Progress: ██████████ 100% (18/18 phases, v1.7: 3/3)
 
 ## Performance Metrics
 
