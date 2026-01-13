@@ -216,6 +216,204 @@ def detect_error_markup(content: str) -> dict:
     return result
 
 
+def clear_text_v2(content: str) -> tuple[str, int]:
+    """
+    Clear computed values using span-based operations (v2 implementation).
+
+    Uses the hybrid parser from Phase 8/9 to identify math blocks and
+    calculation spans, then applies targeted edits without regex-based
+    structural matching that can corrupt documents.
+
+    Args:
+        content: Processed markdown content with computed values
+
+    Returns:
+        Tuple of (cleared_content, count_of_cleared_evaluations)
+
+    Key improvements over regex-based clear_text:
+    - Uses parser to find math block boundaries (no regex structure matching)
+    - Preserves document structure (no merged blocks)
+    - Handles multiline error blocks correctly (ISS-021 fix)
+    """
+    from .parser.markdown_parser import extract_math_blocks
+    from .parser.calculation_parser import parse_math_block_calculations, Span
+
+    # Track edits to apply (start, end, replacement)
+    edits: list[tuple[int, int, str]] = []
+    count = 0
+
+    # 1. Parse document to find all math blocks
+    try:
+        blocks = extract_math_blocks(content)
+    except Exception:
+        # If parsing fails, fall back to empty (no math blocks found)
+        blocks = []
+
+    # 2. For each block, identify spans to clear
+    for block in blocks:
+        try:
+            calcs = parse_math_block_calculations(block)
+        except Exception:
+            continue
+
+        for calc in calcs:
+            # For == evaluations, clear the result
+            if calc.operation == "==" and calc.result_span:
+                count += 1
+                # Check if there's a unit hint to preserve
+                unit_replacement = ""
+                if calc.unit_hint and calc.unit_hint_span:
+                    # Preserve the unit hint as [unit] format
+                    unit_replacement = f" [{calc.unit_hint}]"
+                elif calc.result:
+                    # Try to extract unit from \text{unit} in result
+                    text_unit_match = re.search(
+                        r'(?:\\\\)?\\text\{([^}]+)\}\s*$', calc.result
+                    )
+                    if text_unit_match:
+                        unit = text_unit_match.group(1).replace('\\', '').strip()
+                        unit_replacement = f" [{unit}]"
+
+                # Replace result with empty (or unit hint)
+                edits.append((
+                    calc.result_span.start,
+                    calc.result_span.end,
+                    unit_replacement
+                ))
+
+            # For :=_== combined, clear only the result part after ==
+            elif calc.operation == ":=_==" and calc.result_span:
+                count += 1
+                unit_replacement = ""
+                if calc.unit_hint and calc.unit_hint_span:
+                    unit_replacement = f" [{calc.unit_hint}]"
+                elif calc.result:
+                    text_unit_match = re.search(
+                        r'(?:\\\\)?\\text\{([^}]+)\}\s*$', calc.result
+                    )
+                    if text_unit_match:
+                        unit = text_unit_match.group(1).replace('\\', '').strip()
+                        unit_replacement = f" [{unit}]"
+
+                edits.append((
+                    calc.result_span.start,
+                    calc.result_span.end,
+                    unit_replacement
+                ))
+
+            # For ERROR, we need to handle error markup specially
+            # The calculation itself might have error markup inserted
+            # We'll handle this with regex below since error markup
+            # is inserted by the renderer, not part of the parsed structure
+
+    # 3. Remove error markup with regex (safe - doesn't affect structure)
+    # This handles \color{red}{...} which is rendering output, not parsed
+    # We do this BEFORE applying span edits since error markup may be
+    # outside the parsed calculation spans
+    cleared = content
+
+    # Error patterns (same as original, safe for error markup removal)
+    # Pattern: \color{red}{...} with nested braces
+    error_pattern = r'\\color\{red\}\{(?:[^{}]|\{[^{}]*\})*\}'
+    cleared = re.sub(error_pattern, '', cleared)
+
+    # Inline error text: \text{(Error: ...)}
+    error_text_pattern = r'\\text\{\(Error:[^)]*\)\}'
+    cleared = re.sub(error_text_pattern, '', cleared)
+
+    # Multiline error blocks: newline + \\ + \color{red}{\text{...}}
+    multiline_error = r'\n\\\\\s*\\color\{red\}\{\\text\{[\s\S]*?\}\}'
+    cleared = re.sub(multiline_error, '', cleared)
+
+    # 4. Re-parse after error removal to get accurate spans
+    # (Error removal may have changed offsets)
+    try:
+        blocks = extract_math_blocks(cleared)
+    except Exception:
+        blocks = []
+
+    # Rebuild edits list with fresh spans
+    edits = []
+    count = 0
+
+    for block in blocks:
+        try:
+            calcs = parse_math_block_calculations(block)
+        except Exception:
+            continue
+
+        for calc in calcs:
+            if calc.operation == "==" and calc.result_span:
+                count += 1
+                unit_replacement = ""
+                if calc.unit_hint and calc.unit_hint_span:
+                    unit_replacement = f" [{calc.unit_hint}]"
+                elif calc.result:
+                    text_unit_match = re.search(
+                        r'(?:\\\\)?\\text\{([^}]+)\}\s*$', calc.result
+                    )
+                    if text_unit_match:
+                        unit = text_unit_match.group(1).replace('\\', '').strip()
+                        unit_replacement = f" [{unit}]"
+
+                edits.append((
+                    calc.result_span.start,
+                    calc.result_span.end,
+                    unit_replacement
+                ))
+
+            elif calc.operation == ":=_==" and calc.result_span:
+                count += 1
+                unit_replacement = ""
+                if calc.unit_hint and calc.unit_hint_span:
+                    unit_replacement = f" [{calc.unit_hint}]"
+                elif calc.result:
+                    text_unit_match = re.search(
+                        r'(?:\\\\)?\\text\{([^}]+)\}\s*$', calc.result
+                    )
+                    if text_unit_match:
+                        unit = text_unit_match.group(1).replace('\\', '').strip()
+                        unit_replacement = f" [{unit}]"
+
+                edits.append((
+                    calc.result_span.start,
+                    calc.result_span.end,
+                    unit_replacement
+                ))
+
+    # 5. Apply edits in reverse order (end to start) to preserve offsets
+    edits.sort(key=lambda x: x[0], reverse=True)
+
+    for start, end, replacement in edits:
+        cleared = cleared[:start] + replacement + cleared[end:]
+
+    # 6. Clean up orphan artifacts that may remain
+    # After clearing, we might have:
+    # - Empty \\ before $ (line continuation without content)
+    # - Trailing whitespace before $
+    orphan_newline = r'\n\\\\\s*\$'
+    cleared = re.sub(orphan_newline, '$', cleared)
+    orphan_brace = r'\n?\\\\\s*\}\$'
+    cleared = re.sub(orphan_brace, '$', cleared)
+
+    # Fix definitions that end with newline (error was removed)
+    incomplete_def = r'(\$[^$]+:=\s*[^\n$]+)\n+\$'
+    cleared = re.sub(incomplete_def, r'\1$', cleared)
+
+    # Convert \text{varname} back to varname for evaluations
+    text_var_pattern = r'\$\\text\{([^}]+)\}\s*(==)'
+    cleared = re.sub(text_var_pattern, r'$\1 \2', cleared)
+
+    # 7. Remove livemathtex metadata comment
+    meta_pattern = r'\n+---\n+>\s*\*livemathtex:[^*]+\*\s*<!--\s*livemathtex-meta\s*-->\n*'
+    cleared = re.sub(meta_pattern, '\n', cleared)
+
+    # 8. Clean up excessive newlines
+    cleared = re.sub(r'\n{3,}', '\n\n', cleared)
+
+    return cleared, count
+
+
 def process_file(
     input_path: str,
     output_path: str = None,
