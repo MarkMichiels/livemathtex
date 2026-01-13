@@ -69,7 +69,7 @@ Enhancements discovered during execution. Not critical - address in future phase
 - **Description:** When a user writes a bare multi-letter identifier as an expression (e.g., `PPE`, `PAR`) and it has not been defined yet, `latex2sympy` may parse it as implicit multiplication (`P*P*E`, `P*A*R`). Today, LiveMathTeX then reports misleading errors such as:
   - `Undefined variable 'P'` (or `Undefined variable 'A' (ampere)`)
 
-  In most cases, the correct user intent is: **“unknown variable `PPE`”** (or `PAR`), not `P`/`A`.
+  In most cases, the correct user intent is: **"unknown variable `PPE`"** (or `PAR`), not `P`/`A`.
 
   **Expected behavior:** Detect this failure mode and produce a targeted message like:
   - `Undefined variable 'PPE'. Note: 'PPE' was parsed as implicit multiplication (P*P*E). Define '$PPE := ...$' before use, or use a structured name like 'PPE_{...}'.`
@@ -83,10 +83,98 @@ Enhancements discovered during execution. Not critical - address in future phase
     - the original expression contains a contiguous multi-letter token (e.g., `PPE`, `PAR`)
     - but the parsed SymPy expression contains only single-letter undefined symbols consistent with implicit multiplication
     - then raise a specialized `EvaluationError` with the intended multi-letter symbol name.
-  - `src/livemathtex/engine/pint_backend.py` - Ensure the “conflicts with unit” helper messaging does not hide the more specific “intended multi-letter symbol” hint.
+  - `src/livemathtex/engine/pint_backend.py` - Ensure the "conflicts with unit" helper messaging does not hide the more specific "intended multi-letter symbol" hint.
   - `tests/` - Add regression tests:
     - `$x := PPE$` should mention `PPE` in the error message (not only `P`)
     - `$x := PAR$` should mention `PAR` (not only `A`/ampere)
+
+### ISS-024: Numerical calculations produce incorrect results due to using SymPy instead of Pint
+
+- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
+- **Type:** Architecture/Bug (Major Refactoring Required)
+- **Description:** All calculation problems stem from a fundamental architectural issue: **LiveMathTeX uses SymPy for numerical calculations, but SymPy is designed for symbolic mathematics, not numerical computation**. This causes incorrect results, especially with unit propagation (rate × time calculations fail).
+
+  **Core Problem:**
+  - SymPy is designed for symbolic math (differentiation, integration, simplification)
+  - SymPy is NOT designed for numerical calculations with units
+  - Unit propagation in SymPy is symbolic and doesn't automatically convert (e.g., `day` stays `day`, doesn't become `seconds`)
+  - Pint is already present in the codebase and handles numerical calculations with units correctly
+
+  **Evidence:**
+  - **Example bug:** `m_{26} = 49,020 g/day` × `d_{op} = 365 d` → Expected: `16,103 kg`, Actual: `0.1864 kg` (86,400x too low)
+  - **Pint test:** `49020 g/day * 365 day * 0.9` → `16,103.07 kg` ✅ CORRECT
+  - **SymPy test:** Same calculation → `0.1864 kg` ❌ WRONG
+  - **Root cause:** SymPy treats `365 * day` as symbolic expression, doesn't convert to `31,536,000 * second` automatically
+
+  **All problems are symptoms of this architectural choice:**
+  - Unit conversion failures (ISS-014, ISS-017)
+  - Incorrect numerical results (this issue)
+  - Unit propagation bugs (rate × time calculations)
+  - Performance issues (SymPy is slow for numerical calculations)
+
+  **Solution (from PINT_MIGRATION_ANALYSIS.md - Option B):**
+  - **Keep `latex2sympy2` as parser only** (LaTeX → expression tree)
+  - **Use Pint Quantities for numerical evaluation** (not SymPy)
+  - **Keep SymPy only for symbolic operations** (`=>` mode: differentiation, integration)
+
+  **Impact:** Critical (all numerical calculations are potentially incorrect, making documents unreliable for engineering use)
+- **Effort:** Substantial (major refactoring of evaluation engine)
+- **Suggested phase:** v2.0 (major architectural change)
+- **Files to change:**
+  - `src/livemathtex/engine/evaluator.py` - Major refactoring:
+    - Replace SymPy numerical evaluation with Pint-based evaluation
+    - Keep `latex2sympy2` for parsing LaTeX → expression tree
+    - Build evaluator that walks SymPy AST and evaluates with Pint Quantities
+    - Keep SymPy only for `=>` symbolic mode (separate pipeline)
+  - `src/livemathtex/engine/symbols.py` - Update `SymbolValue`:
+    - Store values as Pint Quantities (not SymPy Quantities)
+    - Update `value_with_unit` to return Pint Quantity
+  - `src/livemathtex/engine/pint_backend.py` - Enhance:
+    - Add `evaluate_expression_with_pint()` function that takes SymPy AST and evaluates with Pint
+    - Ensure all unit conversions use Pint (already mostly done)
+  - `tests/test_numerical_calculations.py` - Comprehensive tests:
+    - Rate × time: `$m := 49020\ g/day$` then `$C := m \cdot 365\ d ==$` → `16,103 kg`
+    - Energy calculations: `$P := 310.7\ kW$` then `$E := P \cdot 8760\ h ==$` → correct MWh
+    - All existing examples must pass with Pint evaluation
+  - Update all documentation to reflect Pint-based numerical evaluation
+- **References:**
+  - `.planning/history/PINT_MIGRATION_ANALYSIS.md` - Option B (recommended approach)
+  - Current architecture uses SymPy for everything (needs to change)
+- **Example:**
+  - Current (SymPy): `$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} == 0.1864\ \text{kg}$` ❌ WRONG
+  - Expected (Pint): `$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} == 16\,103\ \text{kg}$` ✅ CORRECT
+
+### ISS-023: `_format_si_value()` produces malformed LaTeX causing KaTeX parse errors
+
+- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
+- **Type:** Bug
+- **Description:** When unit conversion fails and `UnitConversionWarning` is raised, the system displays the SI value using `_format_si_value()`. This method attempts to clean up LaTeX output from SymPy by removing `\text{}` wrappers, but the implementation is too aggressive: it removes **all** closing braces `}`, not just the ones matching `\text{` openings. This breaks LaTeX syntax and causes KaTeX parse errors in rendered output.
+
+  **Example of the bug:**
+  - SymPy LaTeX output: `\frac{7.62969 \times 10^{7} \text{kg}}{\text{m}^{3}}`
+  - After `.replace('\\text{', '')`: `\frac{7.62969 \times 10^{7} kg}{m^{3}}` (correct)
+  - After `.replace('}', '')`: `\frac{7.62969 \times 10^{7} kg{m^{3` (MALFORMED - missing closing braces)
+  - Result: KaTeX parse error `Expected '}', got 'EOF'`
+
+  **Current code (line 1339):**
+  ```python
+  result = result.replace('\\cdot', '*').replace('\\text{', '').replace('}', '')
+  ```
+
+  **Expected behavior:** The SI value should be displayed in valid LaTeX that KaTeX can parse. The cleanup should only remove `\text{}` wrappers (matching pairs), not all closing braces.
+
+  **Impact:** High (renders documents with KaTeX parse errors, making them unreadable in Markdown viewers)
+- **Effort:** Quick (fix the cleanup logic)
+- **Suggested phase:** v1.4 (hotfix)
+- **Files to change:**
+  - `src/livemathtex/engine/evaluator.py` - Fix `_format_si_value()` method (line 1320-1343):
+    - Option A: Use regex to match and remove only `\text{...}` pairs: `re.sub(r'\\text\{([^}]+)\}', r'\1', result)`
+    - Option B: Keep SymPy's LaTeX output as-is (it's already valid LaTeX) and only replace `\cdot` with `*` if needed
+    - Option C: Use a proper LaTeX parser/cleaner to safely remove `\text{}` wrappers
+  - `tests/test_unit_conversion.py` - Add test that verifies SI fallback output is valid LaTeX (can be parsed by KaTeX or similar)
+- **Example:**
+  - Current: `$E == \frac{7.62969 * 10^{7 kg{m^{3\n\\ \color{orange}{\text{Warning: ...}}}$` (KaTeX parse error)
+  - Expected: `$E == \frac{7.62969 \times 10^{7} \text{kg}}{\text{m}^{3}}\n\\ \color{orange}{\text{Warning: ...}}}$` (valid LaTeX)
 
 ### ISS-019: Adopt a parsing library and reduce regex-driven logic across the pipeline (variables vs units vs formulas)
 
