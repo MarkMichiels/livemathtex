@@ -2217,8 +2217,15 @@ def evaluate_sympy_ast_with_pint(
                     return symbol_values[base_name]
             raise PintEvaluationError(f"Undefined symbol: {name}")
 
+        # SymPy mathematical constants (Pi, E, EulerGamma, GoldenRatio, Catalan)
+        # These inherit from NumberSymbol, not Number
+        if isinstance(e, sympy.core.numbers.NumberSymbol):
+            val = float(e)
+            return val * ureg.dimensionless if allow_dimensionless else val
+
         # SymPy Quantity (unit) - convert to Pint
-        if isinstance(e, SympyQuantity):
+        # Guard against SympyQuantity being None if import failed
+        if SympyQuantity is not None and isinstance(e, SympyQuantity):
             unit_name = str(e)
             # Try to convert SymPy unit to Pint
             pint_unit = _sympy_unit_to_pint(unit_name)
