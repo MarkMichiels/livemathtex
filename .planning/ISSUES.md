@@ -4,35 +4,14 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-### ISS-031: Unit propagation failure when multiplying unit by dimensionless value
-
-- **Discovered:** 2026-01-13 (during debug-calculations workflow on astaxanthin_production_analysis.md)
-- **Type:** Bug
-- **Description:** When multiplying a unit by a dimensionless value, LiveMathTeX loses the unit and treats the result as dimensionless, causing unit conversion warnings. Example: `$PPE_{eff} := PPE_{red} \cdot f_{geom}$` where `PPE_{red} = 4.29 µmol/J` and `f_{geom} = 0.9143` (dimensionless) should result in `3.922 µmol/J`, but shows as `3.922` (dimensionless) with warning "Cannot convert from 'dimensionless' to 'µmol/J' - dimensions incompatible".
-- **Expected:** When multiplying a unit by a dimensionless value, the result should preserve the original unit (e.g., `µmol/J × 0.9143 = 3.922 µmol/J`).
-- **Actual:**
-  - Calculation gives correct numeric value: `3.922`
-  - Unit is lost, result treated as dimensionless
-  - Unit conversion warning when trying to convert to target unit via unit hint
-- **Root cause:**
-  - Unit propagation fails when multiplying units by dimensionless values
-  - The numeric calculation is correct, but the unit is not preserved
-  - This affects any calculation that multiplies units by dimensionless factors (common in physics/engineering)
-- **Impact:** High (prevents calculations that multiply units by dimensionless factors, causes cascading errors in dependent calculations)
-- **Effort:** Medium (fix unit propagation in Pint evaluator)
-- **Suggested phase:** Current
-- **Files to change:**
-  - `src/livemathtex/engine/pint_backend.py` - Unit propagation logic for dimensionless multiplication
-  - `src/livemathtex/engine/evaluator.py` - Evaluation logic for preserving units
-- **Test file:** `tests/test_iss_031_unit_propagation_dimensionless.md` - Attempts to reproduce the bug (note: simple test case works, bug appears in complex documents)
-- **Affected document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md` (line 163: `PPE_{eff}` calculation)
-- **Investigation notes:**
-  - Manual calculation confirms: `4.29 µmol/J × 0.9143 = 3.922 µmol/J` ✓ (unit preserved)
-  - LiveMathTeX shows: `3.922` (dimensionless) with unit conversion warning
-  - Simple test case (`test_iss_031_unit_propagation_dimensionless.md`) works correctly, suggesting the bug may be context-specific or require specific conditions
-  - The bug causes cascading errors in dependent calculations (e.g., `PAR_{rct}` fails because `PPE_{eff}` failed)
+*No open issues at this time.*
 
 ## Closed Issues
+
+### ISS-031: Unit propagation failure when multiplying unit by dimensionless value
+
+**Resolved:** 2026-01-14 - Fixed as side effect of ISS-030 fix in v1.8 Phase 20
+**Solution:** The regex fix in `_compute_with_pint` that resolved ISS-030 also fixed this issue. Testing confirms `PPE_{eff} := PPE_{red} \cdot f_{geom}` now correctly produces `3.9223 micromol/J` instead of treating the result as dimensionless. The SymPy symbol format mismatch was preventing proper unit lookup, which caused Pint evaluation to fail and fall back to SymPy (which doesn't preserve units).
 
 ### ISS-030: Unit conversion bug - µmol not converted to mol in JSON output
 
