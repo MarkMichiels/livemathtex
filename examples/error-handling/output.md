@@ -145,7 +145,7 @@ Unknown units are silently ignored - the value is stored without a unit. This ca
 
 $x_{foo} := 5\ foo
 \\ \color{red}{\text{
-    Error: Undefined variable 'f'. Define it before use.}}$
+    Error: Undefined variable 'foo'. Note: 'foo' was parsed as implicit multiplication (f*o*o). Define '\$foo := ...\$' before use, or use a structured name like 'foo\_\{...\}'.}}$
 $x_{foo} ==
 \\ \color{red}{\text{
     Error: Undefined variable 'x\_foo'. Define it before use.}}$
@@ -156,7 +156,7 @@ Note: `foo` is not a recognized unit, so `x_foo` becomes just `5` (unitless).
 
 $y_{stuks} := 10\ stuks
 \\ \color{red}{\text{
-    Error: Undefined variable 'k'. ('k' is also a unit: unit. Use a subscript like 'k\_tot' to avoid confusion with the unit.)}}$
+    Error: Undefined variable 'stuks'. Note: 'stuks' was parsed as implicit multiplication (s*t*u*k*s). Define '\$stuks := ...\$' before use, or use a structured name like 'stuks\_\{...\}'. ('s' is also a unit (second))}}$
 $y_{stuks} ==
 \\ \color{red}{\text{
     Error: Undefined variable 'y\_stuks'. Define it before use.}}$

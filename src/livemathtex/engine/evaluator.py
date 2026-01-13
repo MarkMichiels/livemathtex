@@ -31,6 +31,7 @@ except ImportError:
 
 from .symbols import SymbolTable
 from .pint_backend import get_sympy_unit_registry as get_unit_registry, UnitRegistry
+from .token_classifier import TokenClassifier
 from ..parser.models import Calculation
 from ..utils.errors import EvaluationError, UndefinedVariableError
 from ..ir.schema import LivemathIR, SymbolEntry
@@ -71,6 +72,7 @@ class Evaluator:
         """
         self.config = config or LivemathConfig()
         self.symbols = SymbolTable()
+        self.classifier = TokenClassifier(self.symbols)
         self._ir: Optional[LivemathIR] = None  # Current IR being processed
 
     def evaluate_ir(self, ir: LivemathIR, calculations: List[Calculation]) -> LivemathIR:
@@ -793,7 +795,29 @@ class Evaluator:
             undefined.append(clean_name)
 
         if undefined:
-            # Generate a helpful error message
+            # Check for implicit multiplication pattern (ISS-018, ISS-022)
+            impl_info = self.classifier.detect_implicit_multiplication(
+                original_latex, remaining_symbols
+            )
+
+            if impl_info:
+                # Generate specialized error message mentioning the multi-letter identifier
+                msg = f"Undefined variable '{impl_info.intended_symbol}'."
+                msg += f" Note: '{impl_info.intended_symbol}' was parsed as implicit multiplication ({impl_info.split_as})."
+                msg += f" Define '${impl_info.intended_symbol} := ...$' before use, or use a structured name like '{impl_info.intended_symbol}_{{...}}'."
+
+                if impl_info.unit_conflicts:
+                    conflict_details = []
+                    for letter in impl_info.unit_conflicts:
+                        unit_name = self.classifier.has_unit_conflict(letter)
+                        if unit_name:
+                            conflict_details.append(f"'{letter}' is also a unit ({unit_name})")
+                    if conflict_details:
+                        msg += f" ({'; '.join(conflict_details)})"
+
+                raise EvaluationError(msg)
+
+            # Fallback to generic error message
             if len(undefined) == 1:
                 var = undefined[0]
                 raise EvaluationError(f"Undefined variable '{var}'. Define it before use.")
@@ -1948,6 +1972,9 @@ class Evaluator:
 
         # 1. Handle Symbols (Variables + Units)
         # Sort symbols by name for deterministic error messages (Python sets are unordered)
+        # ISS-018: Collect ALL undefined symbols first, then check for implicit multiplication
+        undefined_symbols = []  # List of (sym, clean_name, is_unit) tuples
+
         for sym in sorted(expr.free_symbols, key=lambda s: str(s)):
             sym_name = str(sym)
 
@@ -2012,7 +2039,7 @@ class Evaluator:
                 subs_dict[sym] = known.value_with_unit if propagate_units else known.value
                 continue
 
-            # 2. Check if symbol is a known unit (via Pint dynamic lookup)
+            # 3. Check if symbol is a known unit (via Pint dynamic lookup)
             # ISSUE-003 FIX: Undefined symbols that match unit names are ALWAYS errors.
             # Units belong as suffixes to numbers (5\ V), not as standalone symbols.
             # This prevents silent corruption where V becomes volt instead of undefined variable.
@@ -2020,21 +2047,50 @@ class Evaluator:
 
             is_unit = is_pint_unit(clean_name)
 
-            if is_unit:
-                # Undefined symbol matches a unit name - always an error
-                # Units can only be used in value definitions, not in formulas
-                unit_desc = self._get_unit_description(clean_name)
-                raise EvaluationError(
-                    f"Undefined variable '{clean_name}'. "
-                    f"('{clean_name}' is also a unit: {unit_desc}. "
-                    f"Use a subscript like '{clean_name}_tot' to avoid confusion with the unit.)"
-                )
-            else:
-                # Undefined symbol that is NOT a unit - still an error
-                # All variables must be defined before use
-                raise EvaluationError(
-                    f"Undefined variable '{clean_name}'. Define it before use."
-                )
+            # ISS-018: Collect undefined symbols instead of raising immediately
+            undefined_symbols.append((sym, clean_name, is_unit))
+
+        # ISS-018, ISS-022: Check for implicit multiplication pattern before raising errors
+        if undefined_symbols:
+            # Check if this looks like implicit multiplication of a multi-letter identifier
+            impl_info = self.classifier.detect_implicit_multiplication(
+                expression_latex, expr.free_symbols
+            )
+
+            if impl_info:
+                # Generate specialized error message mentioning the multi-letter identifier
+                msg = f"Undefined variable '{impl_info.intended_symbol}'."
+                msg += f" Note: '{impl_info.intended_symbol}' was parsed as implicit multiplication ({impl_info.split_as})."
+                msg += f" Define '${impl_info.intended_symbol} := ...$' before use, or use a structured name like '{impl_info.intended_symbol}_{{...}}'."
+
+                if impl_info.unit_conflicts:
+                    conflict_details = []
+                    for letter in impl_info.unit_conflicts:
+                        unit_name = self.classifier.has_unit_conflict(letter)
+                        if unit_name:
+                            conflict_details.append(f"'{letter}' is also a unit ({unit_name})")
+                    if conflict_details:
+                        msg += f" ({'; '.join(conflict_details)})"
+
+                raise EvaluationError(msg)
+
+            # Fallback to original error handling for each undefined symbol
+            for sym, clean_name, is_unit in undefined_symbols:
+                if is_unit:
+                    # Undefined symbol matches a unit name - always an error
+                    # Units can only be used in value definitions, not in formulas
+                    unit_desc = self._get_unit_description(clean_name)
+                    raise EvaluationError(
+                        f"Undefined variable '{clean_name}'. "
+                        f"('{clean_name}' is also a unit: {unit_desc}. "
+                        f"Use a subscript like '{clean_name}_tot' to avoid confusion with the unit.)"
+                    )
+                else:
+                    # Undefined symbol that is NOT a unit - still an error
+                    # All variables must be defined before use
+                    raise EvaluationError(
+                        f"Undefined variable '{clean_name}'. Define it before use."
+                    )
 
         # 2. Handle Functions (f(x))
         # latex2sympy parses "f(5)" as Function("f")(5)
