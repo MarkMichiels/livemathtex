@@ -32,36 +32,16 @@ Enhancements discovered during execution. Not critical - address in future phase
   - Simple test case (`test_iss_031_unit_propagation_dimensionless.md`) works correctly, suggesting the bug may be context-specific or require specific conditions
   - The bug causes cascading errors in dependent calculations (e.g., `PAR_{rct}` fails because `PPE_{eff}` failed)
 
+## Closed Issues
+
 ### ISS-030: Unit conversion bug - µmol not converted to mol in JSON output
 
-- **Discovered:** 2026-01-13 (during debug-calculations workflow on astaxanthin_production_analysis.md)
-- **Type:** Bug
-- **Description:** When calculations involve µmol (micromol) units, LiveMathTeX correctly calculates the value but stores it in JSON with the wrong unit (mol instead of µmol), causing subsequent conversions to be 1,000,000x too large. Example: `$PAR_{rct} := P_{LED,dc} \cdot PPE_{eff}$` correctly calculates `7530.9 µmol/s`, but stores it in JSON as `7530.9 mol/s`, leading to `650,670,299 mol/day` instead of `650.6 mol/day` when converting to the target unit.
-- **Expected:** JSON output should store values with correct units (e.g., `0.0075309 mol/s` or `7530.9 µmol/s`, not `7530.9 mol/s`)
-- **Actual:**
-  - Calculation gives correct value: `7530.9 µmol/s`
-  - JSON stores: `7530.9 mol/s` (missing µmol → mol conversion)
-  - Output shows: `7531 mol/d` (verkeerd - zou `650.6 mol/d` moeten zijn)
-  - Note: De verwachte conversie `7530.9 mol/s × 86400 s/day = 650,670,299 mol/day` gebeurt niet, wat suggereert dat er mogelijk een extra bug is in de conversie naar target unit
-- **Root cause:**
-  - The JSON serialization process does not properly convert µmol to mol when storing values
-  - The value magnitude is stored correctly, but the unit is changed from `µmol/s` to `mol/s` without adjusting the magnitude
-  - This affects any calculation chain that involves µmol units
-- **Impact:** High (causes incorrect results in documents using µmol units, especially in bioprocess calculations)
-- **Effort:** Medium (fix unit conversion in JSON serialization)
-- **Suggested phase:** Current
-- **Files to change:**
-  - `src/livemathtex/engine/evaluator.py` - JSON serialization logic for units
-  - `src/livemathtex/ir/schema.py` - IR unit storage format
-  - `src/livemathtex/engine/pint_backend.py` - Unit conversion helpers
-- **Test file:** `tests/test_iss_030_inplace_update.md` - Reproduces the bug with minimal example
-- **Affected document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md` (line 251: `PAR_{rct}` calculation)
-- **Investigation notes:**
-  - Manual Pint calculation confirms: `7530.9 µmol/s = 0.0075309 mol/s = 650.6 mol/day` ✓
-  - LiveMathTeX JSON shows: `"value": 7530.906240000001, "unit": "mol/s"` (WRONG - should be `0.0075309 mol/s` or `7530.9 µmol/s`)
-  - The bug is in how the value is stored, not in the calculation itself
+**Resolved:** 2026-01-13 - Fixed in v1.8 Phase 20
+**Solution:** The root cause was a regex mismatch in `_compute_with_pint`. SymPy parses internal IDs differently:
+- Single digit: `v_0` (no braces)
+- Multi digit: `v_{15}` (with braces)
 
-## Closed Issues
+But our internal ID format always uses braces: `v_{0}`, `v_{1}`, `v_{15}`. Fixed regex from `r'^v_\{(\d+)\}$'` to `r'^v_\{?(\d+)\}?$'` to handle both formats. Also added ISS-013 inline unit hint tracking to `process_text_v3`. All 365 tests pass.
 
 ### ISS-029: Rate × time calculations produce incorrect results (regression of ISS-024)
 
