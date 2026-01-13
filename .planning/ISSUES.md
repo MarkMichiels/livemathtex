@@ -4,90 +4,6 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-### ISS-017: Unit conversion failures need better diagnostics and should be warnings, not errors
-
-- **Discovered:** 2026-01-12 (during document processing)
-- **Type:** UX/Error Handling
-- **Description:** Unit conversion failures currently show generic error messages that don't indicate the current unit of the value. For example, when converting `mol` to `mol/day` fails, the error only says "Unit conversion failed for 'mol/day'" without mentioning that the value is currently in `mol`. Additionally, unit conversion failures are treated as errors (red) even when the calculation itself succeeds (value can be converted to SI base units) - these are formatting/display issues, not calculation failures. **Solution approach:** Instead of attempting automatic unit manipulation (like MadCraft/S-MAD does), show a clear warning with the current unit and display the value in SI units. The system should:
-  1. Extract and show the current unit from the value before attempting conversion (e.g., "Cannot convert from 'mol' to 'mol/day'")
-  2. Distinguish between calculation errors (value cannot be computed) and formatting warnings (value computed but display conversion fails)
-  3. For formatting failures, show the value in SI base units with a warning (different color than red, e.g., orange/yellow) instead of an error
-  4. Update error counting to distinguish errors from warnings
-- **Impact:** Medium (user confusion, difficulty debugging unit issues, misleading error reporting)
-- **Effort:** Medium
-- **Suggested phase:** v1.4
-- **Files to change:**
-  - `src/livemathtex/engine/evaluator.py` - Enhance `_apply_conversion()` to extract and report current unit from `value` before attempting conversion. Add logic to distinguish calculation errors vs formatting failures. Use warning color (orange/yellow) instead of error color (red) for formatting failures.
-  - `src/livemathtex/engine/evaluator.py` - When formatting conversion fails, return value in SI base units with warning message instead of raising error.
-  - `src/livemathtex/core.py` - Update error counting to distinguish errors from warnings (separate counters or metadata).
-  - `tests/test_unit_conversion.py` - Add tests for improved warning messages and warning behavior (non-red color, SI unit display).
-- **Example:**
-  - Current: `Error: Unit conversion failed for 'mol/day': Cannot convert expression to float.`
-  - Expected: `Warning: Cannot convert from 'mol' (total) to 'mol/day' (rate) - dimensions incompatible. Showing value in SI: 650.67 mol` (in orange/yellow, not red)
-
-### ISS-018: Implicit multiplication of multi-letter identifiers causes misleading unit/variable errors
-
-- **Discovered:** 2026-01-12 (during astaxanthin production analysis document processing)
-- **Type:** Parser/UX
-- **Description:** LiveMathTeX uses `latex2sympy` to parse expressions. In math-mode, **bare multi-letter identifiers** can be interpreted as **implicit multiplication** (e.g., `PPE` → `P·P·E`, `PAR` → `P·A·R`). This produces confusing errors such as:
-  - `Undefined variable 'A' (A is also a unit: ampere)` when a user intended the symbol `PAR`
-  - Similar confusion for other “word-like” symbols and for unit-like tokens inside expressions when not structured
-
-  This is particularly confusing because:
-  - The name is rendered “correctly” in Markdown, but the parser interprets it differently.
-  - The internal symbol rewrite (`v_{n}` mapping) only protects **already-known** symbols; a bare multi-letter token used before it exists in the symbol table is vulnerable.
-
-  **Expected behavior:** Multi-letter identifiers should either:
-  - Be treated as a single symbol (preferred), or
-  - Fail with a targeted, high-signal error explaining the implicit-multiplication interpretation and how to fix it.
-
-  **Recommended user-side pattern (today):** prefer structured names like `X_{...}` (e.g., `PPE_{eff}`, `PAR_{rct}`) and define symbols before use.
-- **Minimal reproduction (current behavior):**
-  - **Works (defined above → protected by `v_{n}` rewrite):**
-    - `$PPE := 1$`
-    - `$x := PPE$`
-  - **Fails (NOT defined yet → `latex2sympy` interprets as multiplication):**
-    - `$x := PPE$`  → interpreted as `P·P·E` → error on `P`
-    - `$x := PAR$`  → interpreted as `P·A·R` → error on `A` (ampere collision)
-- **Impact:** Medium (hard-to-debug errors, especially when letters collide with units like `A` ampere)
-- **Effort:** Medium
-- **Suggested phase:** v1.4
-- **Files to change:**
-  - `src/livemathtex/engine/evaluator.py` - In `_compute()`, improve handling of bare multi-letter identifiers:
-    - Option A: pre-tokenize and wrap unknown multi-letter identifiers as `\text{...}` (or another safe representation) before `latex2sympy`, then map them to symbols.
-    - Option B: detect the implicit-multiplication pattern in the parsed expression (e.g., `P*P*E`) and raise a specialized error message.
-  - `src/livemathtex/engine/pint_backend.py` - Reuse/enhance the “conflicts with unit” messaging to also cover implicit-multiplication cases.
-  - `livemathtex/.cursor/commands/livemathtex.md` - Document this pitfall clearly (already partially addressed; keep in sync with final behavior).
-  - `tests/` - Add regression tests that demonstrate:
-    - `$x := PPE$` raises a targeted error (or parses as one symbol if we implement Option A)
-    - `$x := PAR$` same, and does not degrade into an `A`/ampere confusion
-
-### ISS-022: Improve diagnostics when multi-letter identifiers are split as implicit multiplication (report intended unknown symbol)
-
-- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` debugging)
-- **Type:** UX/Error Handling
-- **Description:** When a user writes a bare multi-letter identifier as an expression (e.g., `PPE`, `PAR`) and it has not been defined yet, `latex2sympy` may parse it as implicit multiplication (`P*P*E`, `P*A*R`). Today, LiveMathTeX then reports misleading errors such as:
-  - `Undefined variable 'P'` (or `Undefined variable 'A' (ampere)`)
-
-  In most cases, the correct user intent is: **"unknown variable `PPE`"** (or `PAR`), not `P`/`A`.
-
-  **Expected behavior:** Detect this failure mode and produce a targeted message like:
-  - `Undefined variable 'PPE'. Note: 'PPE' was parsed as implicit multiplication (P*P*E). Define '$PPE := ...$' before use, or use a structured name like 'PPE_{...}'.`
-
-  This is strictly a diagnostics improvement (no behavior change required).
-- **Impact:** Medium (dramatically reduces confusion and speeds up debugging)
-- **Effort:** Medium
-- **Suggested phase:** v1.4
-- **Files to change:**
-  - `src/livemathtex/engine/evaluator.py` - In `_check_undefined_symbols()` (or immediately after parsing in `_compute()`), detect patterns where:
-    - the original expression contains a contiguous multi-letter token (e.g., `PPE`, `PAR`)
-    - but the parsed SymPy expression contains only single-letter undefined symbols consistent with implicit multiplication
-    - then raise a specialized `EvaluationError` with the intended multi-letter symbol name.
-  - `src/livemathtex/engine/pint_backend.py` - Ensure the "conflicts with unit" helper messaging does not hide the more specific "intended multi-letter symbol" hint.
-  - `tests/` - Add regression tests:
-    - `$x := PPE$` should mention `PPE` in the error message (not only `P`)
-    - `$x := PAR$` should mention `PAR` (not only `A`/ampere)
-
 ### ISS-024: Numerical calculations produce incorrect results due to using SymPy instead of Pint
 
 - **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
@@ -176,65 +92,6 @@ Enhancements discovered during execution. Not critical - address in future phase
   - Current: `$E == \frac{7.62969 * 10^{7 kg{m^{3\n\\ \color{orange}{\text{Warning: ...}}}$` (KaTeX parse error)
   - Expected: `$E == \frac{7.62969 \times 10^{7} \text{kg}}{\text{m}^{3}}\n\\ \color{orange}{\text{Warning: ...}}}$` (valid LaTeX)
 
-### ISS-019: Adopt a parsing library and reduce regex-driven logic across the pipeline (variables vs units vs formulas)
-
-- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` debugging)
-- **Type:** Architecture/Refactoring
-- **Description:** A recurring theme is that we need to reliably answer questions like:
-  - “Is this token a variable, a unit, or part of a formula?”
-  - “Does this variable already exist in the symbol table?”
-  - “Where is the exact boundary of a math block and its result/error markup?”
-
-  Today, many of these decisions are made with **regex + heuristics**, which is fragile and hard to test. This fragility shows up across features (not only `clear`), e.g.:
-  - accidental block merging / orphan fragments when cleaning (ISS-021)
-  - ambiguous parsing of identifiers vs units (variable-name conflicts, implicit multiplication)
-  - difficulty making idempotent edits safely
-
-  **Proposal:** Introduce a dedicated parsing layer (library-backed or a significantly upgraded lexer) that provides a structural representation with spans/offsets, and migrate regex-heavy operations to that layer. Goal: keep documents **clean** (no extra visible markup), but make behavior deterministic and testable.
-
-  **Candidate approach:**
-  - Use a real Markdown parser library (e.g., `markdown-it-py` or `mistune`) to get an AST and robustly ignore code fences, lists, nested constructs, etc.
-  - Extract math blocks as first-class nodes with exact source spans.
-  - Within math blocks, parse calculations into an internal structure (operators, lhs/rhs/result spans).
-  - Centralize “token classification” (unit vs variable vs function) so it is not duplicated across regexes.
-
-  **Non-goal:** Adding heavy visible markup to documents. This is internal plumbing to reduce bug surface area.
-- **Impact:** High (reduces bug surface area and makes future features safer)
-- **Effort:** Substantial
-- **Suggested phase:** Future / v1.5+
-- **Files to change:**
-  - `src/livemathtex/parser/*` - Integrate library-backed parsing (or upgrade current parsing to AST + spans).
-  - `src/livemathtex/core.py` - Replace regex-driven logic with structural operations where possible (`clear`, idempotency checks, directive scanning).
-  - `src/livemathtex/engine/*` - Consolidate unit/variable token classification paths.
-  - `tests/` - Add golden tests for representative documents to validate parsing decisions and idempotency.
-
-### ISS-020: Refactor to structural parsing for safe in-place editing (reduce regex fragility across the pipeline)
-
-- **Discovered:** 2026-01-13 (during SEC/Cost corruption investigation)
-- **Type:** Architecture/Refactoring
-- **Description:** Several issues (notably ISS-021) stem from using regex-based text rewriting for operations that are inherently structural (math-block boundaries, multiline error insertions, adjacent expressions, etc.). We want to keep documents **clean** (no extra visible markup), but still make processing/clearing robust.
-
-  **Proposal:** Move more of the pipeline from “string regex rewrite” to “structural parse + span-based editing”:
-  - Parse the Markdown into nodes (text blocks + math blocks) **with exact source spans (start/end offsets)**.
-  - Within each math block, parse into calculations and track the exact span of:
-    - the operator (`:=`, `==`, `===`, `=>`)
-    - the rendered “result part” that was inserted after `==`
-    - any error markup that was injected by LiveMathTeX
-  - Implement `clear` by operating on spans/nodes, not by regexing raw text. This preserves line boundaries and prevents accidental merges like `...$SEC_{27}...`.
-
-  This does **not** require adding extra markup to the user document. It is an internal refactor to make edits deterministic and testable.
-
-  **Optional extension:** Evaluate adopting a dedicated Markdown parser library (e.g., `markdown-it-py` or `mistune`) to reduce edge cases (code fences, nested constructs), while still extracting `$...$` and `$$...$$` math regions.
-
-- **Impact:** High (reduces fragility across process/clear/idempotency and makes future features safer)
-- **Effort:** Substantial
-- **Suggested phase:** Future / v1.5+
-- **Files to change:**
-  - `src/livemathtex/parser/*` - Track spans/offsets for `MathBlock` and per-calculation segments.
-  - `src/livemathtex/core.py` - Replace regex-based `clear_text()` with span-based clearing.
-  - `src/livemathtex/render/markdown.py` - Optionally support “structured render” to attach results without losing boundaries.
-  - `tests/` - Add high-signal golden tests: “process → clear → process is idempotent” on representative docs (including multiline errors).
-
 ## Closed Issues
 
 ### ISS-021: `livemathtex clear` can corrupt documents around multiline error blocks ✅ FIXED
@@ -247,6 +104,31 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 
 ## Closed Enhancements
+
+### ISS-017: Unit conversion failures need better diagnostics and warnings
+
+**Resolved:** 2026-01-13 - Fixed in v1.5 Phase 12 (Unit Warnings)
+**Solution:** Added `UnitConversionWarning` exception to distinguish formatting warnings from calculation errors. Unit conversion failures now show orange warnings (not red errors) with SI fallback value. Warning counting added to metadata. 345 tests pass.
+
+### ISS-018: Implicit multiplication of multi-letter identifiers causes misleading errors
+
+**Resolved:** 2026-01-13 - Fixed in v1.5 Phase 11 (Token Classification)
+**Solution:** Created `TokenClassifier` module with `detect_implicit_multiplication()` function. Error messages now mention the intended multi-letter symbol (e.g., "Did you mean 'PPE'?"). 46 tests added for token classification.
+
+### ISS-022: Improve diagnostics for implicit multiplication (report intended symbol)
+
+**Resolved:** 2026-01-13 - Fixed in v1.5 Phase 11 (Token Classification)
+**Solution:** Same fix as ISS-018 - `TokenClassifier` detects when latex2sympy splits multi-letter identifiers and generates targeted error messages including the intended symbol name.
+
+### ISS-019: Adopt parsing library to reduce regex-driven logic
+
+**Resolved:** 2026-01-13 - Fixed in v1.5 Phase 8 (Markdown Parser Integration)
+**Solution:** Integrated hybrid parser: markdown-it-py for document structure + pylatexenc for LaTeX parsing. `MarkdownParser` class provides AST with exact source spans. 34 tests added.
+
+### ISS-020: Refactor to structural parsing for safe in-place editing
+
+**Resolved:** 2026-01-13 - Fixed in v1.5 Phases 8-10
+**Solution:** Phase 8 added markdown-it-py parser. Phase 9 created `ParsedCalculation` with character-level spans. Phase 10 rewrote `clear_text()` using span-based operations. Document corruption (ISS-021) eliminated.
 
 ### ISS-015: User documentation incomplete/outdated
 
@@ -341,4 +223,4 @@ Added 5 tests in `TestCustomUnitWithDivision` class.
 
 ---
 
-*Last reviewed: 2026-01-12 (issues triaged for v1.3)*
+*Last reviewed: 2026-01-13 (v1.5 issues closed, v1.6 issues scheduled)*
