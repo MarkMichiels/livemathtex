@@ -33,7 +33,7 @@ from .symbols import SymbolTable
 from .pint_backend import get_sympy_unit_registry as get_unit_registry, UnitRegistry
 from .token_classifier import TokenClassifier
 from ..parser.models import Calculation
-from ..utils.errors import EvaluationError, UndefinedVariableError
+from ..utils.errors import EvaluationError, UndefinedVariableError, UnitConversionWarning
 from ..ir.schema import LivemathIR, SymbolEntry
 from ..config import LivemathConfig
 
@@ -74,6 +74,21 @@ class Evaluator:
         self.symbols = SymbolTable()
         self.classifier = TokenClassifier(self.symbols)
         self._ir: Optional[LivemathIR] = None  # Current IR being processed
+        self._warning_count = 0  # ISS-017: Track warnings separately from errors
+
+    def get_warning_count(self) -> int:
+        """Return the number of warnings encountered during evaluation."""
+        return self._warning_count
+
+    def reset_warning_count(self) -> None:
+        """Reset the warning counter."""
+        self._warning_count = 0
+
+    def _format_warning(self, message: str) -> str:
+        """Format a warning message with orange color for LaTeX display."""
+        # Use \color{orange} for warnings (distinct from \color{red} for errors)
+        escaped_msg = self._escape_latex_text(message)
+        return f"\\color{{orange}}{{\\text{{{escaped_msg}}}}}"
 
     def evaluate_ir(self, ir: LivemathIR, calculations: List[Calculation]) -> LivemathIR:
         """
@@ -672,10 +687,16 @@ class Evaluator:
         self._check_dimensional_compatibility(value, lhs)
 
         # Use unit_comment from parser for display conversion
-        value, suffix = self._apply_conversion(value, calc.unit_comment)
-        skip_si_conversion = bool(calc.unit_comment)
-
-        result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion, config=cfg)
+        # ISS-017: Catch UnitConversionWarning and show SI fallback with orange warning
+        try:
+            value, suffix = self._apply_conversion(value, calc.unit_comment)
+            skip_si_conversion = bool(calc.unit_comment)
+            result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion, config=cfg)
+        except UnitConversionWarning as w:
+            # Increment warning counter
+            self._warning_count += 1
+            # Show SI value with orange warning message
+            result_latex = f"{w.si_value}\n\\\\ {self._format_warning(f'Warning: {w}')}"
 
         # Format LHS too? "x * y" -> "x \cdot y"
         # The user said "input mee formatten". LHS of evaluation is input.
@@ -750,11 +771,17 @@ class Evaluator:
 
         # Use unit_comment for display conversion
         # If unit_comment is specified, don't auto-convert to SI in _format_result
+        # ISS-017: Catch UnitConversionWarning and show SI fallback with orange warning
         display_value = value * result_unit if result_unit else value
-        display_value, suffix = self._apply_conversion(display_value, calc.unit_comment)
-        skip_si_conversion = bool(calc.unit_comment)
-
-        result_latex = self._format_result(display_value, skip_si_conversion=skip_si_conversion, config=cfg)
+        try:
+            display_value, suffix = self._apply_conversion(display_value, calc.unit_comment)
+            skip_si_conversion = bool(calc.unit_comment)
+            result_latex = self._format_result(display_value, skip_si_conversion=skip_si_conversion, config=cfg)
+        except UnitConversionWarning as w:
+            # Increment warning counter
+            self._warning_count += 1
+            # Show SI value with orange warning message
+            result_latex = f"{w.si_value}\n\\\\ {self._format_warning(f'Warning: {w}')}"
 
         # IMPORTANT: Keep original RHS LaTeX for definitions
         # Don't re-format it - user's notation should be preserved
@@ -1147,6 +1174,7 @@ class Evaluator:
 
         Raises:
             ValueError: If the target unit is not recognized
+            UnitConversionWarning: If dimensions are incompatible (with SI fallback)
         """
         if not target_unit_latex:
             return value, ""
@@ -1170,6 +1198,7 @@ class Evaluator:
 
             from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
             from sympy.physics.units import Quantity
+            from sympy.physics.units.dimensions import Dimension
             import sympy
 
             # Validate that we actually got a unit (not just an undefined symbol)
@@ -1227,12 +1256,91 @@ class Evaluator:
             # Re-raise ValueError for unrecognized units
             raise
         except Exception as e:
-            # ISS-009 FIX: Don't silently swallow errors - raise with context
-            # This helps diagnose issues like dimension mismatches or undefined units
-            raise ValueError(
-                f"Unit conversion failed for '{target_unit_latex}': {e}. "
-                f"Check that the unit is properly defined and dimensionally compatible."
-            ) from e
+            # ISS-017: Check if this is a dimension mismatch (warning) vs other error
+            # Dimension mismatches should be warnings with SI fallback, not errors
+            error_str = str(e).lower()
+            is_dimension_error = (
+                'dimension' in error_str or
+                'incompatible' in error_str or
+                'cannot convert' in error_str or
+                'typeerror' in error_str  # Often from sympy dimension checks
+            )
+
+            if is_dimension_error:
+                # Get the current unit from the value for the warning message
+                current_unit_str = self._extract_unit_string(value)
+                # Get SI representation of the value
+                si_value_str = self._format_si_value(value)
+
+                raise UnitConversionWarning(
+                    f"Cannot convert from '{current_unit_str}' to '{target_unit_latex}' - dimensions incompatible",
+                    current_unit=current_unit_str,
+                    target_unit=target_unit_latex,
+                    si_value=si_value_str
+                ) from e
+            else:
+                # Other errors remain as ValueError (unrecognized units, etc.)
+                raise ValueError(
+                    f"Unit conversion failed for '{target_unit_latex}': {e}. "
+                    f"Check that the unit is properly defined and dimensionally compatible."
+                ) from e
+
+    def _extract_unit_string(self, value: Any) -> str:
+        """
+        Extract a human-readable unit string from a sympy value.
+        Returns the unit part of a value with units, or 'dimensionless' if none.
+        """
+        from sympy.physics.units import Quantity
+        from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
+        import sympy
+
+        if not hasattr(value, 'atoms'):
+            return 'dimensionless'
+
+        # Get unit atoms from the value
+        quantities = value.atoms(Quantity)
+        if not quantities:
+            return 'dimensionless'
+
+        # Convert to SI base units and extract the unit part
+        try:
+            base_units = [kg, m, s, A, K, mol, cd]
+            si_form = convert_to(value, base_units)
+            # Get the unit part by dividing out the numeric coefficient
+            if hasattr(si_form, 'as_coeff_Mul'):
+                coeff, unit_part = si_form.as_coeff_Mul()
+                if unit_part != 1:
+                    return sympy.latex(unit_part).replace('\\text{', '').replace('}', '')
+        except:
+            pass
+
+        # Fallback: just list the quantities
+        return ', '.join(str(q) for q in quantities)
+
+    def _format_si_value(self, value: Any) -> str:
+        """
+        Format a value in SI base units for display in warning messages.
+        Returns a string like '650.67 mol' or '42 kg*m/s**2'.
+        """
+        from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
+        import sympy
+
+        try:
+            base_units = [kg, m, s, A, K, mol, cd]
+            si_form = convert_to(value, base_units)
+
+            # Format with reasonable precision
+            if hasattr(si_form, 'evalf'):
+                si_form = si_form.evalf(6)
+
+            # Convert to LaTeX-friendly string
+            result = sympy.latex(si_form)
+            # Clean up for display
+            result = result.replace('\\cdot', '*').replace('\\text{', '').replace('}', '')
+            return result
+        except:
+            # Fallback to string representation
+            return str(value)
 
     def _handle_symbolic(self, calc: Calculation) -> str:
         """Handle $expr =>$"""
