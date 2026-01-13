@@ -50,6 +50,11 @@ dependencies = [
 
     # Configuration (TOML parsing for Python < 3.11)
     "tomli>=2.0; python_version < '3.11'",
+
+    # Markdown/LaTeX parsing (Phase 8 - hybrid parser)
+    "markdown-it-py>=3.0.0",
+    "mdit-py-plugins>=0.4.0",
+    "pylatexenc>=2.10",
 ]
 
 [project.optional-dependencies]
