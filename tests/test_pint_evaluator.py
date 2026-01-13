@@ -217,3 +217,65 @@ $cost_1 := E_1 \cdot price_1 ==$
         # Expected cost: 876,000 * 0.10 = 87,600 €
         assert "876" in result  # Energy in kWh
         assert "Error" not in result
+
+
+class TestSymPyConstants:
+    """Test SymPy mathematical constants (ISS-025 fix).
+
+    SymPy constants like Pi, E (Exp1), EulerGamma inherit from NumberSymbol,
+    not Number, so they need special handling in evaluate_sympy_ast_with_pint().
+    """
+
+    def test_pi_in_expression(self):
+        """Pi should evaluate to ~3.14159 in calculations."""
+        text = r"""
+$x_1 := 38\ mm$
+$d_1 := \frac{2 \cdot x_1}{\pi} ==$
+"""
+        result, ir = process_text(text)
+        # Expected: 2 * 38 / pi = 76 / 3.14159 ≈ 24.19 mm
+        assert "24.19" in result or "24.2" in result
+        assert "Error" not in result
+
+    def test_pi_times_r_squared(self):
+        """Area of circle: π × r² should work."""
+        text = r"""
+$r_1 := 5\ m$
+$A_1 := \pi \cdot r_1^2 ==$
+"""
+        result, ir = process_text(text)
+        # Expected: π × 25 ≈ 78.54 m²
+        assert "78.5" in result or "78.54" in result
+        assert "Error" not in result
+
+    def test_e_in_expression(self):
+        """Euler's number e should evaluate to ~2.718."""
+        text = r"""
+$x_1 := 1$
+$y_1 := e^{x_1} ==$
+"""
+        result, ir = process_text(text)
+        # Expected: e^1 ≈ 2.718
+        assert "2.71" in result or "2.718" in result
+        assert "Error" not in result
+
+    def test_two_pi(self):
+        """2π should evaluate to ~6.283."""
+        text = r"""
+$omega_1 := 2 \cdot \pi ==$
+"""
+        result, ir = process_text(text)
+        # Expected: 2π ≈ 6.283
+        assert "6.28" in result
+        assert "Error" not in result
+
+    def test_pi_in_compound_formula(self):
+        """Pi in more complex formula: circumference = 2πr."""
+        text = r"""
+$r_1 := 10\ cm$
+$C_1 := 2 \cdot \pi \cdot r_1 ==$
+"""
+        result, ir = process_text(text)
+        # Expected: 2 × π × 10 ≈ 62.83 cm
+        assert "62.8" in result or "62.83" in result
+        assert "Error" not in result
