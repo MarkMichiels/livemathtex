@@ -16,6 +16,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.4 Cleanup & Docs** - Phases 5-7 (shipped 2026-01-12)
 - ✅ **v1.5 Parser Architecture** - Phases 8-12 (shipped 2026-01-13)
 - ✅ **v1.6 Pint Evaluation Engine** - Phases 13-15 (shipped 2026-01-13)
+- 🔧 **v1.7 Pint Evaluator Hotfixes** - Phases 16-18 (in progress)
 
 ## Phases
 
@@ -150,3 +151,41 @@ Plans:
 - [x] 15-03: Verify edge cases (15 tests in test_pint_evaluator.py)
 - [x] 15-04: Update README.md version to 1.6.0
 - [x] 15-05: Tag v1.6.0 release
+
+</details>
+
+### 🔧 v1.7 Pint Evaluator Hotfixes (In Progress)
+
+**Milestone Goal:** Fix critical bugs discovered during real-world usage of Pint evaluator with production documents.
+
+**Issues to Resolve:** ISS-025, ISS-026, ISS-027
+
+#### Phase 16: Fix SymPy Constants Handling (ISS-025)
+**Goal**: Fix `evaluate_sympy_ast_with_pint()` to handle SymPy mathematical constants (π, e) and fix unsafe isinstance() check
+**Depends on**: v1.6 complete
+**Status**: Not started
+**Research**: Unlikely (bug fix with clear solution in ISSUES.md)
+**Plans**: 1
+
+Plans:
+- [ ] 16-01: Add handlers for SymPy constants and fix SympyQuantity isinstance check
+
+#### Phase 17: Fix Compound Rate Units (ISS-026)
+**Goal**: Fix calculations with compound rate units containing division (mg/L/day) that produce 86.4x wrong results
+**Depends on**: Phase 16
+**Status**: Not started
+**Research**: Likely (need to investigate compound unit parsing)
+**Plans**: 1
+
+Plans:
+- [ ] 17-01: Investigate and fix compound unit rate calculations
+
+#### Phase 18: Fix Currency Unit Conversion (ISS-027)
+**Goal**: Fix EUR to k€ conversion - ensure EUR/€ are recognized as equivalent and k€ definition works
+**Depends on**: Phase 17
+**Status**: Not started
+**Research**: Unlikely (unit aliasing fix)
+**Plans**: 1
+
+Plans:
+- [ ] 18-01: Fix currency unit aliasing and k€ definition

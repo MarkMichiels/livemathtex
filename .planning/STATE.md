@@ -5,22 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** v1.6 complete - awaiting next milestone
+**Current focus:** v1.7 hotfixes - fixing Pint evaluator bugs (ISS-025, ISS-026, ISS-027)
 
 ## Current Position
 
-Phase: 15 of 15 (Verification & Docs)
-Plan: Executed (5 tasks)
-Status: ✅ MILESTONE COMPLETE
-Last activity: 2026-01-13 — v1.6 shipped
+Phase: 16 of 18 (Fix SymPy Constants Handling)
+Plan: Not started
+Status: 🔧 IN PROGRESS (v1.7 Hotfixes)
+Last activity: 2026-01-13 — Created v1.7 milestone for ISS-025, ISS-026, ISS-027
 
-**Milestone v1.6 Summary:**
-- Phase 13 (ISS-023): ✅ COMPLETED - regex fix for LaTeX cleanup
-- Phase 14 (ISS-024): ✅ COMPLETED - Pint evaluator for numerical calculations
-- Phase 15 (Docs): ✅ COMPLETED - CHANGELOG, USAGE.md, README updated
-- 360 tests pass, v1.6.0 tagged
+**Milestone v1.7 Scope:**
+- Phase 16 (ISS-025): ⏳ NOT STARTED - SymPy constants and isinstance fix
+- Phase 17 (ISS-026): ⏳ NOT STARTED - Compound rate unit calculations
+- Phase 18 (ISS-027): ⏳ NOT STARTED - Currency unit conversion
 
-Progress: ██████████ 100% (v1.6: 3/3 phases)
+Progress: ██████████░░░░░░░░ 83% (15/18 phases, v1.7: 0/3)
 
 ## Performance Metrics
 
