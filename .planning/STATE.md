@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 ## Current Position
 
 Phase: 8 of 12 (Markdown Parser Integration)
-Plan: Not started
-Status: Research complete, ready to plan
-Last activity: 2026-01-13 — Phase 8 research completed
+Plan: 01 complete
+Status: Phase 8 complete
+Last activity: 2026-01-13 — Phase 8 plan 01 executed
 
-Progress: ░░░░░░░░░░ 0% (0/5 phases)
+Progress: ██░░░░░░░░ 20% (1/5 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8 (2 from v1.2 + 3 from v1.3 + 3 from v1.4)
-- Average duration: ~10 min
-- Total execution time: ~80 min
+- Total plans completed: 9 (2 from v1.2 + 3 from v1.3 + 3 from v1.4 + 1 from v1.5)
+- Average duration: ~11 min
+- Total execution time: ~95 min
 
 **By Phase:**
 
@@ -34,6 +34,7 @@ Progress: ░░░░░░░░░░ 0% (0/5 phases)
 | 5. Fix Recursive Units | 1/1 | ~8 min | ~8 min |
 | 6. Error Markup Cleanup | 1/1 | ~10 min | ~10 min |
 | 7. User Documentation | 1/1 | ~12 min | ~12 min |
+| 8. Markdown Parser Integration | 1/1 | ~15 min | ~15 min |
 
 ## Completed Milestones
 
@@ -79,13 +80,13 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-13
-Stopped at: Phase 8 research complete
+Stopped at: Phase 8 complete
 Resume file: None
-Next: Plan Phase 8 (Markdown Parser Integration)
+Next: Plan Phase 9 (Structural Math Parsing)
 
-### Research Findings (Phase 8)
+### Implementation Notes (Phase 8)
 
-- **Recommended stack:** markdown-it-py + mdit-py-plugins (dollarmath)
-- **Key insight:** No parser provides character-level offsets natively; calculate from line positions
-- **Architecture:** Use markdown-it-py for document structure, keep existing calculation parsing
-- See: `.planning/phases/08-markdown-parser-integration/08-RESEARCH.md`
+- **Hybrid stack:** markdown-it-py + dollarmath (doc structure) + pylatexenc (LaTeX positions)
+- **Key insight:** Inline math tokens are children of `inline` tokens, not top-level
+- **Module:** `src/livemathtex/parser/markdown_parser.py`
+- **Tests:** 34 tests in `tests/test_markdown_parser.py`

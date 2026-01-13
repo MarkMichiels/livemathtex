@@ -98,15 +98,15 @@ Plans:
 - Maintain backward compatibility - existing documents should process identically
 - Idempotency is non-negotiable - processing must remain stable on repeated runs
 
-#### Phase 8: Markdown Parser Integration
+#### Phase 8: Markdown Parser Integration ✅
 **Goal**: Integrate markdown parser library (markdown-it-py or mistune) for AST with exact source spans. Extract math blocks as first-class nodes.
 **Depends on**: v1.4 complete
-**Research**: Likely (library selection and API patterns)
-**Research topics**: markdown-it-py vs mistune API, span extraction, plugin architecture
-**Plans**: TBD
+**Research**: Complete (hybrid approach: markdown-it-py + pylatexenc)
+**Completed**: 2026-01-13
+**Plans**: 1
 
 Plans:
-- [ ] 08-01: TBD (run /gsd:plan-phase 8 to break down)
+- [x] 08-01: Integrate hybrid parser (markdown-it-py + pylatexenc)
 
 #### Phase 9: Structural Math Parsing
 **Goal**: Within math blocks, parse calculations into internal structure with spans/offsets for operators (:=, ==, ===, =>), lhs/rhs, rendered result parts, error markup.
@@ -150,7 +150,7 @@ Plans:
 
 | Phase | Milestone | Plans | Status | Completed |
 |-------|-----------|-------|--------|-----------|
-| 8. Markdown Parser Integration | v1.5 | 0/? | Not started | - |
+| 8. Markdown Parser Integration | v1.5 | 1/1 | Complete | 2026-01-13 |
 | 9. Structural Math Parsing | v1.5 | 0/? | Not started | - |
 | 10. Clear Refactor | v1.5 | 0/? | Not started | - |
 | 11. Token Classification | v1.5 | 0/? | Not started | - |
