@@ -5,21 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** Fix µmol JSON serialization bug (ISS-030)
+**Current focus:** None - all issues resolved
 
 ## Current Position
 
-Phase: 20 of 20 (µmol JSON fix)
+Phase: 20 of 20 (µmol JSON fix) ✅ COMPLETE
 Plan: 1 of 1
-Status: 🔄 IN PROGRESS (v1.9)
-Last activity: 2026-01-13 — Planning Phase 20 (ISS-030)
+Status: ✅ COMPLETE (v1.8)
+Last activity: 2026-01-14 — Phase 20 completed, ISS-030 & ISS-031 fixed
 
-**Milestone v1.9 Summary:**
-- Phase 20 (ISS-030): 🔄 IN PROGRESS - Fix µmol JSON serialization bug
-  - Bug: µmol prefix magnitude lost during storage (1,000,000x errors)
-  - Fix: Use Pint for storage values, not just display
+**Milestone v1.8 Summary:**
+- Phase 19 (ISS-028, ISS-029): ✅ COMPLETE - Verified (not bugs)
+- Phase 20 (ISS-030, ISS-031): ✅ COMPLETE - Fixed regex mismatch in _compute_with_pint
+  - Root cause: SymPy symbol format differs (v_0 vs v_{15}) from internal ID format
+  - Fix: Updated regex to handle both formats: `r'^v_\{?(\d+)\}?$'`
+  - Both ISS-030 (µmol storage) and ISS-031 (unit×dimensionless) resolved
 
-Progress: █████████░ 95% (19/20 phases, v1.9: 0/1)
+Progress: ██████████ 100% (20/20 phases)
 
 ## Performance Metrics
 
@@ -101,10 +103,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-13
-Stopped at: Milestone v1.6 initialization
+Last session: 2026-01-14
+Stopped at: Phase 20 complete, all issues resolved
 Resume file: None
-Next: Plan Phase 13 (SI Value Fix)
+Next: No pending work - project complete
 
 ### Implementation Notes (Phase 12)
 
