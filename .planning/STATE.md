@@ -11,8 +11,8 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 Phase: 8 of 12 (Markdown Parser Integration)
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-01-13 — Milestone v1.5 created
+Status: Research complete, ready to plan
+Last activity: 2026-01-13 — Phase 8 research completed
 
 Progress: ░░░░░░░░░░ 0% (0/5 phases)
 
@@ -79,6 +79,13 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-13
-Stopped at: Milestone v1.5 initialization
+Stopped at: Phase 8 research complete
 Resume file: None
 Next: Plan Phase 8 (Markdown Parser Integration)
+
+### Research Findings (Phase 8)
+
+- **Recommended stack:** markdown-it-py + mdit-py-plugins (dollarmath)
+- **Key insight:** No parser provides character-level offsets natively; calculate from line positions
+- **Architecture:** Use markdown-it-py for document structure, keep existing calculation parsing
+- See: `.planning/phases/08-markdown-parser-integration/08-RESEARCH.md`
