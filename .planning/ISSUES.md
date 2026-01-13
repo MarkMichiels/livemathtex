@@ -201,4 +201,4 @@ Added 5 tests in `TestCustomUnitWithDivision` class.
 
 ---
 
-*Last reviewed: 2026-01-13 (v1.5 issues closed, v1.6 issues scheduled)*
+*Last reviewed: 2026-01-14 (All issues resolved, v2.0 complete)*
