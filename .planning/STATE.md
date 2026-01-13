@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** None (v1.5 shipped)
+**Current focus:** Fix numerical calculation accuracy (ISS-024)
 
 ## Current Position
 
-Phase: None (milestone complete)
-Plan: None
-Status: Milestone v1.5 shipped - v1.5.0 tagged
-Last activity: 2026-01-13 — v1.5.0 released
+Phase: 13 of 15 (SI Value Fix)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-13 — Milestone v1.6 created
 
-Progress: ██████████ 100% (all milestones complete)
+Progress: ░░░░░░░░░░ 0% (v1.6: 0/3 phases)
 
 ## Performance Metrics
 
@@ -65,6 +65,10 @@ Progress: ██████████ 100% (all milestones complete)
 
 ### Deferred Issues
 
+v1.6 issues to address:
+- ISS-023 → Phase 13 (SI Value Fix) - malformed LaTeX in `_format_si_value()`
+- ISS-024 → Phase 14 (Pint Evaluator Core) - SymPy→Pint numerical evaluation
+
 All v1.5 issues resolved:
 - ISS-017 → Phase 12 (Unit Warnings) ✓
 - ISS-018 → Phase 11 (Token Classification) ✓
@@ -84,13 +88,14 @@ None.
 - ISS-009 fixed: Custom division units work in standalone evaluations
 - Milestone v1.4 complete: All deferred issues addressed
 - Milestone v1.5 complete: Parser Architecture, 5 phases (8-12)
+- Milestone v1.6 created: Pint Evaluation Engine, 3 phases (13-15)
 
 ## Session Continuity
 
 Last session: 2026-01-13
-Stopped at: v1.5.0 released and archived
+Stopped at: Milestone v1.6 initialization
 Resume file: None
-Next: Define next milestone or project complete
+Next: Plan Phase 13 (SI Value Fix)
 
 ### Implementation Notes (Phase 12)
 

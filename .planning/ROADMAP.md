@@ -15,6 +15,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.3 Unit Hint Preservation** - Phases 2-4 (shipped 2026-01-12)
 - ✅ **v1.4 Cleanup & Docs** - Phases 5-7 (shipped 2026-01-12)
 - ✅ **v1.5 Parser Architecture** - Phases 8-12 (shipped 2026-01-13)
+- 🚧 **v1.6 Pint Evaluation Engine** - Phases 13-15 (in progress)
 
 ## Phases
 
@@ -106,3 +107,37 @@ See: [v1.5 Archive](milestones/v1.5-ROADMAP.md)
 **Issues Resolved:** ISS-017, ISS-018, ISS-019, ISS-020, ISS-021, ISS-022
 
 </details>
+
+### 🚧 v1.6 Pint Evaluation Engine (In Progress)
+
+**Milestone Goal:** Fix numerical calculation accuracy by replacing SymPy-based evaluation with Pint-based evaluation for numerical calculations.
+
+**Issues to Resolve:** ISS-023, ISS-024
+
+#### Phase 13: SI Value Fix
+**Goal**: Fix `_format_si_value()` LaTeX cleanup that produces malformed output (ISS-023)
+**Depends on**: v1.5 complete
+**Research**: Unlikely (internal patterns, quick fix)
+**Plans**: TBD
+
+Plans:
+- [ ] 13-01: TBD (run /gsd:plan-phase 13 to break down)
+
+#### Phase 14: Pint Evaluator Core
+**Goal**: Replace SymPy numerical evaluation with Pint-based evaluation (ISS-024 core fix)
+**Depends on**: Phase 13
+**Research**: Likely (Pint evaluation patterns, AST walking for unit-aware computation)
+**Research topics**: Pint Quantity arithmetic, SymPy AST traversal, hybrid symbolic/numerical evaluation
+**Plans**: TBD
+
+Plans:
+- [ ] 14-01: TBD (run /gsd:plan-phase 14 to break down)
+
+#### Phase 15: Verification & Docs
+**Goal**: Comprehensive testing of rate×time calculations, update documentation for v1.6
+**Depends on**: Phase 14
+**Research**: Unlikely (testing patterns)
+**Plans**: TBD
+
+Plans:
+- [ ] 15-01: TBD (run /gsd:plan-phase 15 to break down)
