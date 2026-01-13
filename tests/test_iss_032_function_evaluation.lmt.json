@@ -1,0 +1,54 @@
+{
+  "version": "3.0",
+  "source": "tests/test_iss_032_function_evaluation.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {
+    "f_{0}": {
+      "latex_name": "PPE_{eff}",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "",
+        "depends_on": []
+      }
+    },
+    "v_{0}": {
+      "latex_name": "PPE_{result}",
+      "original": {
+        "value": 3.7650874,
+        "unit": null
+      },
+      "base": {
+        "value": 3.7650874,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-14 00:39:01",
+    "duration": "0.24s",
+    "symbols": 2,
+    "custom_units": 0,
+    "definitions": 2,
+    "evaluations": 1,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0,
+    "warnings": 0
+  }
+}

@@ -5,23 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-01-12)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** None - all issues resolved
+**Current focus:** All issues resolved
 
 ## Current Position
 
-Phase: 20 of 20 (µmol JSON fix) ✅ COMPLETE
+Phase: 21 of 21 (function evaluation fix)
 Plan: 1 of 1
-Status: ✅ COMPLETE (v1.8)
-Last activity: 2026-01-14 — Phase 20 completed, ISS-030 & ISS-031 fixed
+Status: ✅ COMPLETE (v2.0)
+Last activity: 2026-01-14 — Phase 21 complete (ISS-032 fixed)
 
-**Milestone v1.8 Summary:**
-- Phase 19 (ISS-028, ISS-029): ✅ COMPLETE - Verified (not bugs)
-- Phase 20 (ISS-030, ISS-031): ✅ COMPLETE - Fixed regex mismatch in _compute_with_pint
-  - Root cause: SymPy symbol format differs (v_0 vs v_{15}) from internal ID format
-  - Fix: Updated regex to handle both formats: `r'^v_\{?(\d+)\}?$'`
-  - Both ISS-030 (µmol storage) and ISS-031 (unit×dimensionless) resolved
+**Milestone v2.0 Summary:**
+- Phase 21 (ISS-032): ✅ COMPLETE - Fixed function call evaluation
+  - Root cause: Three interrelated bugs in function lookup/substitution
+  - Fix: Function name normalization, latex_name extraction, internal ID reverse lookup
+  - All 365 tests pass + 3 xpassed
 
-Progress: ██████████ 100% (20/20 phases)
+Progress: ██████████ 100% (21/21 phases complete)
 
 ## Performance Metrics
 

@@ -18,7 +18,8 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.6 Pint Evaluation Engine** - Phases 13-15 (shipped 2026-01-13)
 - ✅ **v1.7 Pint Evaluator Hotfixes** - Phases 16-18 (shipped 2026-01-13)
 - ✅ **v1.8 Pint Unit Handling Fixes** - Phase 19 (verified 2026-01-13 - issues not bugs)
-- 🔄 **v1.9 µmol Unit Conversion Fix** - Phase 20 (in progress)
+- ✅ **v1.9 µmol Unit Conversion Fix** - Phase 20 (shipped 2026-01-14)
+- 🔄 **v2.0 Function Evaluation** - Phase 21 (in progress)
 
 ## Phases
 
@@ -214,18 +215,51 @@ Plans:
 Plans:
 - [x] 19-01: Verified - no code changes needed (issues were not bugs)
 
-### 🔄 v1.9 µmol Unit Conversion Fix (In Progress)
+### ✅ v1.9 µmol Unit Conversion Fix (Complete)
 
 **Milestone Goal:** Fix µmol unit storage in JSON output causing 1,000,000x calculation errors.
 
-**Issues to Resolve:** ISS-030
+**Issues Resolved:** ISS-030, ISS-031
+**Completed**: 2026-01-14
 
-#### Phase 20: Fix µmol JSON Serialization (ISS-030)
+#### Phase 20: Fix µmol JSON Serialization (ISS-030, ISS-031) ✅
 **Goal**: Fix unit conversion when storing values in JSON - µmol should be stored as mol with correct magnitude conversion
 **Depends on**: v1.8 complete
-**Status**: Pending
+**Status**: Complete
+**Completed**: 2026-01-14
 **Research**: Unlikely (bug with clear root cause in ISSUES.md)
 **Plans**: 1
 
+**Fix Applied:**
+- Root cause: SymPy symbol format mismatch (v_0 vs v_{15}) in `_compute_with_pint`
+- Updated regex to handle both formats: `r'^v_\{?(\d+)\}?$'`
+- Also fixed ISS-031 (unit×dimensionless) as side effect
+
 Plans:
-- [ ] 20-01: Fix JSON unit serialization for prefix units (µmol→mol conversion)
+- [x] 20-01: Fix regex mismatch in Pint evaluation
+
+### ✅ v2.0 Function Evaluation (Complete)
+
+**Milestone Goal:** Fix function evaluation so functions can be called with arguments.
+
+**Issues Resolved:** ISS-032
+**Completed**: 2026-01-14
+
+#### Phase 21: Fix Function Evaluation (ISS-032) ✅
+**Goal**: Fix function calls to properly substitute arguments and evaluate Lambda expressions
+**Depends on**: v1.9 complete
+**Status**: Complete
+**Completed**: 2026-01-14
+**Research**: N/A
+**Plans**: 1
+
+**Fix Applied:**
+- Root cause: Three interrelated bugs in function lookup/substitution
+  1. Function name not normalized before lookup
+  2. latex_name included full signature instead of just function name
+  3. No reverse lookup from internal ID to original symbol
+- Fixed all three in `evaluator.py`
+- All 365 tests pass + 3 xpassed
+
+Plans:
+- [x] 21-01: Fix function call evaluation in Pint evaluator

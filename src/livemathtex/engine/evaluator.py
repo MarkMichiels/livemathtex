@@ -587,11 +587,17 @@ class Evaluator:
                 dependencies = self._find_dependencies(rhs_raw, exclude_params=[arg_name])
                 formula_expr = self._convert_expression_to_clean_ids(rhs_raw, exclude_params=[arg_name])
 
+            # ISS-032 FIX: Extract just the function name from original_target for latex_name
+            # This allows _rewrite_with_internal_ids to find function calls like PPE_{eff}(0.90)
+            # original_target is like "PPE_{eff}(r_{frac})", we need just "PPE_{eff}"
+            func_latex_match = re.match(r'^([^(]+)\s*\(', original_target)
+            func_latex_name = func_latex_match.group(1).strip() if func_latex_match else original_target
+
             self.symbols.set(
                 func_name,
                 value=func_obj,
                 raw_latex=rhs_raw,
-                latex_name=original_target,
+                latex_name=func_latex_name,  # ISS-032: Just the function name, not full signature
                 valid=True,
                 line=getattr(self, '_current_line', 0),
                 # v3.0 formula tracking (only populated in clean ID mode)
@@ -2427,7 +2433,11 @@ class Evaluator:
         # We need to replace Function("f") with our Lambda.
         # Note: expr.free_symbols does NOT include functions.
         for func in expr.atoms(sympy.Function):
-            func_name = str(func.func) # 'f'
+            func_name_raw = str(func.func)  # e.g., 'f_{test}' or 'f_{0}'
+            # ISS-032 FIX: Normalize the function name for lookup
+            # Functions are stored with normalized names (no braces), but
+            # latex2sympy produces names with braces like 'f_{test}'
+            func_name = self._normalize_symbol_name(func_name_raw)
 
             if local_overrides and func_name in local_overrides:
                  # Substitute the function object itself?
@@ -2435,7 +2445,19 @@ class Evaluator:
                  subs_dict[func.func] = local_overrides[func_name]
                  continue
 
+            # Try direct lookup first
             known = self.symbols.get(func_name)
+
+            # ISS-032 FIX: If not found, check if this is an internal ID (f_{0}, f_{1}, etc.)
+            # and reverse-map to the original symbol name
+            if not known and func_name_raw.startswith('f_'):
+                # func_name_raw might be 'f_{0}' - try to find the symbol by internal_id
+                latex_name = self.symbols.get_latex_name(func_name_raw)
+                if latex_name:
+                    # Find the symbol that has this latex_name
+                    orig_name = self._normalize_symbol_name(latex_name)
+                    known = self.symbols.get(orig_name)
+
             if known:
                 # We expect known.value to be a Lambda or something callable
                 subs_dict[func.func] = known.value

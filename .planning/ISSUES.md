@@ -4,9 +4,19 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-*No open issues at this time.*
+(None)
 
 ## Closed Issues
+
+### ISS-032: Function evaluation fails - "Cannot convert expression to float"
+
+**Resolved:** 2026-01-14 - Fixed in v2.0 Phase 21
+**Solution:** Three interrelated bugs fixed in `evaluator.py`:
+1. Function name normalization in `_substitute_symbols` - normalized lookup key to match stored key
+2. Function latex_name extraction - stored just the function name (e.g., `PPE_{eff}`) instead of full signature (`PPE_{eff}(r_{frac})`)
+3. Internal ID reverse lookup - when expression is rewritten to use internal IDs like `f_{0}`, added reverse mapping to find original symbol
+
+All 365 tests pass + 3 xpassed. Function calls like `PPE_{eff}(0.90)` now correctly evaluate to `3.765`.
 
 ### ISS-031: Unit propagation failure when multiplying unit by dimensionless value
 
