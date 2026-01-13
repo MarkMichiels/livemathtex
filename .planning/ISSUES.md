@@ -4,6 +4,44 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
+### ISS-029: Rate × time calculations produce incorrect results (regression of ISS-024)
+
+- **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
+- **Type:** Bug (Regression)
+- **Description:** Rate × time calculations (e.g., `g/day × days`) produce incorrect results, despite ISS-024 being marked as FIXED. The calculation `C_26 = m_26 × d_op × u_max` where:
+  - `m_26 = 49,020 g/day` (rate)
+  - `d_op = 365 d` (time)
+  - `u_max = 0.90` (dimensionless)
+  - Expected: `16,103 kg` (49,020 g/day × 365 d × 0.90 = 16,103,070 g = 16,103 kg)
+  - Actual: `0.1864 kg` (86,390x too small)
+
+  **Root cause analysis:**
+  - ISS-024 was marked FIXED in v1.6 Phase 14 (Pint Evaluator Core)
+  - The fix claims: "Rate × time calculations now work correctly: `310.7 kW × 8760 h = 2721.732 MWh` ✅"
+  - However, the specific case `g/day × days` still fails
+  - This suggests either:
+    1. A regression (fix was broken later)
+    2. The fix doesn't cover all rate × time cases (only power × time works)
+    3. Unit conversion issue (g/day → total grams not handled correctly)
+
+  **Impact:** High (affects all rate × time calculations, making capacity/productivity calculations incorrect)
+- **Effort:** Medium (requires investigation of Pint evaluator rate × time handling)
+- **Suggested phase:** v1.8 (bug fix)
+- **Related:** ISS-024 (marked FIXED, but this is a regression or incomplete fix)
+- **Files to investigate:**
+  - `src/livemathtex/engine/pint_backend.py` - rate × time evaluation logic
+  - `src/livemathtex/engine/evaluator.py` - unit conversion handling
+  - `tests/test_pint_evaluator.py` - add test for `g/day × days` case
+- **Test case:**
+  ```latex
+  $m_{26} := 49020\ \frac{g}{d}$
+  $d_{op} := 365\ d$
+  $u_{max} := 0.90$
+  $C_{26} := m_{26} \cdot d_{op} \cdot u_{max} ==$ <!-- [kg] -->
+  % Expected: 16,103 kg (49,020 g/day × 365 d × 0.90 = 16,103,070 g = 16,103 kg)
+  % Actual: 0.1864 kg (86,390x too small)
+  ```
+
 ### ISS-028: Currency unit definitions (€, k€) not recognized by Pint - EUR conversion fails
 
 - **Discovered:** 2026-01-13 (during `astaxanthin_production_analysis.md` processing)
