@@ -108,14 +108,15 @@ Plans:
 Plans:
 - [x] 08-01: Integrate hybrid parser (markdown-it-py + pylatexenc)
 
-#### Phase 9: Structural Math Parsing
+#### Phase 9: Structural Math Parsing ✅
 **Goal**: Within math blocks, parse calculations into internal structure with spans/offsets for operators (:=, ==, ===, =>), lhs/rhs, rendered result parts, error markup.
 **Depends on**: Phase 8
 **Research**: Unlikely (internal patterns, builds on Phase 8)
-**Plans**: TBD
+**Completed**: 2026-01-13
+**Plans**: 1
 
 Plans:
-- [ ] 09-01: TBD (run /gsd:plan-phase 9 to break down)
+- [x] 09-01: Parse calculations with character-level spans
 
 #### Phase 10: Clear Refactor
 **Goal**: Rewrite `clear_text()` to use span-based operations instead of regex. Fixes ISS-021 (document corruption around multiline error blocks).
@@ -151,7 +152,7 @@ Plans:
 | Phase | Milestone | Plans | Status | Completed |
 |-------|-----------|-------|--------|-----------|
 | 8. Markdown Parser Integration | v1.5 | 1/1 | Complete | 2026-01-13 |
-| 9. Structural Math Parsing | v1.5 | 0/? | Not started | - |
+| 9. Structural Math Parsing | v1.5 | 1/1 | Complete | 2026-01-13 |
 | 10. Clear Refactor | v1.5 | 0/? | Not started | - |
 | 11. Token Classification | v1.5 | 0/? | Not started | - |
 | 12. Unit Warnings | v1.5 | 0/? | Not started | - |

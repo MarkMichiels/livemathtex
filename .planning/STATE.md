@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 8 of 12 (Markdown Parser Integration)
+Phase: 9 of 12 (Structural Math Parsing)
 Plan: 01 complete
-Status: Phase 8 complete
-Last activity: 2026-01-13 — Phase 8 plan 01 executed
+Status: Phase 9 complete
+Last activity: 2026-01-13 — Phase 9 plan 01 executed
 
-Progress: ██░░░░░░░░ 20% (1/5 phases)
+Progress: ████░░░░░░ 40% (2/5 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9 (2 from v1.2 + 3 from v1.3 + 3 from v1.4 + 1 from v1.5)
+- Total plans completed: 10 (2 from v1.2 + 3 from v1.3 + 3 from v1.4 + 2 from v1.5)
 - Average duration: ~11 min
-- Total execution time: ~95 min
+- Total execution time: ~107 min
 
 **By Phase:**
 
@@ -35,6 +35,7 @@ Progress: ██░░░░░░░░ 20% (1/5 phases)
 | 6. Error Markup Cleanup | 1/1 | ~10 min | ~10 min |
 | 7. User Documentation | 1/1 | ~12 min | ~12 min |
 | 8. Markdown Parser Integration | 1/1 | ~15 min | ~15 min |
+| 9. Structural Math Parsing | 1/1 | ~12 min | ~12 min |
 
 ## Completed Milestones
 
@@ -80,9 +81,17 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-13
-Stopped at: Phase 8 complete
+Stopped at: Phase 9 complete
 Resume file: None
-Next: Plan Phase 9 (Structural Math Parsing)
+Next: Plan Phase 10 (Clear Refactor)
+
+### Implementation Notes (Phase 9)
+
+- **Module:** `src/livemathtex/parser/calculation_parser.py`
+- **Key dataclasses:** `Span` (start/end offsets), `ParsedCalculation` (operation, spans)
+- **Operations:** `===`, `:=`, `==`, `=>`, `:=_==`, `value`, `ERROR`
+- **All spans are document-relative** (not math-block-relative)
+- **Tests:** 36 tests in `tests/test_calculation_parser.py`
 
 ### Implementation Notes (Phase 8)
 
