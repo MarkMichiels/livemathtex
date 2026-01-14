@@ -335,22 +335,23 @@ NEW: LaTeX → Custom Tokenizer → Expression Tree → Pint Evaluation → Resu
 - Simpler codebase (~100MB SymPy dependency removed)
 - Full control over parsing behavior
 
-#### Phase 23: Expression Tokenizer
+#### Phase 23: Expression Tokenizer ✅
 **Goal**: Build custom LaTeX tokenizer that correctly identifies variables, units, operators, and numbers
 **Depends on**: v2.1 complete
-**Status**: Not started
+**Status**: Complete
+**Completed**: 2026-01-14
 **Research**: ✅ Complete (see 23-RESEARCH.md)
-**Plans**: TBD
+**Plans**: 1
 
 Key deliverables:
-- `expression_tokenizer.py` module
-- TokenType enum (NUMBER, VARIABLE, UNIT, OPERATOR, FRAC, LPAREN, RPAREN, etc.)
-- Token dataclass with type, value, span
+- `expression_tokenizer.py` module (169 lines)
+- TokenType enum (NUMBER, VARIABLE, UNIT, OPERATOR, FRAC, LPAREN, RPAREN, LBRACE, RBRACE, EOF)
+- Token dataclass with type, value, start, end
 - Pattern-based tokenization with priority ordering (units before single letters)
-- Tests for all supported LaTeX constructs
+- 47 tests for all supported LaTeX constructs
 
 Plans:
-- [ ] 23-01: TBD (run /gsd:plan-phase 23 to break down)
+- [x] 23-01: TDD implementation of expression tokenizer
 
 #### Phase 24: Expression Parser
 **Goal**: Build recursive descent parser that converts tokens into an expression tree
