@@ -353,23 +353,24 @@ Key deliverables:
 Plans:
 - [x] 23-01: TDD implementation of expression tokenizer
 
-#### Phase 24: Expression Parser
+#### Phase 24: Expression Parser ✅
 **Goal**: Build recursive descent parser that converts tokens into an expression tree
 **Depends on**: Phase 23
-**Status**: Not started
-**Research**: Unlikely (standard parsing patterns)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-14
+**Research**: Not needed (standard parsing patterns)
+**Plans**: 1
 
 Key deliverables:
-- `expression_parser.py` module
-- ExprNode base class and subclasses (NumberNode, VariableNode, BinaryOpNode, etc.)
+- `expression_parser.py` module (225 lines)
+- ExprNode hierarchy (NumberNode, VariableNode, BinaryOpNode, UnaryOpNode, FracNode, UnitAttachNode)
 - Operator precedence handling (PEMDAS)
+- Right associativity for exponentiation
 - Fraction parsing (`\frac{a}{b}`)
-- Function call parsing (`f(x)`)
-- Tests for expression tree construction
+- 69 tests for expression tree construction
 
 Plans:
-- [ ] 24-01: TBD
+- [x] 24-01: TDD implementation of expression parser
 
 #### Phase 25: Direct Pint Evaluator
 **Goal**: Implement expression tree evaluation using Pint directly (no SymPy)

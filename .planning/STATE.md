@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 23 of 27 (expression tokenizer)
-Plan: 23-01 COMPLETE
-Status: Ready for Phase 24
-Last activity: 2026-01-14 — Phase 23-01 complete (expression tokenizer)
+Phase: 24 of 27 (expression parser)
+Plan: 24-01 COMPLETE
+Status: Ready for Phase 25
+Last activity: 2026-01-14 — Phase 24-01 complete (expression parser)
 Branch: `feature/v3-pure-pint`
 
 **Milestone v3.0: Pure Pint Architecture**
@@ -28,7 +28,7 @@ Phases:
 
 Research: ✅ Complete (see `.planning/phases/23-remove-latex2sympy/23-RESEARCH.md`)
 
-Progress: ██░░░░░░░░ 20% (1/5 phases complete)
+Progress: ████░░░░░░ 40% (2/5 phases complete)
 
 ## Performance Metrics
 
@@ -117,9 +117,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-14
-Stopped at: Phase 23-01 complete
+Stopped at: Phase 24-01 complete
 Resume file: None
-Next: Plan Phase 24 (Expression Parser) - `/gsd:plan-phase 24`
+Next: Plan Phase 25 (Direct Pint Evaluator) - `/gsd:plan-phase 25`
 
 ### Implementation Notes (Phase 12)
 
