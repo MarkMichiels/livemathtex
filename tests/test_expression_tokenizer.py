@@ -180,8 +180,13 @@ class TestVariableTokens:
         assert tokens[0].type == TokenType.VARIABLE
         assert tokens[0].value == "PPE_{eff}"
 
-    def test_superscript_variable(self):
-        """Variable with superscript tokenizes as VARIABLE."""
+    def test_superscript_as_operator(self):
+        """Superscript is tokenized as operator, not part of variable.
+
+        R^2 becomes: VARIABLE(R), OPERATOR(^), NUMBER(2)
+        This is correct for evaluations where ^ means exponentiation.
+        Variable definitions like R^2 := 0.904 are handled by _compute(), not this tokenizer.
+        """
         from livemathtex.parser.expression_tokenizer import (
             ExpressionTokenizer,
             TokenType,
@@ -189,7 +194,11 @@ class TestVariableTokens:
 
         tokens = ExpressionTokenizer("R^2").tokenize()
         assert tokens[0].type == TokenType.VARIABLE
-        assert tokens[0].value == "R^2"
+        assert tokens[0].value == "R"
+        assert tokens[1].type == TokenType.OPERATOR
+        assert tokens[1].value == "^"
+        assert tokens[2].type == TokenType.NUMBER
+        assert tokens[2].value == "2"
 
     def test_subscript_without_braces(self):
         """Variable with simple subscript (no braces) tokenizes as VARIABLE."""

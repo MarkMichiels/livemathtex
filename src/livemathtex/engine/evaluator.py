@@ -2496,22 +2496,29 @@ class Evaluator:
         import pint
         ureg = get_pint_registry()
 
+        # Step 1: Rewrite expression with internal IDs (v_{n} format)
+        # This ensures multi-letter variables like "Cap" become "v_{0}" which
+        # the tokenizer handles correctly
+        modified_latex = self._rewrite_with_internal_ids(expression_latex)
+
         # Build symbol map from our symbol table
-        # Map latex names to Pint Quantities
+        # Map internal IDs (v_{n}) to Pint Quantities
         symbol_map = {}
         for name in self.symbols.all_names():
             entry = self.symbols.get(name)
             if entry:
                 pint_qty = self._symbol_to_pint_quantity(entry, ureg)
                 if pint_qty is not None:
-                    # Store under latex_name for parser lookup
+                    # Store under internal_id for parser lookup (v_{0}, v_{1}, etc.)
+                    if hasattr(entry, 'internal_id') and entry.internal_id:
+                        symbol_map[entry.internal_id] = pint_qty
+                    # Also store under latex_name and original name for fallback
                     if hasattr(entry, 'latex_name') and entry.latex_name:
                         symbol_map[entry.latex_name] = pint_qty
-                    # Also store under original name
                     symbol_map[name] = pint_qty
 
-        # Tokenize
-        tokenizer = ExpressionTokenizer(expression_latex)
+        # Tokenize the rewritten expression
+        tokenizer = ExpressionTokenizer(modified_latex)
         tokens = tokenizer.tokenize()
 
         # Parse
@@ -2526,8 +2533,9 @@ class Evaluator:
         """
         Parse and compute a LaTeX expression using Pint for unit handling.
 
-        This is the ISS-024 fix: use Pint instead of SymPy for numerical evaluation
-        to ensure proper unit cancellation (e.g., kW * year → energy).
+        Uses the v3.0 Pure Pint Architecture: custom tokenizer → parser → Pint evaluation.
+        Falls back to latex2sympy for expressions the custom parser can't handle
+        (e.g., functions like \\ln, \\sin, etc.).
 
         Args:
             expression_latex: LaTeX expression to parse
@@ -2538,17 +2546,15 @@ class Evaluator:
         Raises:
             EvaluationError: If evaluation fails
         """
-        import pint
-
-        # Try custom parser first (Phase 26 integration)
+        # Try custom parser first
         try:
             return self._evaluate_with_custom_parser(expression_latex)
         except (ParseError, CustomEvaluationError) as e:
             logger.debug(f"Custom parser failed for '{expression_latex}', falling back to latex2sympy: {e}")
 
         # Fallback: Original latex2sympy path
-        # Step 1: Parse LaTeX to SymPy AST using existing _compute (without substitution)
-        # We need to get the AST structure, then evaluate with Pint
+        # This handles functions like \ln(), complex expressions the custom parser doesn't support
+        import pint
         modified_latex = self._rewrite_with_internal_ids(expression_latex)
 
         # Apply same preprocessing as _compute
@@ -2564,29 +2570,24 @@ class Evaluator:
         except Exception as e:
             raise EvaluationError(f"Failed to parse LaTeX '{expression_latex}': {e}")
 
-        # Step 2: Build Pint symbol map from our symbol table
+        # Build Pint symbol map from our symbol table
         ureg = get_pint_registry()
         symbol_map = {}
 
         for sym in expr.free_symbols:
             sym_name = str(sym)
 
-            # Handle internal IDs - SymPy has different formats for single vs multi-digit:
-            # - Single digit: v_0, v_1, ..., v_9 -> parsed as 'v_0' (no braces)
-            # - Multi digit: v_{10}, v_{15} -> parsed as 'v_{15}' (with braces)
-            # But our internal ID format always uses braces: v_{0}, v_{1}, v_{15}
+            # Handle internal IDs - SymPy has different formats for single vs multi-digit
             import re
             internal_id_match = re.match(r'^v_\{?(\d+)\}?$', sym_name)
             if internal_id_match:
                 digit_part = internal_id_match.group(1)
-                # Convert to our internal ID format (always with braces)
                 internal_id = f"v_{{{digit_part}}}"
                 latex_name = self.symbols.get_latex_name(internal_id)
                 if latex_name:
                     for name in self.symbols.all_names():
                         entry = self.symbols.get(name)
                         if entry and entry.latex_name == latex_name:
-                            # Create Pint Quantity from stored value and unit
                             pint_qty = self._symbol_to_pint_quantity(entry, ureg)
                             if pint_qty is not None:
                                 symbol_map[sym_name] = pint_qty
@@ -2600,7 +2601,7 @@ class Evaluator:
                 if pint_qty is not None:
                     symbol_map[sym_name] = pint_qty
 
-        # Step 3: Evaluate using Pint
+        # Evaluate using Pint
         try:
             result = evaluate_sympy_ast_with_pint(expr, symbol_map)
             return result

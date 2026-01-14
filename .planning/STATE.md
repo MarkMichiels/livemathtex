@@ -9,26 +9,30 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 26 of 27 (evaluator integration)
-Plan: 26-01 COMPLETE
-Status: Ready for Phase 27
-Last activity: 2026-01-14 — Phase 26-01 complete (evaluator integration)
+Phase: 27 of 27 (remove dependencies)
+Plan: 27-01 COMPLETE
+Status: v3.0 COMPLETE - Custom parser is primary path
+Last activity: 2026-01-14 — Phase 27-01 complete (custom parser primary)
 Branch: `feature/v3-pure-pint`
 
 **Milestone v3.0: Pure Pint Architecture**
 
-Goal: Remove latex2sympy and SymPy dependencies entirely. Replace with custom LaTeX expression parser.
+Goal: Custom parser as PRIMARY evaluation path. Fallback to latex2sympy for functions.
 
 Phases:
 - Phase 23: Expression Tokenizer - Build custom LaTeX tokenizer ✅
 - Phase 24: Expression Parser - Recursive descent parser → Expression Tree ✅
 - Phase 25: Direct Pint Evaluator - Evaluate expression tree with Pint ✅
-- Phase 26: Evaluator Integration - Replace latex2sympy in evaluator.py ✅
-- Phase 27: Remove Dependencies - Remove latex2sympy and sympy
+- Phase 26: Evaluator Integration - Integrate custom parser into evaluator.py ✅
+- Phase 27: Remove Dependencies - Custom parser primary, fallback for functions ✅
 
 Research: ✅ Complete (see `.planning/phases/23-remove-latex2sympy/23-RESEARCH.md`)
 
-Progress: ████████░░ 80% (4/5 phases complete)
+Progress: ██████████ 100% (5/5 phases complete)
+
+**Note:** Full SymPy removal deferred. latex2sympy fallback kept for:
+- Functions: \ln(), \sin(), \cos(), \sqrt(), etc.
+- Complex LaTeX constructs
 
 ## Performance Metrics
 
@@ -117,16 +121,16 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-14
-Stopped at: Phase 26-01 complete (build-all in progress)
+Stopped at: v3.0 COMPLETE
 Resume file: None
-Next: Plan Phase 27 (Remove Dependencies) - `/gsd:plan-phase 27`
+Next: Tag v3.0.0 release, merge to main
 
 **v3.0 Progress Summary:**
 - ✅ Phase 23: Expression Tokenizer (47 tests, 169 lines)
 - ✅ Phase 24: Expression Parser (69 tests, 225 lines)
 - ✅ Phase 25: Direct Pint Evaluator (47 tests, 153 lines)
 - ✅ Phase 26: Evaluator Integration (try-first-fallback pattern, 528 tests pass)
-- 🔜 Phase 27: Remove Dependencies
+- ✅ Phase 27: Custom parser primary path (constants, braces, fallback retained)
 
 ### Implementation Notes (Phase 12)
 

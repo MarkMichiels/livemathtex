@@ -70,15 +70,13 @@ class ExpressionTokenizer:
         # Multi-letter variables with subscripts in braces - BEFORE single letters
         # E_{26}, PPE_{eff}, Cost_{total}
         (re.compile(r"[A-Za-z]+_\{[^}]+\}"), TokenType.VARIABLE, False),
-        # Multi-letter variables with superscripts in braces
-        # R^{2}, x^{n}
-        (re.compile(r"[A-Za-z]+\^\{[^}]+\}"), TokenType.VARIABLE, False),
+        # Note: Superscript patterns REMOVED - in evaluations, ^ is always an operator
+        # x^{2} tokenizes as: VARIABLE(x), OPERATOR(^), LBRACE, NUMBER(2), RBRACE
+        # Variable definitions like R^2 := 0.904 are handled by _compute(), not this tokenizer
+        #
         # Multi-letter variables with simple subscript (no braces)
         # x_1, E_0 (but not just x or E alone)
         (re.compile(r"[A-Za-z]+_[A-Za-z0-9]+"), TokenType.VARIABLE, False),
-        # Multi-letter variables with simple superscript (no braces)
-        # R^2, x^n
-        (re.compile(r"[A-Za-z]+\^[A-Za-z0-9]+"), TokenType.VARIABLE, False),
         # Greek letters (common ones used in math/physics)
         (
             re.compile(

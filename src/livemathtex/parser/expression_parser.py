@@ -225,6 +225,17 @@ class ExpressionParser:
             self._advance()  # consume ')'
             return self._maybe_attach_unit(expr)
 
+        # Braced expression (LaTeX grouping, e.g., ^{x+1})
+        if self._check(TokenType.LBRACE):
+            self._advance()  # consume '{'
+            expr = self._expression()
+            if not self._check(TokenType.RBRACE):
+                raise ParseError(
+                    f"Expected closing brace at position {self._current().start}"
+                )
+            self._advance()  # consume '}'
+            return self._maybe_attach_unit(expr)
+
         # Unexpected token
         if self._check(TokenType.EOF):
             raise ParseError("Unexpected end of expression")

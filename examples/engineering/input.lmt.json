@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "input.md",
+  "source": "examples/engineering/input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -190,32 +190,6 @@
       "line": 0
     },
     "v_{14}": {
-      "latex_name": "LMTD",
-      "original": {
-        "value": 55.015261373689036,
-        "unit": null
-      },
-      "base": {
-        "value": 55.015261373689036,
-        "unit": null
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{15}": {
-      "latex_name": "A_0",
-      "original": {
-        "value": 5.453032349737677,
-        "unit": null
-      },
-      "base": {
-        "value": 5.453032349737677,
-        "unit": null
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{16}": {
       "latex_name": "C_h",
       "original": {
         "value": 8372.0,
@@ -228,7 +202,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{17}": {
+    "v_{15}": {
       "latex_name": "C_c",
       "original": {
         "value": 12558.0,
@@ -241,7 +215,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{18}": {
+    "v_{16}": {
       "latex_name": "Cmin",
       "original": {
         "value": 8372.0,
@@ -254,7 +228,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{19}": {
+    "v_{17}": {
       "latex_name": "Cmax",
       "original": {
         "value": 12558.0,
@@ -267,7 +241,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{20}": {
+    "v_{18}": {
       "latex_name": "C_r",
       "original": {
         "value": 0.6666666666666666,
@@ -280,7 +254,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{21}": {
+    "v_{19}": {
       "latex_name": "Qmax",
       "original": {
         "value": 586040.0,
@@ -293,7 +267,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{22}": {
+    "v_{20}": {
       "latex_name": "\\varepsilon",
       "original": {
         "value": 0.2559552248993243,
@@ -306,20 +280,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{23}": {
-      "latex_name": "NTU",
-      "original": {
-        "value": 0.3256708283407595,
-        "unit": null
-      },
-      "base": {
-        "value": 0.3256708283407595,
-        "unit": null
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{24}": {
+    "v_{21}": {
       "latex_name": "length",
       "original": {
         "value": 2.0,
@@ -331,32 +292,19 @@
       },
       "conversion_ok": true,
       "line": 0
-    },
-    "v_{25}": {
-      "latex_name": "A_m",
-      "original": {
-        "value": 2.7265161748688387,
-        "unit": null
-      },
-      "base": {
-        "value": 2.7265161748688387,
-        "unit": null
-      },
-      "conversion_ok": true,
-      "line": 0
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 23:46:32",
-    "duration": "0.92s",
-    "symbols": 26,
+    "last_run": "2026-01-14 22:17:44",
+    "duration": "0.48s",
+    "symbols": 22,
     "custom_units": 0,
     "definitions": 26,
     "evaluations": 16,
     "symbolic": 0,
     "value_refs": 6,
-    "errors": 0,
+    "errors": 7,
     "warnings": 0
   }
 }

@@ -151,16 +151,32 @@ class TestVariableParsing:
         assert result.name == "PPE_{eff}"
 
     def test_superscript_braces(self):
-        """Parse variable with superscript in braces."""
+        """Parse superscript in braces as exponentiation.
+
+        R^{2} parses as: R raised to the power 2 (BinaryOpNode)
+        This is correct for evaluations where ^ means exponentiation.
+        """
         result = parse("R^{2}")
-        assert isinstance(result, VariableNode)
-        assert result.name == "R^{2}"
+        assert isinstance(result, BinaryOpNode)
+        assert result.op == "^"
+        assert isinstance(result.left, VariableNode)
+        assert result.left.name == "R"
+        assert isinstance(result.right, NumberNode)
+        assert result.right.value == 2.0
 
     def test_superscript_simple(self):
-        """Parse variable with simple superscript."""
+        """Parse simple superscript as exponentiation.
+
+        x^2 parses as: x raised to the power 2 (BinaryOpNode)
+        This is correct for evaluations where ^ means exponentiation.
+        """
         result = parse("x^2")
-        assert isinstance(result, VariableNode)
-        assert result.name == "x^2"
+        assert isinstance(result, BinaryOpNode)
+        assert result.op == "^"
+        assert isinstance(result.left, VariableNode)
+        assert result.left.name == "x"
+        assert isinstance(result.right, NumberNode)
+        assert result.right.value == 2.0
 
     def test_greek_letter(self):
         """Parse Greek letter."""

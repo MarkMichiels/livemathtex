@@ -12,6 +12,7 @@ Key features:
 - Clear error messages for undefined variables
 """
 
+import math
 from typing import Dict
 
 import pint
@@ -26,6 +27,15 @@ from livemathtex.parser.expression_parser import (
     UnitAttachNode,
 )
 from livemathtex.engine.pint_backend import get_unit_registry
+
+# Mathematical constants - mapped to their values
+# The tokenizer produces '\pi' for Greek pi, and 'e' for Euler's number
+# Note: 'e' alone is treated as Euler's number; use subscript (e_1) for variables
+MATH_CONSTANTS = {
+    r"\pi": math.pi,
+    "\\pi": math.pi,
+    "e": math.e,  # Euler's number (standalone 'e')
+}
 
 
 class EvaluationError(Exception):
@@ -127,9 +137,10 @@ def _lookup_variable(
     ureg: pint.UnitRegistry,
 ) -> pint.Quantity:
     """
-    Look up a variable in the symbol table.
+    Look up a variable in the symbol table or mathematical constants.
 
     Tries multiple name formats to handle LaTeX variations:
+    - Mathematical constants (pi, e)
     - Exact match (E_{26})
     - Normalized (E_26)
     - Without braces
@@ -145,7 +156,11 @@ def _lookup_variable(
     Raises:
         EvaluationError: If variable not found
     """
-    # Try exact match first
+    # Check mathematical constants first
+    if name in MATH_CONSTANTS:
+        return MATH_CONSTANTS[name] * ureg.dimensionless
+
+    # Try exact match
     if name in symbols:
         return symbols[name]
 
