@@ -8,7 +8,7 @@ Same workflow as `/build-calculations`, but automatically detects issues and cre
 
 **Design intent:** Systematically debug calculation problems, distinguish user errors from LiveMathTeX bugs, and document bugs as issues for future fixes.
 
-**Loop mode (default):** Automatically monitors created issues and restarts the workflow when issues are resolved. Continues testing and creating issues until the document is fully correct, no new issues can be created, or maximum cycles reached (6 cycles = 1 hour).
+**Interactive mode:** Workflow continues until user explicitly says "it's done" or "enough". Status is tracked in a status file for external monitoring.
 
 **⚠️ WORKSPACE-AWARE COMMAND:** This command works across your entire workspace. Documents can be in any repository (mark-private, proviron, axabio-literature, etc.), but LiveMathTeX planning files (ISSUES.md, LESSONS_LEARNED.md) are in the `livemathtex` repository.
 
@@ -34,11 +34,127 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 
 ---
 
-## 🚨 MANDATORY: Read Issues and Create Todo List FIRST
+## 🚨 MANDATORY: Setup and Create Todo List FIRST
 
 **BEFORE doing ANYTHING else:**
 
-1. **Read existing issues for context:**
+1. **Ask user about automatic synchronization:**
+   ```
+   🔄 Automatic Synchronization Setup
+
+   Do you want to enable automatic synchronization with Claude Code (build-all)?
+
+   This will:
+   - Start monitoring script to coordinate workflows
+   - Launch Claude Code with /gsd:build-all to resolve issues
+   - Automatically coordinate between debug-calculations and build-all
+
+   Enable automatic synchronization? (Y/N)
+   ```
+
+   **If Y (enable synchronization):**
+
+   a. **Start monitoring script:**
+      ```bash
+      # Detect livemathtex repository
+      LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
+        find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+        find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+        echo ".")
+
+      # Start monitoring script in background
+      cd "$LMT_REPO"
+      nohup python scripts/monitor_debug_build.py > .planning/.monitor.log 2>&1 &
+      MONITOR_PID=$!
+      echo "$MONITOR_PID" > .planning/.monitor.pid
+
+      # Wait a moment for script to start
+      sleep 2
+
+      # Verify it's running
+      if ps -p $MONITOR_PID > /dev/null; then
+        echo "✅ Monitoring script started (PID: $MONITOR_PID)"
+      else
+        echo "⚠️  Monitoring script may have failed to start. Check .planning/.monitor.log"
+      fi
+      ```
+
+   b. **Launch Claude Code with build-all:**
+      ```bash
+      # Detect get-shit-done repository
+      GSD_REPO=$(find "$HOME/Repositories" -maxdepth 2 -name "get-shit-done" -type d 2>/dev/null | head -1 || echo "")
+
+      if [ -n "$GSD_REPO" ]; then
+        echo "🚀 Launching Claude Code with /gsd:build-all..."
+
+        # Check if cc command is available (alias from ~/.bashrc)
+        # cc = 'cd ~/Repositories/mark-private && claude --dangerously-skip-permissions --system-prompt "$(cat CLAUDE.md)"'
+        if command -v cc >/dev/null 2>&1 || command -v claude >/dev/null 2>&1; then
+          # Launch Claude Code in background with prompt via stdin
+          # The cc alias already handles context loading, but we need to change to GSD repo
+          # Alternative: Use claude directly with GSD repo context
+
+          # Method: Launch claude directly in GSD repo with prompt
+          cd "$GSD_REPO"
+
+          # Create prompt file for Claude Code
+          cat > /tmp/claude_code_build_all_prompt.txt <<'PROMPT_EOF'
+Please execute the following command:
+
+/gsd:build-all
+
+This will automatically plan and execute all phases to resolve issues created by debug-calculations.
+PROMPT_EOF
+
+          # Launch Claude Code with prompt via stdin (non-blocking)
+          # Use claude directly (not cc alias, since we're in GSD repo)
+          if command -v claude >/dev/null 2>&1; then
+            nohup bash -c "cd '$GSD_REPO' && claude --dangerously-skip-permissions < /tmp/claude_code_build_all_prompt.txt" > /tmp/claude-code-build-all.log 2>&1 &
+            CLAUDE_CODE_PID=$!
+            echo "$CLAUDE_CODE_PID" > .planning/.claude-code.pid
+            echo "✅ Claude Code launched (PID: $CLAUDE_CODE_PID)"
+            echo "   Log: /tmp/claude-code-build-all.log"
+          else
+            echo "⚠️  claude command not found. Please start Claude Code manually:"
+            echo "   cd $GSD_REPO"
+            echo "   cc  # or: claude"
+            echo "   Then run: /gsd:build-all"
+          fi
+        else
+          # Fallback - inform user to start manually
+          echo "⚠️  cc command not found (check ~/.bashrc for alias)."
+          echo "   Please start Claude Code manually:"
+          echo "   cd $GSD_REPO"
+          echo "   cc  # or: claude"
+          echo "   Then run: /gsd:build-all"
+        fi
+      else
+        echo "⚠️  get-shit-done repository not found."
+        echo "   Please start Claude Code manually with /gsd:build-all"
+      fi
+      ```
+
+      **Note:** The `cc` alias from `~/.bashrc` is:
+      ```bash
+      alias cc='cd ~/Repositories/mark-private && claude --dangerously-skip-permissions --system-prompt "$(cat CLAUDE.md)"'
+      ```
+
+      For launching in GSD repo, we use `claude` directly (not the `cc` alias) since we need to be in the GSD directory context.
+
+   c. **Store synchronization flag:**
+      ```bash
+      echo "true" > .planning/.sync-enabled
+      ```
+
+   **If N (no synchronization):**
+   ```
+   ℹ️  Automatic synchronization disabled.
+   Debug workflow will run independently.
+   ```
+   - Store flag: `echo "false" > .planning/.sync-enabled`
+   - Continue with normal debug workflow (no monitoring script)
+
+2. **Read existing issues for context:**
    ```bash
    # Detect livemathtex repository
    LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
@@ -81,10 +197,11 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 ]
 ```
 
-**Standard workflow (always includes loop):**
+**Standard workflow (interactive):**
 ```json
 [
-  {"id": "context-0", "content": "CONTEXT: Read ISSUES.md and LESSONS_LEARNED.md to understand current state", "status": "in_progress"},
+  {"id": "setup-0", "content": "SETUP: Ask user about automatic synchronization and start monitor/Claude Code if enabled", "status": "in_progress"},
+  {"id": "context-0", "content": "CONTEXT: Read ISSUES.md and LESSONS_LEARNED.md to understand current state", "status": "pending"},
   {"id": "clean-1", "content": "CLEAN: Clean source document to remove error markup", "status": "pending"},
   {"id": "expect-1", "content": "EXPECT: Calculate expected values manually and add to output document", "status": "pending"},
   {"id": "process-1", "content": "PROCESS: Run livemathtex process to compute actual values", "status": "pending"},
@@ -93,7 +210,10 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
   {"id": "issue-1", "content": "ISSUE: Create ISS entry if bug detected", "status": "pending"},
   {"id": "fix-1", "content": "FIX: Fix user errors and document workarounds for bugs", "status": "pending"},
   {"id": "learn-1", "content": "LEARN: Document findings in lessons learned", "status": "pending"},
-  {"id": "loop-1", "content": "LOOP: Wait and check if issues are resolved, restart workflow if needed (max 6 cycles = 1 hour)", "status": "pending"}
+  {"id": "status-1", "content": "STATUS: Update status file and check if user wants to continue", "status": "pending"},
+  {"id": "review-0", "content": "REVIEW GATE: User reviews results and provides feedback (Y/N/ENOUGH to proceed)", "status": "pending"},
+  {"id": "final-1", "content": "FINAL: Update original file and commit (only after approval)", "status": "pending"},
+  {"id": "post-0", "content": "POST: Retrospective + improve this command + ask YES/NO to commit command changes", "status": "pending"}
 ]
 ```
 
@@ -101,6 +221,8 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 
 | Phase | Depends on | Explanation |
 |-------|------------|-------------|
+| `setup-0` | None | Must setup synchronization before starting workflow |
+| `context-0` | `setup-0` completed | Must setup before reading context |
 | `clean-1` | `context-0` completed | Must understand existing issues before starting |
 | `expect-1` | `clean-1` completed | Cannot add expected values without clean source |
 | `process-1` | `expect-1` completed | Cannot process without expected values for comparison |
@@ -109,17 +231,24 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 | `issue-1` | `classify-1` completed | Cannot create issue without classification |
 | `fix-1` | `issue-1` completed | Cannot fix without understanding root cause |
 | `learn-1` | `fix-1` completed | Cannot document until issues resolved |
-| `loop-1` | `learn-1` completed | Cannot loop until workflow complete (only if `--loop` enabled) |
+| `status-1` | `learn-1` completed | Cannot update status until workflow complete |
+| `review-0` | `status-1` completed | Cannot finalize without user review |
+| `final-1` | `review-0` approved (Y) | Cannot commit without approval |
+| `post-0` | `final-1` completed | Cannot improve command until workflow complete |
 
 ---
 
 ## Workflow Overview
 
-**Standard mode (no loop):**
+**Interactive workflow (with optional synchronization):**
 
 ```mermaid
 graph TB
-    INPUT[Source Document] --> CLEAN[Clean Source<br/>Remove error markup]
+    START[Start Debug] --> SETUP{Setup<br/>Sync with Claude Code?}
+    SETUP -->|Yes| MONITOR[Start Monitor Script<br/>Launch Claude Code]
+    SETUP -->|No| CONTEXT[Read Context<br/>ISSUES.md]
+    MONITOR --> CONTEXT
+    CONTEXT --> CLEAN[Clean Source<br/>Remove error markup]
     CLEAN --> EXPECT[Calculate Expected<br/>Add to output doc]
     EXPECT --> PROCESS[Process with LiveMathTeX<br/>Compute actual values]
     PROCESS --> DIFF[Git Diff<br/>Compare expected vs actual]
@@ -130,9 +259,20 @@ graph TB
     FIX --> ITERATE[Iterate Until Correct]
     WORKAROUND --> ITERATE
     ITERATE --> LEARN[Document in Lessons Learned]
-    LEARN --> DONE[✅ Document Complete]
+    LEARN --> STATUS[Update Status File<br/>Mark as ready]
+    STATUS --> REVIEW[Review Gate<br/>User feedback Y/N/ENOUGH/CONTINUE]
+    REVIEW -->|N| FIX
+    REVIEW -->|CONTINUE| CLEAN
+    REVIEW -->|Y| COMMIT[Commit Original File]
+    REVIEW -->|ENOUGH| CLEANUP[Stop Monitor<br/>Cleanup]
+    COMMIT --> POST[Post-Evaluation<br/>Improve command]
+    CLEANUP --> DONE[✅ Document Complete]
+    POST --> DONE
 
-    style INPUT fill:#4a90e2,stroke:#2e5c8a,color:#fff
+    style START fill:#4a90e2,stroke:#2e5c8a,color:#fff
+    style SETUP fill:#ff9800,stroke:#f57c00,color:#fff
+    style MONITOR fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style CONTEXT fill:#4a90e2,stroke:#2e5c8a,color:#fff
     style CLEAN fill:#f39c12,stroke:#c87f0a,color:#fff
     style EXPECT fill:#9b59b6,stroke:#7d3c98,color:#fff
     style PROCESS fill:#7cb342,stroke:#558b2f,color:#fff
@@ -141,50 +281,32 @@ graph TB
     style ISSUE fill:#9b59b6,stroke:#7d3c98,color:#fff
     style FIX fill:#f39c12,stroke:#c87f0a,color:#fff
     style LEARN fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style STATUS fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style REVIEW fill:#ff9800,stroke:#f57c00,color:#fff
+    style COMMIT fill:#4a90e2,stroke:#2e5c8a,color:#fff
+    style CLEANUP fill:#e74c3c,stroke:#c0392b,color:#fff
+    style POST fill:#9b59b6,stroke:#7d3c98,color:#fff
     style DONE fill:#27ae60,stroke:#1e8449,color:#fff
 ```
 
-**Loop mode (`--loop` enabled):**
+---
 
-```mermaid
-graph TB
-    INPUT[Source Document] --> CLEAN[Clean Source<br/>Remove error markup]
-    CLEAN --> EXPECT[Calculate Expected<br/>Add to output doc]
-    EXPECT --> PROCESS[Process with LiveMathTeX<br/>Compute actual values]
-    PROCESS --> DIFF[Git Diff<br/>Compare expected vs actual]
-    DIFF --> CLASSIFY{Classify Issue}
-    CLASSIFY -->|LiveMathTeX Bug| ISSUE[Create ISS Entry<br/>/gsd:create-issue]
-    CLASSIFY -->|User Error| FIX[Fix in Source<br/>Update document]
-    ISSUE --> WORKAROUND[Document Workaround<br/>In lessons learned]
-    FIX --> ITERATE[Iterate Until Correct]
-    WORKAROUND --> ITERATE
-    ITERATE --> LEARN[Document in Lessons Learned]
-    LEARN --> CHECK{Issues Created?}
-    CHECK -->|Yes| WAIT[Wait 10 minutes<br/>Check issue status]
-    CHECK -->|No| DONE[✅ Document Complete]
-    WAIT --> RESOLVED{Issues Resolved?}
-    RESOLVED -->|Yes| RESTART[Restart Workflow<br/>From beginning]
-    RESOLVED -->|No| WAIT
-    RESTART --> CLEAN
-    RESTART --> PARK[Park Blocking Issues<br/>Work around them]
-    PARK --> CLEAN
+## 🚨 IMPORTANT: File Strategy
 
-    style INPUT fill:#4a90e2,stroke:#2e5c8a,color:#fff
-    style CLEAN fill:#f39c12,stroke:#c87f0a,color:#fff
-    style EXPECT fill:#9b59b6,stroke:#7d3c98,color:#fff
-    style PROCESS fill:#7cb342,stroke:#558b2f,color:#fff
-    style DIFF fill:#f39c12,stroke:#c87f0a,color:#fff
-    style CLASSIFY fill:#ea4335,stroke:#c5221f,color:#fff
-    style ISSUE fill:#9b59b6,stroke:#7d3c98,color:#fff
-    style FIX fill:#f39c12,stroke:#c87f0a,color:#fff
-    style LEARN fill:#9b59b6,stroke:#7d3c98,color:#fff
-    style CHECK fill:#ea4335,stroke:#c5221f,color:#fff
-    style WAIT fill:#ff9800,stroke:#f57c00,color:#fff
-    style RESOLVED fill:#ea4335,stroke:#c5221f,color:#fff
-    style RESTART fill:#4a90e2,stroke:#2e5c8a,color:#fff
-    style PARK fill:#9b59b6,stroke:#7d3c98,color:#fff
-    style DONE fill:#27ae60,stroke:#1e8449,color:#fff
-```
+**This workflow uses temporary files for comparison, but ultimately updates the original file:**
+
+- **Original file:** `input.md` - **NEVER modified during debug workflow**
+- **Temp files (for diff comparison):**
+  - `temp_input_clean.md` - Clean version without error markup
+  - `temp_output_expected.md` - With manually calculated expected values
+  - `temp_output_actual.md` - With LiveMathTeX computed values
+- **Final step:** After all issues are fixed, the original `input.md` is updated with correct values
+
+**Why temp files?**
+- Allows git diff comparison between expected and actual
+- Original file remains untouched during debugging
+- Temp files are automatically ignored by git (via `temp_*` pattern in .gitignore)
+- Final result: Original file is updated and fully working
 
 ---
 
@@ -192,10 +314,10 @@ graph TB
 
 **Steps 1-4 are identical to `/build-calculations`:**
 
-1. **Clean source document** (clean-1)
-2. **Calculate expected values** (expect-1)
-3. **Process with LiveMathTeX** (process-1)
-4. **Git diff comparison** (diff-1)
+1. **Clean source document** (clean-1) - Creates `temp_input_clean.md`
+2. **Calculate expected values** (expect-1) - Creates `temp_output_expected.md`
+3. **Process with LiveMathTeX** (process-1) - Creates `temp_output_actual.md`
+4. **Git diff comparison** (diff-1) - Compares `temp_output_expected.md` vs `temp_output_actual.md`
 
 **See:** `/build-calculations` for detailed steps.
 
@@ -429,20 +551,42 @@ $d_{tube} := \frac{2 \cdot d_{weld}}{\pi} ==$ <!-- [m] -->
 <!-- WORKAROUND: ISS-025 - \pi not handled. Using manual calculation: 2 × 38 mm / π = 24.19 mm -->
 ```
 
-3. **Iterate until all user errors fixed:**
-   - Return to Step 1 (clean)
-   - Recalculate expected values
-   - Process again (using SAME output format as document configuration)
+3. **Fix issues in original file:**
+   - **⚠️ CRITICAL:** Fix user errors in the **original** `input.md` file (not temp files)
+   - Update unit hints to match result types
+   - Fix calculation formulas
+   - Add missing definitions
+   - Fix variable order
+
+4. **Iterate until all user errors fixed:**
+   - Return to Step 1 (clean) - This recreates temp files from updated original
+   - Recalculate expected values in `temp_output_expected.md`
+   - Process again to `temp_output_actual.md`
    - Compare again
    - Continue until all user errors resolved
+
+5. **After all issues fixed, update original file:**
+   ```bash
+   # Detect which repository the document is in
+   DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
+   cd "$DOC_REPO"
+
+   # Copy the working version to original file
+   # This ensures the original file is updated with correct values
+   cp temp_output_actual.md input.md
+
+   # Optional: Clean up temp files
+   rm -f temp_input_clean.md temp_output_expected.md temp_output_actual.md temp_input_clean.lmt.json
+   ```
 
 **⚠️ CRITICAL: When processing, follow document's output format:**
 - Check document's LiveMathTeX configuration (first comment block)
 - Use the configured output format (inplace, file, timestamp, etc.)
 - **DO NOT** create extra files or use different formats
 - **DO NOT** assume a default format
+- **Always fix issues in original `input.md`, then recreate temp files**
 
-**Self-check:** All user errors fixed, all bugs documented with workarounds.
+**Self-check:** All user errors fixed, all bugs documented with workarounds, original file updated.
 
 ---
 
@@ -471,131 +615,213 @@ $d_{tube} := \frac{2 \cdot d_{weld}}{\pi} ==$ <!-- [m] -->
 
 ---
 
-## PHASE 9: Loop Mode (Default)
+## PHASE 9: Status Tracking
 
-### Step 9: Monitor Issues and Restart (loop-1)
+### Step 9: Update Status and Check Continuation (status-1)
 
-**Goal:** Automatically monitor created issues and restart the workflow when issues are resolved. Continue testing until the document is fully correct, no new issues can be created, or maximum cycles reached (6 cycles = 1 hour).
+**Goal:** Update status file for external monitoring and check if user wants to continue debugging.
 
-**Default behavior:** Loop mode is always enabled. The workflow will automatically wait and check for resolved issues, then restart from the beginning.
+**Status file location:** `.planning/.debug-calculations-status.json`
 
-**Action (always executed - loop mode is default):**
+**Action:**
 
-1. **After completing workflow (phases 1-8), check if issues were created:**
+1. **Update status file:**
    ```bash
    # Detect livemathtex repository
    LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
      find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
-     find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+     find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null || \
      echo ".")
 
-   # Get list of issues created in this session (store for tracking)
-   grep -E "^\*\*ISS-[0-9]+" "$LMT_REPO/.planning/ISSUES.md" | sed 's/^### //' | cut -d: -f1 > /tmp/debug-calc-initial-issues.txt 2>/dev/null || true
-   INITIAL_ISSUE_COUNT=$(wc -l < /tmp/debug-calc-initial-issues.txt 2>/dev/null || echo "0")
+   # Create status file
+   cat > "$LMT_REPO/.planning/.debug-calculations-status.json" <<EOF
+   {
+     "status": "ready",
+     "phase": "review",
+     "document": "$(realpath input.md)",
+     "timestamp": "$(date -Iseconds)",
+     "issues_created": [$(grep -E '^\*\*ISS-[0-9]+' "$LMT_REPO/.planning/ISSUES.md" | sed 's/^### //' | cut -d: -f1 | sed 's/^/"/;s/$/"/' | tr '\n' ',' | sed 's/,$//')],
+     "user_errors_fixed": $(grep -c "User Error" temp_output_expected.md 2>/dev/null || echo 0),
+     "workarounds_documented": $(grep -c "WORKAROUND" input.md 2>/dev/null || echo 0)
+   }
+   EOF
    ```
 
-2. **If issues were created, start loop with actual terminal wait:**
+2. **Status values:**
+   - `"status": "ready"` - Workflow complete, waiting for review
+   - `"status": "waiting"` - Waiting for external process (GSD) to resolve issues
+   - `"status": "active"` - Currently debugging
+   - `"status": "done"` - User said "enough", workflow complete
 
-   **⚠️ CRITICAL: Use `run_terminal_cmd` to execute the loop - this is a REAL terminal command that actually waits and restarts.**
+**Self-check:** Status file updated before proceeding to review.
 
-   ```bash
-   # Detect livemathtex repository
-   LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
-     find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
-     find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
-     echo ".")
+---
 
-   CYCLE=1
-   MAX_CYCLES=6  # 6 cycles × 10 min = 60 minutes (1 hour) max
+## REVIEW GATE
 
-   while [ $CYCLE -le $MAX_CYCLES ]; do
-     echo "=== Loop Cycle $CYCLE/$MAX_CYCLES ==="
-     echo "Waiting 10 minutes for issues to be resolved..."
+### review-0: Pause for User Review (Y/N/ENOUGH to proceed)
 
-     # ACTUAL TERMINAL WAIT - executes sleep 600 (10 minutes)
-     sleep 600
+At this point, the workflow should be complete:
+- ✅ All calculations verified (with workarounds for bugs)
+- ✅ Original file updated (`input.md` with correct values or workarounds)
+- ✅ Temp files cleaned up
+- ✅ Issues created and documented
+- ✅ Lessons learned documented
+- ❌ Original file NOT yet committed — that is expected
 
-     # Check issue status
-     RESOLVED_ISSUES=$(grep -E "^\*\*ISS-[0-9]+" "$LMT_REPO/.planning/ISSUES.md" | \
-       grep -E "RESOLVED|FIXED|DONE|CLOSED" | wc -l)
-     TOTAL_ISSUES=$(grep -E "^\*\*ISS-[0-9]+" "$LMT_REPO/.planning/ISSUES.md" | wc -l)
+**Action:** Show summary and ask user to review:
 
-     echo "Status: $RESOLVED_ISSUES/$TOTAL_ISSUES issues resolved"
+```markdown
+## Debug Calculations Complete - Review
 
-     if [ "$RESOLVED_ISSUES" -eq "$TOTAL_ISSUES" ] && [ "$TOTAL_ISSUES" -gt 0 ]; then
-       echo "✅ All issues resolved! Restarting workflow from beginning..."
-       # Exit loop - workflow will restart from Phase 1
-       break
-     elif [ "$TOTAL_ISSUES" -eq 0 ]; then
-       echo "✅ No issues found. Document complete."
-       break
-     else
-       echo "⏳ Issues still pending ($RESOLVED_ISSUES/$TOTAL_ISSUES resolved). Continuing loop..."
-       CYCLE=$((CYCLE + 1))
-     fi
-   done
+**Document:** `input.md`
+**Status:** ✅ All calculations verified (with workarounds for bugs)
 
-   # If max cycles reached without resolution
-   if [ $CYCLE -gt $MAX_CYCLES ]; then
-     echo "⏰ Maximum cycles reached (6 cycles = 1 hour). Stopping loop."
-     echo "Issues may still be pending. Document has workarounds documented."
-   fi
-   ```
+**Summary:**
+- Cleaned source document
+- Calculated expected values for 15 calculations
+- Processed with LiveMathTeX
+- Compared expected vs actual: 10 matched, 5 differed
+- Classified: 2 bugs, 3 user errors
+- Created 2 ISS entries (ISS-026, ISS-027)
+- Fixed 3 user errors
+- Documented workarounds for 2 bugs
+- Original file updated with correct values and workarounds
 
-   **Implementation in AI assistant:**
-   - Use `run_terminal_cmd` with `is_background: false` to execute the loop
-   - The `sleep 600` command will actually wait 10 minutes
-   - After each wait, check issue status
-   - If all resolved, break loop and **restart workflow from Phase 1** (clean source)
-   - If not resolved and cycles remaining, continue loop
-   - If max cycles (6) reached, stop loop and end command
+**Issues Created:**
+1. **ISS-026:** Calculation with \pi fails (SymPy constant not handled)
+2. **ISS-027:** Unit propagation fails for rate × time (already ISS-024)
 
-3. **After loop completes (issues resolved or max cycles reached):**
+**User Errors Fixed:**
+1. Unit hint mismatch: `C_{26}` had `[kg/year]` but result is total `[kg]` → Fixed
+2. Calculation error: `PAR_{rct}` formula incorrect → Fixed
+3. Missing definition: `V_{rct}` not defined → Fixed
 
-   **If issues resolved:**
-   - **Restart workflow from beginning** (Phase 1: Clean source document)
-   - **Continue testing** - process may now work correctly
-   - **Create new issues** if new bugs are discovered
-   - After completing phases 1-8 again, check if new issues created → loop again
+**Workarounds Documented:**
+1. ISS-025: Manual calculation for \pi expressions
+2. ISS-024: Use explicit unit conversion in formulas
 
-   **If max cycles reached:**
-   - **End command** - document has workarounds documented
-   - Report final status with pending issues
+**Lessons Learned:**
+- Always clean source before processing
+- Expected values make discrepancies immediately visible
+- Classification: Order of magnitude errors = bugs, unit mismatches = user errors
 
-4. **Loop termination:**
-   - ✅ All calculations work correctly (no discrepancies) → End command
-   - ✅ No issues found → End command
-   - ✅ Maximum cycles reached (6 cycles = 1 hour) → End command
-   - ⚠️ Issues still pending after max cycles → End command (workarounds documented)
+**Files ready to commit:**
+- [input.md](/absolute/path/to/input.md) (updated with correct values and workarounds)
 
-**Parking blocking issues:**
-- If an issue blocks testing of other calculations:
-  - Document the workaround in the source document
-  - Note which calculations are blocked
-  - Continue testing other calculations
-  - Re-test blocked calculations when issue is resolved
-
-**Example loop cycle:**
-```
-Cycle 1:
-- Found 3 bugs → Created ISS-026, ISS-027, ISS-028
-- Wait 10 minutes...
-
-Cycle 2 (after 10 min):
-- Checked ISSUES.md → ISS-026 marked FIXED, ISS-027 still open, ISS-028 still open
-- Restart workflow from beginning
-- ISS-026 now works! ✅
-- Found 1 new bug → Created ISS-029
-- Wait 10 minutes...
-
-Cycle 3 (after 10 min):
-- Checked ISSUES.md → ISS-027, ISS-028, ISS-029 all marked FIXED
-- Restart workflow from beginning
-- All calculations now work! ✅
-- No new issues → Document complete
+Please review and respond:
+- **Y** = proceed to commit original file
+- **N** = collect corrections, apply fixes, then repeat `review-0`
+- **ENOUGH** = stop debugging, mark status as "done", workflow complete (no commit)
+- **CONTINUE** = continue debugging (restart from clean-1, check for resolved issues first)
 ```
 
-**Self-check:** Loop continues until document is fully correct or no new issues can be created.
+**After user response:**
+
+**If Y (proceed to commit):**
+- Proceed to `final-1` (commit original file)
+- Update status: `"status": "committing"`
+
+**If N (collect corrections):**
+- Apply fixes based on feedback
+- Repeat `review-0` after fixes applied
+
+**If ENOUGH (stop debugging):**
+- Update status file: `"status": "done"`
+- Show final summary
+- **Do NOT commit** - user wants to stop
+- **Stop monitoring script and cleanup (if synchronization was enabled):**
+  ```bash
+  # Check if sync was enabled
+  LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
+    find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+    find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
+    echo ".")
+
+  if [ -f "$LMT_REPO/.planning/.sync-enabled" ] && [ "$(cat "$LMT_REPO/.planning/.sync-enabled")" = "true" ]; then
+    # Stop monitoring script if still running
+    if [ -f "$LMT_REPO/.planning/.monitor.pid" ]; then
+      MONITOR_PID=$(cat "$LMT_REPO/.planning/.monitor.pid")
+      if ps -p $MONITOR_PID > /dev/null 2>&1; then
+        echo "🛑 Stopping monitoring script (PID: $MONITOR_PID)..."
+        kill $MONITOR_PID 2>/dev/null || true
+        rm -f "$LMT_REPO/.planning/.monitor.pid"
+      fi
+    fi
+    # Cleanup sync flag
+    rm -f "$LMT_REPO/.planning/.sync-enabled"
+  fi
+  ```
+- End workflow
+
+**If CONTINUE (continue debugging):**
+- Check if issues were resolved (by external process like GSD)
+- Update status: `"status": "active"`
+- Restart from `clean-1` (recreate temp files from updated original)
+- Continue workflow until next `review-0`
+
+---
+
+## FINAL PHASE
+
+### final-1: Commit Original File (only after approval)
+
+**IMPORTANT:** Only commit after user explicitly approves in `review-0` (Y).
+
+```bash
+# Detect which repository the document is in
+DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
+cd "$DOC_REPO"
+
+# Commit the updated original file
+git add input.md
+git commit -m "fix(calculations): verify and correct calculations in input.md
+
+- All calculations verified against expected values
+- Fixed 3 user errors: unit hints, calculation formulas
+- Documented workarounds for 2 LiveMathTeX bugs (ISS-026, ISS-027)
+- Documented in LESSONS_LEARNED.md"
+```
+
+**Self-check:** Original file committed successfully.
+
+---
+
+## POST PHASE
+
+### post-0: Retrospective + Improve This Command (ALWAYS DO THIS)
+
+At the end of the run, do a quick retrospective to make the next run faster and avoid repeating the same mistakes.
+
+**Write a short summary (5-10 lines):**
+- What was processed (document path, number of calculations, issues found)
+- Which issues were classified as bugs vs user errors
+- Which Redmine/ISS issues were created
+- What was unexpectedly tricky / slow
+- User feedback received (if any)
+- Status updates made
+
+**Then propose concrete command improvements:**
+- Which steps were unclear?
+- Which missing instructions caused you to search/guess?
+- Which recurring failure modes should be handled (temp files, workspace detection, issue classification, edge cases)?
+- What user feedback suggests improvements?
+- How can the status tracking be improved?
+
+**Apply the improvements to this command file** (`.cursor/commands/debug-calculations.md`).
+
+**Finally ask:**
+- "**YES/NO**: may I commit these command-instruction changes?"
+
+If **YES**, commit with a separate commit message:
+
+```bash
+cd /home/mark/Repositories/livemathtex
+git add .cursor/commands/debug-calculations.md
+git commit -m "chore(commands): improve debug-calculations workflow based on retrospective"
+```
+
+If **NO**, do not commit (leave changes unstaged or revert).
 
 ---
 
@@ -639,50 +865,30 @@ Cycle 3 (after 10 min):
 - Classification: Order of magnitude errors = bugs, unit mismatches = user errors
 ```
 
-**Loop mode (`--loop` enabled):**
+**Status tracking enabled:**
 ```markdown
-## Debug Calculations Complete (Loop Mode)
+## Debug Calculations Complete - Status Updated
 
 **Document:** `input.md`
-**Status:** 🔄 Monitoring issues (loop mode active)
+**Status:** ✅ Ready for review (status file updated)
 
-**Current Cycle:** 2/3
-**Issues Created This Session:** ISS-026, ISS-027, ISS-028
-**Issues Resolved:** ISS-026 (FIXED), ISS-027 (pending), ISS-028 (pending)
+**Status file:** `.planning/.debug-calculations-status.json`
 
 **Summary:**
 - Cleaned source document
 - Calculated expected values for 15 calculations
 - Processed with LiveMathTeX
 - Compared expected vs actual: 10 matched, 5 differed
-- Classified: 3 bugs, 2 user errors
-- Created 3 ISS entries (ISS-026, ISS-027, ISS-028)
-- Fixed 2 user errors
-- Documented workarounds for 3 bugs
+- Classified: 2 bugs, 3 user errors
+- Created 2 ISS entries (ISS-026, ISS-027)
+- Fixed 3 user errors
+- Documented workarounds for 2 bugs
+- Status file updated for external monitoring
 
 **Next Action:**
-- Waiting 10 minutes before checking issue status...
-- Will restart workflow when ISS-027 and ISS-028 are resolved
-
-**Issues Created:**
-1. **ISS-026:** Calculation with \pi fails (SymPy constant not handled) → ✅ FIXED
-2. **ISS-027:** Unit propagation fails for rate × time → ⏳ Pending
-3. **ISS-028:** Division by zero error in edge case → ⏳ Pending
-
-**User Errors Fixed:**
-1. Unit hint mismatch: `C_{26}` had `[kg/year]` but result is total `[kg]` → Fixed
-2. Calculation error: `PAR_{rct}` formula incorrect → Fixed
-
-**Workarounds Documented:**
-1. ISS-025: Manual calculation for \pi expressions
-2. ISS-024: Use explicit unit conversion in formulas
-3. ISS-028: Add validation check before division
-
-**Lessons Learned:**
-- Always clean source before processing
-- Expected values make discrepancies immediately visible
-- Classification: Order of magnitude errors = bugs, unit mismatches = user errors
-- Loop mode allows continuous testing as issues are resolved
+- Waiting for user review (Y/N/ENOUGH/CONTINUE)
+- External process (GSD) can check status file and resolve issues
+- After issues resolved, user can say CONTINUE to restart workflow
 ```
 
 ---
@@ -754,53 +960,61 @@ grep -i "pattern" "$LMT_REPO/.planning/ISSUES.md"
 
 ---
 
-## Loop Mode (Default Behavior)
+## Status Tracking for External Monitoring
 
-**Loop mode is always enabled by default.** The command automatically monitors issues and restarts the workflow when issues are resolved.
+**Status file location:** `.planning/.debug-calculations-status.json`
 
-**No special flags needed:**
+**Purpose:** Allow external processes (like GSD build-all) to monitor debug progress and coordinate issue resolution.
+
+**⚠️ IMPORTANT: Launch monitoring script BEFORE starting workflow:**
+
+Before running `/debug-calculations`, start the monitoring script in a separate terminal:
+
+```bash
+# In a separate terminal window
+cd /home/mark/Repositories/livemathtex
+python scripts/monitor_debug_build.py
 ```
-/debug-calculations
+
+The monitoring script will:
+- Watch for status changes in both workflows
+- Coordinate between debug-calculations and build-all
+- Trigger workflows when the other is ready
+- Continue until both workflows are "done"
+
+**Alternative:** Run monitoring script in background:
+```bash
+cd /home/mark/Repositories/livemathtex
+nohup python scripts/monitor_debug_build.py > monitor.log 2>&1 &
 ```
 
-**The command will:**
-- Complete phases 1-8 (clean, expect, process, diff, classify, issue, fix, learn)
-- If issues were created, wait 10 minutes and check if resolved
-- If resolved, restart workflow from Phase 1 (clean source)
-- Continue looping until all calculations work OR max cycles reached (6 cycles = 1 hour)
-- End command after loop completes
+**Status values:**
+- `"status": "active"` - Currently debugging (workflow in progress)
+- `"status": "ready"` - Workflow complete, waiting for review
+- `"status": "waiting"` - Waiting for external process to resolve issues
+- `"status": "committing"` - User approved, committing changes
+- `"status": "done"` - User said "enough", workflow complete
 
-### How Loop Mode Works
+**Status file structure:**
+```json
+{
+  "status": "ready",
+  "phase": "review",
+  "document": "/absolute/path/to/input.md",
+  "timestamp": "2026-01-15T14:30:00+01:00",
+  "issues_created": ["ISS-026", "ISS-027"],
+  "user_errors_fixed": 3,
+  "workarounds_documented": 2
+}
+```
 
-1. **Complete normal workflow** (phases 1-8)
-2. **If issues were created:**
-   - **Execute `sleep 600` terminal command** (waits 10 minutes = 600 seconds)
-   - This is a **real terminal wait** - not just a description
-   - Use `run_terminal_cmd` with `is_background: false` to execute the wait
-3. **After wait completes:**
-   - Check `$LMT_REPO/.planning/ISSUES.md` for resolved status
-   - Look for status markers: `RESOLVED`, `FIXED`, `DONE`, `CLOSED`
-   - Count resolved vs total issues
-4. **If issues resolved:**
-   - Restart workflow from Phase 1 (clean source)
-   - Continue testing (previously failing calculations may now work)
-   - Create new issues if new bugs discovered
-5. **If issues NOT resolved:**
-   - **Execute `sleep 600` again** (wait another 10 minutes)
-   - Check again
-   - Continue until all resolved or max cycles reached
-6. **Continue looping** until:
-   - All calculations work correctly
-   - No new issues can be created
-   - Document is fully correct
-   - Maximum cycles reached (safety limit, default: 10 cycles = 100 minutes)
+**External monitoring:**
+- Python script can read status file to check if debugging is ready
+- When status is "ready", external process (GSD) can resolve issues
+- After issues resolved, user can say "CONTINUE" to restart workflow
+- Status updates automatically at each phase transition
 
-**⚠️ CRITICAL:** The loop uses **actual terminal commands** (`sleep 600`) to wait. This must be executed using `run_terminal_cmd` tool, not just described. The loop will continue running until issues are resolved or the maximum cycle limit is reached.
-
-### Checking Issue Status
-
-**To check if issues are resolved, read `$LMT_REPO/.planning/ISSUES.md`:**
-
+**Checking for resolved issues (when CONTINUE is selected):**
 ```bash
 # Detect livemathtex repository
 LMT_REPO=$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || \
@@ -818,36 +1032,10 @@ grep -E "^\*\*ISS-[0-9]+" "$LMT_REPO/.planning/ISSUES.md" | grep -E "RESOLVED|FI
 - `DONE` - Issue is done
 - `CLOSED` - Issue is closed
 
-**If issue contains any of these markers, consider it resolved and restart workflow.**
-
-### Parking Blocking Issues
-
-**If an issue blocks testing of other calculations:**
-
-1. **Document the workaround** in the source document:
-   ```markdown
-   $calculation := ... ==$ <!-- [unit] -->
-   <!-- BLOCKED: ISS-028 - Division by zero error. Workaround: Add validation check. -->
-   ```
-
-2. **Note which calculations are blocked** in lessons learned
-
-3. **Continue testing other calculations** that are not blocked
-
-4. **Re-test blocked calculations** when issue is resolved (in next loop cycle)
-
-### Loop Termination
-
-**Loop mode terminates when:**
-
-- ✅ **All calculations work correctly** - No discrepancies found
-- ✅ **No new issues can be created** - All bugs documented, document is as correct as possible
-- ✅ **User stops the loop** - Manual intervention
-
-**Loop does NOT terminate on:**
-- ❌ Individual issues being resolved (continues until all work)
-- ❌ User errors (these are fixed immediately)
-- ❌ Temporary failures (retries in next cycle)
+**If issues are resolved when CONTINUE is selected:**
+- Restart workflow from Phase 1 (clean source)
+- Continue testing (previously failing calculations may now work)
+- Create new issues if new bugs discovered
 
 ---
 
@@ -868,4 +1056,4 @@ grep -E "^\*\*ISS-[0-9]+" "$LMT_REPO/.planning/ISSUES.md" | grep -E "RESOLVED|FI
 
 ---
 
-**Key Principle:** Systematically debug, classify issues, document bugs, and fix user errors to build correct documents iteratively. With loop mode, continuously monitor and retest as issues are resolved, maximizing test coverage and ensuring the document is fully correct.
+**Key Principle:** Systematically debug, classify issues, document bugs, and fix user errors to build correct documents iteratively. Status tracking allows external processes to monitor progress and coordinate issue resolution. User controls when to continue or stop debugging.
