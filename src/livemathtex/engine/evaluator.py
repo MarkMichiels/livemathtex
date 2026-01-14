@@ -16,8 +16,11 @@ See ARCHITECTURE.md for full documentation.
 """
 
 from typing import Dict, Any, Optional, List, Tuple
+import logging
 import re
 import sympy
+
+logger = logging.getLogger(__name__)
 import sympy.physics.units as u
 from sympy.parsing.latex import parse_latex
 
@@ -41,7 +44,10 @@ from .pint_backend import (
     format_unit_latex,
 )
 from .token_classifier import TokenClassifier
+from .expression_evaluator import evaluate_expression_tree, EvaluationError as CustomEvaluationError
 from ..parser.models import Calculation
+from ..parser.expression_tokenizer import ExpressionTokenizer
+from ..parser.expression_parser import ExpressionParser, ParseError
 from ..utils.errors import EvaluationError, UndefinedVariableError, UnitConversionWarning
 from ..ir.schema import LivemathIR, SymbolEntry
 from ..config import LivemathConfig
@@ -2467,6 +2473,55 @@ class Evaluator:
 
         return expr
 
+    def _evaluate_with_custom_parser(self, expression_latex: str) -> 'pint.Quantity':
+        """
+        Evaluate a LaTeX expression using the custom tokenizer/parser pipeline.
+
+        This is the v3.0 Pure Pint Architecture path that bypasses latex2sympy
+        and SymPy entirely. Uses:
+        - ExpressionTokenizer (Phase 23)
+        - ExpressionParser (Phase 24)
+        - evaluate_expression_tree (Phase 25)
+
+        Args:
+            expression_latex: LaTeX expression to evaluate
+
+        Returns:
+            Pint Quantity with the computed result
+
+        Raises:
+            ParseError: If tokenization or parsing fails
+            CustomEvaluationError: If evaluation fails
+        """
+        import pint
+        ureg = get_pint_registry()
+
+        # Build symbol map from our symbol table
+        # Map latex names to Pint Quantities
+        symbol_map = {}
+        for name in self.symbols.all_names():
+            entry = self.symbols.get(name)
+            if entry:
+                pint_qty = self._symbol_to_pint_quantity(entry, ureg)
+                if pint_qty is not None:
+                    # Store under latex_name for parser lookup
+                    if hasattr(entry, 'latex_name') and entry.latex_name:
+                        symbol_map[entry.latex_name] = pint_qty
+                    # Also store under original name
+                    symbol_map[name] = pint_qty
+
+        # Tokenize
+        tokenizer = ExpressionTokenizer(expression_latex)
+        tokens = tokenizer.tokenize()
+
+        # Parse
+        parser = ExpressionParser(tokens)
+        tree = parser.parse()
+
+        # Evaluate
+        result = evaluate_expression_tree(tree, symbol_map, ureg)
+        return result
+
     def _compute_with_pint(self, expression_latex: str) -> 'pint.Quantity':
         """
         Parse and compute a LaTeX expression using Pint for unit handling.
@@ -2485,6 +2540,13 @@ class Evaluator:
         """
         import pint
 
+        # Try custom parser first (Phase 26 integration)
+        try:
+            return self._evaluate_with_custom_parser(expression_latex)
+        except (ParseError, CustomEvaluationError) as e:
+            logger.debug(f"Custom parser failed for '{expression_latex}', falling back to latex2sympy: {e}")
+
+        # Fallback: Original latex2sympy path
         # Step 1: Parse LaTeX to SymPy AST using existing _compute (without substitution)
         # We need to get the AST structure, then evaluate with Pint
         modified_latex = self._rewrite_with_internal_ids(expression_latex)
