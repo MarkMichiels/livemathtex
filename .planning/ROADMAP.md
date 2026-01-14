@@ -372,22 +372,24 @@ Key deliverables:
 Plans:
 - [x] 24-01: TDD implementation of expression parser
 
-#### Phase 25: Direct Pint Evaluator
+#### Phase 25: Direct Pint Evaluator ✅
 **Goal**: Implement expression tree evaluation using Pint directly (no SymPy)
 **Depends on**: Phase 24
-**Status**: Not started
-**Research**: Unlikely (Pint patterns established in v1.6)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-14
+**Research**: Not needed (Pint patterns established)
+**Plans**: 1
 
 Key deliverables:
+- `expression_evaluator.py` module (153 lines)
 - `evaluate_expression_tree()` function
-- Symbol table integration (lookup variables as Pint Quantities)
+- Variable lookup with name normalization
 - Unit handling during evaluation
-- Error handling for undefined variables, unit mismatches
-- Tests for numeric evaluation with units
+- Error handling (EvaluationError for undefined variables)
+- 47 tests for numeric evaluation with units
 
 Plans:
-- [ ] 25-01: TBD
+- [x] 25-01: TDD implementation of expression tree evaluator
 
 #### Phase 26: Evaluator Integration
 **Goal**: Integrate new parser into evaluator.py, replacing latex2sympy calls
