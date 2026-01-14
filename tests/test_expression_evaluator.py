@@ -356,11 +356,12 @@ class TestComplexExpressions:
 
     def test_rate_times_time(self, ureg):
         """Evaluate rate × time calculation."""
+        # Use single letters (r, t) since multi-letter names need subscripts
         symbols = {
-            "rate": 100 * ureg("kg/day"),
-            "time": 365 * ureg.day,
+            "r": 100 * ureg("kg/day"),
+            "t": 365 * ureg.day,
         }
-        result = evaluate(r"rate \cdot time", symbols, ureg)
+        result = evaluate(r"r \cdot t", symbols, ureg)
         # 100 kg/day * 365 day = 36500 kg
         assert result.magnitude == pytest.approx(36500)
         assert result.dimensionality == ureg.kg.dimensionality
