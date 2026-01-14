@@ -19,7 +19,8 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.7 Pint Evaluator Hotfixes** - Phases 16-18 (shipped 2026-01-13)
 - ✅ **v1.8 Pint Unit Handling Fixes** - Phase 19 (verified 2026-01-13 - issues not bugs)
 - ✅ **v1.9 µmol Unit Conversion Fix** - Phase 20 (shipped 2026-01-14)
-- 🔄 **v2.0 Function Evaluation** - Phase 21 (in progress)
+- ✅ **v2.0 Function Evaluation** - Phase 21 (shipped 2026-01-14)
+- ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
 
 ## Phases
 
@@ -263,3 +264,28 @@ Plans:
 
 Plans:
 - [x] 21-01: Fix function call evaluation in Pint evaluator
+
+### ✅ v2.1 Superscript Variable Names (Complete)
+
+**Milestone Goal:** Allow variable names with superscripts (R^2) without false unit conflicts.
+
+**Issues Resolved:** ISS-033, ISS-034 (verified), ISS-035 (updated - same root cause as ISS-018)
+**Completed**: 2026-01-14
+
+#### Phase 22: Fix Superscript Unit Conflict (ISS-033) ✅
+**Goal**: Allow variable names with superscripts like R^2 without false unit conflict
+**Depends on**: v2.0 complete
+**Status**: Complete
+**Completed**: 2026-01-14
+**Research**: N/A
+**Plans**: 1
+
+**Fix Applied:**
+- Root cause: `check_variable_name_conflict()` converted `R^2` to `R**2` via `clean_latex_unit()`
+- `R` is molar_gas_constant in Pint, so `R**2` was treated as a valid unit expression
+- Fix: Treat `^` (superscript) the same as `_` (subscript) for disambiguation
+- Variable names containing `^` are now allowed without unit conflict checking
+- All 365 tests pass + 3 xpassed
+
+Plans:
+- [x] 22-01: Fix superscript unit conflict in pint_backend.py

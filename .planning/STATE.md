@@ -9,18 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 21 of 21 (function evaluation fix)
+Phase: 22 of 22 (superscript variable names)
 Plan: 1 of 1
-Status: ✅ COMPLETE (v2.0)
-Last activity: 2026-01-14 — Phase 21 complete (ISS-032 fixed)
+Status: ✅ COMPLETE (v2.1)
+Last activity: 2026-01-14 — Phase 22 complete (ISS-033 fixed)
 
-**Milestone v2.0 Summary:**
-- Phase 21 (ISS-032): ✅ COMPLETE - Fixed function call evaluation
-  - Root cause: Three interrelated bugs in function lookup/substitution
-  - Fix: Function name normalization, latex_name extraction, internal ID reverse lookup
+**Milestone v2.1 Summary:**
+- Phase 22 (ISS-033): ✅ COMPLETE - Fixed superscript unit conflict
+  - Root cause: `check_variable_name_conflict()` converted `R^2` to `R**2` which matches molar_gas_constant
+  - Fix: Treat `^` (superscript) same as `_` (subscript) for disambiguation
+  - ISS-034 verified fixed, ISS-035 same root cause as ISS-018
   - All 365 tests pass + 3 xpassed
 
-Progress: ██████████ 100% (21/21 phases complete)
+Progress: ██████████ 100% (22/22 phases complete)
 
 ## Performance Metrics
 

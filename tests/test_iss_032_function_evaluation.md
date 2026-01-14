@@ -47,4 +47,4 @@ $PPE_{result} := PPE_{eff}(0.90) == 3.765$ <!-- Should evaluate to ~3.765 -->
 
 ---
 
-> *livemathtex: 2026-01-14 00:39:01 | 2 definitions, 1 evaluation | no errors | 0.24s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-14 09:48:35 | 2 definitions, 1 evaluation | no errors | 0.24s* <!-- livemathtex-meta -->

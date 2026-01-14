@@ -311,8 +311,10 @@ def check_variable_name_conflict(name: str) -> Optional[str]:
     - Common units: 'm' (meter), 's' (second), 'kg', etc.
     - Obscure units: 'a' (year/annum), 'b' (barn), 'mass' (milliarcsecond)
 
-    Names with subscripts (containing '_') are considered explicitly
-    disambiguated and allowed.
+    Names with subscripts (containing '_') or superscripts (containing '^')
+    are considered explicitly disambiguated and allowed. This allows common
+    mathematical notation like R^2 (coefficient of determination) without
+    conflicting with unit expressions like R**2 (molar_gas_constant ** 2).
 
     Args:
         name: The proposed variable name.
@@ -323,8 +325,10 @@ def check_variable_name_conflict(name: str) -> Optional[str]:
     if name is None or name == "":
         return None
 
-    # Names with subscripts are explicitly disambiguated
-    if '_' in name:
+    # Names with subscripts or superscripts are explicitly disambiguated
+    # ISS-033: R^2 should be allowed as a variable name (R-squared statistic)
+    # The ^ character indicates user intent to define a variable, not a unit expression
+    if '_' in name or '^' in name:
         return None
 
     # Use Pint's full unit detection - no exceptions

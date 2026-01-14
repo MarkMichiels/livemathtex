@@ -4,9 +4,50 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-(None)
+---
+
+### ISS-035: Multi-letter variable names in tables parsed as implicit multiplication
+
+**Status:** Open (updated)
+**Created:** 2026-01-14
+**Updated:** 2026-01-14
+**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+**Description:**
+Multi-letter variable names (like `Cost`) in markdown table cells are parsed as implicit multiplication (`C*o*s*t`). This is a latex2sympy limitation, not a table-specific bug. The originally reported "Symbol not iterable" error no longer reproduces - actual errors are:
+1. `Cost` → "Undefined variable 'Cost'. Note: 'Cost' was parsed as implicit multiplication (C*o*s*t)"
+2. `k€` → "Undefined variable 'k'" (k is not a prefix for custom unit €)
+
+**Error:**
+```
+Error: Undefined variable 'Cost'. Note: 'Cost' was parsed as implicit multiplication (C*o*s*t).
+```
+
+**Test file:** `tests/test_iss_035_symbol_not_iterable_in_tables.md`
+
+**Root cause:**
+1. **Multi-letter variable names:** latex2sympy parses `Cost` as `C*o*s*t` (implicit multiplication) - same as ISS-018
+2. **Custom unit prefix:** `k€` doesn't work because Pint's SI prefix `k` doesn't apply to custom units
+
+**Impact:** Medium - use subscripts for variable names (`Cost_{26}` instead of `Cost`) and define custom units with prefixes explicitly.
+
+**Workaround:** Use subscripts: `Cost_{26}` instead of `Cost`. For k€, define explicitly: `k€ === 1000\ €`
+
+**Note:** This is the same root cause as ISS-018 (implicit multiplication). Consider closing as duplicate.
+
+---
 
 ## Closed Issues
+
+### ISS-033: Variable name with superscript (R^2) conflicts with unit (molar_gas_constant ** 2)
+
+**Resolved:** 2026-01-14 - Fixed in v2.1 Phase 22
+**Solution:** Updated `check_variable_name_conflict()` in `pint_backend.py` to treat superscripts (`^`) the same as subscripts (`_`) for disambiguation purposes. Variable names containing `^` are now explicitly allowed without unit conflict checking. This allows common mathematical notation like `R^2` (coefficient of determination) without conflicting with unit expressions like `R**2` (molar_gas_constant ** 2).
+
+### ISS-034: Variable parsing fails for variables with commas in subscript
+
+**Resolved:** 2026-01-14 - Already fixed (verified during v2.1 build cycle)
+**Solution:** Variables with commas in subscripts (e.g., `PAR_{R2,umol}`) now parse and evaluate correctly. Test case `PAR_{R2,umol} := 1413 µmol/s` followed by `PAR_{R2} := PAR_{R2,umol} \cdot t_{day}` produces correct result `122.0832 mol/d`. The fix was likely a side effect of earlier parser improvements.
 
 ### ISS-032: Function evaluation fails - "Cannot convert expression to float"
 
