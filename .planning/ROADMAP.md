@@ -297,6 +297,31 @@ Plans:
 
 **Research:** ✅ COMPLETE - see `.planning/phases/23-remove-latex2sympy/23-RESEARCH.md`
 
+**⚠️ IMPORTANT: Development Strategy**
+
+This is a major architectural refactor. To minimize risk:
+
+1. **Develop on separate branch:** `feature/v3-pure-pint`
+   - All v3.0 work happens on this branch
+   - Master remains stable with current (working) latex2sympy implementation
+   - Merge to master only when ALL tests pass and feature is complete
+
+2. **Incremental validation:**
+   - Each phase must pass all existing 365+ tests before proceeding
+   - Run real-world documents (astaxanthin_production_analysis.md) as validation
+   - Compare outputs between old and new implementation
+
+3. **Rollback strategy:**
+   - Keep latex2sympy/SymPy code intact until Phase 27
+   - Phase 26 should support both paths (feature flag) for testing
+   - Only remove old code in Phase 27 after thorough validation
+
+4. **Documentation updates:**
+   - Update ARCHITECTURE.md with new pipeline
+   - Update docs/USAGE.md if user-facing behavior changes
+   - Update CONTRIBUTING.md with new parser architecture
+   - Add inline documentation in new modules
+
 **Key architectural change:**
 ```
 OLD: LaTeX → latex2sympy → SymPy AST → evaluate_sympy_ast_with_pint() → Result
