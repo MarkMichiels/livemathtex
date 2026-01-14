@@ -21,6 +21,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.9 µmol Unit Conversion Fix** - Phase 20 (shipped 2026-01-14)
 - ✅ **v2.0 Function Evaluation** - Phase 21 (shipped 2026-01-14)
 - ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
+- 🚧 **v3.0 Pure Pint Architecture** - Phases 23-27 (in progress)
 
 ## Phases
 
@@ -289,3 +290,110 @@ Plans:
 
 Plans:
 - [x] 22-01: Fix superscript unit conflict in pint_backend.py
+
+### 🚧 v3.0 Pure Pint Architecture (In Progress)
+
+**Milestone Goal:** Remove latex2sympy and SymPy dependencies entirely. Build custom LaTeX expression parser that feeds directly into Pint evaluation. Eliminates implicit multiplication issues and simplifies the codebase.
+
+**Research:** ✅ COMPLETE - see `.planning/phases/23-remove-latex2sympy/23-RESEARCH.md`
+
+**Key architectural change:**
+```
+OLD: LaTeX → latex2sympy → SymPy AST → evaluate_sympy_ast_with_pint() → Result
+NEW: LaTeX → Custom Tokenizer → Expression Tree → Pint Evaluation → Result
+```
+
+**Benefits:**
+- No more implicit multiplication (`PPE` won't become `P*P*E`)
+- No more special character conflicts (`E` in subscripts)
+- No more unit splitting (`kg` won't become `k*g`)
+- Simpler codebase (~100MB SymPy dependency removed)
+- Full control over parsing behavior
+
+#### Phase 23: Expression Tokenizer
+**Goal**: Build custom LaTeX tokenizer that correctly identifies variables, units, operators, and numbers
+**Depends on**: v2.1 complete
+**Status**: Not started
+**Research**: ✅ Complete (see 23-RESEARCH.md)
+**Plans**: TBD
+
+Key deliverables:
+- `expression_tokenizer.py` module
+- TokenType enum (NUMBER, VARIABLE, UNIT, OPERATOR, FRAC, LPAREN, RPAREN, etc.)
+- Token dataclass with type, value, span
+- Pattern-based tokenization with priority ordering (units before single letters)
+- Tests for all supported LaTeX constructs
+
+Plans:
+- [ ] 23-01: TBD (run /gsd:plan-phase 23 to break down)
+
+#### Phase 24: Expression Parser
+**Goal**: Build recursive descent parser that converts tokens into an expression tree
+**Depends on**: Phase 23
+**Status**: Not started
+**Research**: Unlikely (standard parsing patterns)
+**Plans**: TBD
+
+Key deliverables:
+- `expression_parser.py` module
+- ExprNode base class and subclasses (NumberNode, VariableNode, BinaryOpNode, etc.)
+- Operator precedence handling (PEMDAS)
+- Fraction parsing (`\frac{a}{b}`)
+- Function call parsing (`f(x)`)
+- Tests for expression tree construction
+
+Plans:
+- [ ] 24-01: TBD
+
+#### Phase 25: Direct Pint Evaluator
+**Goal**: Implement expression tree evaluation using Pint directly (no SymPy)
+**Depends on**: Phase 24
+**Status**: Not started
+**Research**: Unlikely (Pint patterns established in v1.6)
+**Plans**: TBD
+
+Key deliverables:
+- `evaluate_expression_tree()` function
+- Symbol table integration (lookup variables as Pint Quantities)
+- Unit handling during evaluation
+- Error handling for undefined variables, unit mismatches
+- Tests for numeric evaluation with units
+
+Plans:
+- [ ] 25-01: TBD
+
+#### Phase 26: Evaluator Integration
+**Goal**: Integrate new parser into evaluator.py, replacing latex2sympy calls
+**Depends on**: Phase 25
+**Status**: Not started
+**Research**: Unlikely (internal refactoring)
+**Plans**: TBD
+
+Key deliverables:
+- Update `_compute()` to use new parser
+- Update `_substitute_symbols()` for new AST format
+- Remove `_rewrite_with_internal_ids()` (no longer needed)
+- Remove token_classifier.py (implicit multiplication detection no longer needed)
+- Maintain backward compatibility for all existing tests
+- All 365+ tests still pass
+
+Plans:
+- [ ] 26-01: TBD
+
+#### Phase 27: Remove Dependencies
+**Goal**: Remove latex2sympy and sympy from project dependencies
+**Depends on**: Phase 26
+**Status**: Not started
+**Research**: Unlikely (cleanup)
+**Plans**: TBD
+
+Key deliverables:
+- Remove `from latex2sympy2 import latex2sympy` imports
+- Remove SymPy imports (except where truly needed for Lambda storage - evaluate alternatives)
+- Update pyproject.toml / requirements.txt
+- Update documentation
+- Verify package size reduction
+- Tag v3.0.0 release
+
+Plans:
+- [ ] 27-01: TBD

@@ -9,19 +9,25 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 22 of 22 (superscript variable names)
-Plan: 1 of 1
-Status: ✅ COMPLETE (v2.1)
-Last activity: 2026-01-14 — Phase 22 complete (ISS-033 fixed)
+Phase: 23 of 27 (expression tokenizer)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-14 — Milestone v3.0 created
 
-**Milestone v2.1 Summary:**
-- Phase 22 (ISS-033): ✅ COMPLETE - Fixed superscript unit conflict
-  - Root cause: `check_variable_name_conflict()` converted `R^2` to `R**2` which matches molar_gas_constant
-  - Fix: Treat `^` (superscript) same as `_` (subscript) for disambiguation
-  - ISS-034 verified fixed, ISS-035 same root cause as ISS-018
-  - All 365 tests pass + 3 xpassed
+**Milestone v3.0: Pure Pint Architecture**
 
-Progress: ██████████ 100% (22/22 phases complete)
+Goal: Remove latex2sympy and SymPy dependencies entirely. Replace with custom LaTeX expression parser.
+
+Phases:
+- Phase 23: Expression Tokenizer - Build custom LaTeX tokenizer
+- Phase 24: Expression Parser - Recursive descent parser → Expression Tree
+- Phase 25: Direct Pint Evaluator - Evaluate expression tree with Pint
+- Phase 26: Evaluator Integration - Replace latex2sympy in evaluator.py
+- Phase 27: Remove Dependencies - Remove latex2sympy and sympy
+
+Research: ✅ Complete (see `.planning/phases/23-remove-latex2sympy/23-RESEARCH.md`)
+
+Progress: ░░░░░░░░░░ 0% (0/5 phases complete)
 
 ## Performance Metrics
 
@@ -100,13 +106,19 @@ None.
 - Milestone v1.4 complete: All deferred issues addressed
 - Milestone v1.5 complete: Parser Architecture, 5 phases (8-12)
 - Milestone v1.6 created: Pint Evaluation Engine, 3 phases (13-15)
+- Milestone v2.0 complete: Function evaluation fixed (Phase 21)
+- Milestone v2.1 complete: Superscript variable names (Phase 22)
+- **Milestone v3.0 created: Pure Pint Architecture, 5 phases (23-27)**
+  - Major refactor: Remove latex2sympy and SymPy dependencies
+  - Custom tokenizer + parser for LaTeX expressions
+  - Direct Pint evaluation without SymPy intermediate
 
 ## Session Continuity
 
 Last session: 2026-01-14
-Stopped at: Phase 21 complete, v2.0 milestone finished
+Stopped at: Milestone v3.0 created
 Resume file: None
-Next: No pending work - all 21 phases complete, all issues resolved
+Next: Plan Phase 23 (Expression Tokenizer) - `/gsd:plan-phase 23`
 
 ### Implementation Notes (Phase 12)
 
