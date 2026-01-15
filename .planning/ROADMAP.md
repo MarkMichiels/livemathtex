@@ -462,5 +462,5 @@ Plans:
 - [x] 28-02: Remove SymPy from pint_backend.py
 - [x] 28-03: Remove SymPy from remaining files, delete token_classifier.py
 - [x] 28-04: Simplify internal IDs (v_{0} → v0)
-- [ ] 28-05: Uninstall packages from dependencies
+- [x] 28-05: Uninstall packages from dependencies
 - [ ] 28-06: Full test suite verification and bug fixes
