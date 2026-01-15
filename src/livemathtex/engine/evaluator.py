@@ -720,10 +720,10 @@ class Evaluator:
         if abs(magnitude) < 0.001 and magnitude != 0:
             # Use scientific notation
             formatted_value = f"{magnitude:.{digits}e}"
-        elif abs(magnitude) >= 10000:
-            # Large numbers - use thousand separators
+        elif abs(magnitude) >= 1000:
+            # ISS-039: Large numbers (>= 1000) - use thousand separators
             formatted_value = f"{magnitude:,.{digits}f}"
-            # Convert to LaTeX thousand separator
+            # Convert to LaTeX thousand separator (\,)
             formatted_value = formatted_value.replace(',', '\\,')
         else:
             # Normal numbers

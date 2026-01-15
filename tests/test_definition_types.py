@@ -96,8 +96,9 @@ $Cap ==$
             f"Unexpected error for defined variable. Result: {result}"
         )
         # Should contain the evaluation result (100 * 15 = 1500)
-        assert "1500" in result, (
-            f"Expected 1500 in result. Result: {result}"
+        # ISS-039: With thousands separator, it's 1\,500
+        assert "1\\,500" in result or "1500" in result, (
+            f"Expected 1500 or 1\\,500 in result. Result: {result}"
         )
 
     def test_subscripted_variable_avoids_unit_conflict(self):
@@ -252,8 +253,9 @@ $result ==$
             f"Unexpected error. Result: {result}"
         )
         # 10 * 20 * 30 = 6000
-        assert "6000" in result, (
-            f"Expected 6000 in result. Result: {result}"
+        # ISS-039: With thousands separator, it's 6\,000
+        assert "6\\,000" in result or "6000" in result, (
+            f"Expected 6000 or 6\\,000 in result. Result: {result}"
         )
 
 

@@ -24,7 +24,8 @@ $E_1 := P_1 \cdot t_1 ==$ <!-- [MWh] -->
 """
         result, ir = process_text(text)
         # Expected: 310.7 * 8760 / 1000 = 2721.732 MWh
-        assert r"2721.732\ \text{MWh}" in result
+        # ISS-039: With thousands separator, it's 2\,721.732
+        assert r"2\,721.732\ \text{MWh}" in result
         assert "Error" not in result
 
     def test_mass_rate_times_time_gives_mass(self):
@@ -49,7 +50,8 @@ $V_1 := Q_1 \cdot t_1 ==$ <!-- [m³] -->
 """
         result, ir = process_text(text)
         # Expected: 50 * 24 = 1200 m³
-        assert "1200" in result
+        # ISS-039: With thousands separator, it's 1\,200
+        assert r"1\,200" in result
         assert "Error" not in result
 
 
