@@ -4,55 +4,9 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Bugs
 
-### ISS-043: Dimensionless Calculation Incorrectly Converted to kg/mg Units
-
-- **Discovered:** 2026-01-15 (during debug-calculations workflow on astaxanthin_production_analysis.md)
-- **Type:** Bug
-- **Description:** When calculating a dimensionless value (e.g., a ratio × dimensionless constant), LiveMathTeX incorrectly displays the result with `kg/mg` units, causing the value to be divided by 1,000,000. The numeric calculation is correct, but the displayed value is wrong.
-- **Expected:** Result should be dimensionless (e.g., `54.08` or `54.08%`)
-- **Actual:** Result is displayed as `5.4084e-05 kg/mg` (1,000,000x too small)
-- **Root cause:** LiveMathTeX is calculating the correct numeric value but then incorrectly trying to convert it to `kg/mg` units. To convert dimensionless to `kg/mg`, it divides by 1,000,000 (since 1 kg = 1,000,000 mg), producing the wrong displayed value. This occurs even when there is no `[kg/mg]` unit hint in the input.
-- **Impact:** High - Causes cascading errors in all dependent calculations (energy, SEC, cost calculations that depend on uptime values). The numeric calculation is correct, but the displayed value is wrong, making it impossible to use the result in subsequent calculations.
-- **Test file:** `tests/test_iss_043_dimensionless_unit_conversion_bug.md`
-- **Example:**
-  ```latex
-  $T_{26} := 112\ \text{kg}$
-  $C_{26} := 186.3778\ \text{kg}$
-  $U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 ==$ <!-- Dimensionless (percentage) -->
-  ```
-  Expected: `54.08` (dimensionless)
-  Actual: `5.4084e-05 kg/mg` (wrong!)
+*None currently open*
 
 ## Open Enhancements
-
-### ISS-030: Unit conversion bug - µmol not converted to mol in JSON output
-
-- **Discovered:** 2026-01-13 (during debug-calculations workflow on astaxanthin_production_analysis.md)
-- **Type:** Bug
-- **Description:** When calculations involve µmol (micromol) units, LiveMathTeX correctly calculates the value but stores it in JSON with the wrong unit (mol instead of µmol), causing subsequent conversions to be 1,000,000x too large. Example: `$PAR_{rct} := P_{LED,dc} \cdot PPE_{eff}$` correctly calculates `7530.9 µmol/s`, but stores it in JSON as `7530.9 mol/s`, leading to `650,670,299 mol/day` instead of `650.6 mol/day` when converting to the target unit.
-- **Expected:** JSON output should store values with correct units (e.g., `0.0075309 mol/s` or `7530.9 µmol/s`, not `7530.9 mol/s`)
-- **Actual:**
-  - Calculation gives correct value: `7530.9 µmol/s`
-  - JSON stores: `7530.9 mol/s` (missing µmol → mol conversion)
-  - Output shows: `7531 mol/d` (verkeerd - zou `650.6 mol/d` moeten zijn)
-  - Note: De verwachte conversie `7530.9 mol/s × 86400 s/day = 650,670,299 mol/day` gebeurt niet, wat suggereert dat er mogelijk een extra bug is in de conversie naar target unit
-- **Root cause:**
-  - The JSON serialization process does not properly convert µmol to mol when storing values
-  - The value magnitude is stored correctly, but the unit is changed from `µmol/s` to `mol/s` without adjusting the magnitude
-  - This affects any calculation chain that involves µmol units
-- **Impact:** High (causes incorrect results in documents using µmol units, especially in bioprocess calculations)
-- **Effort:** Medium (fix unit conversion in JSON serialization)
-- **Suggested phase:** Current
-- **Files to change:**
-  - `src/livemathtex/engine/evaluator.py` - JSON serialization logic for units
-  - `src/livemathtex/ir/schema.py` - IR unit storage format
-  - `src/livemathtex/engine/pint_backend.py` - Unit conversion helpers
-- **Test file:** `tests/test_iss_030_inplace_update.md` - Reproduces the bug with minimal example
-- **Affected document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md` (line 251: `PAR_{rct}` calculation)
-- **Investigation notes:**
-  - Manual Pint calculation confirms: `7530.9 µmol/s = 0.0075309 mol/s = 650.6 mol/day` ✓
-  - LiveMathTeX JSON shows: `"value": 7530.906240000001, "unit": "mol/s"` (WRONG - should be `0.0075309 mol/s` or `7530.9 µmol/s`)
-  - The bug is in how the value is stored, not in the calculation itself
 
 ### ISS-044: Support \frac in Unit Expressions for Variable Definitions
 
@@ -144,6 +98,16 @@ Enhancements discovered during execution. Not critical - address in future phase
 - **Next Round:** Verify Phase 21 fixes work in production, identify and fix remaining issues
 
 ## Closed Issues
+
+### ISS-043: Dimensionless Calculation Incorrectly Converted to kg/mg Units
+
+**Resolved:** 2026-01-16 - Not a bug (verified working)
+**Solution:** Testing during v4.1 build-all shows dimensionless calculations work correctly. The test file `tests/test_iss_043_dimensionless_unit_conversion_bug.md` now produces correct output: `U_{26} = 54.0837` (dimensionless). JSON confirms: `"value": 54.08..., "unit": null`. The bug was likely fixed as a side effect of the v3.0 Pure Pint Architecture refactor.
+
+### ISS-030: Unit conversion bug - µmol not converted to mol in JSON output
+
+**Resolved:** 2026-01-16 - Not a bug (verified working)
+**Solution:** Testing during v4.1 build-all shows µmol unit conversion works correctly. The test file `tests/test_iss_030_inplace_update.md` now produces correct output: `PAR_{rct} = 650.6703 mol/d`. JSON confirms: `PPE_eff` stored as `"value": 3.9223..., "unit": "micromole / joule"` and `PAR_rct` stored with `"base": {"value": 0.00753..., "unit": "mole / second"}`. The bug was likely fixed as a side effect of the v3.0 Pure Pint Architecture refactor.
 
 ### ISS-029: Rate × time calculations produce incorrect results (regression of ISS-024)
 

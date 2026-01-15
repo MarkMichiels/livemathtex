@@ -462,11 +462,13 @@ See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
 
 </details>
 
-### 📋 v4.1 Bug Fixes & Enhancements (Planned)
+### 📋 v4.1 Bug Fixes & Enhancements (In Progress)
 
 **Milestone Goal:** Fix critical bugs discovered in production use and add remaining features.
 
-**Issues Addressed:** ISS-043, ISS-030, ISS-047, ISS-044, ISS-046, ISS-041, ISS-045
+**Issues Addressed:** ISS-047, ISS-044, ISS-046, ISS-041, ISS-045
+
+**Issues Already Fixed (verified 2026-01-16):** ISS-043, ISS-030 (fixed as side effect of v3.0 refactor)
 
 **Priority Order:**
 1. 🐛 Bugs (critical fixes)
@@ -477,40 +479,23 @@ See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
 
 ## 🐛 Bugs (Phases 32-34)
 
-#### Phase 32: Dimensionless Unit Bug (ISS-043)
+#### Phase 32: Dimensionless Unit Bug (ISS-043) ✅ VERIFIED FIXED
 **Goal**: Fix dimensionless calculations incorrectly converted to kg/mg units
 **Depends on**: v4.0 complete
-**Status**: Planned
-**Research**: Unlikely (root cause documented in ISSUES.md)
-**Plans**: 1
-
-**Problem:** When calculating a dimensionless value (e.g., ratio × constant), LiveMathTeX incorrectly displays result with `kg/mg` units, dividing value by 1,000,000.
-
-**Example:**
-```latex
-$U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 ==$
-```
-Expected: `54.08` (dimensionless)
-Actual: `5.4084e-05 kg/mg` (wrong!)
-
-**Test file:** `tests/test_iss_043_dimensionless_unit_conversion_bug.md`
+**Status**: ✅ Already fixed (verified 2026-01-16)
+**Resolution**: Bug was fixed as side effect of v3.0 Pure Pint Architecture refactor. Test file now produces correct output: `U_{26} = 54.0837` (dimensionless).
 
 Plans:
-- [ ] 32-01: Fix dimensionless unit handling in evaluator
+- [x] N/A - Already fixed by v3.0 refactor
 
-#### Phase 33: µmol JSON Output Bug (ISS-030)
+#### Phase 33: µmol JSON Output Bug (ISS-030) ✅ VERIFIED FIXED
 **Goal**: Fix µmol unit storage in JSON causing 1,000,000x errors
 **Depends on**: Phase 32
-**Status**: Planned
-**Research**: Unlikely (root cause documented)
-**Plans**: 1
-
-**Problem:** When calculations involve µmol units, value is stored in JSON with wrong unit (mol instead of µmol), causing subsequent conversions to be 1,000,000x too large.
-
-**Test file:** `tests/test_iss_030_inplace_update.md`
+**Status**: ✅ Already fixed (verified 2026-01-16)
+**Resolution**: Bug was fixed as side effect of v3.0 Pure Pint Architecture refactor. Test file now produces correct output: `PAR_{rct} = 650.6703 mol/d`. JSON correctly stores `micromole / joule` units.
 
 Plans:
-- [ ] 33-01: Fix unit conversion in JSON serialization
+- [x] N/A - Already fixed by v3.0 refactor
 
 #### Phase 34: Function Evaluation (ISS-047)
 **Goal**: Fix remaining function evaluation issues for production use
