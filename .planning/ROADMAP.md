@@ -536,28 +536,27 @@ Plans:
 Plans:
 - [x] 35-01: Extend parser to handle \frac in unit definitions
 
-#### Phase 36: Smart Number Formatting (ISS-046)
+#### Phase 36: Smart Number Formatting (ISS-046) ✅ FIXED
 **Goal**: Add intelligent context-aware number formatting
 **Depends on**: Phase 35
-**Status**: Planned
-**Research**: Likely (design decisions needed)
-**Plans**: 2
+**Status**: ✅ Complete (2026-01-16)
+**Research**: N/A
 
-**Problem:** Fixed significant figures produce inconsistent results:
-| Current | Desired | Rationale |
-|---------|---------|-----------|
-| `24.1916 mm` | `24.2 mm` | 1 decimal for dimensions |
-| `165.347 1/m` | `165 m⁻¹` | Integer for S/V ratio |
-| `11.9467 kW` | `12 kW` | Round to nearest for power |
+**Solution:** Added `smart_format` boolean config option (default: false):
+- Large numbers (>=1000): Round to integer
+- Medium-large (100-999): 0-1 decimal places
+- Medium (10-99): 1 decimal place
+- Small (1-9.99): 2 decimal places
+- Very small (<1): 2-3 significant figures
+- Very large (>=10^6): Scientific notation
+- Always strip trailing zeros
 
-**Implementation:**
-- Add `smart_format` boolean setting (default: false)
-- Context-aware precision based on magnitude and unit type
-- Round to "nice" numbers where appropriate
+**Usage:** `<!-- livemathtex: smart_format=true -->`
+**Test file:** `tests/test_smart_formatting.md`
 
 Plans:
-- [ ] 36-01: Design smart formatting rules
-- [ ] 36-02: Implement smart_format option
+- [x] 36-01: Design smart formatting rules
+- [x] 36-02: Implement smart_format option
 
 #### Phase 37: Array Operations (ISS-041)
 **Goal**: Add array/vector support for repetitive calculations

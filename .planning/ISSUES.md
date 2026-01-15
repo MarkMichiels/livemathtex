@@ -30,41 +30,21 @@ Enhancements discovered during execution. Not critical - address in future phase
   3. Show workarounds for current limitations
   4. Provide best practices and examples
 
+## Closed Issues
+
 ### ISS-046: Intelligent Number Formatting (Smart Rounding)
 
-- **Discovered:** 2026-01-15 (user feedback on astaxanthin_production_analysis.md)
-- **Type:** Feature Request
-- **Description:** Current number formatting uses fixed significant figures (default: 4), which produces inconsistent and sometimes ugly results. For example:
-  - `24.1916` (4 decimals, but could be `24.2` for readability)
-  - `165.347` (3 decimals, but could be `165` or `165.3`)
-  - `11.9467` (4 decimals, but could be `11.9` or `12`)
-- **Proposed Intelligence:**
-  1. **Context-aware precision**: Different precision based on magnitude and unit type
-  2. **Smart rounding**: Round to "nice" numbers (1, 2, 5, 10, 20, 50, 100, etc.)
-  3. **Unit-appropriate precision**:
-     - Large values (kg, MWh): 0-2 decimals
-     - Medium values (W, g/d): 1-3 decimals
-     - Small values (mg/L, µmol/J): 2-4 decimals
-     - Percentages: 1-2 decimals
-  4. **Avoid trailing zeros**: `24.0` → `24`, `10.00` → `10`
-  5. **Scientific notation threshold**: Use scientific notation for very large/small numbers
-- **Examples of desired output:**
-  | Current | Desired | Rationale |
-  |---------|---------|-----------|
-  | `24.1916 mm` | `24.2 mm` | 1 decimal sufficient for dimensions |
-  | `165.347 1/m` | `165 m⁻¹` | Integer for S/V ratio |
-  | `11.9467 kW` | `12 kW` | Round to nearest integer for power |
-  | `3.9223 µmol/J` | `3.92 µmol/J` | 2 decimals for efficiency |
-  | `186.3778 kg` | `186 kg` | Integer for capacity |
-  | `54.08%` | `54%` | Integer for percentages |
-- **Implementation approach:**
-  1. Add `smart_format` boolean setting (default: false for backward compatibility)
-  2. When enabled, analyze magnitude and unit type
-  3. Apply context-appropriate precision
-  4. Round to "nice" numbers where appropriate
-- **Impact:** Medium - Significantly improves readability of calculated values in documents.
-
-## Closed Issues
+**Resolved:** 2026-01-16 - Fixed in v4.1 Phase 36
+**Solution:** Added `smart_format` boolean config option (default: false) for context-aware formatting:
+- Large numbers (>=1000): Round to integer
+- Medium-large (100-999): 0-1 decimal places
+- Medium (10-99): 1 decimal place
+- Small (1-9.99): 2 decimal places
+- Very small (<1): 2-3 significant figures
+- Very large (>=10^6): Scientific notation
+- Always strip trailing zeros
+- Usage: `<!-- livemathtex: smart_format=true -->`
+- Test file: `tests/test_smart_formatting.md`
 
 ### ISS-044: Support \frac in Unit Expressions for Variable Definitions
 
