@@ -9,30 +9,27 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 27 of 27 (remove dependencies)
-Plan: 27-01 COMPLETE
-Status: v3.0 COMPLETE - Custom parser is primary path
-Last activity: 2026-01-14 — Phase 27-01 complete (custom parser primary)
+Phase: 28 of 29 (table cell parsing)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-15 — Milestone v3.1 created
 Branch: `feature/v3-pure-pint`
 
-**Milestone v3.0: Pure Pint Architecture**
+**Milestone v3.1: Table and Comma Subscript Fixes**
 
-Goal: Custom parser as PRIMARY evaluation path. Fallback to latex2sympy for functions.
+Goal: Fix variable handling in markdown tables and subscripts with commas.
 
 Phases:
-- Phase 23: Expression Tokenizer - Build custom LaTeX tokenizer ✅
-- Phase 24: Expression Parser - Recursive descent parser → Expression Tree ✅
-- Phase 25: Direct Pint Evaluator - Evaluate expression tree with Pint ✅
-- Phase 26: Evaluator Integration - Integrate custom parser into evaluator.py ✅
-- Phase 27: Remove Dependencies - Custom parser primary, fallback for functions ✅
+- Phase 28: Table Cell Parsing - Fix variables in table cells (ISS-035, ISS-037)
+- Phase 29: Comma Subscript Handling - Fix comma subscripts in expressions (ISS-036, ISS-038)
 
-Research: ✅ Complete (see `.planning/phases/23-remove-latex2sympy/23-RESEARCH.md`)
+Progress: ░░░░░░░░░░ 0% (0/2 phases complete)
 
-Progress: ██████████ 100% (5/5 phases complete)
-
-**Note:** Full SymPy removal deferred. latex2sympy fallback kept for:
-- Functions: \ln(), \sin(), \cos(), \sqrt(), etc.
-- Complex LaTeX constructs
+**Issues to Resolve:**
+- ISS-037: Variables in table cells fail (High)
+- ISS-038: Comma subscripts in expressions fail (High)
+- ISS-036: Comma subscripts fail with Symbol error (Medium)
+- ISS-035: Multi-letter variable names in tables (Medium)
 
 ## Performance Metrics
 
@@ -113,19 +110,22 @@ None.
 - Milestone v1.6 created: Pint Evaluation Engine, 3 phases (13-15)
 - Milestone v2.0 complete: Function evaluation fixed (Phase 21)
 - Milestone v2.1 complete: Superscript variable names (Phase 22)
-- **Milestone v3.0 created: Pure Pint Architecture, 5 phases (23-27)**
+- **Milestone v3.0 COMPLETE: Pure Pint Architecture, 5 phases (23-27)**
   - Major refactor: Remove latex2sympy and SymPy dependencies
   - Custom tokenizer + parser for LaTeX expressions
   - Direct Pint evaluation without SymPy intermediate
+- **Milestone v3.1 created: Table and Comma Subscript Fixes, 2 phases (28-29)**
+  - Fix table cell parsing (ISS-035, ISS-037)
+  - Fix comma subscript handling (ISS-036, ISS-038)
 
 ## Session Continuity
 
-Last session: 2026-01-14
-Stopped at: v3.0 COMPLETE
+Last session: 2026-01-15
+Stopped at: Milestone v3.1 initialization
 Resume file: None
-Next: Tag v3.0.0 release, merge to main
+Next: Plan Phase 28 (Table Cell Parsing)
 
-**v3.0 Progress Summary:**
+**v3.0 Complete Summary:**
 - ✅ Phase 23: Expression Tokenizer (47 tests, 169 lines)
 - ✅ Phase 24: Expression Parser (69 tests, 225 lines)
 - ✅ Phase 25: Direct Pint Evaluator (47 tests, 153 lines)

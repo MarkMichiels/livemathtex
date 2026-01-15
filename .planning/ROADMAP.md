@@ -21,7 +21,8 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.9 µmol Unit Conversion Fix** - Phase 20 (shipped 2026-01-14)
 - ✅ **v2.0 Function Evaluation** - Phase 21 (shipped 2026-01-14)
 - ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
-- 🚧 **v3.0 Pure Pint Architecture** - Phases 23-27 (in progress)
+- ✅ **v3.0 Pure Pint Architecture** - Phases 23-27 (complete 2026-01-14)
+- 🚧 **v3.1 Table and Comma Subscript Fixes** - Phases 28-29 (in progress)
 
 ## Phases
 
@@ -291,7 +292,7 @@ Plans:
 Plans:
 - [x] 22-01: Fix superscript unit conflict in pint_backend.py
 
-### 🚧 v3.0 Pure Pint Architecture (In Progress)
+### ✅ v3.0 Pure Pint Architecture (Complete 2026-01-14)
 
 **Milestone Goal:** Remove latex2sympy and SymPy dependencies entirely. Build custom LaTeX expression parser that feeds directly into Pint evaluation. Eliminates implicit multiplication issues and simplifies the codebase.
 
@@ -391,12 +392,13 @@ Key deliverables:
 Plans:
 - [x] 25-01: TDD implementation of expression tree evaluator
 
-#### Phase 26: Evaluator Integration
+#### Phase 26: Evaluator Integration ✅
 **Goal**: Integrate new parser into evaluator.py, replacing latex2sympy calls
 **Depends on**: Phase 25
-**Status**: Not started
+**Status**: Complete
+**Completed**: 2026-01-14
 **Research**: Unlikely (internal refactoring)
-**Plans**: TBD
+**Plans**: 1
 
 Key deliverables:
 - Update `_compute()` to use new parser
@@ -407,14 +409,15 @@ Key deliverables:
 - All 365+ tests still pass
 
 Plans:
-- [ ] 26-01: TBD
+- [x] 26-01: Evaluator integration (try-first-fallback pattern)
 
-#### Phase 27: Remove Dependencies
+#### Phase 27: Remove Dependencies ✅
 **Goal**: Remove latex2sympy and sympy from project dependencies
 **Depends on**: Phase 26
-**Status**: Not started
+**Status**: Complete
+**Completed**: 2026-01-14
 **Research**: Unlikely (cleanup)
-**Plans**: TBD
+**Plans**: 1
 
 Key deliverables:
 - Remove `from latex2sympy2 import latex2sympy` imports
@@ -425,4 +428,38 @@ Key deliverables:
 - Tag v3.0.0 release
 
 Plans:
-- [ ] 27-01: TBD
+- [x] 27-01: Custom parser primary path (complete 2026-01-14)
+
+### 🚧 v3.1 Table and Comma Subscript Fixes (In Progress)
+
+**Milestone Goal:** Fix variable handling in markdown tables and subscripts with commas to enable processing of complex scientific documents.
+
+**Issues to Resolve:** ISS-035, ISS-036, ISS-037, ISS-038
+
+#### Phase 28: Table Cell Parsing
+**Goal**: Fix variables in table cells that fail with "Symbol not iterable" errors (ISS-035, ISS-037)
+**Depends on**: v3.0 complete
+**Status**: Not started
+**Research**: Unlikely (bug fix - table-specific code path)
+**Plans**: TBD
+
+**Issues Addressed:**
+- ISS-037: Variables in table cells fail with "argument of type 'Symbol' is not iterable" (High)
+- ISS-035: Multi-letter variable names in tables parsed as implicit multiplication (Medium)
+
+Plans:
+- [ ] 28-01: TBD
+
+#### Phase 29: Comma Subscript Handling
+**Goal**: Fix variables with commas in subscripts that fail in expressions (ISS-036, ISS-038)
+**Depends on**: Phase 28
+**Status**: Not started
+**Research**: Unlikely (bug fix - subscript parsing)
+**Plans**: TBD
+
+**Issues Addressed:**
+- ISS-038: Variables with commas in subscripts fail in expressions with "I expected something else here" (High - 25 errors)
+- ISS-036: Variables with commas in subscripts fail with "Symbol not iterable" (Medium)
+
+Plans:
+- [ ] 29-01: TBD
