@@ -3,12 +3,13 @@ LiveMathTeX Evaluator - Core calculation engine.
 
 Architecture:
 - All calculations use the custom parser + Pint
-- Symbol normalization uses v_{n} / f_{n} naming scheme
-- Variables: v_{0}, v_{1}, v_{2}, ...
-- Functions: f_{0}, f_{1}, f_{2}, ...
+- Symbol normalization uses v0/f0/x0 naming scheme
+- Variables: v0, v1, v2, ...
+- Formulas: f0, f1, f2, ...
+- Parameters: x0, x1, x2, ...
 
 The NameGenerator in symbols.py manages the bidirectional mapping:
-- latex_name (P_{LED,out}) <-> internal_id (v_{0})
+- latex_name (P_{LED,out}) <-> internal_id (v0)
 
 See ARCHITECTURE.md for full documentation.
 """
@@ -136,7 +137,7 @@ class Evaluator:
             if entry and name in ir.symbols:
                 ir_entry = ir.symbols[name]
 
-                # Update internal_name in mapping to v_{n} format
+                # Update internal_name in mapping (v0, v1, ... format)
                 if entry.internal_id:
                     ir_entry.mapping.internal_name = entry.internal_id
 
@@ -564,12 +565,9 @@ class Evaluator:
             func_name = func_match.group(1)
             arg_name = func_match.group(2)
 
-            # v3.0: Track function as formula with parameter (only in clean ID mode)
-            dependencies = []
-            formula_expr = ""
-            if getattr(self.symbols, '_use_clean_ids', False):
-                dependencies = self._find_dependencies(rhs_raw, exclude_params=[arg_name])
-                formula_expr = self._convert_expression_to_clean_ids(rhs_raw, exclude_params=[arg_name])
+            # v3.0: Track function as formula with parameter
+            dependencies = self._find_dependencies(rhs_raw, exclude_params=[arg_name])
+            formula_expr = self._convert_expression_to_clean_ids(rhs_raw, exclude_params=[arg_name])
 
             # Extract just the function name from original_target for latex_name
             func_latex_match = re.match(r'^([^(]+)\s*\(', original_target)
@@ -584,7 +582,7 @@ class Evaluator:
                 line=getattr(self, '_current_line', 0),
                 # v3.0 formula tracking
                 is_formula=True,
-                formula_expression=formula_expr if formula_expr else rhs_raw,
+                formula_expression=formula_expr,
                 depends_on=dependencies,
                 parameters=[arg_name],
                 parameter_latex=[arg_name],
@@ -614,16 +612,14 @@ class Evaluator:
             si_unit = si_unit_str if si_unit_str != 'dimensionless' else None
             valid = True  # Pint handles all conversions
 
-            # v3.0: Classify and track dependencies (only in clean ID mode)
-            is_formula_flag = False
+            # v3.0: Classify and track dependencies
+            is_value = self._is_value_definition(rhs_raw)
+            is_formula_flag = not is_value
             dependencies = []
             formula_expression = ""
-            if getattr(self.symbols, '_use_clean_ids', False):
-                is_value = self._is_value_definition(rhs_raw)
-                is_formula_flag = not is_value
-                if is_formula_flag:
-                    dependencies = self._find_dependencies(rhs_raw)
-                    formula_expression = self._convert_expression_to_clean_ids(rhs_raw)
+            if is_formula_flag:
+                dependencies = self._find_dependencies(rhs_raw)
+                formula_expression = self._convert_expression_to_clean_ids(rhs_raw)
 
             # Store with normalized name, including both original and SI values
             normalized_target = self._normalize_symbol_name(target)
@@ -1267,13 +1263,13 @@ class Evaluator:
 
     def _rewrite_with_internal_ids(self, expression_latex: str) -> str:
         """
-        Replace all known LaTeX variable names with their internal IDs (v_{n}).
+        Replace all known LaTeX variable names with their internal IDs (v0, v1, ...).
 
-        This is the key to 100% the old latex parser compatibility:
+        This is the key to 100% parser compatibility:
         - Original: "N_{MPC} \\cdot P_{PSU,out}"
-        - Internal: "v_{0} * v_{1}"
+        - Internal: "v0 * v1"
 
-        The v_{n} format always parses correctly in the old latex parser.
+        The simple ID format (v0, not v_{0}) is Python-valid and parses cleanly.
 
         IMPORTANT: Only replace whole variable names, not parts of LaTeX commands!
         E.g., don't replace 'a' inside '\frac{a}{b}' for the 'a' in 'frac'.
@@ -1298,7 +1294,7 @@ class Evaluator:
             # For multi-char: simpler matching is OK
             if len(latex_form) == 1 and latex_form.isalpha():
                 # Single letter: don't match if preceded by backslash or letter
-                # or followed by letter (to avoid \frac -> \frv_{0}c)
+                # or followed by letter (to avoid \frac -> \frv0c)
                 pattern = rf'(?<!\\)(?<![a-zA-Z]){escaped}(?![a-zA-Z])'
             else:
                 # Multi-char patterns like N_{MPC}: direct replacement is safe
@@ -1340,20 +1336,20 @@ class Evaluator:
         import pint
         ureg = get_pint_registry()
 
-        # Step 1: Rewrite expression with internal IDs (v_{n} format)
-        # This ensures multi-letter variables like "Cap" become "v_{0}" which
+        # Step 1: Rewrite expression with internal IDs (v0, v1, ... format)
+        # This ensures multi-letter variables like "Cap" become "v0" which
         # the tokenizer handles correctly
         modified_latex = self._rewrite_with_internal_ids(expression_latex)
 
         # Build symbol map from our symbol table
-        # Map internal IDs (v_{n}) to Pint Quantities
+        # Map internal IDs (v0, v1, ...) to Pint Quantities
         symbol_map = {}
         for name in self.symbols.all_names():
             entry = self.symbols.get(name)
             if entry:
                 pint_qty = self._symbol_to_pint_quantity(entry, ureg)
                 if pint_qty is not None:
-                    # Store under internal_id for parser lookup (v_{0}, v_{1}, etc.)
+                    # Store under internal_id for parser lookup (v0, v1, etc.)
                     if hasattr(entry, 'internal_id') and entry.internal_id:
                         symbol_map[entry.internal_id] = pint_qty
                     # Also store under latex_name and original name for fallback
