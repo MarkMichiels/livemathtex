@@ -11,7 +11,7 @@ from .evaluator import Evaluator
 from .symbols import SymbolTable, SymbolValue
 from .pint_backend import (
     UnitRegistry,
-    get_sympy_unit_registry as get_unit_registry,
+    get_custom_unit_registry as get_unit_registry,
     reset_unit_registry,
 )
 

@@ -11,7 +11,7 @@ license = {text = "MIT"}
 authors = [
     {name = "Mark Michiels", email = "mark@example.com"}
 ]
-keywords = ["livemathtex", "latex", "markdown", "calculations", "engineering", "sympy", "live-math"]
+keywords = ["livemathtex", "latex", "markdown", "calculations", "engineering", "live-math"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -28,14 +28,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    # Core math engine (includes sympy.physics.units for unit support)
-    "sympy>=1.12",
-    # Using forked version with DIFFERENTIAL bug fix
-    # See: https://github.com/MarkMichiels/latex2sympy
-    "latex2sympy2 @ git+https://github.com/MarkMichiels/latex2sympy.git",
-
     # Unit handling - Pint provides robust unit registry and conversion
-    # Pint is used as the primary unit backend (hybrid with SymPy for symbolic math)
     "pint>=0.23",
 
     # Numeric

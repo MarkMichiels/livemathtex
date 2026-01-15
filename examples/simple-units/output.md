@@ -78,10 +78,10 @@ The tool correctly reports it as undefined:
 $h_{drop} := 100$
 $t_{fall} := \sqrt{\frac{2 \cdot h_{drop}}{g}} ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'g'. ('g' is also a unit: gram. Use a subscript like 'g\_tot' to avoid confusion with the unit.)}}$
+    Error: Undefined variable: g}}$
 
 **Fix:** Define `g_{acc}` first (with subscript to avoid conflict with gram unit).
 
 ---
 
-> *livemathtex: 2026-01-13 23:46:36 | 14 definitions, 8 evaluations | 2 errors | 0.35s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 04:21:15 | 14 definitions, 8 evaluations | 2 errors | 0.01s* <!-- livemathtex-meta -->

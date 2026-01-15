@@ -400,11 +400,11 @@ class TestUnitHintCycle:
         """SEC === MWh/kg custom unit should work after clear and re-process."""
         from livemathtex import process_text
         from livemathtex.core import clear_text
-        from livemathtex.engine.pint_backend import reset_unit_registry, reset_sympy_unit_registry
+        from livemathtex.engine.pint_backend import reset_unit_registry, reset_custom_unit_registry
 
         # Reset registries to ensure clean state
         reset_unit_registry()
-        reset_sympy_unit_registry()
+        reset_custom_unit_registry()
 
         input_content = '''$$ SEC === MWh/kg $$
 
@@ -425,7 +425,7 @@ $ratio_3 ==$ <!-- [SEC] -->'''
 
         # Reset registries again for fresh re-processing
         reset_unit_registry()
-        reset_sympy_unit_registry()
+        reset_custom_unit_registry()
 
         # Re-process
         processed2, _ = process_text(cleared)
@@ -505,11 +505,11 @@ $E_file ==$ <!-- [kWh] -->
     def test_custom_unit_file_cycle(self, tmp_path: Path):
         """Custom units defined with === survive file-based cycle."""
         from livemathtex.core import process_file
-        from livemathtex.engine.pint_backend import reset_unit_registry, reset_sympy_unit_registry
+        from livemathtex.engine.pint_backend import reset_unit_registry, reset_custom_unit_registry
 
         # Reset registries
         reset_unit_registry()
-        reset_sympy_unit_registry()
+        reset_custom_unit_registry()
 
         # Create input file with custom unit
         input_file = tmp_path / "input.md"
@@ -539,7 +539,7 @@ $price_1 ==$
 
         # Reset registries for re-processing
         reset_unit_registry()
-        reset_sympy_unit_registry()
+        reset_custom_unit_registry()
 
         # Re-process
         process_file(str(output_file), None, verbose=False)

@@ -51,17 +51,17 @@ From energy balance: $Q = m \cdot c_p \cdot \Delta T$
 
 ### Hot Fluid
 Temperature drop:
-$\Delta T_h := \frac{Q}{m_h \cdot c_p} == 17.92$
+$\Delta T_h := \frac{Q}{m_h \cdot c_p} == 17.9169$
 
 Outlet temperature:
-$T_{h,out} := T_{h,in} - \Delta T_h == 72.08$
+$T_{h,out} := T_{h,in} - \Delta T_h == 72.0831$
 
 ### Cold Fluid
 Temperature rise:
-$\Delta T_c := \frac{Q}{m_c \cdot c_p} == 11.94$
+$\Delta T_c := \frac{Q}{m_c \cdot c_p} == 11.9446$
 
 Outlet temperature:
-$T_{c,out} := T_{c,in} + \Delta T_c == 31.94$
+$T_{c,out} := T_{c,in} + \Delta T_c == 31.9446$
 
 ---
 
@@ -69,14 +69,14 @@ $T_{c,out} := T_{c,in} + \Delta T_c == 31.94$
 
 For counter-flow arrangement, temperature differences at each end:
 
-$\Delta T_1 := T_{h,in} - T_{c,out} == 58.06$
+$\Delta T_1 := T_{h,in} - T_{c,out} == 58.0554$
 
-$\Delta T_2 := T_{h,out} - T_{c,in} == 52.08$
+$\Delta T_2 := T_{h,out} - T_{c,in} == 52.0831$
 
 LMTD calculation (using natural log):
-$ratio := \frac{\Delta T_1}{\Delta T_2} == 1.115$
+$ratio := \frac{\Delta T_1}{\Delta T_2} == 1.1147$
 
-$$LMTD := \frac{\Delta T_1 - \Delta T_2}{\ln(ratio)} == 55.02$$
+$$LMTD := \frac{\Delta T_1 - \Delta T_2}{\ln(ratio)} == 55.0153$$
 
 ---
 
@@ -93,7 +93,7 @@ $$A_0 := \frac{Q}{U_0 \cdot LMTD} == 5.453$$
 ### Heat Capacity Rates (W/K)
 $C_h := m_h \cdot c_p == 8372$
 
-$C_c := m_c \cdot c_p == 12\,560$
+$C_c := m_c \cdot c_p == 12\,558$
 
 Since $C_h < C_c$:
 $Cmin := C_h$
@@ -103,7 +103,7 @@ $Cmax := C_c$
 $C_r := \frac{Cmin}{Cmax} == 0.6667$
 
 ### Maximum Possible Heat Transfer (W)
-$Qmax := Cmin \cdot (T_{h,in} - T_{c,in}) == 586\,000$
+$Qmax := Cmin \cdot (T_{h,in} - T_{c,in}) == 586\,040$
 
 ### Effectiveness
 $$\varepsilon := \frac{Q}{Qmax} == 0.256$$
@@ -132,10 +132,10 @@ Tube length (m):
 $length := 2$
 
 Area per meter:
-$A_m := \frac{A_0}{length} == 2.727$
+$A_m := \frac{A_0}{length} == 2.7265$
 
 **Conclusion:** The design meets thermal requirements with calculated effectiveness.
 
 ---
 
-> *livemathtex: 2026-01-13 23:46:32 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.92s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 04:21:15 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.01s* <!-- livemathtex-meta -->

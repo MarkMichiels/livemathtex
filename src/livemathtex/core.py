@@ -642,18 +642,12 @@ def _populate_ir_symbols(ir: LivemathIR, evaluator: Evaluator) -> None:
     Populate IR symbols from the evaluator's symbol table.
 
     Creates SymbolEntry for each defined symbol with:
-    - id: Internal v_{n} ID
+    - id: Internal ID (v0, v1, f0, f1, ...)
     - original: User's input value and unit
     - si: SI-converted value and unit
     - valid: Conversion validation flag
     - line: Line number (if available)
     """
-    import sympy
-    from sympy.physics.units import convert_to
-    from sympy.physics import units as u
-
-    si_base = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
-
     for name in evaluator.symbols.all_names():
         entry = evaluator.symbols.get(name)
         if not entry:
@@ -668,21 +662,22 @@ def _populate_ir_symbols(ir: LivemathIR, evaluator: Evaluator) -> None:
             unit=entry.original_unit
         )
 
-        # Create SI value struct
+        # Create SI value struct - values are already floats/strings from Pint evaluator
         si_value = None
         si_unit_str = None
 
         try:
-            # Get the SI value
             if entry.si_value is not None:
-                if hasattr(entry.si_value, 'evalf'):
-                    si_value = float(entry.si_value.evalf())
-                elif isinstance(entry.si_value, (int, float)):
+                # si_value is already a float from the Pint-based evaluator
+                if isinstance(entry.si_value, (int, float)):
                     si_value = float(entry.si_value)
+                elif hasattr(entry.si_value, 'magnitude'):
+                    # Handle Pint Quantity if passed directly
+                    si_value = float(entry.si_value.magnitude)
 
-            # Get the SI unit as string
+            # si_unit is already a string from the Pint-based evaluator
             if entry.si_unit is not None:
-                si_unit_str = sympy.latex(entry.si_unit)
+                si_unit_str = str(entry.si_unit)
         except Exception:
             pass
 
@@ -981,9 +976,8 @@ def _populate_ir_symbols_v3(ir: LivemathIRV3, evaluator: Evaluator) -> None:
         # Get or generate clean ID
         internal_id = entry.internal_id or ""
 
-        # For v3.0, we need clean IDs like v1, f1
-        # The current system may still use v_{0} format
-        # We'll use the internal_id as-is for now (the NameGenerator handles the format)
+        # v3.0 uses clean IDs like v0, v1, f0, f1
+        # The NameGenerator now always produces this simple format
 
         # Create original value struct
         original = ValueWithUnit(

@@ -21,7 +21,7 @@ $V := 37824
 **Fix:**
 
 $V_{tot} := 37824$
-$V_{tot} == 37\,820$
+$V_{tot} == 37\,824$
 
 ### Error: m conflicts with meter
 
@@ -43,7 +43,7 @@ $s := 5
 **Fix:**
 
 $time_1 := 5$
-$\text{time}_1 == 5$
+$time_1 == 5$
 
 ### Error: a conflicts with year (annum)
 
@@ -67,7 +67,7 @@ When a symbol is referenced but never defined, LiveMathTeX produces an error. If
 
 $y := x \cdot 2
 \\ \color{red}{\text{
-    Error: Undefined variable 'x'. Define it before use.}}$
+    Error: Undefined variable: x}}$
 
 **Explanation:** `x` was never defined. LiveMathTeX does NOT assume undeclared symbols are zero or unity.
 
@@ -83,7 +83,7 @@ This is the critical fix - previously `V` in a formula with decimals would silen
 
 $Cap := V \cdot 15 \cdot 0.001
 \\ \color{red}{\text{
-    Error: Undefined variable 'V'. ('V' is also a unit: volt. Use a subscript like 'V\_tot' to avoid confusion with the unit.)}}$
+    Error: Undefined variable: V}}$
 
 **Explanation:** `V` matches the volt unit, but in a formula it should be a defined variable. The error message notes the unit conflict.
 
@@ -91,13 +91,13 @@ $Cap := V \cdot 15 \cdot 0.001
 
 $V_{tot} := 37824$
 $Cap_ok := V_{tot} \cdot 15 \cdot 0.001$
-$\text{Cap}_{ok} == 567.4$
+$Cap_ok == 567.36$
 
 ### Error: Another unit-like variable (Newton)
 
 $force := N \cdot 10.5
 \\ \color{red}{\text{
-    Error: Undefined variable 'N'. ('N' is also a unit: newton. Use a subscript like 'N\_tot' to avoid confusion with the unit.)}}$
+    Error: Undefined variable: N}}$
 
 **Explanation:** `N` matches the Newton unit. Same issue as `V` above.
 
@@ -105,7 +105,7 @@ $force := N \cdot 10.5
 
 $N_val := 100$
 $force_ok := N_val \cdot 10.5$
-$\text{force}_{ok} == 1050$
+$force_ok == 1050$
 
 ---
 
@@ -117,7 +117,7 @@ When using `==` to evaluate an expression, all referenced symbols must be define
 
 $z ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'z'. Define it before use.}}$
+    Error: Undefined variable: z}}$
 
 **Fix:**
 
@@ -128,7 +128,7 @@ $z_1 == 42$
 
 $result := q + 5 ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'q'. Define it before use.}}$
+    Error: Undefined variable: q}}$
 
 **Fix:**
 
@@ -145,10 +145,10 @@ Unknown units are silently ignored - the value is stored without a unit. This ca
 
 $x_{foo} := 5\ foo
 \\ \color{red}{\text{
-    Error: Undefined variable 'foo'. Note: 'foo' was parsed as implicit multiplication (f*o*o). Define '\$foo := ...\$' before use, or use a structured name like 'foo\_\{...\}'.}}$
+    Error: Unexpected token after expression: variable 'foo' at position 3}}$
 $x_{foo} ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'x\_foo'. Define it before use.}}$
+    Error: Undefined variable: x\_\{foo\}}}$
 
 Note: `foo` is not a recognized unit, so `x_foo` becomes just `5` (unitless).
 
@@ -156,10 +156,10 @@ Note: `foo` is not a recognized unit, so `x_foo` becomes just `5` (unitless).
 
 $y_{stuks} := 10\ stuks
 \\ \color{red}{\text{
-    Error: Undefined variable 'stuks'. Note: 'stuks' was parsed as implicit multiplication (s*t*u*k*s). Define '\$stuks := ...\$' before use, or use a structured name like 'stuks\_\{...\}'. ('s' is also a unit (second))}}$
+    Error: Unexpected token after expression: variable 'stuks' at position 4}}$
 $y_{stuks} ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'y\_stuks'. Define it before use.}}$
+    Error: Undefined variable: y\_\{stuks\}}}$
 
 Same problem: `stuks` is not recognized, unit is lost.
 
@@ -169,7 +169,7 @@ Use `===` to define custom units before using them:
 
 $stuks === stuks$
 $aantal := 100\ stuks$
-$\text{aantal} == 100\ \text{stuks}$
+$aantal == 100\ \text{stuks}$
 
 Now the custom unit is preserved:
 
@@ -190,7 +190,7 @@ $mass_1 := 5\ kg$
 $dist_1 := 3\ m$
 $invalid_1 := mass_1 + dist_1 ==
 \\ \color{red}{\text{
-    Error: Cannot add/subtract incompatible units: meter and kilogram. Dimensions must match for addition/subtraction.}}$
+    Error: Cannot convert from 'kilogram' ([mass]) to 'meter' ([length])}}$
 
 **Explanation:** Cannot add kilograms (mass) to meters (length). These have different physical dimensions.
 
@@ -200,7 +200,7 @@ $time_1 := 10\ s$
 $vel_1 := 5\ \frac{m}{s}$
 $invalid_2 := time_1 - vel_1 ==
 \\ \color{red}{\text{
-    Error: Cannot add/subtract incompatible units: second and meter/second. Dimensions must match for addition/subtraction.}}$
+    Error: Cannot convert from 'second' ([time]) to 'meter / second' ([length] / [time])}}$
 
 **Explanation:** Cannot subtract velocity from time. Dimensions must match.
 
@@ -259,4 +259,4 @@ $F_{1,N} := F_1 == 98.1\ \text{N}$ <!-- [N] -->
 
 ---
 
-> *livemathtex: 2026-01-13 23:53:56 | 43 definitions, 20 evaluations | 15 errors | 0.58s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 04:21:15 | 43 definitions, 20 evaluations | 15 errors | 0.04s* <!-- livemathtex-meta -->

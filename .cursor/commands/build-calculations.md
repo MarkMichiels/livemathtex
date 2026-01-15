@@ -44,7 +44,10 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
   {"id": "diff-1", "content": "DIFF: Compare expected vs actual values to identify discrepancies", "status": "pending"},
   {"id": "investigate-1", "content": "INVESTIGATE: Analyze differences and identify root causes", "status": "pending"},
   {"id": "iterate-1", "content": "ITERATE: Fix issues and repeat until all calculations correct", "status": "pending"},
-  {"id": "learn-1", "content": "LEARN: Document findings in lessons learned", "status": "pending"}
+  {"id": "learn-1", "content": "LEARN: Document findings in lessons learned", "status": "pending"},
+  {"id": "review-0", "content": "REVIEW GATE: User reviews results and provides feedback (Y/N to proceed)", "status": "pending"},
+  {"id": "final-1", "content": "FINAL: Update original file and commit (only after approval)", "status": "pending"},
+  {"id": "post-0", "content": "POST: Retrospective + improve this command + ask YES/NO to commit command changes", "status": "pending"}
 ]
 ```
 
@@ -58,6 +61,9 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 | `investigate-1` | `diff-1` completed | Cannot investigate without knowing differences |
 | `iterate-1` | `investigate-1` completed | Cannot fix without understanding root cause |
 | `learn-1` | `iterate-1` completed | Cannot document until issues resolved |
+| `review-0` | `learn-1` completed | Cannot finalize without user review |
+| `final-1` | `review-0` approved (Y) | Cannot commit without approval |
+| `post-0` | `final-1` completed | Cannot improve command until workflow complete |
 
 ---
 
@@ -74,7 +80,12 @@ graph TB
     INVESTIGATE --> FIX[Fix Issues<br/>Update source]
     FIX --> CLEAN
     CHECK -->|Yes| LEARN[Document in Lessons Learned]
-    LEARN --> DONE[✅ Document Complete]
+    LEARN --> UPDATE[Update Original File<br/>Copy temp to input.md]
+    UPDATE --> REVIEW[Review Gate<br/>User feedback Y/N]
+    REVIEW -->|N| FIX
+    REVIEW -->|Y| COMMIT[Commit Original File]
+    COMMIT --> POST[Post-Evaluation<br/>Improve command]
+    POST --> DONE[✅ Document Complete]
 
     style INPUT fill:#4a90e2,stroke:#2e5c8a,color:#fff
     style CLEAN fill:#f39c12,stroke:#c87f0a,color:#fff
@@ -83,8 +94,31 @@ graph TB
     style DIFF fill:#f39c12,stroke:#c87f0a,color:#fff
     style INVESTIGATE fill:#ea4335,stroke:#c5221f,color:#fff
     style LEARN fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style UPDATE fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style REVIEW fill:#ff9800,stroke:#f57c00,color:#fff
+    style COMMIT fill:#4a90e2,stroke:#2e5c8a,color:#fff
+    style POST fill:#9b59b6,stroke:#7d3c98,color:#fff
     style DONE fill:#27ae60,stroke:#1e8449,color:#fff
 ```
+
+---
+
+## 🚨 IMPORTANT: File Strategy
+
+**This workflow uses temporary files for comparison, but ultimately updates the original file:**
+
+- **Original file:** `input.md` - **NEVER modified during debug workflow**
+- **Temp files (for diff comparison):**
+  - `temp_input_clean.md` - Clean version without error markup
+  - `temp_output_expected.md` - With manually calculated expected values
+  - `temp_output_actual.md` - With LiveMathTeX computed values
+- **Final step:** After all issues are fixed, the original `input.md` is updated with correct values
+
+**Why temp files?**
+- Allows git diff comparison between expected and actual
+- Original file remains untouched during debugging
+- Temp files are automatically ignored by git (via `temp_*` pattern)
+- Final result: Original file is updated and fully working
 
 ---
 
@@ -102,16 +136,17 @@ graph TB
 DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
 cd "$DOC_REPO"
 
-# Clean source document (works from any repository)
-livemathtex clear input.md -o input_clean.md
+# Clean source document to TEMP file (original input.md is NOT modified)
+livemathtex clear input.md -o temp_input_clean.md
 ```
 
 **Check:**
 - ✅ No `\color{red}{...}` error markup in output
 - ✅ No `<!-- livemathtex-meta -->` comments
 - ✅ All `==` operators have no computed values (empty: `$x ==$`)
+- ✅ Original `input.md` is **unchanged**
 
-**Self-check:** Verify `input_clean.md` has no error markup before proceeding.
+**Self-check:** Verify `temp_input_clean.md` has no error markup before proceeding.
 
 **Note:** The document can be in any repository (mark-private, proviron, etc.). The command works workspace-wide.
 
@@ -127,13 +162,13 @@ livemathtex clear input.md -o input_clean.md
 
 **Action:**
 
-1. **Create output document with expected values (in document's repository):**
+1. **Create temp document with expected values (in document's repository):**
    ```bash
    # Ensure we're in the document's repository
-   DOC_REPO=$(git -C $(dirname input_clean.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
+   DOC_REPO=$(git -C $(dirname temp_input_clean.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
    cd "$DOC_REPO"
 
-   cp input_clean.md output_expected.md
+   cp temp_input_clean.md temp_output_expected.md
    ```
 
 2. **Manually calculate expected values:**
@@ -167,22 +202,23 @@ $E := P \cdot t == 2721.7\ \text{MWh}$ <!-- EXPECTED: 2721.7 MWh (310.7 × 8760 
 
 **Action:**
 ```bash
-# Process clean source document (works from any repository)
+# Process clean temp document (works from any repository)
 # Ensure we're in the document's repository for output paths
-DOC_REPO=$(git -C $(dirname input_clean.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
+DOC_REPO=$(git -C $(dirname temp_input_clean.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
 cd "$DOC_REPO"
 
-livemathtex process input_clean.md -o output_actual.md --verbose
+livemathtex process temp_input_clean.md -o temp_output_actual.md --verbose
 ```
 
 **Check:**
-- ✅ IR JSON generated (`input_clean.lmt.json` in document's directory)
-- ✅ Output document created (`output_actual.md` in document's directory)
+- ✅ IR JSON generated (`temp_input_clean.lmt.json` in document's directory)
+- ✅ Output document created (`temp_output_actual.md` in document's directory)
 - ✅ Check for errors in output
+- ✅ Original `input.md` is **unchanged**
 
 **If errors reported:**
-- Use `livemathtex inspect input_clean.lmt.json` to debug (from document's directory)
-- Fix issues in source document
+- Use `livemathtex inspect temp_input_clean.lmt.json` to debug (from document's directory)
+- Fix issues in **original** `input.md` (not temp files)
 - Return to Step 1 (clean) and repeat
 
 **Self-check:** Processing completed without errors before proceeding.
@@ -197,11 +233,11 @@ livemathtex process input_clean.md -o output_actual.md --verbose
 
 **Action:**
 ```bash
-# Compare expected vs actual (in document's repository)
-DOC_REPO=$(git -C $(dirname output_expected.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
+# Compare expected vs actual temp files (in document's repository)
+DOC_REPO=$(git -C $(dirname temp_output_expected.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
 cd "$DOC_REPO"
 
-git diff --no-index output_expected.md output_actual.md
+git diff --no-index temp_output_expected.md temp_output_actual.md
 ```
 
 **What to look for:**
@@ -273,15 +309,25 @@ git diff --no-index output_expected.md output_actual.md
    - Compare again
    - Continue until all calculations match
 
-3. **Git workflow (in document's repository):**
+3. **After all issues fixed, update original file:**
    ```bash
    # Detect which repository the document is in
    DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
    cd "$DOC_REPO"
 
-   # Commit changes at each iteration
-   git add input.md output_expected.md output_actual.md
-   git commit -m "fix: correct calculation for X (iteration N)"
+   # Copy the working version to original file
+   # This ensures the original file is updated with correct values
+   cp temp_output_actual.md input.md
+
+   # Optional: Clean up temp files
+   rm -f temp_input_clean.md temp_output_expected.md temp_output_actual.md temp_input_clean.lmt.json
+   ```
+
+4. **Git workflow (in document's repository):**
+   ```bash
+   # Commit the updated original file
+   git add input.md
+   git commit -m "fix: correct calculation for X (all calculations verified)"
    ```
 
 **Self-check:** All calculations match expected values before proceeding.
@@ -309,6 +355,117 @@ git diff --no-index output_expected.md output_actual.md
    - If issue is user error → Document in lessons learned as "common mistake"
 
 **Self-check:** All findings documented before completing.
+
+---
+
+## REVIEW GATE
+
+### review-0: Pause for User Review (Y/N to proceed)
+
+At this point, the workflow should be complete:
+- ✅ All calculations verified and correct
+- ✅ Original file updated (`input.md` with correct values)
+- ✅ Temp files cleaned up
+- ✅ Lessons learned documented
+- ❌ Original file NOT yet committed — that is expected
+
+**Action:** Show summary and ask user to review:
+
+```markdown
+## Build Calculations Complete - Review
+
+**Document:** `input.md`
+**Status:** ✅ All calculations verified
+
+**Summary:**
+- Cleaned source document
+- Calculated expected values for 15 calculations
+- Processed with LiveMathTeX
+- Compared expected vs actual: 12 matched, 3 differed
+- Fixed 3 issues (unit hints, calculation formulas)
+- All calculations now correct
+- Original file updated with correct values
+
+**Issues Found & Fixed:**
+1. Unit hint mismatch: `C_{26}` had `[kg/year]` but result is total `[kg]` → Fixed
+2. Calculation error: `PAR_{rct}` formula incorrect → Fixed
+3. Unit propagation: Rate × time calculation (already fixed in v1.6)
+
+**Lessons Learned:**
+- Always clean source before processing
+- Expected values make discrepancies immediately visible
+- Git diff is essential for verification
+
+**Files ready to commit:**
+- [input.md](/absolute/path/to/input.md) (updated with correct values)
+
+Please review and respond:
+- **Y** = proceed to commit original file
+- **N** = collect corrections, apply fixes, then repeat `review-0`
+```
+
+**After user approval (Y):**
+- Proceed to `final-1` (commit original file)
+- If user provides feedback, apply fixes and repeat `review-0`
+
+---
+
+## FINAL PHASE
+
+### final-1: Commit Original File (only after approval)
+
+**IMPORTANT:** Only commit after user explicitly approves in `review-0` (Y).
+
+```bash
+# Detect which repository the document is in
+DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
+cd "$DOC_REPO"
+
+# Commit the updated original file
+git add input.md
+git commit -m "fix(calculations): verify and correct all calculations in input.md
+
+- All calculations verified against expected values
+- Fixed 3 issues: unit hints, calculation formulas
+- Documented in LESSONS_LEARNED.md"
+```
+
+**Self-check:** Original file committed successfully.
+
+---
+
+## POST PHASE
+
+### post-0: Retrospective + Improve This Command (ALWAYS DO THIS)
+
+At the end of the run, do a quick retrospective to make the next run faster and avoid repeating the same mistakes.
+
+**Write a short summary (5-10 lines):**
+- What was processed (document path, number of calculations, issues found)
+- Which issues were fixed vs documented as bugs
+- What was unexpectedly tricky / slow
+- User feedback received (if any)
+
+**Then propose concrete command improvements:**
+- Which steps were unclear?
+- Which missing instructions caused you to search/guess?
+- Which recurring failure modes should be handled (temp files, workspace detection, edge cases)?
+- What user feedback suggests improvements?
+
+**Apply the improvements to this command file** (`.cursor/commands/build-calculations.md`).
+
+**Finally ask:**
+- "**YES/NO**: may I commit these command-instruction changes?"
+
+If **YES**, commit with a separate commit message:
+
+```bash
+cd /home/mark/Repositories/livemathtex
+git add .cursor/commands/build-calculations.md
+git commit -m "chore(commands): improve build-calculations workflow based on retrospective"
+```
+
+If **NO**, do not commit (leave changes unstaged or revert).
 
 ---
 

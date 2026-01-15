@@ -1,0 +1,1013 @@
+{
+  "version": "3.0",
+  "source": "tests/test_iss_036_comma_subscript_symbol_not_iterable.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {
+    "v_{0}": {
+      "latex_name": "N_{MPC}",
+      "original": {
+        "value": 12.0,
+        "unit": null
+      },
+      "base": {
+        "value": 12.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{1}": {
+      "latex_name": "N_{hdr}",
+      "original": {
+        "value": 2.0,
+        "unit": null
+      },
+      "base": {
+        "value": 2.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{2}": {
+      "latex_name": "N_{rct}",
+      "original": {
+        "value": 8.0,
+        "unit": null
+      },
+      "base": {
+        "value": 8.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{3}": {
+      "latex_name": "N_{tot}",
+      "original": {
+        "value": 192.0,
+        "unit": null
+      },
+      "base": {
+        "value": 192.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{4}": {
+      "latex_name": "V_{rct}",
+      "original": {
+        "value": 197.0,
+        "unit": "L"
+      },
+      "base": {
+        "value": 0.19700000000000004,
+        "unit": "meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{5}": {
+      "latex_name": "V_{tot}",
+      "original": {
+        "value": 37824.0,
+        "unit": "liter"
+      },
+      "base": {
+        "value": 37.82400000000001,
+        "unit": "meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{6}": {
+      "latex_name": "d_{weld}",
+      "original": {
+        "value": 38.0,
+        "unit": "mm"
+      },
+      "base": {
+        "value": 0.038,
+        "unit": "meter"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{7}": {
+      "latex_name": "d_{tube}",
+      "original": {
+        "value": 24.19155134996809,
+        "unit": "millimeter"
+      },
+      "base": {
+        "value": 0.02419155134996809,
+        "unit": "meter"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{8}": {
+      "latex_name": "SV",
+      "original": {
+        "value": 0.16534698176788387,
+        "unit": "1 / millimeter"
+      },
+      "base": {
+        "value": 165.34698176788388,
+        "unit": "1 / meter"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{9}": {
+      "latex_name": "N_{PSU}",
+      "original": {
+        "value": 8.0,
+        "unit": null
+      },
+      "base": {
+        "value": 8.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{10}": {
+      "latex_name": "P_{PSU}",
+      "original": {
+        "value": 240.0,
+        "unit": "W"
+      },
+      "base": {
+        "value": 240.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{11}": {
+      "latex_name": "\\eta_{drv}",
+      "original": {
+        "value": 0.9,
+        "unit": null
+      },
+      "base": {
+        "value": 0.9,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{12}": {
+      "latex_name": "P_{LED,dc}",
+      "original": {
+        "value": 1920.0,
+        "unit": "W"
+      },
+      "base": {
+        "value": 1920.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{13}": {
+      "latex_name": "P_{LED,ac}",
+      "original": {
+        "value": 2133.3333333333335,
+        "unit": "watt"
+      },
+      "base": {
+        "value": 2133.3333333333335,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{14}": {
+      "latex_name": "f_{geom}",
+      "original": {
+        "value": 0.9143,
+        "unit": null
+      },
+      "base": {
+        "value": 0.9143,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{15}": {
+      "latex_name": "PPE_{red}",
+      "original": {
+        "value": 4.29,
+        "unit": "µmol/J"
+      },
+      "base": {
+        "value": 4.29e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{16}": {
+      "latex_name": "PPE_{eff}",
+      "original": {
+        "value": 3.9223470000000002,
+        "unit": "micromole / joule"
+      },
+      "base": {
+        "value": 3.922347e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{17}": {
+      "latex_name": "d_{avg}",
+      "original": {
+        "value": 0.7,
+        "unit": null
+      },
+      "base": {
+        "value": 0.7,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{18}": {
+      "latex_name": "P_{hdr}",
+      "original": {
+        "value": 11946.666666666666,
+        "unit": "watt"
+      },
+      "base": {
+        "value": 11946.666666666666,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{19}": {
+      "latex_name": "P_{blw}",
+      "original": {
+        "value": 2000.0,
+        "unit": "W"
+      },
+      "base": {
+        "value": 2000.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{20}": {
+      "latex_name": "P_{MPC}",
+      "original": {
+        "value": 25893.333333333332,
+        "unit": "watt"
+      },
+      "base": {
+        "value": 25893.333333333332,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{21}": {
+      "latex_name": "P_{sys}",
+      "original": {
+        "value": 310720.0,
+        "unit": "watt"
+      },
+      "base": {
+        "value": 310720.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{22}": {
+      "latex_name": "Y_{ax}",
+      "original": {
+        "value": 23.1,
+        "unit": "mg/mol"
+      },
+      "base": {
+        "value": 2.31e-05,
+        "unit": "kilogram / mole"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{23}": {
+      "latex_name": "PAR_{rct}",
+      "original": {
+        "value": 7530.90624,
+        "unit": "micromole * watt / joule"
+      },
+      "base": {
+        "value": 0.00753090624,
+        "unit": "mole / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{24}": {
+      "latex_name": "m_{ax,rct}",
+      "original": {
+        "value": 173963.93414400003,
+        "unit": "micromole * milligram * watt / joule / mole"
+      },
+      "base": {
+        "value": 1.7396393414400006e-07,
+        "unit": "kilogram / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{25}": {
+      "latex_name": "\\gamma_{max}",
+      "original": {
+        "value": 883.0656555532996,
+        "unit": "micromole * milligram * watt / joule / liter / mole"
+      },
+      "base": {
+        "value": 8.830656555532997e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{26}": {
+      "latex_name": "f_{cascade}",
+      "original": {
+        "value": 0.58,
+        "unit": null
+      },
+      "base": {
+        "value": 0.58,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{27}": {
+      "latex_name": "\\gamma_{eff}",
+      "original": {
+        "value": 512.1780802209138,
+        "unit": "micromole * milligram * watt / joule / liter / mole"
+      },
+      "base": {
+        "value": 5.121780802209139e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{28}": {
+      "latex_name": "\\gamma_{26}",
+      "original": {
+        "value": 15.0,
+        "unit": "mg/(L*d)"
+      },
+      "base": {
+        "value": 1.736111111111111e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{29}": {
+      "latex_name": "\\gamma_{27}",
+      "original": {
+        "value": 30.5,
+        "unit": "mg/(L*d)"
+      },
+      "base": {
+        "value": 3.530092592592592e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{30}": {
+      "latex_name": "\\gamma_{28}",
+      "original": {
+        "value": 34.0,
+        "unit": "mg/(L*d)"
+      },
+      "base": {
+        "value": 3.9351851851851844e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{31}": {
+      "latex_name": "\\gamma_{29}",
+      "original": {
+        "value": 38.0,
+        "unit": "mg/(L*d)"
+      },
+      "base": {
+        "value": 4.3981481481481474e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{32}": {
+      "latex_name": "\\gamma_{30}",
+      "original": {
+        "value": 44.0,
+        "unit": "mg/(L*d)"
+      },
+      "base": {
+        "value": 5.092592592592592e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{33}": {
+      "latex_name": "d_{op}",
+      "original": {
+        "value": 365.0,
+        "unit": "d"
+      },
+      "base": {
+        "value": 31536000.0,
+        "unit": "second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{34}": {
+      "latex_name": "u_{max}",
+      "original": {
+        "value": 0.9,
+        "unit": null
+      },
+      "base": {
+        "value": 0.9,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{35}": {
+      "latex_name": "V_L",
+      "original": {
+        "value": 37824.0,
+        "unit": "L"
+      },
+      "base": {
+        "value": 37.82400000000001,
+        "unit": "meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{36}": {
+      "latex_name": "m_{26}",
+      "original": {
+        "value": 567360.0,
+        "unit": "milligram / day"
+      },
+      "base": {
+        "value": 6.566666666666667e-06,
+        "unit": "kilogram / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{37}": {
+      "latex_name": "m_{27}",
+      "original": {
+        "value": 1153632.0,
+        "unit": "milligram / day"
+      },
+      "base": {
+        "value": 1.3352222222222222e-05,
+        "unit": "kilogram / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{38}": {
+      "latex_name": "m_{28}",
+      "original": {
+        "value": 1286016.0,
+        "unit": "milligram / day"
+      },
+      "base": {
+        "value": 1.4884444444444443e-05,
+        "unit": "kilogram / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{39}": {
+      "latex_name": "m_{29}",
+      "original": {
+        "value": 1437312.0,
+        "unit": "milligram / day"
+      },
+      "base": {
+        "value": 1.6635555555555555e-05,
+        "unit": "kilogram / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{40}": {
+      "latex_name": "m_{30}",
+      "original": {
+        "value": 1664256.0,
+        "unit": "milligram / day"
+      },
+      "base": {
+        "value": 1.926222222222222e-05,
+        "unit": "kilogram / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{41}": {
+      "latex_name": "C_{26}",
+      "original": {
+        "value": 186377760.0,
+        "unit": "milligram"
+      },
+      "base": {
+        "value": 186.37776,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{42}": {
+      "latex_name": "C_{27}",
+      "original": {
+        "value": 378968112.0,
+        "unit": "milligram"
+      },
+      "base": {
+        "value": 378.96811199999996,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{43}": {
+      "latex_name": "C_{28}",
+      "original": {
+        "value": 422456256.0,
+        "unit": "milligram"
+      },
+      "base": {
+        "value": 422.456256,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{44}": {
+      "latex_name": "C_{29}",
+      "original": {
+        "value": 472156992.0,
+        "unit": "milligram"
+      },
+      "base": {
+        "value": 472.156992,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{45}": {
+      "latex_name": "C_{30}",
+      "original": {
+        "value": 546708096.0,
+        "unit": "milligram"
+      },
+      "base": {
+        "value": 546.708096,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{46}": {
+      "latex_name": "T_{26}",
+      "original": {
+        "value": 112.0,
+        "unit": "kg"
+      },
+      "base": {
+        "value": 112.0,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{47}": {
+      "latex_name": "T_{27}",
+      "original": {
+        "value": 210.0,
+        "unit": "kg"
+      },
+      "base": {
+        "value": 210.0,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{48}": {
+      "latex_name": "T_{28}",
+      "original": {
+        "value": 334.0,
+        "unit": "kg"
+      },
+      "base": {
+        "value": 334.0,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{49}": {
+      "latex_name": "T_{29}",
+      "original": {
+        "value": 414.0,
+        "unit": "kg"
+      },
+      "base": {
+        "value": 414.0,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{50}": {
+      "latex_name": "T_{30}",
+      "original": {
+        "value": 516.0,
+        "unit": "kg"
+      },
+      "base": {
+        "value": 516.0,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{51}": {
+      "latex_name": "U_{26}",
+      "original": {
+        "value": 54.083706124593405,
+        "unit": null
+      },
+      "base": {
+        "value": 54.083706124593405,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{52}": {
+      "latex_name": "U_{27}",
+      "original": {
+        "value": 49.87226999194065,
+        "unit": null
+      },
+      "base": {
+        "value": 49.87226999194065,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{53}": {
+      "latex_name": "U_{28}",
+      "original": {
+        "value": 71.15529613556012,
+        "unit": null
+      },
+      "base": {
+        "value": 71.15529613556012,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{54}": {
+      "latex_name": "U_{29}",
+      "original": {
+        "value": 78.91443022408954,
+        "unit": null
+      },
+      "base": {
+        "value": 78.91443022408954,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{55}": {
+      "latex_name": "U_{30}",
+      "original": {
+        "value": 84.94478194081837,
+        "unit": null
+      },
+      "base": {
+        "value": 84.94478194081837,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{56}": {
+      "latex_name": "c_{elec}",
+      "original": {
+        "value": 139.0,
+        "unit": "€/MWh"
+      },
+      "base": {
+        "value": 139.0,
+        "unit": "€/MWh"
+      },
+      "conversion_ok": false,
+      "line": 0,
+      "conversion_error": "'€' is not defined in the unit registry"
+    },
+    "v_{57}": {
+      "latex_name": "t_{yr}",
+      "original": {
+        "value": 1.0,
+        "unit": "yr"
+      },
+      "base": {
+        "value": 31557600.0,
+        "unit": "second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{58}": {
+      "latex_name": "E_{26}",
+      "original": {
+        "value": 168048.89167033663,
+        "unit": "watt * year"
+      },
+      "base": {
+        "value": 5303219703775.815,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{59}": {
+      "latex_name": "E_{27}",
+      "original": {
+        "value": 154963.117318958,
+        "unit": "watt * year"
+      },
+      "base": {
+        "value": 4890264071104.748,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{60}": {
+      "latex_name": "E_{28}",
+      "original": {
+        "value": 221093.7361524124,
+        "unit": "watt * year"
+      },
+      "base": {
+        "value": 6977187688003.369,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{61}": {
+      "latex_name": "E_{29}",
+      "original": {
+        "value": 245202.91759229102,
+        "unit": "watt * year"
+      },
+      "base": {
+        "value": 7738015592210.483,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{62}": {
+      "latex_name": "E_{30}",
+      "original": {
+        "value": 263940.4264465108,
+        "unit": "watt * year"
+      },
+      "base": {
+        "value": 8329326401628.41,
+        "unit": "kilogram * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{63}": {
+      "latex_name": "SEC_{26}",
+      "original": {
+        "value": 1500.4365327708626,
+        "unit": "watt * year / kilogram"
+      },
+      "base": {
+        "value": 47350175926.56978,
+        "unit": "meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{64}": {
+      "latex_name": "SEC_{27}",
+      "original": {
+        "value": 737.9196062807523,
+        "unit": "watt * year / kilogram"
+      },
+      "base": {
+        "value": 23286971767.16547,
+        "unit": "meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{65}": {
+      "latex_name": "SEC_{28}",
+      "original": {
+        "value": 661.9572938694982,
+        "unit": "watt * year / kilogram"
+      },
+      "base": {
+        "value": 20889783497.01608,
+        "unit": "meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{66}": {
+      "latex_name": "SEC_{29}",
+      "original": {
+        "value": 592.2775787253406,
+        "unit": "watt * year / kilogram"
+      },
+      "base": {
+        "value": 18690858918.38281,
+        "unit": "meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{67}": {
+      "latex_name": "SEC_{30}",
+      "original": {
+        "value": 511.51245435370316,
+        "unit": "watt * year / kilogram"
+      },
+      "base": {
+        "value": 16142105429.512423,
+        "unit": "meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{68}": {
+      "latex_name": "Cost_{26}",
+      "original": {
+        "value": 23358795.942176793,
+        "unit": "EUR * watt * year / megawatt_hour"
+      },
+      "base": {
+        "value": 204763.20522912176,
+        "unit": "EUR"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{69}": {
+      "latex_name": "Cost_{27}",
+      "original": {
+        "value": 21539873.30733516,
+        "unit": "EUR * watt * year / megawatt_hour"
+      },
+      "base": {
+        "value": 188818.5294121,
+        "unit": "EUR"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{70}": {
+      "latex_name": "Cost_{28}",
+      "original": {
+        "value": 30732029.325185325,
+        "unit": "EUR * watt * year / megawatt_hour"
+      },
+      "base": {
+        "value": 269396.9690645745,
+        "unit": "EUR"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{71}": {
+      "latex_name": "Cost_{29}",
+      "original": {
+        "value": 34083205.54532845,
+        "unit": "EUR * watt * year / megawatt_hour"
+      },
+      "base": {
+        "value": 298773.3798103492,
+        "unit": "EUR"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{72}": {
+      "latex_name": "Cost_{30}",
+      "original": {
+        "value": 36687719.27606501,
+        "unit": "EUR * watt * year / megawatt_hour"
+      },
+      "base": {
+        "value": 321604.5471739858,
+        "unit": "EUR"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{73}": {
+      "latex_name": "PPE_{red,raw}",
+      "original": {
+        "value": 4.29,
+        "unit": "µmol/J"
+      },
+      "base": {
+        "value": 4.29e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{74}": {
+      "latex_name": "PPE_{blue,raw}",
+      "original": {
+        "value": 2.57,
+        "unit": "µmol/J"
+      },
+      "base": {
+        "value": 2.5699999999999995e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{75}": {
+      "latex_name": "t_{day}",
+      "original": {
+        "value": 86400.0,
+        "unit": "s/d"
+      },
+      "base": {
+        "value": 1.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-15 02:31:16",
+    "duration": "1.47s",
+    "symbols": 76,
+    "custom_units": 0,
+    "definitions": 87,
+    "evaluations": 71,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 11,
+    "warnings": 1
+  }
+}

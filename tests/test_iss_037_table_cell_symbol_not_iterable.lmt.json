@@ -1,0 +1,63 @@
+{
+  "version": "3.0",
+  "source": "tests/test_iss_037_table_cell_symbol_not_iterable.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {
+    "v_{0}": {
+      "latex_name": "T_{27}",
+      "original": {
+        "value": 210.0,
+        "unit": "kg"
+      },
+      "base": {
+        "value": 210.0,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{1}": {
+      "latex_name": "C_{27}",
+      "original": {
+        "value": 379.0,
+        "unit": "kg"
+      },
+      "base": {
+        "value": 379.0,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{2}": {
+      "latex_name": "U_{27}",
+      "original": {
+        "value": 49.86807387862797,
+        "unit": null
+      },
+      "base": {
+        "value": 49.86807387862797,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-15 02:48:23",
+    "duration": "0.17s",
+    "symbols": 3,
+    "custom_units": 0,
+    "definitions": 3,
+    "evaluations": 2,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 1,
+    "warnings": 1
+  }
+}

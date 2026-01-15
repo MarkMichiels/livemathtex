@@ -393,16 +393,16 @@ def is_pint_unit(token: str) -> bool:
 def is_custom_unit(token: str) -> bool:
     """
     Check if a token is a custom unit defined via === syntax.
-    
+
     Custom units are those not in Pint's default registry but defined
     by the user in their document using the === syntax.
-    
+
     Args:
         token: The string token to check.
-    
+
     Returns:
         True if this is a user-defined custom unit.
-    
+
     Examples:
         >>> is_custom_unit('€')       # True if defined with '€ === €'
         >>> is_custom_unit('SEC')     # True if defined with 'SEC === kWh/kg'
@@ -410,10 +410,10 @@ def is_custom_unit(token: str) -> bool:
     """
     if not token or token.strip() == "":
         return False
-    
-    # Import here to avoid circular imports - registry may not exist yet
+
+    # Check against the custom unit registry
     try:
-        registry = get_sympy_unit_registry()
+        registry = get_custom_unit_registry()
         return token in registry._custom_units
     except Exception:
         return False
@@ -440,189 +440,7 @@ def is_known_unit(token: str) -> bool:
     return is_pint_unit(token) or is_custom_unit(token)
 
 
-def pint_to_sympy(unit_str: str) -> Optional[Any]:
-    """
-    Convert a Pint unit string to a SymPy unit expression dynamically.
-    
-    This is the core function for ISSUE-002: instead of hardcoded mappings,
-    we parse the unit with Pint and construct the equivalent SymPy expression
-    from Pint's dimensionality.
-    
-    Args:
-        unit_str: A unit string like 'MWh', 'kWh/kg', 'm/s**2'.
-    
-    Returns:
-        A SymPy expression representing the unit, or None if conversion fails.
-    
-    Examples:
-        >>> pint_to_sympy('kW')     # kilo * watt
-        >>> pint_to_sympy('m/s')    # meter / second  
-        >>> pint_to_sympy('kWh')    # kilo * watt * hour
-    """
-    if not unit_str or unit_str.strip() == "":
-        return None
-    
-    # Import SymPy units
-    from sympy.physics.units import (
-        meter, kilogram, second, ampere, kelvin, mole, candela,
-        watt, joule, newton, pascal, hertz, volt, ohm,
-        liter, bar, hour, minute, day,
-        kilo, milli, micro, centi, mega, giga, nano, pico
-    )
-    
-    # Clean the unit string
-    clean = unit_str.strip()
-    clean = clean.replace('\\cdot', '*').replace('³', '**3').replace('²', '**2')
-    clean = _unwrap_latex(clean)
-    
-    # First check custom units
-    try:
-        registry = get_sympy_unit_registry()
-        if clean in registry._custom_units:
-            return registry._custom_units[clean].sympy_unit
-    except Exception:
-        pass
-    
-    # Try to parse with Pint
-    ureg = get_unit_registry()
-    try:
-        pint_unit = ureg.parse_expression(clean)
-        
-        # Get dimensionality from Pint
-        if hasattr(pint_unit, 'dimensionality'):
-            dims = dict(pint_unit.dimensionality)
-        else:
-            return None
-        
-        # Build SymPy expression from dimensions
-        # Pint dimensions: [length], [mass], [time], [current], [temperature], [substance], [luminosity]
-        # Also: [energy], [power], [pressure], etc. (derived)
-        
-        result = 1
-        
-        # Map Pint base dimensions to SymPy units
-        base_map = {
-            '[length]': meter,
-            '[mass]': kilogram,
-            '[time]': second,
-            '[current]': ampere,
-            '[temperature]': kelvin,
-            '[substance]': mole,
-            '[luminosity]': candela,
-        }
-        
-        for dim, power in dims.items():
-            if dim in base_map:
-                if power != 0:
-                    result = result * (base_map[dim] ** power)
-        
-        # Handle magnitude/scale (e.g., kW = 1000 W)
-        if hasattr(pint_unit, 'magnitude') and pint_unit.magnitude != 1:
-            result = result * pint_unit.magnitude
-        
-        return result if result != 1 else None
-        
-    except Exception:
-        return None
-
-
-def pint_to_sympy_with_prefix(unit_str: str) -> Optional[Any]:
-    """
-    Convert a Pint unit string to SymPy, handling SI prefixes correctly.
-    
-    This version properly handles prefixed units like kW, MW, mm by
-    returning the prefix multiplied by the base unit.
-    
-    Args:
-        unit_str: A unit string like 'kW', 'MW', 'mm'.
-    
-    Returns:
-        A SymPy expression with proper prefix handling.
-    """
-    from sympy.physics.units import (
-        meter, kilogram, second, ampere, kelvin, mole, candela,
-        gram, watt, joule, newton, pascal, hertz, volt, ohm,
-        liter, bar, hour, minute, day,
-        kilo, milli, micro, centi, mega, giga, nano, pico
-    )
-    
-    if not unit_str:
-        return None
-    
-    clean = unit_str.strip()
-    clean = clean.replace('\\cdot', '*').replace('³', '**3').replace('²', '**2')
-    clean = _unwrap_latex(clean)
-    
-    # First check custom units
-    try:
-        registry = get_sympy_unit_registry()
-        if clean in registry._custom_units:
-            return registry._custom_units[clean].sympy_unit
-    except Exception:
-        pass
-    
-    # Direct mappings for common units (fast path)
-    direct_map = {
-        # Base SI
-        'm': meter, 'kg': kilogram, 's': second, 'A': ampere,
-        'K': kelvin, 'mol': mole, 'cd': candela,
-        # Derived
-        'g': gram, 'W': watt, 'J': joule, 'N': newton,
-        'Pa': pascal, 'Hz': hertz, 'V': volt, 'ohm': ohm,
-        'L': liter, 'bar': bar, 'h': hour, 'min': minute, 'day': day,
-        # Prefixed length
-        'mm': milli * meter, 'cm': centi * meter, 'km': kilo * meter,
-        'nm': nano * meter, 'µm': micro * meter,
-        # Prefixed mass
-        'mg': milli * gram,
-        # Prefixed time
-        'ms': milli * second, 'ns': nano * second,
-        # Prefixed force
-        'kN': kilo * newton, 'mN': milli * newton, 'MN': mega * newton,
-        # Prefixed power
-        'kW': kilo * watt, 'MW': mega * watt, 'GW': giga * watt,
-        'mW': milli * watt,
-        # Prefixed energy
-        'kJ': kilo * joule, 'MJ': mega * joule,
-        'Wh': watt * hour, 'kWh': kilo * watt * hour, 'MWh': mega * watt * hour,
-        # Prefixed pressure
-        'kPa': kilo * pascal, 'mbar': milli * bar,
-        # Prefixed frequency
-        'kHz': kilo * hertz, 'MHz': mega * hertz, 'GHz': giga * hertz,
-        # Prefixed electrical
-        'kV': kilo * volt, 'mA': milli * ampere, 'mV': milli * volt,
-        # Prefixed volume
-        'mL': milli * liter,
-        # Compound
-        'm³': meter**3, 'm^3': meter**3, 'm²': meter**2, 'm^2': meter**2,
-    }
-    
-    if clean in direct_map:
-        return direct_map[clean]
-    
-    # Handle compound units with / or *
-    if '/' in clean:
-        parts = clean.split('/')
-        if len(parts) == 2:
-            num = pint_to_sympy_with_prefix(parts[0].strip())
-            den = pint_to_sympy_with_prefix(parts[1].strip())
-            if num and den:
-                return num / den
-    
-    if '*' in clean:
-        parts = clean.split('*')
-        result = 1
-        for part in parts:
-            part = part.strip()
-            if part:
-                unit = pint_to_sympy_with_prefix(part)
-                if unit:
-                    result = result * unit
-        if result != 1:
-            return result
-    
-    # Fallback to dimension-based conversion
-    return pint_to_sympy(clean)
+# All unit handling uses Pint directly.
 
 
 def parse_value_with_unit(text: str) -> Optional[ParsedQuantity]:
@@ -1493,70 +1311,54 @@ def evaluate_formula_with_units(
 
 
 # =============================================================================
-# SymPy Unit Registry (for internal calculation compatibility)
+# Custom Unit Registry
 # =============================================================================
-# Note: This is a minimal implementation kept for SymPy calculation compatibility.
-# Pint is the source of truth for unit handling. This registry allows custom units
-# to be used in SymPy expressions during evaluation.
-
-from sympy.physics.units import (
-    Quantity, meter, kilogram, second, ampere, kelvin, mole, candela,
-    gram, milligram, kilogram, liter, bar, day, hour, minute, watt,
-    joule, pascal, hertz, volt, ohm, kilo, milli, micro, centi, newton
-)
-
-# ISSUE-002: UNIT_ABBREVIATIONS removed.
-# Unit conversion now uses pint_to_sympy_with_prefix() which dynamically
-# converts any Pint-recognized unit to SymPy.
+# Tracks custom units defined via === syntax. Pint handles all unit operations.
+# =============================================================================
 
 
 @dataclass
-class UnitDefinition:
-    """Represents a custom unit definition for SymPy calculations."""
+class CustomUnitDefinition:
+    """Represents a custom unit definition."""
     name: str
     latex_name: str
-    sympy_unit: Any
     is_base_unit: bool = False
     definition_expr: Optional[str] = None
 
 
-class SymPyUnitRegistry:
+class CustomUnitRegistry:
     """
-    Registry for custom unit definitions (SymPy compatibility layer).
+    Registry for custom unit definitions (Pure Pint).
 
-    This is kept for internal SymPy calculation compatibility.
-    Pint (via get_unit_registry()) is the primary API for unit handling.
+    Tracks custom units defined via the `===` syntax:
+    - € === €           -> New base unit
+    - mbar === bar/1000 -> Derived unit
+    - kWh === kW * h    -> Compound unit
+    - dag === day       -> Alias
 
-    Handles the `===` syntax:
-    - € === €           → New base unit
-    - mbar === bar/1000 → Derived unit
-    - kWh === kW * h    → Compound unit
-    - dag === day       → Alias
+    Note: Actual unit handling is done by Pint. This registry just tracks
+    which units were defined as custom so is_custom_unit() works correctly.
     """
 
     def __init__(self):
-        self._custom_units: dict[str, UnitDefinition] = {}
+        self._custom_units: dict[str, CustomUnitDefinition] = {}
         self._initialize_builtin_units()
 
     def _initialize_builtin_units(self):
         """Initialize built-in custom units like euro."""
-        # Currency units (not in SymPy by default)
-        euro = Quantity('euro', abbrev='EUR')
-        self._custom_units['€'] = UnitDefinition(
+        # Currency units (track them as custom since they're defined in Pint setup)
+        self._custom_units['€'] = CustomUnitDefinition(
             name='euro',
             latex_name='€',
-            sympy_unit=euro,
             is_base_unit=True,
         )
         self._custom_units['EUR'] = self._custom_units['€']
         self._custom_units['euro'] = self._custom_units['€']
 
         # Dollar
-        dollar = Quantity('dollar', abbrev='USD')
-        self._custom_units['$'] = UnitDefinition(
+        self._custom_units['$'] = CustomUnitDefinition(
             name='dollar',
             latex_name='$',
-            sympy_unit=dollar,
             is_base_unit=True,
         )
         self._custom_units['USD'] = self._custom_units['$']
@@ -1569,11 +1371,11 @@ class SymPyUnitRegistry:
         name = name.strip().replace('$', '')
         return name
 
-    def define_unit(self, latex: str) -> Optional[UnitDefinition]:
+    def define_unit(self, latex: str) -> Optional[CustomUnitDefinition]:
         """
         Parse and register a unit definition from `===` syntax.
 
-        Returns UnitDefinition if successful, None if not a unit definition.
+        Returns CustomUnitDefinition if successful, None if not a unit definition.
 
         Note: Validation for existing units should be done in the caller
         (evaluator._handle_unit_definition) BEFORE adding to Pint registry.
@@ -1595,105 +1397,29 @@ class SymPyUnitRegistry:
         # Derived/compound/alias
         return self._define_derived_unit(left, right)
 
-    def _define_base_unit(self, name: str) -> UnitDefinition:
+    def _define_base_unit(self, name: str) -> CustomUnitDefinition:
         """Define a new base unit."""
         if name in self._custom_units:
             return self._custom_units[name]
 
-        sympy_unit = Quantity(name, abbrev=name)
-        unit_def = UnitDefinition(
+        unit_def = CustomUnitDefinition(
             name=name,
             latex_name=name,
-            sympy_unit=sympy_unit,
             is_base_unit=True,
         )
         self._custom_units[name] = unit_def
         return unit_def
 
-    def _define_derived_unit(self, name: str, expr: str) -> UnitDefinition:
+    def _define_derived_unit(self, name: str, expr: str) -> CustomUnitDefinition:
         """Define a derived unit from an expression."""
-        sympy_unit = self._parse_unit_expression(expr)
-
-        if sympy_unit is None:
-            # ISSUE-002: Use pint_to_sympy_with_prefix instead of UNIT_ABBREVIATIONS
-            sympy_unit = pint_to_sympy_with_prefix(expr)
-            if sympy_unit is None and expr in self._custom_units:
-                sympy_unit = self._custom_units[expr].sympy_unit
-            if sympy_unit is None:
-                sympy_unit = Quantity(name, abbrev=name)
-
-        unit_def = UnitDefinition(
+        unit_def = CustomUnitDefinition(
             name=name,
             latex_name=name,
-            sympy_unit=sympy_unit,
             is_base_unit=False,
             definition_expr=expr,
         )
         self._custom_units[name] = unit_def
         return unit_def
-
-    def _parse_unit_expression(self, expr: str) -> Optional[Any]:
-        """Parse a unit expression like 'bar/1000' or 'kW * h'."""
-        import re
-
-        expr = expr.replace('\\cdot', '*').replace('\\times', '*').replace('\\div', '/')
-
-        # ISSUE-002: Build namespace dynamically from SymPy units (not hardcoded dict)
-        namespace = {}
-        for name, unit_def in self._custom_units.items():
-            namespace[name] = unit_def.sympy_unit
-
-        # Add SymPy base units and prefixes
-        namespace.update({
-            'bar': bar, 'day': day, 'hour': hour, 'watt': watt,
-            'liter': liter, 'gram': gram, 'meter': meter, 'second': second,
-            'kilogram': kilogram, 'kilo': kilo, 'milli': milli, 'micro': micro,
-            'centi': centi, 'joule': joule, 'pascal': pascal, 'hertz': hertz,
-            'volt': volt, 'ampere': ampere, 'ohm': ohm, 'kelvin': kelvin,
-            'minute': minute, 'milligram': milligram,
-            # Common abbreviations
-            'm': meter, 's': second, 'kg': kilogram, 'g': gram,
-            'h': hour, 'min': minute, 'W': watt, 'J': joule,
-            'Pa': pascal, 'Hz': hertz, 'V': volt, 'A': ampere,
-            'K': kelvin, 'L': liter, 'N': newton,
-        })
-
-        # Also add newton (imported at file level)
-        namespace['newton'] = newton
-        namespace['N'] = newton
-
-        # ISS-009 FIX: Add prefixed units that aren't in the base namespace
-        # Extract tokens from expression and resolve via pint_to_sympy_with_prefix
-        # This handles units like MWh, kJ, GW that have SI prefixes
-        tokens = re.findall(r'[A-Za-z]\w*', expr)
-        for token in tokens:
-            if token not in namespace:
-                sympy_unit = pint_to_sympy_with_prefix(token)
-                if sympy_unit is not None:
-                    namespace[token] = sympy_unit
-
-        try:
-            return eval(expr, {"__builtins__": {}}, namespace)
-        except Exception:
-            return None
-
-    def get_unit(self, name: str) -> Optional[Any]:
-        """Get a unit by name (abbreviation or custom)."""
-        clean_name = self._clean_unit_name(name)
-
-        if clean_name in self._custom_units:
-            return self._custom_units[clean_name].sympy_unit
-        
-        # ISSUE-002: Use pint_to_sympy_with_prefix instead of UNIT_ABBREVIATIONS
-        sympy_unit = pint_to_sympy_with_prefix(clean_name)
-        if sympy_unit is not None:
-            return sympy_unit
-
-        # Try to parse compound expressions
-        if '*' in clean_name or '/' in clean_name:
-            return self._parse_unit_expression(clean_name)
-
-        return None
 
     def reset(self):
         """Reset to initial state (for testing)."""
@@ -1702,255 +1428,31 @@ class SymPyUnitRegistry:
 
 
 # Singleton instance
-_sympy_unit_registry: Optional[SymPyUnitRegistry] = None
+_custom_unit_registry: Optional[CustomUnitRegistry] = None
 
 
-def get_sympy_unit_registry() -> SymPyUnitRegistry:
-    """Get the singleton SymPy UnitRegistry instance (for internal calculations)."""
-    global _sympy_unit_registry
-    if _sympy_unit_registry is None:
-        _sympy_unit_registry = SymPyUnitRegistry()
-    return _sympy_unit_registry
+def get_custom_unit_registry() -> CustomUnitRegistry:
+    """Get the singleton CustomUnitRegistry instance."""
+    global _custom_unit_registry
+    if _custom_unit_registry is None:
+        _custom_unit_registry = CustomUnitRegistry()
+    return _custom_unit_registry
 
 
-def reset_sympy_unit_registry():
-    """Reset the SymPy unit registry (for testing)."""
-    global _sympy_unit_registry
-    if _sympy_unit_registry is not None:
-        _sympy_unit_registry.reset()
+def reset_custom_unit_registry():
+    """Reset the custom unit registry (for testing)."""
+    global _custom_unit_registry
+    if _custom_unit_registry is not None:
+        _custom_unit_registry.reset()
 
 
-# Alias for backwards compatibility (evaluator.py uses UnitRegistry directly)
-UnitRegistry = SymPyUnitRegistry
-
-
-# Legacy alias - evaluator.py imports get_unit_registry from units.py
-# but it should use get_sympy_unit_registry for SymPy operations
-def get_unit_registry_for_sympy() -> SymPyUnitRegistry:
-    """Alias for get_sympy_unit_registry (backwards compatibility)."""
-    return get_sympy_unit_registry()
-
-
-# =============================================================================
-# SymPy Unit Parsing Functions (for assignment parsing)
-# =============================================================================
-
-def _sympy_extract_braced_content(s: str) -> tuple[Optional[str], str]:
-    """Extract content from balanced braces, handling nesting."""
-    s = s.strip()
-    if not s or s[0] != '{':
-        return None, s
-
-    depth = 0
-    start = 0
-    for i, c in enumerate(s):
-        if c == '{':
-            if depth == 0:
-                start = i + 1
-            depth += 1
-        elif c == '}':
-            depth -= 1
-            if depth == 0:
-                return s[start:i], s[i+1:]
-
-    return None, s
-
-
-def _sympy_clean_unit_latex(unit_latex: str) -> str:
-    """Clean LaTeX unit notation to simple format."""
-    result = unit_latex
-    result = re.sub(r'\\text\{([^}]+)\}', r'\1', result)
-    result = re.sub(r'\\mathrm\{([^}]+)\}', r'\1', result)
-    result = result.replace(r'\cdot', '*').replace('·', '*')
-    result = re.sub(r'\^\{3\}', '³', result)
-    result = re.sub(r'\^3', '³', result)
-    result = re.sub(r'\^\{2\}', '²', result)
-    result = re.sub(r'\^2', '²', result)
-    result = re.sub(r'\s+', '', result)
-    return result
-
-
-def _sympy_try_prefixed_unit(unit_str: str) -> Optional[Any]:
-    """Try to parse a unit with SI prefix (k, M, m, µ, n, c).
-    
-    ISSUE-002: Now uses pint_to_sympy_with_prefix for dynamic conversion.
-    """
-    # Use the comprehensive pint_to_sympy_with_prefix function
-    result = pint_to_sympy_with_prefix(unit_str)
-    if result is not None:
-        return result
-
-    return None
-
-
-def _sympy_parse_single_unit(unit_str: str, registry: SymPyUnitRegistry) -> Optional[Any]:
-    """Parse a single SymPy unit (possibly with power or parentheses)."""
-    unit_str = unit_str.strip()
-    if not unit_str:
-        return None
-
-    # Handle parentheses
-    if unit_str.startswith('(') and unit_str.endswith(')'):
-        inner = unit_str[1:-1]
-        if '*' in inner:
-            parts = inner.split('*')
-            result = None
-            for part in parts:
-                part_unit = _sympy_parse_single_unit(part.strip(), registry)
-                if part_unit is None:
-                    return None
-                result = part_unit if result is None else result * part_unit
-            return result
-        return _sympy_parse_single_unit(inner, registry)
-
-    # Handle powers: m^2, s^-1
-    if '^' in unit_str:
-        base, exp = unit_str.split('^', 1)
-        base_unit = _sympy_parse_single_unit(base.strip(), registry)
-        if base_unit is None:
-            return None
-        try:
-            return base_unit ** int(exp.strip())
-        except ValueError:
-            return None
-
-    # Handle multiplication: L*dag
-    if '*' in unit_str:
-        parts = unit_str.split('*')
-        result = None
-        for part in parts:
-            part_unit = _sympy_parse_single_unit(part.strip(), registry)
-            if part_unit is None:
-                return None
-            result = part_unit if result is None else result * part_unit
-        return result
-
-    # Direct lookups
-    result = registry.get_unit(unit_str)
-    if result is not None:
-        return result
-
-    # ISSUE-002: Use pint_to_sympy_with_prefix instead of UNIT_ABBREVIATIONS
-    sympy_unit = pint_to_sympy_with_prefix(unit_str)
-    if sympy_unit is not None:
-        return sympy_unit
-
-    # Try with SI prefixes (also uses pint_to_sympy_with_prefix now)
-    return _sympy_try_prefixed_unit(unit_str)
-
-
-def _sympy_parse_compound_unit_expr(unit_str: str, registry: SymPyUnitRegistry) -> Optional[Any]:
-    """Parse compound unit expressions like '€/kWh' or 'mg/L/dag'."""
-    if '/' in unit_str:
-        parts = unit_str.split('/')
-        numerator = _sympy_parse_single_unit(parts[0], registry)
-        if numerator is None:
-            return None
-
-        result = numerator
-        for denom_str in parts[1:]:
-            denom = _sympy_parse_single_unit(denom_str, registry)
-            if denom is None:
-                return None
-            result = result / denom
-        return result
-
-    return _sympy_parse_single_unit(unit_str, registry)
-
-
-def _sympy_parse_unit_string(unit_str: str) -> Optional[Any]:
-    """Parse a unit string into a SymPy unit expression."""
-    if not unit_str:
-        return None
-
-    unit_str = unit_str.strip().replace('²', '^2').replace('³', '^3')
-    unit_str = unit_str.replace('·', '*').replace('\\cdot', '*')
-
-    registry = get_sympy_unit_registry()
-
-    result = registry.get_unit(unit_str)
-    if result is not None:
-        return result
-
-    return _sympy_parse_compound_unit_expr(unit_str, registry)
-
-
-def sympy_strip_unit_from_value(latex: str) -> tuple[str, Optional[str], Optional[Any]]:
-    """
-    Strip the unit from a value expression and parse it (SymPy version).
-
-    Used by evaluator.py for parsing assignments like "100\\ kg".
-
-    Returns:
-        Tuple of (value_latex, unit_string or None, sympy_unit or None)
-    """
-    latex = latex.strip()
-
-    # Pattern 0: number followed by \frac{numerator}{denominator}
-    frac_match = re.match(r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s*\\?\s*\\frac', latex)
-    if frac_match:
-        value_part = frac_match.group(1).strip()
-        rest = latex[frac_match.end():]
-        numerator, rest = _sympy_extract_braced_content(rest)
-        denominator, _ = _sympy_extract_braced_content(rest)
-        if numerator is not None and denominator is not None:
-            numerator = _sympy_clean_unit_latex(numerator)
-            denominator = _sympy_clean_unit_latex(denominator)
-            if '*' in denominator or '·' in denominator:
-                unit_latex = f"{numerator}/({denominator})"
-            else:
-                unit_latex = f"{numerator}/{denominator}"
-            sympy_unit = _sympy_parse_unit_string(unit_latex)
-            if sympy_unit is not None:
-                return value_part, unit_latex, sympy_unit
-            else:
-                raise ValueError(f"Unrecognized unit: \\frac{{{numerator}}}{{{denominator}}}. "
-                               f"Define it first with '$$ {unit_latex} === ... $$'")
-
-    # Pattern 1: number followed by \text{...} or \mathrm{...}
-    match = re.match(r'^(.+?)\s*\\?\s*\\(?:text|mathrm)\{([^}]+)\}\s*$', latex)
-    if match:
-        value_part = match.group(1).strip()
-        unit_part = match.group(2).strip()
-        sympy_unit = _sympy_parse_unit_string(unit_part)
-        return value_part, unit_part, sympy_unit
-
-    # Pattern 2: number followed by backslash-space and unit
-    match = re.match(r'^([\d.]+(?:[eE][+-]?\d+)?)\s*\\\s+(.+)$', latex)
-    if match:
-        value_part = match.group(1).strip()
-        unit_part = match.group(2).strip()
-        sympy_unit = _sympy_parse_unit_string(unit_part)
-        return value_part, unit_part, sympy_unit
-
-    # Pattern 3: number followed by direct unit (no backslash)
-    match = re.match(r'^(-?[\d.]+(?:[eE][+-]?\d+)?)\s+([€$]?[a-zA-Z][a-zA-Z0-9/\*\^³²]*)\s*$', latex)
-    if match:
-        value_part = match.group(1).strip()
-        unit_part = match.group(2).strip()
-        sympy_unit = _sympy_parse_unit_string(unit_part)
-        if sympy_unit is not None:
-            return value_part, unit_part, sympy_unit
-        elif len(unit_part) > 1 or unit_part in ['m', 's', 'g', 'A', 'K', 'N', 'J', 'W', 'V', 'L', 'h']:
-            raise ValueError(f"Unrecognized unit: '{unit_part}'. "
-                           f"Define it first with '$$ {unit_part} === ... $$'")
-
-    # Pattern 4: number with unit symbol directly attached (currency)
-    match = re.match(r'^([\d.]+(?:[eE][+-]?\d+)?)\s*([€$][a-zA-Z0-9/\*\^³²]*)\s*$', latex)
-    if match:
-        value_part = match.group(1).strip()
-        unit_part = match.group(2).strip()
-        sympy_unit = _sympy_parse_unit_string(unit_part)
-        if sympy_unit is not None:
-            return value_part, unit_part, sympy_unit
-
-    # No unit found
-    return latex, None, None
+# Alias for backwards compatibility
+UnitRegistry = CustomUnitRegistry
 
 
 def reset_unit_registry():
-    """Reset both Pint and SymPy unit registries (for testing)."""
-    reset_sympy_unit_registry()
+    """Reset both Pint and custom unit registries (for testing)."""
+    reset_custom_unit_registry()
     global _ureg
     _ureg = None
 
@@ -1967,7 +1469,7 @@ def get_unit_dimensionality(unit_expr: Any) -> Optional[str]:
     Uses Pint to determine the physical dimension of a unit.
 
     Args:
-        unit_expr: A Pint unit, SymPy unit Quantity, or unit string
+        unit_expr: A Pint unit or unit string
 
     Returns:
         Dimensionality string like '[mass]', '[length]', '[time]',
@@ -2037,73 +1539,6 @@ def get_unit_dimensionality(unit_expr: Any) -> Optional[str]:
     return None
 
 
-def get_sympy_unit_dimensionality(sympy_expr: Any) -> Optional[str]:
-    """
-    Get the dimensionality of a SymPy expression containing units.
-
-    Extracts units from a SymPy expression and returns their dimensionality.
-
-    Args:
-        sympy_expr: A SymPy expression possibly containing Quantity units
-
-    Returns:
-        Dimensionality string or None if no units/dimensionless
-
-    Examples:
-        >>> from sympy.physics.units import kg, meter
-        >>> get_sympy_unit_dimensionality(5 * kg)
-        '[mass]'
-        >>> get_sympy_unit_dimensionality(10 * meter / second)
-        '[length] / [time]'
-    """
-    from sympy.physics.units import Quantity
-
-    if sympy_expr is None:
-        return None
-
-    # Check if it's a pure number
-    try:
-        if hasattr(sympy_expr, 'is_number') and sympy_expr.is_number:
-            return None
-    except Exception:
-        pass
-
-    # Extract Quantity atoms (units) from the expression
-    try:
-        if hasattr(sympy_expr, 'atoms'):
-            quantities = sympy_expr.atoms(Quantity)
-            if not quantities:
-                return None
-
-            # Build a unit string from the SymPy quantities
-            # This is approximate but works for common cases
-            unit_parts = []
-            for q in quantities:
-                unit_parts.append(str(q))
-
-            if not unit_parts:
-                return None
-
-            # For simple single-unit cases, use that unit
-            if len(unit_parts) == 1:
-                return get_unit_dimensionality(unit_parts[0])
-
-            # For compound units, try to extract the overall unit expression
-            # from the SymPy expression structure
-            coeff, unit_part = sympy_expr.as_coeff_Mul()
-            if unit_part != 1:
-                # Convert SymPy unit expression to string
-                unit_str = str(unit_part)
-                # Clean up SymPy notation to Pint notation
-                unit_str = unit_str.replace('**', '^')
-                return get_unit_dimensionality(unit_str)
-
-    except Exception:
-        pass
-
-    return None
-
-
 def are_dimensions_compatible(dim1: Optional[str], dim2: Optional[str]) -> bool:
     """
     Check if two dimensionalities are compatible for addition/subtraction.
@@ -2133,354 +1568,6 @@ def are_dimensions_compatible(dim1: Optional[str], dim2: Optional[str]) -> bool:
     return dim1 == dim2
 
 
-# =============================================================================
-# ISS-024: Pint-Based AST Evaluator
-# =============================================================================
-# This is the core fix for ISS-024: walk SymPy expressions and evaluate them
-# using Pint Quantities for proper unit handling.
-# =============================================================================
-
-
 class PintEvaluationError(Exception):
     """Error during Pint-based evaluation."""
     pass
-
-
-def evaluate_sympy_ast_with_pint(
-    expr: Any,
-    symbol_values: dict[str, pint.Quantity],
-    allow_dimensionless: bool = True
-) -> pint.Quantity:
-    """
-    Evaluate a SymPy expression using Pint Quantities for unit handling.
-
-    This is the core ISS-024 fix: walk the SymPy AST and evaluate with Pint
-    instead of SymPy's numeric evaluation. This ensures proper unit cancellation
-    (e.g., kW * year → energy).
-
-    Args:
-        expr: A SymPy expression (from latex2sympy)
-        symbol_values: Dict mapping symbol names to Pint Quantities
-        allow_dimensionless: If True, allow pure numbers without units
-
-    Returns:
-        A Pint Quantity with the result
-
-    Raises:
-        PintEvaluationError: If evaluation fails
-
-    Examples:
-        >>> ureg = get_unit_registry()
-        >>> symbols = {'P': 310.7 * ureg.kW, 't': 1 * ureg.year}
-        >>> # Assuming expr is latex2sympy('P * t')
-        >>> result = evaluate_sympy_ast_with_pint(expr, symbols)
-        >>> result.to('MWh')  # ~2721.7 MWh
-    """
-    import sympy
-    from sympy.physics.units import Quantity as SympyQuantity
-
-    ureg = get_unit_registry()
-
-    def _eval(e: Any) -> pint.Quantity:
-        """Recursively evaluate a SymPy expression node."""
-
-        # Handle None
-        if e is None:
-            raise PintEvaluationError("Cannot evaluate None expression")
-
-        # Pure Python numbers
-        if isinstance(e, (int, float)):
-            return e * ureg.dimensionless if allow_dimensionless else float(e)
-
-        # SymPy numbers
-        if isinstance(e, sympy.Number):
-            val = float(e)
-            return val * ureg.dimensionless if allow_dimensionless else val
-
-        if isinstance(e, sympy.Integer):
-            val = int(e)
-            return val * ureg.dimensionless if allow_dimensionless else val
-
-        if isinstance(e, sympy.Float):
-            val = float(e)
-            return val * ureg.dimensionless if allow_dimensionless else val
-
-        if isinstance(e, sympy.Rational):
-            val = float(e)
-            return val * ureg.dimensionless if allow_dimensionless else val
-
-        # SymPy Symbol - lookup in symbol_values
-        if isinstance(e, sympy.Symbol):
-            name = str(e)
-            if name in symbol_values:
-                return symbol_values[name]
-            # Check for subscripted versions (v_{0} style)
-            if '_' in name:
-                base_name = name.replace('_{', '_').replace('}', '')
-                if base_name in symbol_values:
-                    return symbol_values[base_name]
-            raise PintEvaluationError(f"Undefined symbol: {name}")
-
-        # SymPy mathematical constants (Pi, E, EulerGamma, GoldenRatio, Catalan)
-        # These inherit from NumberSymbol, not Number
-        if isinstance(e, sympy.core.numbers.NumberSymbol):
-            val = float(e)
-            return val * ureg.dimensionless if allow_dimensionless else val
-
-        # SymPy Quantity (unit) - convert to Pint
-        # Guard against SympyQuantity being None if import failed
-        if SympyQuantity is not None and isinstance(e, SympyQuantity):
-            unit_name = str(e)
-            # Try to convert SymPy unit to Pint
-            pint_unit = _sympy_unit_to_pint(unit_name)
-            if pint_unit is not None:
-                return 1 * pint_unit
-            raise PintEvaluationError(f"Unknown unit: {unit_name}")
-
-        # Multiplication: a * b * c
-        if isinstance(e, sympy.Mul):
-            result = 1 * ureg.dimensionless
-            for arg in e.args:
-                val = _eval(arg)
-                # Handle mixing Pint Quantities with plain numbers
-                if isinstance(val, pint.Quantity):
-                    result = result * val
-                else:
-                    result = result * val
-            return result
-
-        # Addition: a + b + c
-        if isinstance(e, sympy.Add):
-            result = None
-            for arg in e.args:
-                val = _eval(arg)
-                if result is None:
-                    result = val
-                else:
-                    # Pint handles dimension checking automatically
-                    result = result + val
-            return result
-
-        # Power: a ** b
-        if isinstance(e, sympy.Pow):
-            base = _eval(e.base)
-            # Exponent should be numeric
-            exp = e.exp
-            if isinstance(exp, sympy.Number):
-                exp_val = float(exp)
-            else:
-                exp_val = _eval(exp)
-                if isinstance(exp_val, pint.Quantity):
-                    if exp_val.dimensionless:
-                        exp_val = float(exp_val.magnitude)
-                    else:
-                        raise PintEvaluationError("Exponent must be dimensionless")
-            return base ** exp_val
-
-        # Negative (unary minus)
-        if isinstance(e, sympy.core.numbers.NegativeOne):
-            return -1 * ureg.dimensionless if allow_dimensionless else -1
-
-        # Mathematical functions
-        # Note: sympy.sqrt(x) returns Pow(x, 1/2), not a separate sqrt type
-        # So we handle sqrt in the Pow handler below
-
-        if isinstance(e, sympy.exp):
-            arg = _eval(e.args[0])
-            if isinstance(arg, pint.Quantity):
-                if arg.dimensionless:
-                    import math
-                    return math.exp(arg.magnitude) * ureg.dimensionless
-                raise PintEvaluationError("exp() argument must be dimensionless")
-            import math
-            return math.exp(arg) * ureg.dimensionless
-
-        if isinstance(e, sympy.log):
-            arg = _eval(e.args[0])
-            if isinstance(arg, pint.Quantity):
-                if arg.dimensionless:
-                    import math
-                    return math.log(arg.magnitude) * ureg.dimensionless
-                raise PintEvaluationError("log() argument must be dimensionless")
-            import math
-            return math.log(arg) * ureg.dimensionless
-
-        # Trig functions
-        if isinstance(e, (sympy.sin, sympy.cos, sympy.tan)):
-            arg = _eval(e.args[0])
-            if isinstance(arg, pint.Quantity):
-                if arg.dimensionless:
-                    val = arg.magnitude
-                elif arg.check('[angle]'):
-                    val = arg.to('radian').magnitude
-                else:
-                    raise PintEvaluationError("Trig functions require angle or dimensionless")
-            else:
-                val = arg
-            import math
-            if isinstance(e, sympy.sin):
-                return math.sin(val) * ureg.dimensionless
-            if isinstance(e, sympy.cos):
-                return math.cos(val) * ureg.dimensionless
-            if isinstance(e, sympy.tan):
-                return math.tan(val) * ureg.dimensionless
-
-        # Division (handled by Mul with negative powers, but catch explicit case)
-        # SymPy represents a/b as a * b**(-1)
-
-        # Fallback: try to evaluate as SymPy and extract value
-        try:
-            # Try numeric evaluation with SymPy as fallback
-            numeric = sympy.N(e)
-            if numeric.is_number:
-                return float(numeric) * ureg.dimensionless
-        except Exception:
-            pass
-
-        raise PintEvaluationError(f"Cannot evaluate expression type: {type(e).__name__}")
-
-    return _eval(expr)
-
-
-def _sympy_unit_to_pint(sympy_unit_name: str) -> Optional[pint.Unit]:
-    """
-    Convert a SymPy unit name to a Pint unit.
-
-    Args:
-        sympy_unit_name: Name of the SymPy unit (e.g., 'kilogram', 'meter')
-
-    Returns:
-        Pint Unit or None if not recognized
-    """
-    ureg = get_unit_registry()
-
-    # Direct mapping for common SymPy unit names
-    sympy_to_pint = {
-        # SI base
-        'meter': 'm',
-        'kilogram': 'kg',
-        'second': 's',
-        'ampere': 'A',
-        'kelvin': 'K',
-        'mole': 'mol',
-        'candela': 'cd',
-        # Derived
-        'gram': 'g',
-        'watt': 'W',
-        'joule': 'J',
-        'newton': 'N',
-        'pascal': 'Pa',
-        'hertz': 'Hz',
-        'volt': 'V',
-        'ohm': 'ohm',
-        'liter': 'L',
-        'bar': 'bar',
-        'hour': 'h',
-        'minute': 'min',
-        'day': 'day',
-        'year': 'year',
-        # Prefixed
-        'kilowatt': 'kW',
-        'megawatt': 'MW',
-        'kilojoule': 'kJ',
-        'megajoule': 'MJ',
-        'kilowatt_hour': 'kWh',
-        'megawatt_hour': 'MWh',
-        'kilometer': 'km',
-        'centimeter': 'cm',
-        'millimeter': 'mm',
-        'milligram': 'mg',
-        # Custom
-        'euro': 'EUR',
-        'EUR': 'EUR',
-        'dollar': 'USD',
-        'USD': 'USD',
-    }
-
-    # Try direct mapping
-    if sympy_unit_name in sympy_to_pint:
-        try:
-            return ureg.Unit(sympy_to_pint[sympy_unit_name])
-        except Exception:
-            pass
-
-    # Try parsing directly
-    try:
-        return ureg.Unit(sympy_unit_name)
-    except Exception:
-        pass
-
-    # Try cleaning up the name
-    clean_name = sympy_unit_name.replace('_', '')
-    if clean_name in sympy_to_pint:
-        try:
-            return ureg.Unit(sympy_to_pint[clean_name])
-        except Exception:
-            pass
-
-    return None
-
-
-def build_pint_symbol_map(
-    symbol_table: dict[str, Any],
-    ureg: Optional[pint.UnitRegistry] = None
-) -> dict[str, pint.Quantity]:
-    """
-    Build a mapping of symbol names to Pint Quantities from a LiveMathTeX symbol table.
-
-    Args:
-        symbol_table: Dict of symbol names to SymbolValue objects
-        ureg: Optional Pint registry (uses global if not provided)
-
-    Returns:
-        Dict mapping symbol names to Pint Quantities
-    """
-    if ureg is None:
-        ureg = get_unit_registry()
-
-    result = {}
-
-    for name, symbol_value in symbol_table.items():
-        try:
-            # Get the numeric value
-            if hasattr(symbol_value, 'original_value') and symbol_value.original_value is not None:
-                value = symbol_value.original_value
-            elif hasattr(symbol_value, 'value'):
-                # Try to extract numeric value from SymPy expression
-                import sympy
-                if hasattr(symbol_value.value, 'is_number') and symbol_value.value.is_number:
-                    value = float(symbol_value.value)
-                else:
-                    # Complex expression - try numeric evaluation
-                    try:
-                        value = float(sympy.N(symbol_value.value))
-                    except Exception:
-                        continue
-            else:
-                continue
-
-            # Get the unit
-            unit_str = None
-            if hasattr(symbol_value, 'original_unit') and symbol_value.original_unit:
-                unit_str = symbol_value.original_unit
-            elif hasattr(symbol_value, 'unit') and symbol_value.unit:
-                unit_str = str(symbol_value.unit)
-
-            # Create Pint Quantity
-            if unit_str:
-                # Clean up unit string
-                unit_str = clean_latex_unit(unit_str)
-                unit_str = unit_str.replace('€', 'EUR').replace('$', 'USD')
-                unit_str = unit_str.replace('²', '**2').replace('³', '**3')
-                try:
-                    result[name] = value * ureg(unit_str)
-                except Exception:
-                    # Fall back to dimensionless
-                    result[name] = value * ureg.dimensionless
-            else:
-                result[name] = value * ureg.dimensionless
-
-        except Exception:
-            continue
-
-    return result

@@ -1,0 +1,63 @@
+{
+  "version": "3.0",
+  "source": "tests/test_iss_038_comma_subscript_expression_parse_error.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {
+    "v_{0}": {
+      "latex_name": "PAR_{R2,umol}",
+      "original": {
+        "value": 1413.0,
+        "unit": "µmol/s"
+      },
+      "base": {
+        "value": 0.001413,
+        "unit": "mole / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{1}": {
+      "latex_name": "t_{day}",
+      "original": {
+        "value": 86400.0,
+        "unit": "s/d"
+      },
+      "base": {
+        "value": 1.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v_{2}": {
+      "latex_name": "PAR_{R2}",
+      "original": {
+        "value": 122083200.0,
+        "unit": "micromole / day"
+      },
+      "base": {
+        "value": 0.001413,
+        "unit": "mole / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-15 02:24:49",
+    "duration": "0.15s",
+    "symbols": 3,
+    "custom_units": 0,
+    "definitions": 5,
+    "evaluations": 3,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 2,
+    "warnings": 0
+  }
+}

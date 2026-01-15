@@ -27,7 +27,7 @@ y = x + 3
 
 $result := z + 5 ==
 \\ \color{red}{\text{
-    Error: Undefined variable 'z'. Define it before use.}}$
+    Error: Undefined variable: z}}$
 
 ## ✅ Correct Usage
 
@@ -53,7 +53,7 @@ $ratio := \frac{a_1}{b_1} == 2$
 
 ## Re-evaluate existing variable
 
-$\text{total} == 15$
+$total == 15$
 
 ## Summary
 
@@ -64,4 +64,4 @@ $\text{total} == 15$
 
 ---
 
-> *livemathtex: 2026-01-13 23:46:35 | 7 definitions, 5 evaluations | 2 errors | 0.29s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 04:21:15 | 7 definitions, 5 evaluations | 2 errors | 0.00s* <!-- livemathtex-meta -->

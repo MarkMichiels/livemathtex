@@ -21,7 +21,8 @@ None (regex patterns, Python, Pint library)
 - ✅ **v1.9 µmol Unit Conversion Fix** - Phase 20 (shipped 2026-01-14)
 - ✅ **v2.0 Function Evaluation** - Phase 21 (shipped 2026-01-14)
 - ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
-- 🚧 **v3.0 Pure Pint Architecture** - Phases 23-27 (in progress)
+- ✅ **v3.0 Pure Pint Architecture** - Phases 23-27 (complete 2026-01-14)
+- ✅ **v3.1 Complete SymPy Removal** - Phase 28 (shipped 2026-01-15)
 
 ## Phases
 
@@ -291,7 +292,7 @@ Plans:
 Plans:
 - [x] 22-01: Fix superscript unit conflict in pint_backend.py
 
-### 🚧 v3.0 Pure Pint Architecture (In Progress)
+### ✅ v3.0 Pure Pint Architecture (Complete 2026-01-14)
 
 **Milestone Goal:** Remove latex2sympy and SymPy dependencies entirely. Build custom LaTeX expression parser that feeds directly into Pint evaluation. Eliminates implicit multiplication issues and simplifies the codebase.
 
@@ -335,64 +336,69 @@ NEW: LaTeX → Custom Tokenizer → Expression Tree → Pint Evaluation → Resu
 - Simpler codebase (~100MB SymPy dependency removed)
 - Full control over parsing behavior
 
-#### Phase 23: Expression Tokenizer
+#### Phase 23: Expression Tokenizer ✅
 **Goal**: Build custom LaTeX tokenizer that correctly identifies variables, units, operators, and numbers
 **Depends on**: v2.1 complete
-**Status**: Not started
+**Status**: Complete
+**Completed**: 2026-01-14
 **Research**: ✅ Complete (see 23-RESEARCH.md)
-**Plans**: TBD
+**Plans**: 1
 
 Key deliverables:
-- `expression_tokenizer.py` module
-- TokenType enum (NUMBER, VARIABLE, UNIT, OPERATOR, FRAC, LPAREN, RPAREN, etc.)
-- Token dataclass with type, value, span
+- `expression_tokenizer.py` module (169 lines)
+- TokenType enum (NUMBER, VARIABLE, UNIT, OPERATOR, FRAC, LPAREN, RPAREN, LBRACE, RBRACE, EOF)
+- Token dataclass with type, value, start, end
 - Pattern-based tokenization with priority ordering (units before single letters)
-- Tests for all supported LaTeX constructs
+- 47 tests for all supported LaTeX constructs
 
 Plans:
-- [ ] 23-01: TBD (run /gsd:plan-phase 23 to break down)
+- [x] 23-01: TDD implementation of expression tokenizer
 
-#### Phase 24: Expression Parser
+#### Phase 24: Expression Parser ✅
 **Goal**: Build recursive descent parser that converts tokens into an expression tree
 **Depends on**: Phase 23
-**Status**: Not started
-**Research**: Unlikely (standard parsing patterns)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-14
+**Research**: Not needed (standard parsing patterns)
+**Plans**: 1
 
 Key deliverables:
-- `expression_parser.py` module
-- ExprNode base class and subclasses (NumberNode, VariableNode, BinaryOpNode, etc.)
+- `expression_parser.py` module (225 lines)
+- ExprNode hierarchy (NumberNode, VariableNode, BinaryOpNode, UnaryOpNode, FracNode, UnitAttachNode)
 - Operator precedence handling (PEMDAS)
+- Right associativity for exponentiation
 - Fraction parsing (`\frac{a}{b}`)
-- Function call parsing (`f(x)`)
-- Tests for expression tree construction
+- 69 tests for expression tree construction
 
 Plans:
-- [ ] 24-01: TBD
+- [x] 24-01: TDD implementation of expression parser
 
-#### Phase 25: Direct Pint Evaluator
+#### Phase 25: Direct Pint Evaluator ✅
 **Goal**: Implement expression tree evaluation using Pint directly (no SymPy)
 **Depends on**: Phase 24
-**Status**: Not started
-**Research**: Unlikely (Pint patterns established in v1.6)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-14
+**Research**: Not needed (Pint patterns established)
+**Plans**: 1
 
 Key deliverables:
+- `expression_evaluator.py` module (153 lines)
 - `evaluate_expression_tree()` function
-- Symbol table integration (lookup variables as Pint Quantities)
+- Variable lookup with name normalization
 - Unit handling during evaluation
-- Error handling for undefined variables, unit mismatches
-- Tests for numeric evaluation with units
+- Error handling (EvaluationError for undefined variables)
+- 47 tests for numeric evaluation with units
 
 Plans:
-- [ ] 25-01: TBD
+- [x] 25-01: TDD implementation of expression tree evaluator
 
-#### Phase 26: Evaluator Integration
+#### Phase 26: Evaluator Integration ✅
 **Goal**: Integrate new parser into evaluator.py, replacing latex2sympy calls
 **Depends on**: Phase 25
-**Status**: Not started
+**Status**: Complete
+**Completed**: 2026-01-14
 **Research**: Unlikely (internal refactoring)
-**Plans**: TBD
+**Plans**: 1
 
 Key deliverables:
 - Update `_compute()` to use new parser
@@ -403,14 +409,15 @@ Key deliverables:
 - All 365+ tests still pass
 
 Plans:
-- [ ] 26-01: TBD
+- [x] 26-01: Evaluator integration (try-first-fallback pattern)
 
-#### Phase 27: Remove Dependencies
+#### Phase 27: Remove Dependencies ✅
 **Goal**: Remove latex2sympy and sympy from project dependencies
 **Depends on**: Phase 26
-**Status**: Not started
+**Status**: Complete
+**Completed**: 2026-01-14
 **Research**: Unlikely (cleanup)
-**Plans**: TBD
+**Plans**: 1
 
 Key deliverables:
 - Remove `from latex2sympy2 import latex2sympy` imports
@@ -421,4 +428,21 @@ Key deliverables:
 - Tag v3.0.0 release
 
 Plans:
-- [ ] 27-01: TBD
+- [x] 27-01: Custom parser primary path (complete 2026-01-14)
+
+<details>
+<summary>✅ v3.1 Complete SymPy Removal (Phase 28) - SHIPPED 2026-01-15</summary>
+
+**Milestone Goal:** Complete removal of SymPy and latex2sympy from the codebase.
+
+See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
+
+**Summary:**
+- Phase 28: Complete SymPy/latex2sympy Removal (6 plans)
+- ~1,500 lines of dead code removed
+- Extended custom parser with math functions, units, currency symbols
+- Simplified internal IDs from v_{0} to v0 format
+
+**Issues Resolved:** ISS-035, ISS-036, ISS-037, ISS-038
+
+</details>

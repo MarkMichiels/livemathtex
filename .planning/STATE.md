@@ -2,32 +2,23 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-12)
+See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** All issues resolved
+**Current focus:** Ready for next milestone
 
 ## Current Position
 
-Phase: 23 of 27 (expression tokenizer)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-01-14 — Milestone v3.0 created
+Phase: None active
+Plan: None
+Status: ✅ Milestone v3.1 SHIPPED
+Last activity: 2026-01-15 — Milestone v3.1 complete, ready to merge and tag
+Branch: `feature/v3-pure-pint` (ready to merge to master)
 
-**Milestone v3.0: Pure Pint Architecture**
-
-Goal: Remove latex2sympy and SymPy dependencies entirely. Replace with custom LaTeX expression parser.
-
-Phases:
-- Phase 23: Expression Tokenizer - Build custom LaTeX tokenizer
-- Phase 24: Expression Parser - Recursive descent parser → Expression Tree
-- Phase 25: Direct Pint Evaluator - Evaluate expression tree with Pint
-- Phase 26: Evaluator Integration - Replace latex2sympy in evaluator.py
-- Phase 27: Remove Dependencies - Remove latex2sympy and sympy
-
-Research: ✅ Complete (see `.planning/phases/23-remove-latex2sympy/23-RESEARCH.md`)
-
-Progress: ░░░░░░░░░░ 0% (0/5 phases complete)
+**Next steps:**
+1. Merge feature/v3-pure-pint to master
+2. Tag v3.1.0
+3. Push tag to remote
 
 ## Performance Metrics
 
@@ -66,6 +57,8 @@ Progress: ░░░░░░░░░░ 0% (0/5 phases complete)
 | v1.6 | v1.6.0 | 2026-01-13 | — |
 | v1.7 | — | 2026-01-13 | — |
 | v1.8 | — | 2026-01-13 | — (verification only) |
+| v3.0 | v3.0.0 | 2026-01-14 | — |
+| v3.1 | v3.1.0 | 2026-01-15 | .planning/milestones/v3.1-ROADMAP.md |
 
 ## Accumulated Context
 
@@ -108,17 +101,35 @@ None.
 - Milestone v1.6 created: Pint Evaluation Engine, 3 phases (13-15)
 - Milestone v2.0 complete: Function evaluation fixed (Phase 21)
 - Milestone v2.1 complete: Superscript variable names (Phase 22)
-- **Milestone v3.0 created: Pure Pint Architecture, 5 phases (23-27)**
+- **Milestone v3.0 COMPLETE: Pure Pint Architecture, 5 phases (23-27)**
   - Major refactor: Remove latex2sympy and SymPy dependencies
   - Custom tokenizer + parser for LaTeX expressions
   - Direct Pint evaluation without SymPy intermediate
+- **Milestone v3.1 COMPLETE: Complete SymPy Removal, 1 phase (28)**
+  - Removed ALL SymPy and latex2sympy from codebase
+  - Fixed ISS-035, ISS-036, ISS-037, ISS-038 (root cause: latex2sympy corruption)
+  - ~1,500 lines of dead code removed
+  - Extended custom parser with math functions, units, currency symbols
 
 ## Session Continuity
 
-Last session: 2026-01-14
-Stopped at: Milestone v3.0 created
+Last session: 2026-01-15
+Stopped at: Milestone v3.1 complete
 Resume file: None
-Next: Plan Phase 23 (Expression Tokenizer) - `/gsd:plan-phase 23`
+Next: User to merge to master and tag
+
+**v3.1 Complete Summary:**
+- ✅ Phase 28: Complete SymPy/latex2sympy Removal (6 plans)
+- ~1,500 lines removed
+- 475 tests passing
+- Parser extended with math functions, units, currency
+
+**v3.0 Complete Summary:**
+- ✅ Phase 23: Expression Tokenizer (47 tests, 169 lines)
+- ✅ Phase 24: Expression Parser (69 tests, 225 lines)
+- ✅ Phase 25: Direct Pint Evaluator (47 tests, 153 lines)
+- ✅ Phase 26: Evaluator Integration (try-first-fallback pattern, 528 tests pass)
+- ✅ Phase 27: Custom parser primary path (constants, braces, fallback retained)
 
 ### Implementation Notes (Phase 12)
 

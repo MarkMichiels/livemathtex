@@ -7,9 +7,11 @@ This module provides:
 - SymbolTable: Manages variable state during evaluation
 
 ID Convention (v3.0):
-- v1, v2, v3... for values (numeric with optional unit)
-- f1, f2, f3... for formulas (computed from other symbols)
-- x1, x2, x3... for function parameters (local scope)
+- v0, v1, v2... for values (numeric with optional unit)
+- f0, f1, f2... for formulas (computed from other symbols)
+- x0, x1, x2... for function parameters (local scope)
+
+Note: IDs use simple Python format (v0, not v_{0}) for cleaner processing.
 """
 
 from typing import Dict, Any, Optional, List
@@ -34,7 +36,7 @@ class SymbolValue:
         valid: Whether conversion was successful
         raw_latex: The LaTeX string of the RHS (definition expression)
         latex_name: The original LaTeX form of the variable name (LHS)
-        internal_id: Internal ID (v3.0: "v1", "f1"; legacy: "v_{0}")
+        internal_id: Internal ID (v0, f0, x0 format)
         line: Source line number where this symbol was defined
 
         # v3.0 formula tracking fields
@@ -46,8 +48,8 @@ class SymbolValue:
     """
     original_value: Optional[float] = None
     original_unit: Optional[str] = None
-    si_value: Any = None  # Pint Quantity or number (or SymPy in legacy mode)
-    si_unit: Optional[Any] = None  # Pint unit string (or SymPy unit in legacy mode)
+    si_value: Any = None  # Float value (magnitude in SI units)
+    si_unit: Optional[Any] = None  # Pint unit string
     valid: bool = True
     raw_latex: str = ""
     latex_name: str = ""
@@ -88,65 +90,52 @@ class NameGenerator:
     """
     Generates unique internal names for symbols.
 
-    v3.0 format (clean IDs):
-        v1, v2, v3... for values (numeric with optional unit)
-        f1, f2, f3... for formulas (computed from other symbols)
-        x1, x2, x3... for function parameters (local scope within a function)
+    ID format (v3.0):
+        v0, v1, v2... for values (numeric with optional unit)
+        f0, f1, f2... for formulas (computed from other symbols)
+        x0, x1, x2... for function parameters (local scope within a function)
 
-    Legacy format (for backwards compatibility):
-        v_{0}, v_{1}, v_{2}... for variables
-        f_{0}, f_{1}, f_{2}... for functions
+    IDs use simple Python-valid format for cleaner processing.
     """
 
-    def __init__(self, use_clean_ids: bool = False):
-        """
-        Initialize name generator.
-
-        Args:
-            use_clean_ids: If True, use v1/f1/x1 format (v3.0).
-                          If False, use v_{0}/f_{0} format (legacy).
-                          Default is False for backwards compatibility.
-        """
+    def __init__(self):
+        """Initialize name generator."""
         self._value_counter = 0
         self._formula_counter = 0
         self._param_counter = 0
-        self._use_clean_ids = use_clean_ids
         # Bidirectional mapping
         self._latex_to_internal: Dict[str, str] = {}
         self._internal_to_latex: Dict[str, str] = {}
 
     def next_value_id(self) -> str:
         """
-        Generate next value ID (v1, v2, v3...).
+        Generate next value ID (v0, v1, v2...).
 
         For symbols that are direct values with optional units.
         """
+        internal_id = f"v{self._value_counter}"
         self._value_counter += 1
-        if self._use_clean_ids:
-            return f"v{self._value_counter}"
-        return f"v_{{{self._value_counter - 1}}}"
+        return internal_id
 
     def next_formula_id(self) -> str:
         """
-        Generate next formula ID (f1, f2, f3...).
+        Generate next formula ID (f0, f1, f2...).
 
         For symbols that are computed from other symbols.
         """
+        internal_id = f"f{self._formula_counter}"
         self._formula_counter += 1
-        if self._use_clean_ids:
-            return f"f{self._formula_counter}"
-        return f"f_{{{self._formula_counter - 1}}}"
+        return internal_id
 
     def next_param_id(self) -> str:
         """
-        Generate next parameter ID (x1, x2, x3...).
+        Generate next parameter ID (x0, x1, x2...).
 
         For function parameters (local scope within a function definition).
         """
+        internal_id = f"x{self._param_counter}"
         self._param_counter += 1
-        if self._use_clean_ids:
-            return f"x{self._param_counter}"
-        return f"x_{{{self._param_counter - 1}}}"
+        return internal_id
 
     def reset_param_counter(self) -> None:
         """Reset parameter counter for new function scope."""
@@ -160,7 +149,7 @@ class NameGenerator:
             latex_name: Original LaTeX variable name (e.g., "N_{MPC}")
 
         Returns:
-            Internal name (e.g., "v1" or "v_{0}" depending on mode)
+            Internal name (e.g., "v0", "v1", ...)
         """
         if latex_name in self._latex_to_internal:
             return self._latex_to_internal[latex_name]
@@ -178,7 +167,7 @@ class NameGenerator:
             latex_name: Original LaTeX name (e.g., "A_{pipe}")
 
         Returns:
-            Internal name (e.g., "f1" or "f_{0}" depending on mode)
+            Internal name (e.g., "f0", "f1", ...)
         """
         if latex_name in self._latex_to_internal:
             return self._latex_to_internal[latex_name]
@@ -224,23 +213,15 @@ class SymbolTable:
 
     Architecture:
     - Each variable has an original LaTeX name (e.g., "P_{LED,out}")
-    - Each variable gets an internal ID (e.g., "v1" for v3.0, "v_{0}" legacy)
+    - Each variable gets an internal ID (e.g., "v0", "v1", ...)
     - Stores both original and SI-converted values
     - The mapping is stored for output conversion back to LaTeX
     """
 
-    def __init__(self, use_clean_ids: bool = False):
-        """
-        Initialize symbol table.
-
-        Args:
-            use_clean_ids: If True, use v1/f1/x1 format (v3.0).
-                          If False, use v_{0}/f_{0} format (legacy).
-                          Default is False for backwards compatibility.
-        """
+    def __init__(self):
+        """Initialize symbol table."""
         self._symbols: Dict[str, SymbolValue] = {}
-        self._names = NameGenerator(use_clean_ids=use_clean_ids)
-        self._use_clean_ids = use_clean_ids
+        self._names = NameGenerator()
 
     def set(
         self,
@@ -319,7 +300,7 @@ class SymbolTable:
         return self._symbols.get(name)
 
     def get_internal_id(self, latex_name: str) -> Optional[str]:
-        """Get the internal ID (v_{n}) for a LaTeX variable name."""
+        """Get the internal ID (v0, v1, ...) for a LaTeX variable name."""
         return self._names.get_internal(latex_name)
 
     def get_latex_name(self, internal_id: str) -> Optional[str]:

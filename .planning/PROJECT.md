@@ -2,9 +2,9 @@
 
 ## What This Is
 
-LiveMathTeX is a CLI tool that processes Markdown documents containing LaTeX calculations, evaluating them with unit support via SymPy and Pint.
+LiveMathTeX is a CLI tool that processes Markdown documents containing LaTeX calculations, evaluating them with unit support via Pint.
 
-**Latest:** v1.5 (shipped 2026-01-13) - Parser architecture overhaul with span-based operations
+**Latest:** v3.1 (shipped 2026-01-15) - Complete SymPy removal, Pure Pint architecture
 
 ## Core Value
 
@@ -46,15 +46,16 @@ None currently. All known issues resolved.
 
 ## Context
 
-**v1.5 Architecture:** The codebase now uses structural parsing (markdown-it-py + pylatexenc) instead of regex patterns. This provides:
+**v3.1 Architecture (Pure Pint):** The codebase uses a custom LaTeX expression parser feeding directly into Pint evaluation. No SymPy or latex2sympy dependencies.
+- Custom tokenizer for LaTeX expressions
+- Custom parser producing AST nodes
+- Direct Pint evaluation without SymPy intermediate
+- Structural Markdown parsing (markdown-it-py + pylatexenc)
 - Character-level spans for all operations
-- Proper handling of multiline constructs
-- Better error diagnostics for multi-letter identifiers
-- Warnings (orange) vs errors (red) distinction
 
 ## Constraints
 
-- **Tech stack**: Python 3.10+, SymPy, Pint, Click — established
+- **Tech stack**: Python 3.10+, Pint, Click — established (SymPy removed in v3.1)
 - **Testing**: TDD approach
 - **Compatibility**: Don't break v1.2 functionality
 
@@ -66,6 +67,8 @@ None currently. All known issues resolved.
 |----------|-----------|---------|
 | TDD for ISS-012 | Failing tests already exist, fix implementation to pass them | ✓ Resolved v1.2 |
 | Pre-processing approach | Clear already-processed content before parsing | ✓ Resolved v1.2 |
+| Remove SymPy entirely | latex2sympy corrupts global state causing ISS-035/036/037/038 | ✓ Resolved v3.1 |
+| Custom LaTeX parser | Direct Pint evaluation, no SymPy dependency | ✓ Shipped v3.0/v3.1 |
 
 ---
-*Last updated: 2026-01-13 — v1.5 shipped*
+*Last updated: 2026-01-15 — v3.1 shipped*
