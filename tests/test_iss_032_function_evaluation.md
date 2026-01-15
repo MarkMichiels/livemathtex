@@ -18,7 +18,7 @@ This test reproduces the bug where functions defined with units cannot be evalua
 $PPE_{eff}(r_{frac}) := (r_{frac} \cdot 4.29 + (1 - r_{frac}) \cdot 2.57) \cdot 0.9143$
 
 **Try to evaluate function:**
-$PPE_{result} := PPE_{eff}(0.90) == 3.765$ <!-- Should evaluate to ~3.765 -->
+$PPE_{result} := PPE_{eff}(0.90) == 3.7651$ <!-- Should evaluate to ~3.765 -->
 
 **Expected result:** `3.765` (or similar value)
 
@@ -47,4 +47,4 @@ $PPE_{result} := PPE_{eff}(0.90) == 3.765$ <!-- Should evaluate to ~3.765 -->
 
 ---
 
-> *livemathtex: 2026-01-14 09:48:35 | 2 definitions, 1 evaluation | no errors | 0.24s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:33:31 | 2 definitions, 1 evaluation | no errors | 0.06s* <!-- livemathtex-meta -->

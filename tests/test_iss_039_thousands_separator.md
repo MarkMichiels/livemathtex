@@ -14,11 +14,13 @@ This test demonstrates the need for automatic thousands separator formatting in 
 
 ### Minimal Reproduction
 
-$V_{tot} := 192 \cdot 197\ L ==$ <!-- [L] -->
+$V_{tot} := 192 \cdot 197\ L == 37\,824\ \text{L}$ <!-- [L] -->
 <!-- Expected: 37,824 L -->
 <!-- Actual: 37824 L (no separator) -->
 
-$PAR_{hdr} := 273798276.1583\ mol/d ==$ <!-- [mol/day] -->
+$PAR_{hdr} := 273798276.1583\ mol/d ==
+\\ \color{red}{\text{
+    Error: Undefined variable: d}}$ <!-- [mol/day] -->
 <!-- Expected: 273,798,276 mol/day -->
 <!-- Actual: 273798276.1583 mol/day (no separator) -->
 
@@ -61,3 +63,7 @@ Settings must be preserved after `process` and `clear` cycles:
 This ensures the document remains stable and can be processed multiple times without losing formatting preferences.
 
 ---
+
+---
+
+> *livemathtex: 2026-01-16 00:27:46 | 2 definitions, 2 evaluations | 1 error | 0.06s* <!-- livemathtex-meta -->

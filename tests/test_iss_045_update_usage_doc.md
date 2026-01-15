@@ -47,3 +47,7 @@ $PPE_{eff,reactors} := PPE_{eff,ratios}[reactor\_assignments]$
 **Medium** - Documentation gap makes it unclear how to handle repetitive calculations. Users resort to verbose manual definitions.
 
 ---
+
+---
+
+> *livemathtex: 2026-01-16 00:27:48 | 0 operations | no errors | 0.00s* <!-- livemathtex-meta -->

@@ -563,4 +563,44 @@ $\gamma_{26} := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}} ==$  <!-- Works! -
 
 ---
 
+### Dimensionless Calculation Incorrectly Converted to kg/mg Units (ISS-043)
+
+**Problem:** When calculating a dimensionless value (e.g., a ratio × dimensionless constant), LiveMathTeX incorrectly displays the result with `kg/mg` units, causing the value to be divided by 1,000,000. The numeric calculation is correct internally, but the displayed value is wrong.
+
+**Example:**
+```latex
+$T_{26} := 112\ \text{kg}$
+$C_{26} := 186.3778\ \text{kg}$
+$U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 ==$ <!-- Dimensionless (percentage) -->
+```
+Expected: `54.08` (dimensionless)
+Actual: `5.4084e-05 kg/mg` (wrong - 1,000,000x too small)
+
+**Root Cause:** LiveMathTeX is calculating the correct numeric value but then incorrectly trying to convert it to `kg/mg` units. To convert dimensionless to `kg/mg`, it divides by 1,000,000 (since 1 kg = 1,000,000 mg), producing the wrong displayed value. This occurs even when there is no `[kg/mg]` unit hint in the input.
+
+**Workaround (until ISS-043 is fixed):**
+1. **Option 1:** Manually calculate and document the correct values in comments:
+   ```latex
+   <!-- WORKAROUND: ISS-043 - Manual calculation: U_26 = (112/186.3778) × 90 = 54.08% -->
+   $U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 ==$ <!-- Dimensionless (percentage) -->
+   ```
+
+2. **Option 2:** Use the displayed value but multiply by 1,000,000 to get the correct value:
+   - Displayed: `5.4084e-05 kg/mg`
+   - Correct: `5.4084e-05 × 1,000,000 = 54.084` (dimensionless)
+
+3. **Option 3:** Avoid dimensionless calculations that trigger this bug - use explicit unit conversions or define intermediate variables with units.
+
+**Impact:** High - Causes cascading errors in all dependent calculations. The numeric calculation is correct internally, but the displayed value is wrong, making it impossible to use the result in subsequent calculations without manual correction.
+
+**Classification Pattern:**
+- **Bug indicator:** Dimensionless calculations displayed with `kg/mg` units (1,000,000x too small)
+- **Not user error:** The calculation formula is correct, but LiveMathTeX incorrectly converts to wrong units
+- **Related issues:** ISS-043 (dimensionless unit conversion bug)
+
+**Date:** 2026-01-15
+**Document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+---
+
 **Last Updated:** 2026-01-15

@@ -42,4 +42,4 @@ $R^2 := 0.904$
 
 ---
 
-> *livemathtex: 2026-01-14 10:08:14 | 2 definitions | no errors | 0.00s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:27:44 | 2 definitions | no errors | 0.07s* <!-- livemathtex-meta -->

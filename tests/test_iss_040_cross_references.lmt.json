@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "tests/test_iss_035_symbol_not_iterable_in_tables.md",
+  "source": "tests/test_iss_040_cross_references.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -8,27 +8,27 @@
   "custom_units": {},
   "symbols": {
     "v0": {
-      "latex_name": "E_{26}",
+      "latex_name": "C_{max}",
       "original": {
-        "value": 1473.1166,
-        "unit": "megawatt_hour"
+        "value": 550.0,
+        "unit": "kilogram"
       },
       "base": {
-        "value": 5303219760000.0,
-        "unit": "kilogram * meter ** 2 / second ** 2"
+        "value": 550.0,
+        "unit": "kilogram"
       },
       "conversion_ok": true,
       "line": 0
     },
     "v1": {
-      "latex_name": "SEC_{26}",
+      "latex_name": "T_{2030}",
       "original": {
-        "value": 13.1528,
-        "unit": "megawatt_hour / kilogram"
+        "value": 516.0,
+        "unit": "kilogram"
       },
       "base": {
-        "value": 47350080000.0,
-        "unit": "meter ** 2 / second ** 2"
+        "value": 516.0,
+        "unit": "kilogram"
       },
       "conversion_ok": true,
       "line": 0
@@ -36,15 +36,15 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-16 00:27:44",
+    "last_run": "2026-01-16 00:27:47",
     "duration": "0.06s",
     "symbols": 2,
     "custom_units": 0,
-    "definitions": 3,
-    "evaluations": 3,
+    "definitions": 2,
+    "evaluations": 0,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 2,
+    "errors": 0,
     "warnings": 0
   }
 }

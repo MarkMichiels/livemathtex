@@ -2,8 +2,10 @@
   "status": "ready",
   "phase": "review",
   "document": "/home/mark/Repositories/mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md",
-  "timestamp": "$(date -Iseconds)",
-  "issues_created": [],
-  "user_errors_fixed": 10,
-  "workarounds_documented": 1
+  "timestamp": "2026-01-15T23:50:00+01:00",
+  "issues_created": ["ISS-043", "ISS-044"],
+  "user_errors_fixed": 1,
+  "workarounds_documented": 1,
+  "improvements_analyzed": true,
+  "feature_requests_created": 1
 }

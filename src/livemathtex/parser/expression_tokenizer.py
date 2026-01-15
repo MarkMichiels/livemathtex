@@ -139,8 +139,8 @@ class ExpressionTokenizer:
         # LaTeX multiplication operators
         (re.compile(r"\\cdot"), TokenType.OPERATOR, False),
         (re.compile(r"\\times"), TokenType.OPERATOR, False),
-        # Basic operators (single characters)
-        (re.compile(r"[+\-*/^]"), TokenType.OPERATOR, False),
+        # Basic operators (single characters, including comma for function args)
+        (re.compile(r"[+\-*/^,]"), TokenType.OPERATOR, False),
         # LaTeX parentheses
         (re.compile(r"\\left\("), TokenType.LPAREN, False),
         (re.compile(r"\\right\)"), TokenType.RPAREN, False),

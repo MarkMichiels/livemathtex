@@ -7,7 +7,7 @@
   },
   "custom_units": {},
   "symbols": {
-    "f_{0}": {
+    "f0": {
       "latex_name": "PPE_{eff}",
       "original": {
         "value": null,
@@ -20,11 +20,17 @@
       "conversion_ok": true,
       "line": 0,
       "formula": {
-        "expression": "",
-        "depends_on": []
+        "expression": "(r_{frac} \\cdot 4.29 + (1 - r_{frac}) \\cdot 2.57) \\cdot 0.9143",
+        "depends_on": [],
+        "parameters": [
+          "r_frac"
+        ],
+        "parameter_latex": [
+          "r_frac"
+        ]
       }
     },
-    "v_{0}": {
+    "v0": {
       "latex_name": "PPE_{result}",
       "original": {
         "value": 3.7650874,
@@ -40,8 +46,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-14 09:48:35",
-    "duration": "0.24s",
+    "last_run": "2026-01-16 00:33:31",
+    "duration": "0.06s",
     "symbols": 2,
     "custom_units": 0,
     "definitions": 2,

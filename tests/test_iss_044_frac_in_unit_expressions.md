@@ -15,10 +15,12 @@ This test demonstrates the desired behavior where `\frac` can be used in unit ex
 ### Minimal Reproduction
 
 <!-- Current workaround (works but verbose): -->
-$\gamma_{26} := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}} ==$ <!-- [mg/L/day] -->
+$\gamma_{26} := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}} == 15\ \text{mg/d/L}$ <!-- [mg/L/day] -->
 
 <!-- Desired syntax (should work but currently fails): -->
-<!-- $gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}} ==$ <!-- [mg/L/day] --> -->
+<!-- $gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}} ==
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: frac '\textbackslash\{\}frac' at position 4}}$ <!-- [mg/L/day] --> -->
 
 ### Expected vs Actual
 
@@ -44,11 +46,19 @@ The parser doesn't support `\frac` in unit expressions for variable definitions 
 ### Feature Request
 
 Support `\frac` in unit expressions for variable definitions:
-- Allow: `$gamma := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$`
-- Currently requires: `$gamma := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}}$` (calculation syntax)
+- Allow: `$gamma := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}
+\\ \color{red}{\text{
+    Error: Variable name 'gamma' conflicts with unit 'gamma'. Use a subscript like 'gamma\_1' or 'gamma\_var' to disambiguate.}}$`
+- Currently requires: `$gamma := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}}
+\\ \color{red}{\text{
+    Error: Variable name 'gamma' conflicts with unit 'gamma'. Use a subscript like 'gamma\_1' or 'gamma\_var' to disambiguate.}}$` (calculation syntax)
 
 **Preferred:** Support both syntaxes for consistency with LaTeX conventions.
 
 **⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement). Unit expressions with `\frac` must remain after `clear`, only calculated results removed.
 
 ---
+
+---
+
+> *livemathtex: 2026-01-16 00:27:48 | 4 definitions, 2 evaluations | 3 errors | 0.06s* <!-- livemathtex-meta -->

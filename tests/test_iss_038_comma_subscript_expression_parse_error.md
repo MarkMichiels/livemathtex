@@ -21,19 +21,15 @@ $PAR_{R2,umol} := 1413\ \frac{\text{µmol}}{s}$
 $t_{day} := 86400\ \frac{s}{d}$
 
 **Use variable with comma in subscript in an expression (THIS FAILS):**
-$PAR_{R2} := PAR_{R2,umol} \cdot t_{day} == 122.0832\ \text{mol/d}$ <!-- [mol/day] -->
+$PAR_{R2} := PAR_{R2,umol} \cdot t_{day} == 10\,547\,988.48\ \text{mol/d}$ <!-- [mol/day] -->
 
 **Also fails in other expressions:**
 $PAR_{hdr,umol} := PAR_{R2,umol} + PAR_{R1,umol} ==
 \\ \color{red}{\text{
-    Error: Failed to parse LaTeX 'PAR\_\{R2,umol\} + PAR\_\{R1,umol\}': I expected something else here
-v\_\{0\} + PAR\_\{R1\_umol\}
-\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciicircum{}}}$ <!-- [µmol/s] -->
+    Error: Undefined variable: PAR\_\{R1,umol\}}}$ <!-- [µmol/s] -->
 $PPE_{eff,avg} := \frac{PAR_{hdr,umol}}{P_{hdr,tot}} ==
 \\ \color{red}{\text{
-    Error: Failed to parse LaTeX '\textbackslash\{\}frac\{PAR\_\{hdr,umol\}\}\{P\_\{hdr,tot\}\}': I expected something else here
-\textbackslash\{\}frac\{PAR\_\{hdr\_umol\}\}\{P\_\{hdr\_tot\}\}
-\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciitilde{}\textasciicircum{}}}$ <!-- [µmol/J] -->
+    Error: Undefined variable: PAR\_\{hdr,umol\}}}$ <!-- [µmol/J] -->
 
 ### Expected vs Actual
 
@@ -70,4 +66,4 @@ $PPE_{eff,avg} := \frac{PAR_{hdr,umol}}{P_{hdr,tot}} ==
 
 ---
 
-> *livemathtex: 2026-01-15 02:24:49 | 5 definitions, 3 evaluations | 2 errors | 0.15s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:27:46 | 5 definitions, 3 evaluations | 2 errors | 0.06s* <!-- livemathtex-meta -->

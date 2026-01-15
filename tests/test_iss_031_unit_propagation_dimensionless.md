@@ -29,7 +29,7 @@ $PPE_{red} := 4.29\ \frac{\text{µmol}}{\text{J}}$ <!-- [micromol/J] -->
 $f_{geom} := 0.9143$ <!-- [dimensionless] -->
 
 **Test:**
-$PPE_{eff} := PPE_{red} \cdot f_{geom} == 3.9223\ \text{micromol/J}$ <!-- [µmol/J] -->
+$PPE_{eff} := PPE_{red} \cdot f_{geom} == 3.9223\ \text{µmol/J}$ <!-- [µmol/J] -->
 
 **Expected result:** `3.922 µmol/J` (or `3.922 micromol/J`)
 
@@ -61,4 +61,4 @@ $PPE_{eff} := PPE_{red} \cdot f_{geom} == 3.9223\ \text{micromol/J}$ <!-- [µmol
 
 ---
 
-> *livemathtex: 2026-01-13 23:15:08 | 5 definitions, 1 evaluation | no errors | 0.16s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:27:43 | 5 definitions, 1 evaluation | no errors | 0.07s* <!-- livemathtex-meta -->

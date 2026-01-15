@@ -18,7 +18,7 @@ $T_{26} := 112\ \text{kg}$
 $C_{26} := 186.3778\ \text{kg}$
 
 <!-- The calculation: (T_26 / C_26) × 90 should be dimensionless -->
-$U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 ==$ <!-- Dimensionless (percentage) -->
+$U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 == 54.0837$ <!-- Dimensionless (percentage) -->
 
 ### Expected vs Actual
 
@@ -44,3 +44,7 @@ LiveMathTeX is calculating the correct numeric value (54.08) but then incorrectl
 **High** - Causes cascading errors in all dependent calculations (energy, SEC, cost calculations that depend on uptime values). The numeric calculation is correct, but the displayed value is wrong, making it impossible to use the result in subsequent calculations.
 
 ---
+
+---
+
+> *livemathtex: 2026-01-16 00:27:48 | 3 definitions, 1 evaluation | no errors | 0.06s* <!-- livemathtex-meta -->

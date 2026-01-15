@@ -68,3 +68,7 @@ The 2030 target is **{{T_2030}} kg/year**, which is **{{T_2030 / C_max * 100}}%*
 ```
 
 ---
+
+---
+
+> *livemathtex: 2026-01-16 00:27:47 | 2 definitions | no errors | 0.06s* <!-- livemathtex-meta -->

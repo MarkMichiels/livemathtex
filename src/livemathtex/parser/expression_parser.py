@@ -98,6 +98,14 @@ class FuncNode(ExprNode):
     operand: ExprNode
 
 
+@dataclass
+class FunctionCallNode(ExprNode):
+    """User-defined function call (f(x), PPE_{eff}(0.90), etc.)."""
+
+    name: str  # Function name
+    args: List[ExprNode]  # Arguments
+
+
 # =============================================================================
 # Expression Parser
 # =============================================================================
@@ -215,10 +223,35 @@ class ExpressionParser:
             node = NumberNode(float(token.value))
             return self._maybe_attach_unit(node)
 
-        # Variable
+        # Variable or function call
         if self._check(TokenType.VARIABLE):
             token = self._advance()
-            node = VariableNode(token.value)
+            var_name = token.value
+
+            # Check if this is a function call (variable followed by parentheses)
+            if self._check(TokenType.LPAREN):
+                # This is a user-defined function call like f(x) or PPE_{eff}(0.90)
+                self._advance()  # consume '('
+                args = []
+
+                # Parse arguments (comma-separated expressions)
+                if not self._check(TokenType.RPAREN):
+                    args.append(self._expression())
+                    while self._match_operator(","):
+                        args.append(self._expression())
+
+                if not self._check(TokenType.RPAREN):
+                    raise ParseError(
+                        f"Expected ')' after function arguments at position "
+                        f"{self._current().start}"
+                    )
+                self._advance()  # consume ')'
+
+                node = FunctionCallNode(var_name, args)
+                return self._maybe_attach_unit(node)
+
+            # Just a variable
+            node = VariableNode(var_name)
             return self._maybe_attach_unit(node)
 
         # Standalone unit (rare but possible)

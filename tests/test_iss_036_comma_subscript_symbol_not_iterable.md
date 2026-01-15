@@ -69,11 +69,11 @@ $\eta_{drv} := 0.90$
 
 LED output (DC - what LEDs receive):
 
-$P_{LED,dc} := N_{PSU} \cdot P_{PSU} == 1920\ \text{W}$ <!-- [W] -->
+$P_{LED,dc} := N_{PSU} \cdot P_{PSU} == 1\,920\ \text{W}$ <!-- [W] -->
 
 Electricity consumption (AC - what we pay for):
 
-$P_{LED,ac} := \frac{P_{LED,dc}}{\eta_{drv}} == 2133.3333\ \text{W}$ <!-- [W] -->
+$P_{LED,ac} := \frac{P_{LED,dc}}{\eta_{drv}} == 2\,133.3333\ \text{W}$ <!-- [W] -->
 
 ### 2.3 LED Efficiency
 
@@ -100,7 +100,7 @@ $PPE_{red} := 4.29\ \frac{\text{µmol}}{\text{J}}$
 
 **Effective PPE** (accounting for geometric losses):
 
-$PPE_{eff} := PPE_{red} \cdot f_{geom} == 3.9223\ \text{micromol/J}$ <!-- [µmol/J] -->
+$PPE_{eff} := PPE_{red} \cdot f_{geom} == 3.9223\ \text{µmol/J}$ <!-- [µmol/J] -->
 
 This means 3.92 µmol photons reach the culture surface per joule of LED electrical input (PPE in µmol/J).
 
@@ -190,7 +190,7 @@ This represents 23.1 mg astaxanthin per mol PAR (photons absorbed).
 
 PAR (mol/day) = Power (W) × PPE (µmol/J) × time (s) → automatically converts µmol to mol
 
-$PPE_{eff} := PPE_{red} \cdot f_{geom} == 3.9223\ \text{micromol/J}$ <!-- [µmol/J] -->
+$PPE_{eff} := PPE_{red} \cdot f_{geom} == 3.9223\ \text{µmol/J}$ <!-- [µmol/J] -->
 
 $PAR_{rct} := P_{LED,dc} \cdot PPE_{eff} == 650.6703\ \text{mol/d}$ <!-- [mol/day] -->
 
@@ -238,11 +238,21 @@ Productivity improves over time as we optimize the process:
 
 **Productivity targets** (mg/L/day):
 
-$\gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$
-$\gamma_{27} := 30.5\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$
-$\gamma_{28} := 34\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$
-$\gamma_{29} := 38\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$
-$\gamma_{30} := 44\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$
+$\gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: frac '\textbackslash\{\}frac' at position 4}}$
+$\gamma_{27} := 30.5\ \frac{\text{mg}}{\text{L} \cdot \text{d}}
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: frac '\textbackslash\{\}frac' at position 6}}$
+$\gamma_{28} := 34\ \frac{\text{mg}}{\text{L} \cdot \text{d}}
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: frac '\textbackslash\{\}frac' at position 4}}$
+$\gamma_{29} := 38\ \frac{\text{mg}}{\text{L} \cdot \text{d}}
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: frac '\textbackslash\{\}frac' at position 4}}$
+$\gamma_{30} := 44\ \frac{\text{mg}}{\text{L} \cdot \text{d}}
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: frac '\textbackslash\{\}frac' at position 4}}$
 
 ### 5.2 Maximum Capacity Calculation
 
@@ -257,19 +267,39 @@ $V_L := 37824\ L$
 
 **Daily production** (Volume × Productivity):
 
-$m_{26} := V_L \cdot \gamma_{26} == 567.36\ \text{g/d}$ <!-- [g/day] -->
-$m_{27} := V_L \cdot \gamma_{27} == 1153.632\ \text{g/d}$ <!-- [g/day] -->
-$m_{28} := V_L \cdot \gamma_{28} == 1286.016\ \text{g/d}$ <!-- [g/day] -->
-$m_{29} := V_L \cdot \gamma_{29} == 1437.312\ \text{g/d}$ <!-- [g/day] -->
-$m_{30} := V_L \cdot \gamma_{30} == 1664.256\ \text{g/d}$ <!-- [g/day] -->
+$m_{26} := V_L \cdot \gamma_{26} == [g/d]
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
+$m_{27} := V_L \cdot \gamma_{27} == [g/d]
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
+$m_{28} := V_L \cdot \gamma_{28} == [g/d]
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
+$m_{29} := V_L \cdot \gamma_{29} == [g/d]
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
+$m_{30} := V_L \cdot \gamma_{30} == [g/d]
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
 
 **Annual capacity at 90% uptime:**
 
-$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} == 186.3778\ \text{kg}$ <!-- [kg] -->
-$C_{27} := m_{27} \cdot d_{op} \cdot u_{max} == 378.9681\ \text{kg}$ <!-- [kg] -->
-$C_{28} := m_{28} \cdot d_{op} \cdot u_{max} == 422.4563\ \text{kg}$ <!-- [kg] -->
-$C_{29} := m_{29} \cdot d_{op} \cdot u_{max} == 472.157\ \text{kg}$ <!-- [kg] -->
-$C_{30} := m_{30} \cdot d_{op} \cdot u_{max} == 546.7081\ \text{kg}$ <!-- [kg] -->
+$C_{26} := m_{26} \cdot d_{op} \cdot u_{max} == [kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: m\_\{26\}}}$ <!-- [kg] -->
+$C_{27} := m_{27} \cdot d_{op} \cdot u_{max} == [kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: m\_\{27\}}}$ <!-- [kg] -->
+$C_{28} := m_{28} \cdot d_{op} \cdot u_{max} == [kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: m\_\{28\}}}$ <!-- [kg] -->
+$C_{29} := m_{29} \cdot d_{op} \cdot u_{max} == [kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: m\_\{29\}}}$ <!-- [kg] -->
+$C_{30} := m_{30} \cdot d_{op} \cdot u_{max} == [kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: m\_\{30\}}}$ <!-- [kg] -->
 
 ### 5.3 Business Plan Targets
 
@@ -283,11 +313,21 @@ $T_{30} := 516\ \text{kg}$
 
 **Required uptime to meet targets** (%, where 90% uptime = full capacity):
 
-$U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 == 54.08$ <!-- Dimensionless (percentage) -->
-$U_{27} := \frac{T_{27}}{C_{27}} \cdot 90 == 49.87$ <!-- Dimensionless (percentage) -->
-$U_{28} := \frac{T_{28}}{C_{28}} \cdot 90 == 71.16$ <!-- Dimensionless (percentage) -->
-$U_{29} := \frac{T_{29}}{C_{29}} \cdot 90 == 78.91$ <!-- Dimensionless (percentage) -->
-$U_{30} := \frac{T_{30}}{C_{30}} \cdot 90 == 84.94$ <!-- Dimensionless (percentage) -->
+$U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 ==
+\\ \color{red}{\text{
+    Error: Undefined variable: C\_\{26\}}}$ <!-- Dimensionless (percentage) -->
+$U_{27} := \frac{T_{27}}{C_{27}} \cdot 90 ==
+\\ \color{red}{\text{
+    Error: Undefined variable: C\_\{27\}}}$ <!-- Dimensionless (percentage) -->
+$U_{28} := \frac{T_{28}}{C_{28}} \cdot 90 ==
+\\ \color{red}{\text{
+    Error: Undefined variable: C\_\{28\}}}$ <!-- Dimensionless (percentage) -->
+$U_{29} := \frac{T_{29}}{C_{29}} \cdot 90 ==
+\\ \color{red}{\text{
+    Error: Undefined variable: C\_\{29\}}}$ <!-- Dimensionless (percentage) -->
+$U_{30} := \frac{T_{30}}{C_{30}} \cdot 90 ==
+\\ \color{red}{\text{
+    Error: Undefined variable: C\_\{30\}}}$ <!-- Dimensionless (percentage) -->
 
 | Year | Target (kg) | Capacity (kg) | Required Uptime | Status |
 |------|-------------|---------------|-----------------|--------|
@@ -320,48 +360,109 @@ Components:
 
 $t_{yr} := 1\ yr$
 
-$E_{26} := P_{sys} \cdot t_{yr} \cdot \frac{U_{26}}{100} == 1473.1166\ \text{MWh}$ <!-- [MWh] -->
-$E_{27} := P_{sys} \cdot t_{yr} \cdot \frac{U_{27}}{100} == 1358.4067\ \text{MWh}$ <!-- [MWh] -->
-$E_{28} := P_{sys} \cdot t_{yr} \cdot \frac{U_{28}}{100} == 1938.1077\ \text{MWh}$ <!-- [MWh] -->
-$E_{29} := P_{sys} \cdot t_{yr} \cdot \frac{U_{29}}{100} == 2149.4488\ \text{MWh}$ <!-- [MWh] -->
-$E_{30} := P_{sys} \cdot t_{yr} \cdot \frac{U_{30}}{100} == 2313.7018\ \text{MWh}$ <!-- [MWh] -->
+$E_{26} := P_{sys} \cdot t_{yr} \cdot \frac{U_{26}}{100} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: U\_\{26\}}}$ <!-- [MWh] -->
+$E_{27} := P_{sys} \cdot t_{yr} \cdot \frac{U_{27}}{100} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: U\_\{27\}}}$ <!-- [MWh] -->
+$E_{28} := P_{sys} \cdot t_{yr} \cdot \frac{U_{28}}{100} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: U\_\{28\}}}$ <!-- [MWh] -->
+$E_{29} := P_{sys} \cdot t_{yr} \cdot \frac{U_{29}}{100} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: U\_\{29\}}}$ <!-- [MWh] -->
+$E_{30} := P_{sys} \cdot t_{yr} \cdot \frac{U_{30}}{100} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: U\_\{30\}}}$ <!-- [MWh] -->
 
 ### 6.3 Specific Energy Consumption (SEC)
 
 **SEC = Energy / Production:**
 
-$SEC_{26} := \frac{E_{26}}{T_{26}} == 13.1528\ \text{MWh/kg}$ <!-- [MWh/kg] -->
-$SEC_{27} := \frac{E_{27}}{T_{27}} == 6.4686\ \text{MWh/kg}$ <!-- [MWh/kg] -->
-$SEC_{28} := \frac{E_{28}}{T_{28}} == 5.8027\ \text{MWh/kg}$ <!-- [MWh/kg] -->
-$SEC_{29} := \frac{E_{29}}{T_{29}} == 5.1919\ \text{MWh/kg}$ <!-- [MWh/kg] -->
-$SEC_{30} := \frac{E_{30}}{T_{30}} == 4.4839\ \text{MWh/kg}$ <!-- [MWh/kg] -->
+$SEC_{26} := \frac{E_{26}}{T_{26}} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{26\}}}$ <!-- [MWh/kg] -->
+$SEC_{27} := \frac{E_{27}}{T_{27}} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{27\}}}$ <!-- [MWh/kg] -->
+$SEC_{28} := \frac{E_{28}}{T_{28}} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{28\}}}$ <!-- [MWh/kg] -->
+$SEC_{29} := \frac{E_{29}}{T_{29}} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{29\}}}$ <!-- [MWh/kg] -->
+$SEC_{30} := \frac{E_{30}}{T_{30}} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{30\}}}$ <!-- [MWh/kg] -->
 
 **Cost = Energy × Price:**
 
-$Cost_{26} := E_{26} \cdot c_{elec} == 204.7632\ \text{kilo€}$ <!-- [k€] -->
-$Cost_{27} := E_{27} \cdot c_{elec} == 188.8185\ \text{kilo€}$ <!-- [k€] -->
-$Cost_{28} := E_{28} \cdot c_{elec} == 269.397\ \text{kilo€}$ <!-- [k€] -->
-$Cost_{29} := E_{29} \cdot c_{elec} == 298.7734\ \text{kilo€}$ <!-- [k€] -->
-$Cost_{30} := E_{30} \cdot c_{elec} == 321.6045\ \text{kilo€}$ <!-- [k€] -->
+$Cost_{26} := E_{26} \cdot c_{elec} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{26\}}}$ <!-- [k€] -->
+$Cost_{27} := E_{27} \cdot c_{elec} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{27\}}}$ <!-- [k€] -->
+$Cost_{28} := E_{28} \cdot c_{elec} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{28\}}}$ <!-- [k€] -->
+$Cost_{29} := E_{29} \cdot c_{elec} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{29\}}}$ <!-- [k€] -->
+$Cost_{30} := E_{30} \cdot c_{elec} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{30\}}}$ <!-- [k€] -->
 
 **Summary table (calculated values):**
 
 | Year | Uptime | Energy (MWh) | SEC (MWh/kg) | Cost (k€) |
 |------|--------|--------------|--------------|-----------|
-| 2026 | $U_{26} == 54.0837
-\\ \color{orange}{\text{Warning: Cannot convert from 'dimensionless' to 'dimensionless' - dimensions incompatible}}$ <!-- [dimensionless] --> | $E_{26} == 1473.1166\ \text{MWh}$ <!-- [MWh] --> | $SEC_{26} == 13.1528\ \text{MWh/kg}$ <!-- [MWh/kg] --> | $Cost_{26} == 204.7632\ \text{kilo€}$ <!-- [k€] --> |
+| 2026 | $U_{26} ==
+\\ \color{red}{\text{
+    Error: Undefined variable: U\_\{26\}}}$ <!-- [dimensionless] --> | $E_{26} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{26\}}}$ <!-- [MWh] --> | $SEC_{26} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: SEC\_\{26\}}}$ <!-- [MWh/kg] --> | $Cost_{26} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: Cost\_\{26\}}}$ <!-- [k€] --> |
 | 2027 | $U_{27} ==
 \\ \color{red}{\text{
-    Error: Failed to parse LaTeX 'U\_\{27\}': argument of type 'Symbol' is not iterable}}$ <!-- [dimensionless] --> | $E_{27} == 1358.4067\ \text{MWh}$ <!-- [MWh] --> | $SEC_{27} == 6.4686\ \text{MWh/kg}$ <!-- [MWh/kg] --> | $Cost_{27} == 188.8185\ \text{kilo€}$ <!-- [k€] --> |
+    Error: Undefined variable: U\_\{27\}}}$ <!-- [dimensionless] --> | $E_{27} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{27\}}}$ <!-- [MWh] --> | $SEC_{27} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: SEC\_\{27\}}}$ <!-- [MWh/kg] --> | $Cost_{27} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: Cost\_\{27\}}}$ <!-- [k€] --> |
 | 2028 | $U_{28} ==
 \\ \color{red}{\text{
-    Error: Failed to parse LaTeX 'U\_\{28\}': argument of type 'Symbol' is not iterable}}$ <!-- [dimensionless] --> | $E_{28} == 1938.1077\ \text{MWh}$ <!-- [MWh] --> | $SEC_{28} == 5.8027\ \text{MWh/kg}$ <!-- [MWh/kg] --> | $Cost_{28} == 269.397\ \text{kilo€}$ <!-- [k€] --> |
+    Error: Undefined variable: U\_\{28\}}}$ <!-- [dimensionless] --> | $E_{28} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{28\}}}$ <!-- [MWh] --> | $SEC_{28} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: SEC\_\{28\}}}$ <!-- [MWh/kg] --> | $Cost_{28} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: Cost\_\{28\}}}$ <!-- [k€] --> |
 | 2029 | $U_{29} ==
 \\ \color{red}{\text{
-    Error: Failed to parse LaTeX 'U\_\{29\}': argument of type 'Symbol' is not iterable}}$ <!-- [dimensionless] --> | $E_{29} == 2149.4488\ \text{MWh}$ <!-- [MWh] --> | $SEC_{29} == 5.1919\ \text{MWh/kg}$ <!-- [MWh/kg] --> | $Cost_{29} == 298.7734\ \text{kilo€}$ <!-- [k€] --> |
+    Error: Undefined variable: U\_\{29\}}}$ <!-- [dimensionless] --> | $E_{29} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{29\}}}$ <!-- [MWh] --> | $SEC_{29} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: SEC\_\{29\}}}$ <!-- [MWh/kg] --> | $Cost_{29} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: Cost\_\{29\}}}$ <!-- [k€] --> |
 | 2030 | $U_{30} ==
 \\ \color{red}{\text{
-    Error: Failed to parse LaTeX 'U\_\{30\}': argument of type 'Symbol' is not iterable}}$ <!-- [dimensionless] --> | $E_{30} == 2313.7018\ \text{MWh}$ <!-- [MWh] --> | $SEC_{30} == 4.4839\ \text{MWh/kg}$ <!-- [MWh/kg] --> | $Cost_{30} == 321.6045\ \text{kilo€}$ <!-- [k€] --> |
+    Error: Undefined variable: U\_\{30\}}}$ <!-- [dimensionless] --> | $E_{30} == [MWh]
+\\ \color{red}{\text{
+    Error: Undefined variable: E\_\{30\}}}$ <!-- [MWh] --> | $SEC_{30} == [MWh/kg]
+\\ \color{red}{\text{
+    Error: Undefined variable: SEC\_\{30\}}}$ <!-- [MWh/kg] --> | $Cost_{30} == [kilo€]
+\\ \color{red}{\text{
+    Error: Undefined variable: Cost\_\{30\}}}$ <!-- [k€] --> |
 
 ### 6.5 Specific Energy Consumption (SEC) Trend
 
@@ -432,30 +533,16 @@ $P_{LED,dc} := 1920\ W$
 $t_{day} := 86400\ \frac{s}{d}$
 
 **Effective PPE for different R/B ratios:**
-$PPE_{eff,9010} := (0.90 \cdot PPE_{red,raw} + 0.10 \cdot PPE_{blue,raw}) \cdot f_{geom} ==
-\\ \color{red}{\text{
-    Error: Failed to parse LaTeX '(0.90 \textbackslash\{\}cdot PPE\_\{red,raw\} + 0.10 \textbackslash\{\}cdot PPE\_\{blue,raw\}) \textbackslash\{\}cdot f\_\{geom\}': argument of type 'Symbol' is not iterable}}$ <!-- [µmol/J] -->
-$PPE_{eff,8020} := (0.80 \cdot PPE_{red,raw} + 0.20 \cdot PPE_{blue,raw}) \cdot f_{geom} ==
-\\ \color{red}{\text{
-    Error: Failed to parse LaTeX '(0.80 \textbackslash\{\}cdot PPE\_\{red,raw\} + 0.20 \textbackslash\{\}cdot PPE\_\{blue,raw\}) \textbackslash\{\}cdot f\_\{geom\}': argument of type 'Symbol' is not iterable}}$ <!-- [µmol/J] -->
-$PPE_{eff,7030} := (0.70 \cdot PPE_{red,raw} + 0.30 \cdot PPE_{blue,raw}) \cdot f_{geom} ==
-\\ \color{red}{\text{
-    Error: Failed to parse LaTeX '(0.70 \textbackslash\{\}cdot PPE\_\{red,raw\} + 0.30 \textbackslash\{\}cdot PPE\_\{blue,raw\}) \textbackslash\{\}cdot f\_\{geom\}': argument of type 'Symbol' is not iterable}}$ <!-- [µmol/J] -->
-$PPE_{eff,6040} := (0.60 \cdot PPE_{red,raw} + 0.40 \cdot PPE_{blue,raw}) \cdot f_{geom} ==
-\\ \color{red}{\text{
-    Error: Failed to parse LaTeX '(0.60 \textbackslash\{\}cdot PPE\_\{red,raw\} + 0.40 \textbackslash\{\}cdot PPE\_\{blue,raw\}) \textbackslash\{\}cdot f\_\{geom\}': argument of type 'Symbol' is not iterable}}$ <!-- [µmol/J] -->
-$PPE_{eff,5050} := (0.50 \cdot PPE_{red,raw} + 0.50 \cdot PPE_{blue,raw}) \cdot f_{geom} ==
-\\ \color{red}{\text{
-    Error: Failed to parse LaTeX '(0.50 \textbackslash\{\}cdot PPE\_\{red,raw\} + 0.50 \textbackslash\{\}cdot PPE\_\{blue,raw\}) \textbackslash\{\}cdot f\_\{geom\}': argument of type 'Symbol' is not iterable}}$ <!-- [µmol/J] -->
+$PPE_{eff,9010} := (0.90 \cdot PPE_{red,raw} + 0.10 \cdot PPE_{blue,raw}) \cdot f_{geom} == 3.7651\ \text{µmol/J}$ <!-- [µmol/J] -->
+$PPE_{eff,8020} := (0.80 \cdot PPE_{red,raw} + 0.20 \cdot PPE_{blue,raw}) \cdot f_{geom} == 3.6078\ \text{µmol/J}$ <!-- [µmol/J] -->
+$PPE_{eff,7030} := (0.70 \cdot PPE_{red,raw} + 0.30 \cdot PPE_{blue,raw}) \cdot f_{geom} == 3.4506\ \text{µmol/J}$ <!-- [µmol/J] -->
+$PPE_{eff,6040} := (0.60 \cdot PPE_{red,raw} + 0.40 \cdot PPE_{blue,raw}) \cdot f_{geom} == 3.2933\ \text{µmol/J}$ <!-- [µmol/J] -->
+$PPE_{eff,5050} := (0.50 \cdot PPE_{red,raw} + 0.50 \cdot PPE_{blue,raw}) \cdot f_{geom} == 3.136\ \text{µmol/J}$ <!-- [µmol/J] -->
 
 **Assign PPE to reactors:**
-$PPE_{eff,R2} := PPE_{eff,9010}
-\\ \color{red}{\text{
-    Error: Failed to parse LaTeX 'PPE\_\{eff,9010\}': argument of type 'Symbol' is not iterable}}$
-$PPE_{eff,R1} := PPE_{eff,9010}
-\\ \color{red}{\text{
-    Error: Failed to parse LaTeX 'PPE\_\{eff,9010\}': argument of type 'Symbol' is not iterable}}$
+$PPE_{eff,R2} := PPE_{eff,9010}$
+$PPE_{eff,R1} := PPE_{eff,9010}$
 
 ---
 
-> *livemathtex: 2026-01-15 02:31:16 | 87 definitions, 71 evaluations | 11 errors, 1 warning | 1.47s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:27:45 | 87 definitions, 71 evaluations | 55 errors | 0.16s* <!-- livemathtex-meta -->

@@ -25,6 +25,7 @@ from livemathtex.parser.expression_parser import (
     UnitAttachNode,
     SqrtNode,
     FuncNode,
+    FunctionCallNode,
 )
 from livemathtex.engine.pint_backend import get_unit_registry
 
@@ -139,6 +140,10 @@ def _eval_node(
     if isinstance(node, FuncNode):
         operand = _eval_node(node.operand, symbols, ureg)
         return _apply_math_func(node.func, operand, ureg)
+
+    # FunctionCallNode: user-defined function call
+    if isinstance(node, FunctionCallNode):
+        return _eval_function_call(node, symbols, ureg)
 
     raise EvaluationError(f"Unknown node type: {type(node).__name__}")
 
@@ -308,3 +313,95 @@ def _apply_math_func(
         return abs(val) * ureg.dimensionless
 
     raise EvaluationError(f"Unknown function: \\{func}")
+
+
+def _eval_function_call(
+    node: FunctionCallNode,
+    symbols: Dict[str, pint.Quantity],
+    ureg: pint.UnitRegistry,
+) -> pint.Quantity:
+    """
+    Evaluate a user-defined function call.
+
+    Looks up the function in the symbol table, substitutes argument values
+    into the function's formula, and evaluates the result.
+
+    Args:
+        node: FunctionCallNode with function name and arguments
+        symbols: Symbol table (may contain function definition info)
+        ureg: Pint UnitRegistry
+
+    Returns:
+        Pint Quantity with evaluated result
+
+    Raises:
+        EvaluationError: If function not found or argument count mismatch
+
+    Note:
+        This function requires the symbol table to contain function metadata
+        (formula_expression, parameters). If running in a context where only
+        raw Quantities are available, user-defined function calls will fail.
+    """
+    func_name = node.name
+
+    # Try to find function in symbols (with name normalization)
+    # Functions are stored with their normalized name
+    normalized_name = func_name.replace("{", "").replace("}", "")
+
+    # Look up function - try various name formats
+    func_data = None
+    tried_names = [func_name, normalized_name]
+
+    # Also try without braces around subscript
+    if "_{" in func_name:
+        tried_names.append(func_name.replace("_{", "_").replace("}", ""))
+
+    for try_name in tried_names:
+        if try_name in symbols:
+            val = symbols[try_name]
+            # Check if this is a function (has _func_info attribute or is a dict)
+            if hasattr(val, "_func_info"):
+                func_data = val._func_info
+                break
+            elif isinstance(val, dict) and "formula" in val:
+                func_data = val
+                break
+
+    # If we can't find function metadata, try evaluating as a simple
+    # variable-based function (for backward compatibility)
+    if func_data is None:
+        # The function definition stores formula as a string expression
+        # We need to look up the function by name and get its formula
+        raise EvaluationError(
+            f"Function '{func_name}' not found or is not a callable function. "
+            f"Tried: {tried_names}. "
+            f"Available symbols: {list(symbols.keys())[:10]}... "
+            f"Ensure the function was defined with f(x) := expression syntax."
+        )
+
+    # Get function formula and parameters
+    formula_expr = func_data.get("formula")
+    param_names = func_data.get("parameters", [])
+
+    if len(node.args) != len(param_names):
+        raise EvaluationError(
+            f"Function '{func_name}' expects {len(param_names)} argument(s), "
+            f"got {len(node.args)}"
+        )
+
+    # Evaluate argument expressions
+    arg_values = [_eval_node(arg, symbols, ureg) for arg in node.args]
+
+    # Create a new symbol table with parameter substitutions
+    local_symbols = dict(symbols)
+    for param_name, arg_value in zip(param_names, arg_values):
+        local_symbols[param_name] = arg_value
+
+    # Parse and evaluate the function's formula with substituted parameters
+    from livemathtex.parser.expression_tokenizer import ExpressionTokenizer
+    from livemathtex.parser.expression_parser import ExpressionParser
+
+    tokens = ExpressionTokenizer(formula_expr).tokenize()
+    tree = ExpressionParser(tokens).parse()
+
+    return _eval_node(tree, local_symbols, ureg)

@@ -1348,20 +1348,36 @@ class Evaluator:
         modified_latex = self._rewrite_with_internal_ids(expression_latex)
 
         # Build symbol map from our symbol table
-        # Map internal IDs (v0, v1, ...) to Pint Quantities
+        # Map internal IDs (v0, v1, ...) to Pint Quantities or function info dicts
         symbol_map = {}
         for name in self.symbols.all_names():
             entry = self.symbols.get(name)
             if entry:
-                pint_qty = self._symbol_to_pint_quantity(entry, ureg)
-                if pint_qty is not None:
-                    # Store under internal_id for parser lookup (v0, v1, etc.)
+                # Check if this is a function definition (has parameters)
+                if hasattr(entry, 'parameters') and entry.parameters:
+                    # Store function info as a dict with formula and parameters
+                    func_info = {
+                        "formula": entry.formula_expression if hasattr(entry, 'formula_expression') else "",
+                        "parameters": entry.parameters,
+                    }
+                    # Store under internal_id for rewritten expressions like f0(0.9)
                     if hasattr(entry, 'internal_id') and entry.internal_id:
-                        symbol_map[entry.internal_id] = pint_qty
-                    # Also store under latex_name and original name for fallback
+                        symbol_map[entry.internal_id] = func_info
+                    # Store under latex_name for function calls like PPE_{eff}(0.9)
                     if hasattr(entry, 'latex_name') and entry.latex_name:
-                        symbol_map[entry.latex_name] = pint_qty
-                    symbol_map[name] = pint_qty
+                        symbol_map[entry.latex_name] = func_info
+                    symbol_map[name] = func_info
+                else:
+                    # Regular variable - convert to Pint Quantity
+                    pint_qty = self._symbol_to_pint_quantity(entry, ureg)
+                    if pint_qty is not None:
+                        # Store under internal_id for parser lookup (v0, v1, etc.)
+                        if hasattr(entry, 'internal_id') and entry.internal_id:
+                            symbol_map[entry.internal_id] = pint_qty
+                        # Also store under latex_name and original name for fallback
+                        if hasattr(entry, 'latex_name') and entry.latex_name:
+                            symbol_map[entry.latex_name] = pint_qty
+                        symbol_map[name] = pint_qty
 
         # Tokenize the rewritten expression
         tokenizer = ExpressionTokenizer(modified_latex)

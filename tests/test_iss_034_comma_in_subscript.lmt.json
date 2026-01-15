@@ -7,11 +7,11 @@
   },
   "custom_units": {},
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "PAR_{R2,umol}",
       "original": {
         "value": 1413.0,
-        "unit": "µmol/s"
+        "unit": "micromole / second"
       },
       "base": {
         "value": 0.001413,
@@ -20,11 +20,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "t_{day}",
       "original": {
         "value": 86400.0,
-        "unit": "s/d"
+        "unit": null
       },
       "base": {
         "value": 1.0,
@@ -33,14 +33,14 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "PAR_{R2}",
       "original": {
         "value": 122083200.0,
-        "unit": "micromole / day"
+        "unit": "micromole / second"
       },
       "base": {
-        "value": 0.001413,
+        "value": 122.08319999999999,
         "unit": "mole / second"
       },
       "conversion_ok": true,
@@ -49,8 +49,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-14 10:05:44",
-    "duration": "0.15s",
+    "last_run": "2026-01-16 00:27:44",
+    "duration": "0.07s",
     "symbols": 3,
     "custom_units": 0,
     "definitions": 3,

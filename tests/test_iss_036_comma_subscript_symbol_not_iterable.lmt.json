@@ -539,19 +539,122 @@
       },
       "conversion_ok": true,
       "line": 0
+    },
+    "v41": {
+      "latex_name": "PPE_{eff,9010}",
+      "original": {
+        "value": 3.7650874,
+        "unit": "micromole / joule"
+      },
+      "base": {
+        "value": 3.7650873999999998e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v42": {
+      "latex_name": "PPE_{eff,8020}",
+      "original": {
+        "value": 3.6078278000000004,
+        "unit": "micromole / joule"
+      },
+      "base": {
+        "value": 3.6078278e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v43": {
+      "latex_name": "PPE_{eff,7030}",
+      "original": {
+        "value": 3.4505681999999998,
+        "unit": "micromole / joule"
+      },
+      "base": {
+        "value": 3.4505681999999995e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v44": {
+      "latex_name": "PPE_{eff,6040}",
+      "original": {
+        "value": 3.2933086,
+        "unit": "micromole / joule"
+      },
+      "base": {
+        "value": 3.2933085999999997e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v45": {
+      "latex_name": "PPE_{eff,5050}",
+      "original": {
+        "value": 3.136049,
+        "unit": "micromole / joule"
+      },
+      "base": {
+        "value": 3.1360489999999996e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "f0": {
+      "latex_name": "PPE_{eff,R2}",
+      "original": {
+        "value": 3.7650874,
+        "unit": "micromole / joule"
+      },
+      "base": {
+        "value": 3.7650873999999998e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "v41",
+        "depends_on": [
+          "v41"
+        ]
+      }
+    },
+    "f1": {
+      "latex_name": "PPE_{eff,R1}",
+      "original": {
+        "value": 3.7650874,
+        "unit": "micromole / joule"
+      },
+      "base": {
+        "value": 3.7650873999999998e-06,
+        "unit": "mole * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "v41",
+        "depends_on": [
+          "v41"
+        ]
+      }
     }
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-15 10:54:54",
-    "duration": "0.13s",
-    "symbols": 41,
+    "last_run": "2026-01-16 00:27:45",
+    "duration": "0.16s",
+    "symbols": 48,
     "custom_units": 0,
-    "definitions": 80,
-    "evaluations": 46,
+    "definitions": 87,
+    "evaluations": 71,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 35,
+    "errors": 55,
     "warnings": 0
   }
 }

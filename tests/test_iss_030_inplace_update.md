@@ -39,9 +39,9 @@ $u_{s} := 1\ s$ <!-- [s] SI base: [time] -->
 
 $PPE_{red} := 4.29\ \frac{\text{µmol}}{\text{J}}$ <!-- [micromol/J] SI base: · ²/ / ² -->
 $f_{geom} := 0.9143$ <!-- [dimensionless] -->
-$PPE_{eff} := PPE_{red} \cdot f_{geom} == 3.922\ \text{micromol/J}$ <!-- [micromol/J] SI base: · ²/ / ² -->
+$PPE_{eff} := PPE_{red} \cdot f_{geom} == 3.9223\ \text{µmol/J}$ <!-- [micromol/J] SI base: · ²/ / ² -->
 $P_{LED,dc} := 1920\ W$ <!-- [W] SI base: · ²/ ³ -->
-$PAR_{rct} := P_{LED,dc} \cdot PPE_{eff} == 7531\ \text{mol/d}$ <!-- [mol/d] -->
+$PAR_{rct} := P_{LED,dc} \cdot PPE_{eff} == 650.6703\ \text{mol/d}$ <!-- [mol/d] -->
 
 **Expected result:** `650.6127 mol/d` (or approximately `650.6 mol/day`)
 
@@ -82,4 +82,4 @@ $PAR_{rct} := P_{LED,dc} \cdot PPE_{eff} == 7531\ \text{mol/d}$ <!-- [mol/d] -->
 
 ---
 
-> *livemathtex: 2026-01-13 23:01:41 | 15 definitions, 2 evaluations | no errors | 0.25s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:27:42 | 15 definitions, 2 evaluations | no errors | 0.07s* <!-- livemathtex-meta -->

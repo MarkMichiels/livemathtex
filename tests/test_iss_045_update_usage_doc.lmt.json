@@ -1,0 +1,23 @@
+{
+  "version": "3.0",
+  "source": "tests/test_iss_045_update_usage_doc.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {},
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-16 00:27:48",
+    "duration": "0.00s",
+    "symbols": 0,
+    "custom_units": 0,
+    "definitions": 0,
+    "evaluations": 0,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0,
+    "warnings": 0
+  }
+}

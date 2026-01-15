@@ -19,7 +19,7 @@ $PAR_{R2,umol} := 1413\ \frac{\text{µmol}}{s}$
 $t_{day} := 86400\ \frac{s}{d}$
 
 **Use in calculation:**
-$PAR_{R2} := PAR_{R2,umol} \cdot t_{day} == 122.0832\ \text{mol/d}$ <!-- [mol/day] -->
+$PAR_{R2} := PAR_{R2,umol} \cdot t_{day} == 10\,547\,988.48\ \text{mol/d}$ <!-- [mol/day] -->
 
 **Expected result:** `PAR_{R2} = 1413 µmol/s × 86400 s/d = 122.0832 mol/d`
 
@@ -41,4 +41,4 @@ $PAR_{R2} := PAR_{R2,umol} \cdot t_{day} == 122.0832\ \text{mol/d}$ <!-- [mol/da
 
 ---
 
-> *livemathtex: 2026-01-14 10:05:44 | 3 definitions, 1 evaluation | no errors | 0.15s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:27:44 | 3 definitions, 1 evaluation | no errors | 0.07s* <!-- livemathtex-meta -->

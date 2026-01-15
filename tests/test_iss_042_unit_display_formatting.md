@@ -14,7 +14,9 @@ This test demonstrates the need for better unit formatting options (e.g., `mg/(L
 
 ### Minimal Reproduction
 
-$\gamma_{max} := \frac{m_{ax,rct}}{V_{rct}} ==$ <!-- [mg/L/day] -->
+$\gamma_{max} := \frac{m_{ax,rct}}{V_{rct}} ==
+\\ \color{red}{\text{
+    Error: Undefined variable: m\_\{ax,rct\}}}$ <!-- [mg/L/day] -->
 <!-- Expected: 76.30 mg/(L·d) or 76.30 mg·L⁻¹·d⁻¹ -->
 <!-- Actual: 76.30 mg/d/L (Pint default) -->
 
@@ -67,3 +69,7 @@ $\gamma_{max} ==$ <!-- [mg/L/day] unit-format:exponent -->
 ```
 
 ---
+
+---
+
+> *livemathtex: 2026-01-16 00:27:47 | 1 definition, 1 evaluation | 1 error | 0.06s* <!-- livemathtex-meta -->

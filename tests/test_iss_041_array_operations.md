@@ -15,21 +15,45 @@ This test demonstrates the need for array operations to handle repetitive calcul
 ### Minimal Reproduction
 
 **Current approach (verbose):**
-$\gamma_{26} := 15\ mg/L/d$
-$\gamma_{27} := 30.5\ mg/L/d$
-$\gamma_{28} := 34\ mg/L/d$
-$\gamma_{29} := 38\ mg/L/d$
-$\gamma_{30} := 44\ mg/L/d$
+$\gamma_{26} := 15\ mg/L/d
+\\ \color{red}{\text{
+    Error: Undefined variable: L}}$
+$\gamma_{27} := 30.5\ mg/L/d
+\\ \color{red}{\text{
+    Error: Undefined variable: L}}$
+$\gamma_{28} := 34\ mg/L/d
+\\ \color{red}{\text{
+    Error: Undefined variable: L}}$
+$\gamma_{29} := 38\ mg/L/d
+\\ \color{red}{\text{
+    Error: Undefined variable: L}}$
+$\gamma_{30} := 44\ mg/L/d
+\\ \color{red}{\text{
+    Error: Undefined variable: L}}$
 
-$m_{26} := V_L \cdot \gamma_{26} ==$ <!-- [g/day] -->
-$m_{27} := V_L \cdot \gamma_{27} ==$ <!-- [g/day] -->
-$m_{28} := V_L \cdot \gamma_{28} ==$ <!-- [g/day] -->
-$m_{29} := V_L \cdot \gamma_{29} ==$ <!-- [g/day] -->
-$m_{30} := V_L \cdot \gamma_{30} ==$ <!-- [g/day] -->
+$m_{26} := V_L \cdot \gamma_{26} ==
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
+$m_{27} := V_L \cdot \gamma_{27} ==
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
+$m_{28} := V_L \cdot \gamma_{28} ==
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
+$m_{29} := V_L \cdot \gamma_{29} ==
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
+$m_{30} := V_L \cdot \gamma_{30} ==
+\\ \color{red}{\text{
+    Error: Unexpected token after expression: lbrace '\{' at position 13}}$ <!-- [g/day] -->
 
 **Desired approach (with arrays):**
-$\gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$
-$m := V_L \cdot \gamma ==$ <!-- [g/day] -->
+$\gamma := [15, 30.5, 34, 38, 44]\ mg/L/d
+\\ \color{red}{\text{
+    Error: Variable name 'gamma' conflicts with unit 'gamma'. Use a subscript like 'gamma\_1' or 'gamma\_var' to disambiguate.}}$
+$m := V_L \cdot \gamma ==
+\\ \color{red}{\text{
+    Error: Undefined variable: V\_L}}$ <!-- [g/day] -->
 <!-- Results: m[0] = 567.36 g/d, m[1] = 1153.63 g/d, etc. -->
 
 ### Expected vs Actual
@@ -56,9 +80,13 @@ Medium - Reduces code duplication for repetitive calculations (years, reactors, 
 ### Feature Request
 
 Add array/vector support:
-- Define arrays: `$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$`
+- Define arrays: `$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d
+\\ \color{red}{\text{
+    Error: Variable name 'gamma' conflicts with unit 'gamma'. Use a subscript like 'gamma\_1' or 'gamma\_var' to disambiguate.}}$`
 - Element access: `$gamma[0]$` or `$gamma_26$` (if array indexed by year)
-- Vectorized operations: `$m := V_L \cdot gamma$` (element-wise multiplication)
+- Vectorized operations: `$m := V_L \cdot gamma
+\\ \color{red}{\text{
+    Error: Variable name 'm' conflicts with unit 'meter'. Use a subscript like 'm\_1' or 'm\_var' to disambiguate.}}$` (element-wise multiplication)
 - Array indexing: Support for named indices (e.g., `gamma[2026]`)
 
 **Preferred:** Start with basic array support, then add vectorized operations.
@@ -80,3 +108,7 @@ $m := V_L \cdot gamma ==$ <!-- [g/day] -->
 ```
 
 ---
+
+---
+
+> *livemathtex: 2026-01-16 00:27:47 | 14 definitions, 6 evaluations | 14 errors | 0.07s* <!-- livemathtex-meta -->

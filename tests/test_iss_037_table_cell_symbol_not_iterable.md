@@ -21,16 +21,13 @@ $T_{27} := 210\ \text{kg}$
 $C_{27} := 379\ \text{kg}$
 
 **Define variable outside table (this works):**
-$U_{27} := \frac{T_{27}}{C_{27}} \cdot 90 == 49.8681
-\\ \color{orange}{\text{Warning: Cannot convert from 'dimensionless' to 'dimensionless' - dimensions incompatible}}$ <!-- [dimensionless] -->
+$U_{27} := \frac{T_{27}}{C_{27}} \cdot 90 == 49.8681$ <!-- [dimensionless] -->
 
 **Use variable in table cell (this fails):**
 
 | Year | Uptime |
 |------|--------|
-| 2027 | $U_{27} ==
-\\ \color{red}{\text{
-    Error: Failed to parse LaTeX 'U\_\{27\}': argument of type 'Symbol' is not iterable}}$ <!-- [dimensionless] --> |
+| 2027 | $U_{27} == 49.8681$ <!-- [dimensionless] --> |
 
 ### Expected vs Actual
 
@@ -66,4 +63,4 @@ $U_{27} := \frac{T_{27}}{C_{27}} \cdot 90 == 49.8681
 
 ---
 
-> *livemathtex: 2026-01-15 02:48:23 | 3 definitions, 2 evaluations | 1 error, 1 warning | 0.17s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:27:46 | 3 definitions, 2 evaluations | no errors | 0.07s* <!-- livemathtex-meta -->

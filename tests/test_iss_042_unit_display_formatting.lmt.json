@@ -1,0 +1,23 @@
+{
+  "version": "3.0",
+  "source": "tests/test_iss_042_unit_display_formatting.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {},
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-16 00:27:47",
+    "duration": "0.06s",
+    "symbols": 0,
+    "custom_units": 0,
+    "definitions": 1,
+    "evaluations": 1,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 1,
+    "warnings": 0
+  }
+}

@@ -7,20 +7,20 @@
   },
   "custom_units": {},
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "u_{umol_J}",
       "original": {
         "value": 1.0,
-        "unit": "µmol/J"
+        "unit": "mole / joule"
       },
       "base": {
-        "value": 1e-06,
+        "value": 1.0,
         "unit": "mole * second ** 2 / kilogram / meter ** 2"
       },
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "u_{dimensionless}",
       "original": {
         "value": 1.0,
@@ -33,11 +33,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "PPE_{red}",
       "original": {
         "value": 4.29,
-        "unit": "µmol/J"
+        "unit": "micromole / joule"
       },
       "base": {
         "value": 4.29e-06,
@@ -46,7 +46,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{3}": {
+    "v3": {
       "latex_name": "f_{geom}",
       "original": {
         "value": 0.9143,
@@ -59,7 +59,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{4}": {
+    "v4": {
       "latex_name": "PPE_{eff}",
       "original": {
         "value": 3.9223470000000002,
@@ -75,8 +75,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 23:15:08",
-    "duration": "0.16s",
+    "last_run": "2026-01-16 00:27:43",
+    "duration": "0.07s",
     "symbols": 5,
     "custom_units": 0,
     "definitions": 5,

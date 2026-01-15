@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "tests/test_iss_033_superscript_unit_conflict.md",
+  "source": "tests/test_iss_039_thousands_separator.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -8,14 +8,14 @@
   "custom_units": {},
   "symbols": {
     "v0": {
-      "latex_name": "R^2",
+      "latex_name": "V_{tot}",
       "original": {
-        "value": 0.904,
-        "unit": null
+        "value": 37824.0,
+        "unit": "liter"
       },
       "base": {
-        "value": 0.904,
-        "unit": null
+        "value": 37.82400000000001,
+        "unit": "meter ** 3"
       },
       "conversion_ok": true,
       "line": 0
@@ -23,15 +23,15 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-16 00:27:44",
-    "duration": "0.07s",
+    "last_run": "2026-01-16 00:27:46",
+    "duration": "0.06s",
     "symbols": 1,
     "custom_units": 0,
     "definitions": 2,
-    "evaluations": 0,
+    "evaluations": 2,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 0,
+    "errors": 1,
     "warnings": 0
   }
 }

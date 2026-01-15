@@ -7,11 +7,11 @@
   },
   "custom_units": {},
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "u_{d}",
       "original": {
         "value": 1.0,
-        "unit": "d"
+        "unit": "day"
       },
       "base": {
         "value": 86400.0,
@@ -20,7 +20,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "u_{day}",
       "original": {
         "value": 1.0,
@@ -33,11 +33,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "u_{mol_d}",
       "original": {
         "value": 1.0,
-        "unit": "mol/d"
+        "unit": "mole / day"
       },
       "base": {
         "value": 1.1574074074074073e-05,
@@ -46,11 +46,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{3}": {
+    "v3": {
       "latex_name": "u_{mol_day}",
       "original": {
         "value": 1.0,
-        "unit": "mol/day"
+        "unit": "mole / day"
       },
       "base": {
         "value": 1.1574074074074073e-05,
@@ -59,24 +59,24 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{4}": {
+    "v4": {
       "latex_name": "u_{umol}",
       "original": {
         "value": 1.0,
-        "unit": "µmol"
+        "unit": "mole"
       },
       "base": {
-        "value": 1e-06,
+        "value": 1.0,
         "unit": "mole"
       },
       "conversion_ok": true,
       "line": 0
     },
-    "v_{5}": {
+    "v5": {
       "latex_name": "u_{micromol}",
       "original": {
         "value": 1.0,
-        "unit": "micromol"
+        "unit": "micromole"
       },
       "base": {
         "value": 1e-06,
@@ -85,24 +85,24 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{6}": {
+    "v6": {
       "latex_name": "u_{umol_J}",
       "original": {
         "value": 1.0,
-        "unit": "µmol/J"
+        "unit": "mole / joule"
       },
       "base": {
-        "value": 1e-06,
+        "value": 1.0,
         "unit": "mole * second ** 2 / kilogram / meter ** 2"
       },
       "conversion_ok": true,
       "line": 0
     },
-    "v_{7}": {
+    "v7": {
       "latex_name": "u_{W}",
       "original": {
         "value": 1.0,
-        "unit": "W"
+        "unit": "watt"
       },
       "base": {
         "value": 1.0,
@@ -111,11 +111,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{8}": {
+    "v8": {
       "latex_name": "u_{J}",
       "original": {
         "value": 1.0,
-        "unit": "J"
+        "unit": "joule"
       },
       "base": {
         "value": 1.0,
@@ -124,11 +124,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{9}": {
+    "v9": {
       "latex_name": "u_{s}",
       "original": {
         "value": 1.0,
-        "unit": "s"
+        "unit": "second"
       },
       "base": {
         "value": 1.0,
@@ -137,11 +137,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{10}": {
+    "v10": {
       "latex_name": "PPE_{red}",
       "original": {
         "value": 4.29,
-        "unit": "µmol/J"
+        "unit": "micromole / joule"
       },
       "base": {
         "value": 4.29e-06,
@@ -150,7 +150,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{11}": {
+    "v11": {
       "latex_name": "f_{geom}",
       "original": {
         "value": 0.9143,
@@ -163,24 +163,24 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{12}": {
+    "v12": {
       "latex_name": "PPE_{eff}",
       "original": {
         "value": 3.9223470000000002,
-        "unit": "mol · s^2/(kg · m^2)"
+        "unit": "micromole / joule"
       },
       "base": {
-        "value": 3.9223470000000002,
+        "value": 3.922347e-06,
         "unit": "mole * second ** 2 / kilogram / meter ** 2"
       },
       "conversion_ok": true,
       "line": 0
     },
-    "v_{13}": {
+    "v13": {
       "latex_name": "P_{LED,dc}",
       "original": {
         "value": 1920.0,
-        "unit": "W"
+        "unit": "watt"
       },
       "base": {
         "value": 1920.0,
@@ -189,14 +189,14 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{14}": {
+    "v14": {
       "latex_name": "PAR_{rct}",
       "original": {
-        "value": 7530.906240000001,
-        "unit": "mol/s"
+        "value": 7530.90624,
+        "unit": "micromole * watt / joule"
       },
       "base": {
-        "value": 7530.906240000001,
+        "value": 0.00753090624,
         "unit": "mole / second"
       },
       "conversion_ok": true,
@@ -205,8 +205,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 23:01:41",
-    "duration": "0.25s",
+    "last_run": "2026-01-16 00:27:42",
+    "duration": "0.07s",
     "symbols": 15,
     "custom_units": 0,
     "definitions": 15,
