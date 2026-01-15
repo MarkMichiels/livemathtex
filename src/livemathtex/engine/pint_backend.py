@@ -775,7 +775,11 @@ def format_pint_unit(unit: pint.Unit) -> str:
     return unit_str if unit_str else None
 
 
-def format_unit_latex(unit: Any, original_latex: Optional[str] = None) -> str:
+def format_unit_latex(
+    unit: Any,
+    original_latex: Optional[str] = None,
+    unit_format: Optional[str] = None
+) -> str:
     """
     Format a Pint unit as LaTeX-friendly string.
 
@@ -785,14 +789,15 @@ def format_unit_latex(unit: Any, original_latex: Optional[str] = None) -> str:
     Args:
         unit: A Pint Unit or Quantity, or string representation
         original_latex: Optional original LaTeX string for display
+        unit_format: Format style - "default", "fraction", or "exponent" (ISS-042)
 
     Returns:
         LaTeX-friendly unit string
 
     Example:
         kilogram -> "kg"
-        meter/second -> "m/s"
-        EUR/(kilowatt*hour) -> "€/kWh" (or original_latex if provided)
+        meter/second -> "m/s" (default), "m/s" (fraction), "m·s⁻¹" (exponent)
+        mg/day/liter -> "mg/d/L" (default), "mg/(L·d)" (fraction), "mg·L⁻¹·d⁻¹" (exponent)
     """
     # Prefer original LaTeX if provided (preserves user notation)
     if original_latex:
@@ -812,17 +817,21 @@ def format_unit_latex(unit: Any, original_latex: Optional[str] = None) -> str:
         ('kilowatt_hour', 'kWh'),
         ('megawatt_hour', 'MWh'),
         ('watt_hour', 'Wh'),
+        # Micro prefix - special handling
+        ('micromol', 'µmol'),
+        ('microgram', 'µg'),
+        ('microliter', 'µL'),
+        ('microsecond', 'µs'),
+        ('microampere', 'µA'),
         # Prefixed units (longer names before shorter)
         ('kilogram', 'kg'),
         ('milligram', 'mg'),
-        ('microgram', 'µg'),
         ('gram', 'g'),
         ('millimeter', 'mm'),
         ('centimeter', 'cm'),
         ('kilometer', 'km'),
         ('meter', 'm'),
         ('millisecond', 'ms'),
-        ('microsecond', 'µs'),
         ('nanosecond', 'ns'),
         ('second', 's'),
         ('minute', 'min'),
@@ -830,7 +839,6 @@ def format_unit_latex(unit: Any, original_latex: Optional[str] = None) -> str:
         ('day', 'd'),
         ('year', 'yr'),
         ('milliliter', 'mL'),
-        ('microliter', 'µL'),
         ('liter', 'L'),
         ('gigawatt', 'GW'),
         ('megawatt', 'MW'),
@@ -854,7 +862,6 @@ def format_unit_latex(unit: Any, original_latex: Optional[str] = None) -> str:
         ('millivolt', 'mV'),
         ('volt', 'V'),
         ('milliampere', 'mA'),
-        ('microampere', 'µA'),
         ('ampere', 'A'),
         ('kelvin', 'K'),
         ('gigahertz', 'GHz'),
@@ -876,12 +883,91 @@ def format_unit_latex(unit: Any, original_latex: Optional[str] = None) -> str:
     # Clean up Pint artifacts for LaTeX compatibility
     unit_str = unit_str.replace(' ** ', '^')
     unit_str = unit_str.replace('**', '^')
-    # Use proper LaTeX-compatible separator (will be converted to \cdot later)
-    unit_str = unit_str.replace(' * ', ' · ')
-    unit_str = unit_str.replace('*', ' · ')
-    unit_str = unit_str.replace(' / ', '/')
+
+    # Apply format-specific transformations (ISS-042)
+    if unit_format == 'exponent':
+        unit_str = _format_unit_exponent(unit_str)
+    elif unit_format == 'fraction':
+        unit_str = _format_unit_fraction(unit_str)
+    else:
+        # Default format - minimal cleanup
+        unit_str = unit_str.replace(' * ', '·')
+        unit_str = unit_str.replace('*', '·')
+        unit_str = unit_str.replace(' / ', '/')
 
     return unit_str
+
+
+def _format_unit_exponent(unit_str: str) -> str:
+    """Format unit with negative exponents (ISS-042).
+
+    Converts: mg / d / L -> mg·d⁻¹·L⁻¹
+    """
+    import re
+
+    # Unicode superscript digits for exponents
+    superscripts = {'0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+                    '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻'}
+
+    def to_superscript(exp: str) -> str:
+        """Convert number string to Unicode superscript."""
+        return ''.join(superscripts.get(c, c) for c in exp)
+
+    # Split into numerator and denominator parts
+    parts = re.split(r'\s*/\s*', unit_str)
+
+    if len(parts) == 1:
+        # No divisions - just clean up multiplication
+        return unit_str.replace(' * ', '·').replace('*', '·')
+
+    numerator = parts[0].replace(' * ', '·').replace('*', '·')
+    denominators = parts[1:]
+
+    # Process each denominator part
+    result_parts = [numerator]
+    for denom in denominators:
+        # Handle exponents in denominator (e.g., m^2)
+        exp_match = re.match(r'^(\w+)\^(\d+)$', denom.strip())
+        if exp_match:
+            base, exp = exp_match.groups()
+            result_parts.append(f'{base}{to_superscript("-" + exp)}')
+        else:
+            # Simple unit in denominator
+            denom = denom.strip().replace(' * ', '·').replace('*', '·')
+            result_parts.append(f'{denom}{to_superscript("-1")}')
+
+    return '·'.join(result_parts)
+
+
+def _format_unit_fraction(unit_str: str) -> str:
+    """Format unit with parenthesized denominator (ISS-042).
+
+    Converts: mg / d / L -> mg/(d·L)
+    """
+    import re
+
+    # Split into numerator and denominator parts
+    parts = re.split(r'\s*/\s*', unit_str)
+
+    if len(parts) == 1:
+        # No divisions - just clean up multiplication
+        return unit_str.replace(' * ', '·').replace('*', '·')
+
+    numerator = parts[0].replace(' * ', '·').replace('*', '·')
+    denominators = parts[1:]
+
+    # Clean up denominator parts
+    clean_denoms = []
+    for denom in denominators:
+        denom = denom.strip().replace(' * ', '·').replace('*', '·')
+        clean_denoms.append(denom)
+
+    if len(clean_denoms) == 1:
+        # Single denominator - simple fraction
+        return f'{numerator}/{clean_denoms[0]}'
+    else:
+        # Multiple denominators - parenthesize
+        return f'{numerator}/({" · ".join(clean_denoms)})'
 
 
 @dataclass
