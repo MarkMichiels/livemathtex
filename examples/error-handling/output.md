@@ -105,7 +105,7 @@ $force := N \cdot 10.5
 
 $N_val := 100$
 $force_ok := N_val \cdot 10.5$
-$force_ok == 1050$
+$force_ok == 1\,050$
 
 ---
 
@@ -259,4 +259,4 @@ $F_{1,N} := F_1 == 98.1\ \text{N}$ <!-- [N] -->
 
 ---
 
-> *livemathtex: 2026-01-15 04:21:15 | 43 definitions, 20 evaluations | 15 errors | 0.04s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:22:06 | 43 definitions, 20 evaluations | 15 errors | 0.10s* <!-- livemathtex-meta -->

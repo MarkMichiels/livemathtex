@@ -67,7 +67,7 @@ $f_d := 0.02$
 ## Step 1: Flow Velocity
 
 Cross-sectional area:
-$A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} == 7853.9816\ \text{mm^2}$
+$A_{pipe} := \frac{\pi \cdot D_{pipe}^2}{4} == 7\,853.9816\ \text{mm^2}$
 
 Flow velocity:
 $vel := \frac{Q}{A_{pipe}} == 0.0064\ \text{m^3/h/mm^2}$
@@ -144,4 +144,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.2358\ \text{kW}$$ <!-- [kW
 
 ---
 
-> *livemathtex: 2026-01-15 04:21:15 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.01s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:21:15 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.08s* <!-- livemathtex-meta -->

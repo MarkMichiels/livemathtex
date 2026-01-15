@@ -7,11 +7,11 @@
   },
   "custom_units": {},
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "T_{27}",
       "original": {
         "value": 210.0,
-        "unit": "kg"
+        "unit": "kilogram"
       },
       "base": {
         "value": 210.0,
@@ -20,28 +20,15 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "C_{27}",
       "original": {
         "value": 379.0,
-        "unit": "kg"
+        "unit": "kilogram"
       },
       "base": {
         "value": 379.0,
         "unit": "kilogram"
-      },
-      "conversion_ok": true,
-      "line": 0
-    },
-    "v_{2}": {
-      "latex_name": "U_{27}",
-      "original": {
-        "value": 49.86807387862797,
-        "unit": null
-      },
-      "base": {
-        "value": 49.86807387862797,
-        "unit": null
       },
       "conversion_ok": true,
       "line": 0
@@ -49,15 +36,15 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-15 02:48:23",
-    "duration": "0.17s",
-    "symbols": 3,
+    "last_run": "2026-01-15 10:54:47",
+    "duration": "0.06s",
+    "symbols": 2,
     "custom_units": 0,
-    "definitions": 3,
-    "evaluations": 2,
+    "definitions": 2,
+    "evaluations": 0,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 1,
-    "warnings": 1
+    "errors": 0,
+    "warnings": 0
   }
 }

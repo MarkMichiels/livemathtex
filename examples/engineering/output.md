@@ -91,7 +91,7 @@ $$A_0 := \frac{Q}{U_0 \cdot LMTD} == 5.453$$
 ## Step 4: Effectiveness-NTU Analysis
 
 ### Heat Capacity Rates (W/K)
-$C_h := m_h \cdot c_p == 8372$
+$C_h := m_h \cdot c_p == 8\,372$
 
 $C_c := m_c \cdot c_p == 12\,558$
 
@@ -138,4 +138,4 @@ $A_m := \frac{A_0}{length} == 2.7265$
 
 ---
 
-> *livemathtex: 2026-01-15 04:21:15 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.01s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:21:15 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.07s* <!-- livemathtex-meta -->

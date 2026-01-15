@@ -1,17 +1,17 @@
 {
   "version": "3.0",
-  "source": "input.md",
+  "source": "/home/mark/Repositories/livemathtex/examples/engineering-units/input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
   },
   "custom_units": {},
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "Q",
       "original": {
         "value": 50.0,
-        "unit": "m³/h"
+        "unit": "meter ** 3 / hour"
       },
       "base": {
         "value": 0.013888888888888888,
@@ -20,11 +20,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "h_s",
       "original": {
         "value": -2.0,
-        "unit": "m"
+        "unit": "meter"
       },
       "base": {
         "value": -2.0,
@@ -33,11 +33,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "h_d",
       "original": {
         "value": 15.0,
-        "unit": "m"
+        "unit": "meter"
       },
       "base": {
         "value": 15.0,
@@ -46,11 +46,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{3}": {
+    "v3": {
       "latex_name": "L_{pipe}",
       "original": {
         "value": 100.0,
-        "unit": "m"
+        "unit": "meter"
       },
       "base": {
         "value": 100.0,
@@ -59,11 +59,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{4}": {
+    "v4": {
       "latex_name": "D_{pipe}",
       "original": {
         "value": 100.0,
-        "unit": "mm"
+        "unit": "millimeter"
       },
       "base": {
         "value": 0.1,
@@ -72,11 +72,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{5}": {
+    "v5": {
       "latex_name": "\\rho",
       "original": {
         "value": 1000.0,
-        "unit": "kg/m³"
+        "unit": "kilogram / meter ** 3"
       },
       "base": {
         "value": 1000.0,
@@ -85,11 +85,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{6}": {
+    "v6": {
       "latex_name": "g_{acc}",
       "original": {
         "value": 9.81,
-        "unit": "m/s²"
+        "unit": "meter / second ** 2"
       },
       "base": {
         "value": 9.81,
@@ -98,7 +98,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{7}": {
+    "v7": {
       "latex_name": "f_d",
       "original": {
         "value": 0.02,
@@ -111,7 +111,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{8}": {
+    "v8": {
       "latex_name": "A_{pipe}",
       "original": {
         "value": 7853.981633974483,
@@ -124,7 +124,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{9}": {
+    "v9": {
       "latex_name": "vel",
       "original": {
         "value": 0.006366197723675813,
@@ -137,7 +137,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{10}": {
+    "v10": {
       "latex_name": "H_{static}",
       "original": {
         "value": 17.0,
@@ -150,20 +150,20 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{11}": {
+    "v11": {
       "latex_name": "H_f",
       "original": {
-        "value": 4.1313428600341594e-08,
+        "value": 4.13134286003416e-08,
         "unit": "meter ** 6 * second ** 2 / hour ** 2 / millimeter ** 5"
       },
       "base": {
-        "value": 3.1877645524954925,
+        "value": 3.1877645524954934,
         "unit": "meter"
       },
       "conversion_ok": true,
       "line": 0
     },
-    "v_{12}": {
+    "v12": {
       "latex_name": "K_{fit}",
       "original": {
         "value": 5.0,
@@ -176,7 +176,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{13}": {
+    "v13": {
       "latex_name": "H_m",
       "original": {
         "value": 1.0328357150085399e-05,
@@ -189,7 +189,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{14}": {
+    "v14": {
       "latex_name": "TDH",
       "original": {
         "value": 20.984705690619368,
@@ -202,7 +202,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{15}": {
+    "v15": {
       "latex_name": "P_{hyd}",
       "original": {
         "value": 10292998.1412488,
@@ -215,7 +215,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{16}": {
+    "v16": {
       "latex_name": "eta_p",
       "original": {
         "value": 0.75,
@@ -228,7 +228,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{17}": {
+    "v17": {
       "latex_name": "eta_m",
       "original": {
         "value": 0.9,
@@ -241,7 +241,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{18}": {
+    "v18": {
       "latex_name": "P_{motor}",
       "original": {
         "value": 15248886.135183407,
@@ -257,8 +257,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 23:46:33",
-    "duration": "0.60s",
+    "last_run": "2026-01-15 11:21:15",
+    "duration": "0.08s",
     "symbols": 19,
     "custom_units": 0,
     "definitions": 19,

@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "input.md",
+  "source": "/home/mark/Repositories/livemathtex/examples/custom-units/input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -14,21 +14,20 @@
     }
   },
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "price",
       "original": {
         "value": 100.0,
-        "unit": "€"
+        "unit": "EUR"
       },
       "base": {
         "value": 100.0,
-        "unit": "€"
+        "unit": "EUR"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "discount",
       "original": {
         "value": 0.2,
@@ -41,7 +40,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "final\\_price",
       "original": {
         "value": 80.0,
@@ -54,11 +53,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{3}": {
+    "v3": {
       "latex_name": "power",
       "original": {
         "value": 5.0,
-        "unit": "kW"
+        "unit": "kilowatt"
       },
       "base": {
         "value": 5000.0,
@@ -67,11 +66,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{4}": {
+    "v4": {
       "latex_name": "time",
       "original": {
         "value": 8.0,
-        "unit": "h"
+        "unit": "hour"
       },
       "base": {
         "value": 28800.0,
@@ -80,7 +79,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{5}": {
+    "v5": {
       "latex_name": "energy\\_si",
       "original": {
         "value": 40.0,
@@ -93,7 +92,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{6}": {
+    "v6": {
       "latex_name": "energy\\_kWh",
       "original": {
         "value": 40.0,
@@ -106,7 +105,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{7}": {
+    "v7": {
       "latex_name": "energy\\_decimal",
       "original": {
         "value": 40.0,
@@ -119,11 +118,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{8}": {
+    "v8": {
       "latex_name": "pressure\\_atm",
       "original": {
         "value": 1013.0,
-        "unit": "mbar"
+        "unit": "millibar"
       },
       "base": {
         "value": 101300.0,
@@ -132,7 +131,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{9}": {
+    "v9": {
       "latex_name": "factor",
       "original": {
         "value": 2.0,
@@ -145,7 +144,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{10}": {
+    "v10": {
       "latex_name": "pressure\\_si",
       "original": {
         "value": 2026.0,
@@ -158,7 +157,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{11}": {
+    "v11": {
       "latex_name": "pressure\\_mbar",
       "original": {
         "value": 2026.0,
@@ -171,25 +170,24 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{12}": {
+    "v12": {
       "latex_name": "electricity\\_price",
       "original": {
         "value": 0.139,
-        "unit": "€/kWh"
+        "unit": "EUR / kilowatt_hour"
       },
       "base": {
-        "value": 0.139,
-        "unit": "€/kWh"
+        "value": 3.8611111111111115e-08,
+        "unit": "EUR * second ** 2 / kilogram / meter ** 2"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
-    "v_{13}": {
+    "v13": {
       "latex_name": "consumption",
       "original": {
         "value": 1500.0,
-        "unit": "kWh"
+        "unit": "kilowatt_hour"
       },
       "base": {
         "value": 5400000000.0,
@@ -198,7 +196,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{14}": {
+    "v14": {
       "latex_name": "cost",
       "original": {
         "value": 208.50000000000003,
@@ -211,25 +209,24 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{15}": {
+    "v15": {
       "latex_name": "cost\\_per\\_kg",
       "original": {
         "value": 25.0,
-        "unit": "€/kg"
+        "unit": "EUR / kilogram"
       },
       "base": {
         "value": 25.0,
-        "unit": "€/kg"
+        "unit": "EUR / kilogram"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
-    "v_{16}": {
+    "v16": {
       "latex_name": "weight",
       "original": {
         "value": 4.0,
-        "unit": "kg"
+        "unit": "kilogram"
       },
       "base": {
         "value": 4.0,
@@ -238,7 +235,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{17}": {
+    "v17": {
       "latex_name": "total",
       "original": {
         "value": 100.0,
@@ -251,7 +248,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{18}": {
+    "v18": {
       "latex_name": "big",
       "original": {
         "value": 144000000.0,
@@ -264,7 +261,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{19}": {
+    "v19": {
       "latex_name": "medium",
       "original": {
         "value": 12345.6789,
@@ -277,7 +274,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{20}": {
+    "v20": {
       "latex_name": "small",
       "original": {
         "value": 1.2345e-05,
@@ -290,7 +287,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{21}": {
+    "v21": {
       "latex_name": "integer",
       "original": {
         "value": 40.0,
@@ -303,7 +300,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{22}": {
+    "v22": {
       "latex_name": "pi\\_val",
       "original": {
         "value": 3.14159265359,
@@ -316,7 +313,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{23}": {
+    "v23": {
       "latex_name": "fmt\\_general",
       "original": {
         "value": 144000000.0,
@@ -329,7 +326,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{24}": {
+    "v24": {
       "latex_name": "fmt\\_general\\_med",
       "original": {
         "value": 12345.6789,
@@ -342,7 +339,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{25}": {
+    "v25": {
       "latex_name": "fmt\\_decimal",
       "original": {
         "value": 144000000.0,
@@ -355,7 +352,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{26}": {
+    "v26": {
       "latex_name": "fmt\\_sci",
       "original": {
         "value": 144000000.0,
@@ -368,7 +365,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{27}": {
+    "v27": {
       "latex_name": "fmt\\_sci\\_small",
       "original": {
         "value": 1.2345e-05,
@@ -381,7 +378,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{28}": {
+    "v28": {
       "latex_name": "fmt\\_eng",
       "original": {
         "value": 144000000.0,
@@ -394,7 +391,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{29}": {
+    "v29": {
       "latex_name": "fmt\\_eng\\_small",
       "original": {
         "value": 1.2345e-05,
@@ -407,7 +404,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{30}": {
+    "v30": {
       "latex_name": "dig\\_default",
       "original": {
         "value": 3.14159265359,
@@ -420,7 +417,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{31}": {
+    "v31": {
       "latex_name": "dig\\_2",
       "original": {
         "value": 3.14159265359,
@@ -433,7 +430,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{32}": {
+    "v32": {
       "latex_name": "dig\\_4",
       "original": {
         "value": 3.14159265359,
@@ -446,7 +443,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{33}": {
+    "v33": {
       "latex_name": "dig\\_8",
       "original": {
         "value": 3.14159265359,
@@ -459,7 +456,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{34}": {
+    "v34": {
       "latex_name": "dig\\_sci\\_3",
       "original": {
         "value": 144000000.0,
@@ -472,7 +469,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{35}": {
+    "v35": {
       "latex_name": "dig\\_eng\\_4",
       "original": {
         "value": 144000000.0,
@@ -485,7 +482,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{36}": {
+    "v36": {
       "latex_name": "thou\\_1",
       "original": {
         "value": 1234.0,
@@ -498,7 +495,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{37}": {
+    "v37": {
       "latex_name": "thou\\_2",
       "original": {
         "value": 12345.0,
@@ -511,7 +508,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{38}": {
+    "v38": {
       "latex_name": "thou\\_3",
       "original": {
         "value": 1234567.0,
@@ -524,7 +521,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{39}": {
+    "v39": {
       "latex_name": "thou\\_4",
       "original": {
         "value": 123456789.0,
@@ -537,7 +534,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{40}": {
+    "v40": {
       "latex_name": "thou\\_5",
       "original": {
         "value": 1234567890.0,
@@ -550,7 +547,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{41}": {
+    "v41": {
       "latex_name": "trail\\_1",
       "original": {
         "value": 40.0,
@@ -563,7 +560,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{42}": {
+    "v42": {
       "latex_name": "trail\\_2",
       "original": {
         "value": 3.14,
@@ -576,7 +573,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{43}": {
+    "v43": {
       "latex_name": "trail\\_3",
       "original": {
         "value": 40.0,
@@ -589,11 +586,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{44}": {
+    "v44": {
       "latex_name": "combo\\_power",
       "original": {
         "value": 5.0,
-        "unit": "kW"
+        "unit": "kilowatt"
       },
       "base": {
         "value": 5000.0,
@@ -602,11 +599,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{45}": {
+    "v45": {
       "latex_name": "combo\\_hours",
       "original": {
         "value": 8.0,
-        "unit": "h"
+        "unit": "hour"
       },
       "base": {
         "value": 28800.0,
@@ -615,7 +612,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{46}": {
+    "v46": {
       "latex_name": "combo\\_energy",
       "original": {
         "value": 40.0,
@@ -628,7 +625,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{47}": {
+    "v47": {
       "latex_name": "combo\\_kwh",
       "original": {
         "value": 40.0,
@@ -641,7 +638,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{48}": {
+    "v48": {
       "latex_name": "combo\\_sci",
       "original": {
         "value": 40.0,
@@ -654,7 +651,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{49}": {
+    "v49": {
       "latex_name": "combo\\_full",
       "original": {
         "value": 40.0,
@@ -667,7 +664,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{50}": {
+    "v50": {
       "latex_name": "zero",
       "original": {
         "value": 0.0,
@@ -680,7 +677,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{51}": {
+    "v51": {
       "latex_name": "neg",
       "original": {
         "value": -12345678.0,
@@ -693,7 +690,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{52}": {
+    "v52": {
       "latex_name": "tiny",
       "original": {
         "value": 1e-09,
@@ -706,7 +703,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{53}": {
+    "v53": {
       "latex_name": "tiny\\_sci",
       "original": {
         "value": 1e-09,
@@ -719,7 +716,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{54}": {
+    "v54": {
       "latex_name": "huge",
       "original": {
         "value": 1000000000000000.0,
@@ -732,7 +729,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{55}": {
+    "v55": {
       "latex_name": "huge\\_eng",
       "original": {
         "value": 1000000000000000.0,
@@ -745,7 +742,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{56}": {
+    "v56": {
       "latex_name": "huge\\_dec",
       "original": {
         "value": 1000000000000000.0,
@@ -758,11 +755,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{57}": {
+    "v57": {
       "latex_name": "E",
       "original": {
         "value": 5000.0,
-        "unit": "kWh"
+        "unit": "kilowatt_hour"
       },
       "base": {
         "value": 18000000000.0,
@@ -771,25 +768,24 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{58}": {
+    "v58": {
       "latex_name": "cost\\_eur",
       "original": {
         "value": 750.0,
-        "unit": "€"
+        "unit": "EUR"
       },
       "base": {
         "value": 750.0,
-        "unit": "€"
+        "unit": "EUR"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
-    "v_{59}": {
+    "v59": {
       "latex_name": "SEC",
       "original": {
         "value": 0.5,
-        "unit": "kWh"
+        "unit": "kilowatt_hour"
       },
       "base": {
         "value": 1800000.0,
@@ -801,8 +797,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 23:46:30",
-    "duration": "0.86s",
+    "last_run": "2026-01-15 11:21:15",
+    "duration": "0.11s",
     "symbols": 60,
     "custom_units": 1,
     "definitions": 62,

@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "input.md",
+  "source": "/home/mark/Repositories/livemathtex/examples/error-handling/input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -14,7 +14,7 @@
     }
   },
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "V_{tot}",
       "original": {
         "value": 37824.0,
@@ -27,11 +27,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "m_1",
       "original": {
         "value": 10.0,
-        "unit": "kg"
+        "unit": "kilogram"
       },
       "base": {
         "value": 10.0,
@@ -40,11 +40,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "time_1",
       "original": {
         "value": 10.0,
-        "unit": "s"
+        "unit": "second"
       },
       "base": {
         "value": 10.0,
@@ -53,7 +53,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{3}": {
+    "v3": {
       "latex_name": "accel",
       "original": {
         "value": 9.81,
@@ -66,7 +66,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{4}": {
+    "v4": {
       "latex_name": "x_1",
       "original": {
         "value": 5.0,
@@ -79,7 +79,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{5}": {
+    "f0": {
       "latex_name": "y_1",
       "original": {
         "value": 10.0,
@@ -90,9 +90,15 @@
         "unit": null
       },
       "conversion_ok": true,
-      "line": 0
+      "line": 0,
+      "formula": {
+        "expression": "v4 \\cdot 2",
+        "depends_on": [
+          "v4"
+        ]
+      }
     },
-    "v_{6}": {
+    "f1": {
       "latex_name": "Cap_ok",
       "original": {
         "value": 567.36,
@@ -103,9 +109,15 @@
         "unit": null
       },
       "conversion_ok": true,
-      "line": 0
+      "line": 0,
+      "formula": {
+        "expression": "v0 \\cdot 15 \\cdot 0.001",
+        "depends_on": [
+          "v0"
+        ]
+      }
     },
-    "v_{7}": {
+    "v5": {
       "latex_name": "N_val",
       "original": {
         "value": 100.0,
@@ -118,7 +130,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{8}": {
+    "f2": {
       "latex_name": "force_ok",
       "original": {
         "value": 1050.0,
@@ -129,9 +141,15 @@
         "unit": null
       },
       "conversion_ok": true,
-      "line": 0
+      "line": 0,
+      "formula": {
+        "expression": "v5 \\cdot 10.5",
+        "depends_on": [
+          "v5"
+        ]
+      }
     },
-    "v_{9}": {
+    "v6": {
       "latex_name": "z_1",
       "original": {
         "value": 42.0,
@@ -144,7 +162,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{10}": {
+    "v7": {
       "latex_name": "q_1",
       "original": {
         "value": 10.0,
@@ -157,7 +175,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{11}": {
+    "v8": {
       "latex_name": "result_ok",
       "original": {
         "value": 15.0,
@@ -170,25 +188,63 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{12}": {
+    "v9": {
+      "latex_name": "y_{stuks}",
+      "original": {
+        "value": 10.0,
+        "unit": "stuks"
+      },
+      "base": {
+        "value": 10.0,
+        "unit": "stuks"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v10": {
+      "latex_name": "aantal",
+      "original": {
+        "value": 100.0,
+        "unit": "stuks"
+      },
+      "base": {
+        "value": 100.0,
+        "unit": "stuks"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v11": {
       "latex_name": "prijs_{per\\_stuk}",
       "original": {
         "value": 2.5,
-        "unit": "€"
+        "unit": "EUR"
       },
       "base": {
         "value": 2.5,
-        "unit": "€"
+        "unit": "EUR"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
-    "v_{13}": {
+    "v12": {
+      "latex_name": "n_{stuks}",
+      "original": {
+        "value": 4.0,
+        "unit": "stuks"
+      },
+      "base": {
+        "value": 4.0,
+        "unit": "stuks"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v13": {
       "latex_name": "mass_1",
       "original": {
         "value": 5.0,
-        "unit": "kg"
+        "unit": "kilogram"
       },
       "base": {
         "value": 5.0,
@@ -197,11 +253,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{14}": {
+    "v14": {
       "latex_name": "dist_1",
       "original": {
         "value": 3.0,
-        "unit": "m"
+        "unit": "meter"
       },
       "base": {
         "value": 3.0,
@@ -210,11 +266,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{15}": {
+    "v15": {
       "latex_name": "vel_1",
       "original": {
         "value": 5.0,
-        "unit": "m/s"
+        "unit": "meter / second"
       },
       "base": {
         "value": 5.0,
@@ -223,7 +279,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{16}": {
+    "v16": {
       "latex_name": "prod",
       "original": {
         "value": 15.0,
@@ -236,24 +292,24 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{17}": {
+    "v17": {
       "latex_name": "velocity_1",
       "original": {
-        "value": 0.30000000000000004,
+        "value": 0.3,
         "unit": "meter / second"
       },
       "base": {
-        "value": 0.30000000000000004,
+        "value": 0.3,
         "unit": "meter / second"
       },
       "conversion_ok": true,
       "line": 0
     },
-    "v_{18}": {
+    "v18": {
       "latex_name": "d_1",
       "original": {
         "value": 1.0,
-        "unit": "km"
+        "unit": "kilometer"
       },
       "base": {
         "value": 1000.0,
@@ -262,11 +318,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{19}": {
+    "v19": {
       "latex_name": "d_2",
       "original": {
         "value": 500.0,
-        "unit": "m"
+        "unit": "meter"
       },
       "base": {
         "value": 500.0,
@@ -275,7 +331,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{20}": {
+    "v20": {
       "latex_name": "total_d",
       "original": {
         "value": 1.5,
@@ -288,11 +344,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{21}": {
+    "v21": {
       "latex_name": "v_1",
       "original": {
         "value": 5.0,
-        "unit": "m/s"
+        "unit": "meter / second"
       },
       "base": {
         "value": 5.0,
@@ -301,11 +357,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{22}": {
+    "v22": {
       "latex_name": "E_1",
       "original": {
         "value": 1000.0,
-        "unit": "kWh"
+        "unit": "kilowatt_hour"
       },
       "base": {
         "value": 3600000000.0,
@@ -314,11 +370,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{23}": {
+    "v23": {
       "latex_name": "g_{acc}",
       "original": {
         "value": 9.81,
-        "unit": "m/s²"
+        "unit": "meter / second ** 2"
       },
       "base": {
         "value": 9.81,
@@ -327,20 +383,27 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{24}": {
+    "f3": {
       "latex_name": "F_1",
       "original": {
         "value": 98.10000000000001,
-        "unit": "kg · m/s^2"
+        "unit": "kilogram * meter / second ** 2"
       },
       "base": {
         "value": 98.10000000000001,
         "unit": "kilogram * meter / second ** 2"
       },
       "conversion_ok": true,
-      "line": 0
+      "line": 0,
+      "formula": {
+        "expression": "v1 \\cdot v23",
+        "depends_on": [
+          "v1",
+          "v23"
+        ]
+      }
     },
-    "v_{25}": {
+    "v24": {
       "latex_name": "F_{1,N}",
       "original": {
         "value": 98.10000000000001,
@@ -356,15 +419,15 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 23:52:22",
-    "duration": "0.65s",
-    "symbols": 26,
+    "last_run": "2026-01-15 11:21:15",
+    "duration": "0.08s",
+    "symbols": 29,
     "custom_units": 1,
     "definitions": 43,
     "evaluations": 20,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 19,
+    "errors": 14,
     "warnings": 0
   }
 }
