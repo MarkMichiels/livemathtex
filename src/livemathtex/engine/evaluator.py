@@ -1,13 +1,11 @@
 """
 LiveMathTeX Evaluator - Core calculation engine.
 
-Symbol Normalization uses a simple v_{n} / f_{n} naming scheme:
+v3.0 Pure Pint Architecture:
+- All calculations use the custom parser + Pint (no sympy/the old latex parser)
+- Symbol normalization uses v_{n} / f_{n} naming scheme
 - Variables: v_{0}, v_{1}, v_{2}, ...
 - Functions: f_{0}, f_{1}, f_{2}, ...
-
-This approach ensures 100% latex2sympy compatibility:
-- Original: "P_{LED,out} * N_{MPC}"
-- Internal: "v_{0} * v_{1}"
 
 The NameGenerator in symbols.py manages the bidirectional mapping:
 - latex_name (P_{LED,out}) <-> internal_id (v_{0})
@@ -18,32 +16,14 @@ See ARCHITECTURE.md for full documentation.
 from typing import Dict, Any, Optional, List, Tuple
 import logging
 import re
-import sympy
 
 logger = logging.getLogger(__name__)
-import sympy.physics.units as u
-from sympy.parsing.latex import parse_latex
-
-try:
-    from latex2sympy2 import latex2sympy
-except ImportError:
-    def latex2sympy(latex_str):
-        try:
-            return sympy.sympify(latex_str)
-        except:
-            return sympy.Symbol(latex_str)
 
 from .symbols import SymbolTable
 from .pint_backend import (
-    get_sympy_unit_registry as get_unit_registry,
-    UnitRegistry,
-    evaluate_sympy_ast_with_pint,
-    build_pint_symbol_map,
-    PintEvaluationError,
     get_unit_registry as get_pint_registry,
     format_unit_latex,
 )
-from .token_classifier import TokenClassifier
 from .expression_evaluator import evaluate_expression_tree, EvaluationError as CustomEvaluationError
 from ..parser.models import Calculation
 from ..parser.expression_tokenizer import ExpressionTokenizer
@@ -87,7 +67,7 @@ class Evaluator:
         """
         self.config = config or LivemathConfig()
         self.symbols = SymbolTable()
-        self.classifier = TokenClassifier(self.symbols)
+        # NOTE: TokenClassifier removed in v3.0 - no longer needed with custom parser
         self._ir: Optional[LivemathIR] = None  # Current IR being processed
         self._warning_count = 0  # ISS-017: Track warnings separately from errors
 
@@ -685,11 +665,9 @@ class Evaluator:
         pint_result = self._compute_with_pint(lhs)
         result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
 
-        # Format LHS too? "x * y" -> "x \cdot y"
-        # The user said "input mee formatten". LHS of evaluation is input.
-        lhs_normalized = self._normalize_latex(lhs)
-
-        return f"{lhs_normalized} == {result_latex}"
+        # v3.0: Skip LHS normalization - no longer using the old latex parser
+        # The original LaTeX is preserved as-is
+        return f"{lhs} == {result_latex}"
 
     def _format_pint_result(self, pint_result: 'pint.Quantity', unit_hint: Optional[str], config: LivemathConfig) -> str:
         """
@@ -879,288 +857,10 @@ class Evaluator:
 
         return f"{lhs} := {rhs} == {result_latex}"
 
-    def _check_undefined_symbols(self, value: Any, original_latex: str) -> None:
-        """Check if the computed value contains undefined symbols."""
-        import sympy
-        import re
-        from sympy.physics import units as u
-
-        if not hasattr(value, 'free_symbols'):
-            return  # It's a pure number, no symbols
-
-        # Get symbols that are still in the expression (weren't substituted)
-        remaining_symbols = value.free_symbols
-
-        # Filter out known SI units (they're expected to remain)
-        undefined = []
-        for sym in remaining_symbols:
-            sym_name = str(sym)
-            # Clean \text{} wrapper
-            clean_name = re.sub(r'^\\(text|mathrm)\{([^}]+)\}$', r'\2', sym_name).strip()
-
-            # Check if it's a known unit using Pint backend (comprehensive check)
-            from .pint_backend import is_unit_token
-            if is_unit_token(clean_name):
-                continue
-            # Also check SymPy built-in units as fallback
-            if hasattr(u, clean_name):
-                unit_val = getattr(u, clean_name)
-                if isinstance(unit_val, (u.Unit, u.Quantity)):
-                    continue
-
-            # It's not a unit, so it's undefined
-            undefined.append(clean_name)
-
-        if undefined:
-            # Check for implicit multiplication pattern (ISS-018, ISS-022)
-            impl_info = self.classifier.detect_implicit_multiplication(
-                original_latex, remaining_symbols
-            )
-
-            if impl_info:
-                # Generate specialized error message mentioning the multi-letter identifier
-                msg = f"Undefined variable '{impl_info.intended_symbol}'."
-                msg += f" Note: '{impl_info.intended_symbol}' was parsed as implicit multiplication ({impl_info.split_as})."
-                msg += f" Define '${impl_info.intended_symbol} := ...$' before use, or use a structured name like '{impl_info.intended_symbol}_{{...}}'."
-
-                if impl_info.unit_conflicts:
-                    conflict_details = []
-                    for letter in impl_info.unit_conflicts:
-                        unit_name = self.classifier.has_unit_conflict(letter)
-                        if unit_name:
-                            conflict_details.append(f"'{letter}' is also a unit ({unit_name})")
-                    if conflict_details:
-                        msg += f" ({'; '.join(conflict_details)})"
-
-                raise EvaluationError(msg)
-
-            # Fallback to generic error message
-            if len(undefined) == 1:
-                var = undefined[0]
-                raise EvaluationError(f"Undefined variable '{var}'. Define it before use.")
-            else:
-                vars_list = ', '.join(f"'{v}'" for v in sorted(undefined))
-                raise EvaluationError(f"Undefined variables: {vars_list}. Define them before use.")
-
-    def _check_dimensional_compatibility(self, value: Any, original_latex: str) -> None:
-        """
-        Check if an Add/Sub expression has dimensionally compatible terms.
-
-        ISSUE-006: Detect incompatible unit operations like kg + m.
-
-        Args:
-            value: The computed SymPy expression
-            original_latex: Original LaTeX for error messages
-
-        Raises:
-            EvaluationError: If incompatible units are being added/subtracted
-        """
-        from sympy import Add
-        from sympy.physics.units import Quantity
-        from .pint_backend import get_sympy_unit_dimensionality, are_dimensions_compatible
-
-        if not hasattr(value, 'args'):
-            return  # Not an expression with arguments
-
-        # Recursively check all Add expressions in the tree
-        self._check_add_dimensional_compatibility(value)
-
-    def _check_add_dimensional_compatibility(self, expr: Any) -> None:
-        """
-        Recursively check Add expressions for dimensional compatibility.
-
-        Args:
-            expr: A SymPy expression to check
-
-        Raises:
-            EvaluationError: If incompatible units are being added/subtracted
-        """
-        from sympy import Add
-        from sympy.physics.units import Quantity
-        from .pint_backend import get_sympy_unit_dimensionality, are_dimensions_compatible
-
-        if not hasattr(expr, 'args'):
-            return
-
-        # Check if this is an Add expression
-        if isinstance(expr, Add):
-            # Get dimensionality of each term
-            term_dims = []
-            term_units = []
-
-            for term in expr.args:
-                dim = get_sympy_unit_dimensionality(term)
-                term_dims.append(dim)
-
-                # Get the unit part of the term for error message
-                unit_str = "(dimensionless)"
-                if hasattr(term, 'as_coeff_Mul'):
-                    try:
-                        coeff, unit_part = term.as_coeff_Mul()
-                        if unit_part != 1:
-                            # Use the full unit expression
-                            unit_str = str(unit_part)
-                    except Exception:
-                        pass
-                # Fallback: if as_coeff_Mul didn't work, try atoms
-                if unit_str == "(dimensionless)" and hasattr(term, 'atoms'):
-                    quantities = term.atoms(Quantity)
-                    if quantities:
-                        # Sort for deterministic output
-                        unit_str = str(sorted(quantities, key=str)[0])
-                term_units.append(unit_str)
-
-            # Check if all terms have compatible dimensions
-            if len(term_dims) >= 2:
-                first_dim = term_dims[0]
-                for i, dim in enumerate(term_dims[1:], 1):
-                    if not are_dimensions_compatible(first_dim, dim):
-                        # Found incompatible dimensions
-                        unit1 = term_units[0]
-                        unit2 = term_units[i]
-                        raise EvaluationError(
-                            f"Cannot add/subtract incompatible units: {unit1} and {unit2}. "
-                            f"Dimensions must match for addition/subtraction."
-                        )
-
-        # Recursively check sub-expressions
-        for arg in expr.args:
-            self._check_add_dimensional_compatibility(arg)
-
-    def _extract_unit_from_value(self, value: Any) -> Tuple[Optional[Any], str]:
-        """
-        Extract the unit from a computed value (e.g., 208.5*euro -> (euro, "€")).
-
-        Returns:
-            Tuple of (sympy_unit or None, unit_latex_string)
-        """
-        from sympy.physics.units import Quantity
-        from .pint_backend import format_unit_latex
-
-        if not hasattr(value, 'as_coeff_Mul'):
-            return None, ""
-
-        try:
-            coeff, rest = value.as_coeff_Mul()
-
-            # Check if rest contains unit Quantities
-            if hasattr(rest, 'atoms'):
-                quantities = rest.atoms(Quantity)
-                if quantities:
-                    # This has units - rest is the unit expression
-                    unit_latex = format_unit_latex(rest)
-                    return rest, unit_latex
-        except:
-            pass
-
-        return None, ""
-
-    def _convert_to_si(self, value: Any, unit: Any) -> Tuple[Any, Any, bool]:
-        """
-        Convert a value with its unit to SI base units.
-
-        Args:
-            value: The numeric value (without unit)
-            unit: The SymPy unit expression
-
-        Returns:
-            Tuple of (si_value, si_unit, valid)
-            - si_value: Numeric value in SI
-            - si_unit: SI unit expression (or None if dimensionless)
-            - valid: True if conversion was successful and round-trip validated
-        """
-        from sympy.physics.units import convert_to
-        import sympy.physics.units as u
-
-        if unit is None:
-            # No unit - dimensionless value
-            return value, None, True
-
-        try:
-            # Combine value and unit for conversion
-            full_value = value * unit
-
-            # Convert to SI base units
-            si_base = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
-            converted = convert_to(full_value, si_base)
-
-            # Extract coefficient and unit part
-            if hasattr(converted, 'as_coeff_Mul'):
-                si_coeff, si_unit_part = converted.as_coeff_Mul()
-
-                # Evaluate coefficient to float
-                if hasattr(si_coeff, 'evalf'):
-                    si_coeff = si_coeff.evalf()
-                si_value = float(si_coeff) if si_coeff != 1 else float(value)
-
-                # Unit part (may be 1 for dimensionless)
-                si_unit = si_unit_part if si_unit_part != 1 else None
-
-                # Round-trip validation: convert back and check
-                valid = self._validate_round_trip(value, unit, si_value, si_unit)
-
-                return si_value, si_unit, valid
-            else:
-                # No clear separation - use original
-                return value, unit, True
-
-        except Exception:
-            # Conversion failed - keep original
-            return value, unit, False
-
-    def _validate_round_trip(
-        self, orig_value: Any, orig_unit: Any, si_value: float, si_unit: Any
-    ) -> bool:
-        """
-        Validate that SI conversion is dimensionally correct.
-
-        Returns True if the SI conversion preserves the physical quantity.
-
-        Note: We don't do numeric round-trip because compound units like
-        meter/1000 (from 'mm') don't convert back properly in SymPy.
-        Instead, we verify that the product of original value*unit equals
-        the SI value*unit (dimensionally).
-        """
-        from sympy.physics.units import convert_to
-        import sympy.physics.units as u
-
-        try:
-            if si_unit is None or orig_unit is None:
-                return True
-
-            # Verify dimensional consistency: both should convert to same SI value
-            si_base = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
-
-            # Original in SI
-            orig_full = orig_value * orig_unit
-            orig_si = convert_to(orig_full, si_base)
-
-            # Our computed SI value
-            computed_si = si_value * si_unit
-            computed_si_converted = convert_to(computed_si, si_base)
-
-            # Extract numeric values
-            def get_numeric(expr):
-                if hasattr(expr, 'as_coeff_Mul'):
-                    coeff, _ = expr.as_coeff_Mul()
-                    if hasattr(coeff, 'evalf'):
-                        return float(coeff.evalf())
-                    return float(coeff)
-                return float(expr)
-
-            orig_num = get_numeric(orig_si)
-            computed_num = get_numeric(computed_si_converted)
-
-            # Check relative error
-            if abs(orig_num) > 1e-10:
-                rel_error = abs(computed_num - orig_num) / abs(orig_num)
-                return rel_error < 0.001  # 0.1% tolerance
-            else:
-                return abs(computed_num - orig_num) < 1e-10
-
-        except Exception:
-            # If validation fails, assume conversion is OK
-            return True
+# NOTE: Dead sympy code removed in v3.0 (Phase 28):
+    # - _check_undefined_symbols, _check_dimensional_compatibility
+    # - _check_add_dimensional_compatibility, _extract_unit_from_value
+    # - _convert_to_si, _validate_round_trip
 
     def _normalize_unit_string(self, unit_str: str) -> str:
         """
@@ -1198,126 +898,9 @@ class Evaluator:
 
         return unit_str
 
-    def _parse_unit_with_prefix(self, unit_str: str):
-        """
-        Parse a unit string that may include SI prefixes (kW, MHz, mm, etc.)
-
-        Handles common SI prefixes: k(ilo), M(ega), G(iga), m(illi), µ/u(micro), n(ano)
-        Also handles LaTeX notation like \\text{kW}
-        """
-        import sympy.physics.units as u
-        from sympy.physics.units.prefixes import kilo, mega, giga, milli, micro, nano, centi
-
-        # Strip LaTeX wrappers: \text{kW} -> kW
-        if unit_str.startswith('\\text{') and unit_str.endswith('}'):
-            unit_str = unit_str[6:-1]  # Remove \text{ and }
-
-        # SI prefix mapping
-        prefix_map = {
-            'k': kilo,    # kilo (10³)
-            'M': mega,    # mega (10⁶) - capital M
-            'G': giga,    # giga (10⁹)
-            'c': centi,   # centi (10⁻²)
-            # Note: 'm' is ambiguous (meter vs milli) - handle specially
-            'µ': micro,   # micro (10⁻⁶)
-            'u': micro,   # micro alternative
-            'n': nano,    # nano (10⁻⁹)
-        }
-
-        # Common base units with their SymPy objects
-        base_units = {
-            'W': u.W, 'watt': u.W,
-            'Hz': u.Hz, 'hertz': u.Hz,
-            'N': u.N, 'newton': u.N,
-            'J': u.J, 'joule': u.J,
-            'Pa': u.Pa, 'pascal': u.Pa,
-            'V': u.V, 'volt': u.V,
-            'A': u.A, 'ampere': u.A,
-            'F': u.F, 'farad': u.F,
-            'Ω': u.ohm, 'ohm': u.ohm,
-            'g': u.g, 'gram': u.g,
-            # Note: 'm' (meter) handled separately
-        }
-
-        # Check for prefixed units (e.g., kW, MHz, mm)
-        for prefix_char, prefix_val in prefix_map.items():
-            if unit_str.startswith(prefix_char) and len(unit_str) > 1:
-                base_part = unit_str[1:]
-                if base_part in base_units:
-                    return prefix_val * base_units[base_part]
-
-        # Special case: mm (millimeter) - 'm' prefix with 'm' base
-        if unit_str == 'mm':
-            return milli * u.m
-
-        # No prefix found, try direct lookup
-        if unit_str in base_units:
-            return base_units[unit_str]
-
-        # Fallback to _compute for complex expressions
-        return None
-
-    # NOTE: _apply_conversion() function removed in v3.0 (Phase 28)
-    # Unit conversion is now handled by Pint in _format_pint_result()
-
-    def _extract_unit_string(self, value: Any) -> str:
-        """
-        Extract a human-readable unit string from a sympy value.
-        Returns the unit part of a value with units, or 'dimensionless' if none.
-        """
-        from sympy.physics.units import Quantity
-        from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
-        import sympy
-
-        if not hasattr(value, 'atoms'):
-            return 'dimensionless'
-
-        # Get unit atoms from the value
-        quantities = value.atoms(Quantity)
-        if not quantities:
-            return 'dimensionless'
-
-        # Convert to SI base units and extract the unit part
-        try:
-            base_units = [kg, m, s, A, K, mol, cd]
-            si_form = convert_to(value, base_units)
-            # Get the unit part by dividing out the numeric coefficient
-            if hasattr(si_form, 'as_coeff_Mul'):
-                coeff, unit_part = si_form.as_coeff_Mul()
-                if unit_part != 1:
-                    # ISS-023 fix: Use regex to remove \text{} wrappers properly
-                    return re.sub(r'\\text\{([^}]+)\}', r'\1', sympy.latex(unit_part))
-        except:
-            pass
-
-        # Fallback: just list the quantities
-        return ', '.join(str(q) for q in quantities)
-
-    def _format_si_value(self, value: Any) -> str:
-        """
-        Format a value in SI base units for display in warning messages.
-        Returns a string like '650.67 mol' or '42 kg*m/s**2'.
-        """
-        from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
-        import sympy
-
-        try:
-            base_units = [kg, m, s, A, K, mol, cd]
-            si_form = convert_to(value, base_units)
-
-            # Format with reasonable precision
-            if hasattr(si_form, 'evalf'):
-                si_form = si_form.evalf(6)
-
-            # Convert to LaTeX-friendly string
-            result = sympy.latex(si_form)
-            # Clean up for display
-            # ISS-023 fix: Use regex to remove \text{} wrappers properly (don't remove all })
-            result = re.sub(r'\\text\{([^}]+)\}', r'\1', result.replace('\\cdot', '*'))
-            return result
-        except:
-            # Fallback to string representation
-            return str(value)
+    # NOTE: Dead sympy code removed in v3.0 (Phase 28):
+    # - _parse_unit_with_prefix, _apply_conversion, _extract_unit_string, _format_si_value
+    # Unit parsing/conversion is now handled by Pint backend exclusively.
 
     def _handle_symbolic(self, calc: Calculation) -> str:
         """Handle $expr =>$
@@ -1341,7 +924,7 @@ class Evaluator:
         Returns just the numeric value (not the formula), optionally converted to
         the specified unit and formatted with the specified precision.
 
-        The variable name and unit are in LaTeX notation, parsed using latex2sympy.
+        The variable name and unit are in LaTeX notation, parsed using the old latex parser.
 
         Args:
             calc: The calculation containing value display info
@@ -1445,217 +1028,46 @@ class Evaluator:
         """
         Convert a dimensioned value to a target unit (in LaTeX notation) and return the numeric part.
 
-        Uses Pint backend for unit conversion, which supports custom units (EUR, kWh, etc.)
-        and complex unit expressions (MWh, EUR/kWh, m³/h).
+        v3.0: Uses Pint backend exclusively for unit conversion, which supports custom units
+        (EUR, kWh, etc.) and complex unit expressions (MWh, EUR/kWh, m³/h).
 
-        Example: 50*meter**3/hour, "m³/h" → 50.0
-        Example: 2859*watt, "kW" → 2.859
-        Example: 5000*kWh, "MWh" → 5.0  (ISSUE-001 fix)
+        Example: 50*meter**3/hour, "m³/h" -> 50.0
+        Example: 2859*watt, "kW" -> 2.859
+        Example: 5000*kWh, "MWh" -> 5.0
 
         Args:
-            value: The SymPy expression (possibly with units, may be SI-converted)
+            value: The numeric value (or expression to convert)
             unit_latex: Target unit in LaTeX notation
             from_unit: Optional source unit string (from symbol's original_unit)
             original_value: Optional original numeric value (before SI conversion)
         """
         from .pint_backend import convert_value_to_unit
 
-        # Try Pint-based conversion first (supports custom units like EUR, MWh, etc.)
+        # Try Pint-based conversion (supports custom units like EUR, MWh, etc.)
         # Use original_value if available (before SI conversion) for accurate conversion
         if from_unit and original_value is not None:
             result = convert_value_to_unit(original_value, from_unit, unit_latex)
             if result is not None:
                 return result
 
-        # Extract numeric value from SymPy expression
-        numeric_value = self._extract_numeric_value(value)
+        # Fallback: return the numeric value without conversion
+        return self._extract_numeric_value(value)
 
-        # Fallback: try SymPy-based conversion for standard units
-        from sympy.physics.units import convert_to
-        from sympy.physics import units as u
-        import sympy
-
-        try:
-            # Normalize Unicode characters (e.g., m³ → m^3)
-            normalized_unit = self._normalize_unit_string(unit_latex)
-
-            # First try to parse as prefixed unit (kW, MHz, mm, etc.)
-            target_unit = self._parse_unit_with_prefix(normalized_unit)
-
-            # If that didn't work, try parsing as expression
-            if target_unit is None:
-                target_unit = self._parse_unit_expression(normalized_unit)
-
-            if target_unit is None:
-                return numeric_value
-
-            # First convert both value and target to SI base units
-            base_units = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
-
-            try:
-                value_si = convert_to(value, base_units)
-                target_si = convert_to(target_unit, base_units)
-            except:
-                value_si = value
-                target_si = target_unit
-
-            # Calculate ratio: value / target_unit (should give dimensionless number)
-            ratio = value_si / target_si
-
-            # Simplify and evaluate
-            ratio_simplified = sympy.simplify(ratio)
-            if hasattr(ratio_simplified, 'evalf'):
-                ratio_simplified = ratio_simplified.evalf()
-
-            # Extract numeric value
-            if hasattr(ratio_simplified, 'is_number') and ratio_simplified.is_number:
-                return float(ratio_simplified)
-            else:
-                # If still has symbols, try as_coeff_Mul
-                if hasattr(ratio_simplified, 'as_coeff_Mul'):
-                    coeff, _ = ratio_simplified.as_coeff_Mul()
-                    return float(coeff.evalf()) if hasattr(coeff, 'evalf') else float(coeff)
-                return float(ratio_simplified)
-
-        except Exception as e:
-            # Fallback: return the extracted numeric without conversion
-            return numeric_value
-
-    def _get_numeric_in_unit(self, value: Any, target_unit_latex: str) -> float:
-        """
-        Convert a dimensioned value to a target unit and return just the numeric part.
-
-        Example: 50*meter**3/hour → "m³/h" → 50.0
-        Example: 2859*watt → "kW" → 2.859
-        """
-        from sympy.physics.units import convert_to
-        from sympy.physics import units as u
-        import sympy
-
-        try:
-            # Normalize Unicode characters (e.g., m³/s → m^3/s)
-            normalized_unit = self._normalize_unit_string(target_unit_latex)
-
-            # Parse the target unit - use _parse_unit_expression for proper unit parsing
-            target_unit = self._parse_unit_expression(normalized_unit)
-
-            if target_unit is None:
-                # Fallback: just extract numeric from value without conversion
-                return self._extract_numeric_value(value)
-
-            # Calculate ratio: value / target_unit (should give dimensionless number)
-            ratio = value / target_unit
-
-            # Convert to SI base units to get pure number
-            base_units = [u.kg, u.meter, u.second, u.ampere, u.kelvin, u.mole, u.candela]
-            ratio_base = convert_to(ratio, base_units)
-
-            # Simplify to remove any remaining unit symbols
-            ratio_simplified = sympy.simplify(ratio_base)
-
-            # Extract numeric value
-            if hasattr(ratio_simplified, 'evalf'):
-                result = float(ratio_simplified.evalf())
-            else:
-                result = float(ratio_simplified)
-
-            return result
-        except Exception as e:
-            # Fallback: try to extract numeric without conversion
-            return self._extract_numeric_value(value)
-
-    def _parse_unit_expression(self, unit_str: str) -> Any:
-        """
-        Parse a unit string into SymPy unit expression.
-
-        Handles: m/s, m³/h, kW, mm, etc.
-        
-        ISSUE-002: Uses pint_to_sympy_with_prefix() for dynamic conversion
-        instead of hardcoded unit_map.
-        """
-        from .pint_backend import pint_to_sympy_with_prefix
-        
-        # Use Pint backend for dynamic unit conversion
-        result = pint_to_sympy_with_prefix(unit_str)
-        if result is not None:
-            return result
-        
-        # Fallback: try prefixed units via SymPy directly
-        prefixed = self._parse_unit_with_prefix(unit_str)
-        if prefixed is not None:
-            return prefixed
-        
-        return None
-
-    def _parse_single_unit(self, unit_str: str, unit_map: dict = None) -> Any:
-        """Parse a single unit with optional exponent like m^3 or m³.
-        
-        ISSUE-002: unit_map parameter is deprecated, uses pint_to_sympy_with_prefix().
-        """
-        from .pint_backend import pint_to_sympy_with_prefix
-        
-        # Handle exponents
-        if '^' in unit_str:
-            base, exp_str = unit_str.split('^')
-            base = base.strip()
-            exp = int(exp_str.strip())
-            
-            base_unit = pint_to_sympy_with_prefix(base)
-            if base_unit is not None:
-                return base_unit ** exp
-        
-        # Try direct conversion via Pint
-        result = pint_to_sympy_with_prefix(unit_str)
-        if result is not None:
-            return result
-        
-        # Fallback: try prefixed units via SymPy directly
-        prefixed = self._parse_unit_with_prefix(unit_str)
-        if prefixed is not None:
-            return prefixed
-
-        return None
+    # NOTE: Dead sympy code removed in v3.0 (Phase 28):
+    # - _get_numeric_in_unit, _parse_unit_expression, _parse_single_unit
+    # Unit conversion now handled by Pint backend exclusively.
 
     def _extract_numeric_value(self, value: Any) -> float:
-        """Extract the numeric value from a possibly dimensioned or symbolic expression.
+        """Extract the numeric value from a stored value.
 
-        For pure numeric expressions (including those with log, exp, etc.),
-        we evaluate numerically first.
-
-        For dimensioned values (with units), we extract the coefficient.
+        v3.0: Values are stored as floats from Pint, so this is simplified.
         """
-        import sympy
-        from sympy.physics.units import Quantity
-
-        # First try: evaluate the full expression numerically
-        # This handles symbolic expressions like log(), exp(), etc. correctly
-        try:
-            result = value.evalf()
-            if result.is_number:
-                return float(result)
-        except:
-            pass
-
-        # Second try: for dimensioned values, extract coefficient
-        # Only use as_coeff_Mul if the "rest" contains units (Quantities)
-        try:
-            if hasattr(value, 'as_coeff_Mul'):
-                coeff, rest = value.as_coeff_Mul()
-                # Check if rest contains unit Quantities
-                if hasattr(rest, 'atoms'):
-                    quantities = rest.atoms(Quantity)
-                    if quantities:
-                        # This is a dimensioned value, extract coefficient
-                        if coeff.is_number:
-                            return float(coeff.evalf())
-        except:
-            pass
-
-        # Fallback: try direct float conversion
+        # Direct float conversion - should work for all v3.0 values
         try:
             return float(value)
-        except:
-            return float(value.evalf())
+        except (TypeError, ValueError):
+            # Fallback for edge cases
+            return 0.0
 
     def _format_numeric(
         self,
@@ -1816,7 +1228,7 @@ class Evaluator:
 
         return result
 
-    # Common SI units that need protection from being split by latex2sympy
+    # Common SI units that need protection from being split by the old latex parser
     SI_UNITS = [
         # Mass
         'kg', 'mg',
@@ -1876,11 +1288,11 @@ class Evaluator:
         """
         Replace all known LaTeX variable names with their internal IDs (v_{n}).
 
-        This is the key to 100% latex2sympy compatibility:
+        This is the key to 100% the old latex parser compatibility:
         - Original: "N_{MPC} \\cdot P_{PSU,out}"
         - Internal: "v_{0} * v_{1}"
 
-        The v_{n} format always parses correctly in latex2sympy.
+        The v_{n} format always parses correctly in the old latex parser.
 
         IMPORTANT: Only replace whole variable names, not parts of LaTeX commands!
         E.g., don't replace 'a' inside '\frac{a}{b}' for the 'a' in 'frac'.
@@ -1921,7 +1333,7 @@ class Evaluator:
         return result
 
     # NOTE: _compute() function removed in v3.0 (Phase 28)
-    # The latex2sympy-based computation has been replaced by the custom parser
+    # The the old latex parser-based computation has been replaced by the custom parser
     # which uses Pint for unit handling. All computation now goes through
     # _compute_with_pint() -> _evaluate_with_custom_parser().
 
@@ -1929,7 +1341,7 @@ class Evaluator:
         """
         Evaluate a LaTeX expression using the custom tokenizer/parser pipeline.
 
-        This is the v3.0 Pure Pint Architecture path that bypasses latex2sympy
+        This is the v3.0 Pure Pint Architecture path that bypasses the old latex parser
         and SymPy entirely. Uses:
         - ExpressionTokenizer (Phase 23)
         - ExpressionParser (Phase 24)
@@ -1986,7 +1398,7 @@ class Evaluator:
         Parse and compute a LaTeX expression using Pint for unit handling.
 
         Uses the v3.0 Pure Pint Architecture: custom tokenizer -> parser -> Pint evaluation.
-        No fallback to latex2sympy - the custom parser handles everything.
+        No fallback to the old latex parser - the custom parser handles everything.
 
         Args:
             expression_latex: LaTeX expression to parse
@@ -2003,6 +1415,8 @@ class Evaluator:
         """
         Convert a SymbolValue entry to a Pint Quantity.
 
+        v3.0: Simplified to work with numeric values only (no sympy conversion).
+
         Args:
             entry: A SymbolValue from the symbol table
             ureg: Pint unit registry
@@ -2011,22 +1425,19 @@ class Evaluator:
             Pint Quantity or None if conversion fails
         """
         try:
-            # Get numeric value
+            # Get numeric value - prefer original_value, then value
+            value = None
             if hasattr(entry, 'original_value') and entry.original_value is not None:
-                value = entry.original_value
-            elif hasattr(entry, 'value'):
-                import sympy
-                if hasattr(entry.value, 'is_number') and entry.value.is_number:
+                value = float(entry.original_value)
+            elif hasattr(entry, 'value') and entry.value is not None:
+                try:
                     value = float(entry.value)
-                else:
-                    try:
-                        value = float(sympy.N(entry.value))
-                    except Exception:
-                        return None
+                except (TypeError, ValueError):
+                    return None
             else:
                 return None
 
-            # Get unit
+            # Get unit string
             unit_str = None
             if hasattr(entry, 'original_unit') and entry.original_unit:
                 unit_str = entry.original_unit
@@ -2049,343 +1460,8 @@ class Evaluator:
         except Exception:
             return None
 
-    def _normalize_latex(self, latex_str: str) -> str:
-        """
-        Parses LaTeX and re-emits it standardly formatted,
-        WITHOUT evaluating variables (symbols remain symbols).
 
-        Uses same pre-processing as _compute() for consistency.
-        """
-        import re
-
-        try:
-            modified = latex_str
-
-            # Same pre-processing as _compute():
-            # 1. Add braces to subscripts
-            modified = re.sub(
-                r'([a-zA-Z])_([a-zA-Z0-9])(?![a-zA-Z0-9])',
-                r'\1_{\2}',
-                modified
-            )
-
-            # NOTE: \cdot -> * replacement REMOVED - fixed in local latex2sympy fork
-
-            # 2. Greek letter + following symbol
-            greek_space_pattern = r'\\(Delta|Theta|Omega|Sigma|Pi|alpha|beta|gamma|delta|theta|omega|sigma|pi|phi|psi|lambda|mu|nu|epsilon|rho|tau)\s+([a-zA-Z](?:_\{?[a-zA-Z0-9,]+\}?)?)'
-
-            def greek_replacement(m):
-                greek = m.group(1)
-                following = m.group(2)
-                combined = f"{greek}_{following}"
-                return f'\\text{{{combined}}}'
-
-            modified = re.sub(greek_space_pattern, greek_replacement, modified)
-
-            # 3. Protect SI units
-            for unit in sorted(self.SI_UNITS, key=len, reverse=True):
-                if len(unit) > 1 and f'\\text{{{unit}}}' not in modified:
-                    modified = re.sub(rf'\b{re.escape(unit)}\b', rf'\\text{{{unit}}}', modified)
-
-            # 4. Protect known variable names
-            known_names = sorted(self.symbols.all_names(), key=len, reverse=True)
-
-            for name in known_names:
-                if '\\text{' + name + '}' in modified:
-                    continue
-
-                if '_' in name:
-                    base, subscript = name.split('_', 1)
-                    if len(base) > 1:
-                        protected = '\\text{' + base + '}_{' + subscript + '}'
-                        if protected in modified:
-                            continue
-                        pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
-                        modified = re.sub(
-                            pattern,
-                            lambda m, b=base, s=subscript: f'\\text{{{b}}}_{{{s}}}',
-                            modified
-                        )
-                elif len(name) > 1:
-                    protected = '\\text{' + name + '}'
-                    if protected not in modified:
-                        pattern = rf'(?<!\\text\{{){re.escape(name)}\b'
-                        modified = re.sub(
-                            pattern,
-                            lambda m, n=name: '\\text{' + n + '}',
-                            modified
-                        )
-
-            # 5. Wrap remaining multi-letter sequences
-            # First protect LaTeX commands from partial matching
-            latex_commands = [
-                # Math functions
-                'frac', 'sqrt', 'sin', 'cos', 'tan', 'log', 'ln', 'exp',
-                'text', 'mathrm', 'mathit', 'cdot', 'times', 'div',
-                'left', 'right', 'begin', 'end', 'over', 'int', 'sum',
-                'prod', 'lim', 'infty', 'partial', 'nabla', 'vec', 'hat',
-                'bar', 'dot', 'ddot', 'tilde', 'prime', 'quad', 'qquad',
-                # Greek letters (lowercase)
-                'alpha', 'beta', 'gamma', 'delta', 'epsilon', 'varepsilon',
-                'zeta', 'eta', 'theta', 'vartheta', 'iota', 'kappa',
-                'lambda', 'mu', 'nu', 'xi', 'pi', 'varpi',
-                'rho', 'varrho', 'sigma', 'varsigma', 'tau', 'upsilon',
-                'phi', 'varphi', 'chi', 'psi', 'omega',
-                # Greek letters (uppercase)
-                'Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta',
-                'Eta', 'Theta', 'Iota', 'Kappa', 'Lambda', 'Mu',
-                'Nu', 'Xi', 'Pi', 'Rho', 'Sigma', 'Tau',
-                'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega',
-            ]
-
-            placeholders = {}
-            for i, cmd in enumerate(latex_commands):
-                placeholder = f'⌘{i}⌘'  # Unicode char won't match regex
-                placeholders[placeholder] = f'\\{cmd}'
-                modified = modified.replace(f'\\{cmd}', placeholder)
-
-            def wrap_multiletter(match):
-                word = match.group(1)
-                return f'\\text{{{word}}}'
-
-            modified = re.sub(
-                r'([a-zA-Z]{2,})(?=_|\s|$|\*|\{|\+|\-|\/|\)|\^|\,)',
-                lambda m: wrap_multiletter(m),
-                modified
-            )
-
-            for placeholder, cmd in placeholders.items():
-                modified = modified.replace(placeholder, cmd)
-
-            expr = latex2sympy(modified)
-            return self._format_result_with_display(expr)
-        except:
-             return latex_str
-
-    def _format_result_with_display(self, value: Any) -> str:
-        """
-        Format result with proper display LaTeX using IR mappings.
-
-        This replaces internal symbol names (like Delta_T_h) with
-        their proper LaTeX display form (like \\Delta_{T_h}).
-        """
-        result = self._format_result(value)
-
-        # Post-process: Replace \text{Greek_X} patterns with proper LaTeX
-        import re
-
-        def replace_text_greek(match):
-            content = match.group(1)
-            # Check if it starts with a Greek letter name
-            for greek_name, greek_cmd in GREEK_LETTERS_REVERSE.items():
-                if content == greek_name:
-                    return greek_cmd
-                if content.startswith(greek_name + '_'):
-                    subscript = content[len(greek_name) + 1:]
-                    return f"{greek_cmd}_{{{subscript}}}"
-            # Not a Greek letter, keep as \text{}
-            return f"\\text{{{content}}}"
-
-        result = re.sub(r'\\text\{([^}]+)\}', replace_text_greek, result)
-
-        return result
-
-    def _simplify_subscripts(self, latex_str: str) -> str:
-        """Simplify LaTeX subscripts: a_{1} -> a_1 for single-char subscripts."""
-        import re
-        # Replace _{X} with _X where X is a single alphanumeric character
-        return re.sub(r'_\{([a-zA-Z0-9])\}', r'_\1', latex_str)
-
-    def _format_result(
-        self,
-        value: Any,
-        skip_si_conversion: bool = False,
-        config: Optional[LivemathConfig] = None
-    ) -> str:
-        """Format the result for output (simplify, evalf numericals).
-
-        Args:
-            value: The SymPy expression to format
-            skip_si_conversion: If True, don't auto-convert to SI base units
-                               (used when a specific unit was requested via comment)
-            config: Config to use for formatting (defaults to self.config)
-        """
-        cfg = config or self.config
-        from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd, N, J, W, Pa
-        from sympy import pi, E, I
-
-        # First: Evaluate symbolic constants (pi, e) to numeric values
-        # This prevents things like "5.556 m/(π·s)" - should be "1.768 m/s"
-        if hasattr(value, 'subs'):
-            try:
-                # Replace pi and e with their numeric values
-                value = value.subs(pi, float(pi.evalf()))
-                value = value.subs(E, float(E.evalf()))
-            except:
-                pass
-
-        # Convert to SI base units (unless a specific unit was requested)
-        # This simplifies things like m³/hour/mm² → m/s
-        if not skip_si_conversion:
-            try:
-                # SI base units for conversion
-                si_base = [kg, m, s, A, K, mol, cd]
-
-                converted = convert_to(value, si_base)
-                # If conversion succeeded and simplified, use it
-                if converted != value:
-                    value = converted
-            except:
-                pass  # Keep original if conversion fails
-
-        # If value has no free symbols but contains functions (like log), evaluate numerically
-        if hasattr(value, 'free_symbols') and len(value.free_symbols) == 0:
-            if hasattr(value, 'evalf'):
-                try:
-                    numeric_val = value.evalf()
-                    # Only use evalf if it returns a number
-                    if hasattr(numeric_val, 'is_number') and numeric_val.is_number:
-                        value = numeric_val
-                except:
-                    pass
-
-        if hasattr(value, 'as_coeff_Mul'):
-            coeff, rest = value.as_coeff_Mul()
-
-            # If coeff is 1, it might be hidden in structure (e.g. (9.8*m)/s^2)
-            if coeff == 1 and hasattr(value, 'expand'):
-                 try:
-                     expanded = value.expand()
-                     e_coeff, e_rest = expanded.as_coeff_Mul()
-                     if e_coeff != 1:
-                         # Found a hidden coefficient! Use expanded form
-                         value = expanded
-                         coeff, rest = e_coeff, e_rest
-                 except:
-                     pass
-
-            # Helper to format number for display
-            # Uses config for digits and format settings
-            def fmt_num(n):
-                # First try to evaluate to a numeric value (handles pi, e, sqrt(2), etc.)
-                if hasattr(n, 'evalf'):
-                    try:
-                        numeric = n.evalf()
-                        if hasattr(numeric, 'is_number') and numeric.is_number:
-                            return self._format_numeric(float(numeric), config=cfg)
-                    except:
-                        pass
-                # Fallback: check if already a number
-                if hasattr(n, 'is_number') and n.is_number:
-                    return self._format_numeric(float(n), config=cfg)
-                return self._simplify_subscripts(sympy.latex(n))
-
-            # If rest is 1, it's just a number
-            if rest == 1:
-                return fmt_num(coeff)
-
-            # If coeff is 1, it's just units/symbols
-            if coeff == 1:
-                return self._format_unit_part(rest)
-
-            # Mixed: number + unit
-            c_str = fmt_num(coeff)
-            r_str = self._format_unit_part(rest)
-
-            # Format as "number\ unit" for proper LaTeX spacing
-            return f"{c_str}\\ {r_str}"
-
-        return self._simplify_subscripts(sympy.latex(value, mul_symbol='dot'))
-
-    def _format_unit_part(self, unit_expr: Any) -> str:
-        """
-        Format the unit part of a result for KaTeX-compatible LaTeX.
-
-        Converts SymPy unit expressions to readable LaTeX:
-        - euro -> €
-        - kilogram -> kg
-        - meter/second -> m/s
-        - euro/(kilowatt*hour) -> €/kWh
-
-        KaTeX requirements:
-        - Powers must be outside \\text{}: \\text{m}^2 not \\text{m^2}
-        - Use \\cdot for multiplication, not · character
-        """
-        from .pint_backend import format_unit_latex
-        from sympy.physics.units import Quantity
-
-        # Check if this contains unit Quantities
-        if hasattr(unit_expr, 'atoms'):
-            quantities = unit_expr.atoms(Quantity)
-            if quantities:
-                # Use our custom formatter
-                formatted = format_unit_latex(unit_expr)
-                if formatted:
-                    # Make KaTeX compatible
-                    formatted = self._make_katex_compatible(formatted)
-                    return formatted
-
-        # Fallback: use SymPy's latex
-        return self._simplify_subscripts(sympy.latex(unit_expr, mul_symbol='dot'))
-
-    def _make_katex_compatible(self, unit_str: str) -> str:
-        """
-        Convert unit string to KaTeX-compatible LaTeX.
-
-        Handles:
-        - m^2 -> \\text{m}^{2}
-        - kg·m/s -> \\text{kg} \\cdot \\text{m/s}
-        - € -> \\text{€}
-        """
-        import re
-
-        # Replace Unicode middle dot with LaTeX cdot marker (temporary)
-        unit_str = unit_str.replace('·', ' CDOT_MARKER ')
-
-        # Handle powers: split on ^ and format properly
-        # Pattern: unit^power (e.g., m^2, s^-1)
-        if '^' in unit_str:
-            # Split into parts around operators
-            parts = re.split(r'(\s*/\s*|\s*CDOT_MARKER\s*)', unit_str)
-            result_parts = []
-
-            for part in parts:
-                part = part.strip()
-                if not part:
-                    continue
-                if part == '/':
-                    result_parts.append('/')
-                    continue
-                if part == 'CDOT_MARKER':
-                    result_parts.append(r' \cdot ')
-                    continue
-
-                # Check for power
-                if '^' in part:
-                    base, power = part.split('^', 1)
-                    result_parts.append(f"\\text{{{base}}}^{{{power}}}")
-                else:
-                    result_parts.append(f"\\text{{{part}}}")
-
-            return ''.join(result_parts)
-
-        # No powers - simple wrapping
-        # But handle division and multiplication
-        if '/' in unit_str or 'CDOT_MARKER' in unit_str:
-            # Split by / and CDOT_MARKER, wrap each part
-            parts = re.split(r'(/|CDOT_MARKER)', unit_str)
-            result_parts = []
-
-            for part in parts:
-                part = part.strip()
-                if part == '/':
-                    result_parts.append('/')
-                elif part == 'CDOT_MARKER':
-                    result_parts.append(r' \cdot ')
-                elif part:
-                    result_parts.append(f"\\text{{{part}}}")
-
-            return ''.join(result_parts)
-
-        # Simple unit
-        return f"\\text{{{unit_str}}}"
+    # NOTE: Dead sympy code removed in v3.0 (Phase 28):
+    # - _normalize_latex, _format_result_with_display, _format_result
+    # - _format_unit_part, _make_katex_compatible
+    # These functions used the old latex parser for formatting which is no longer available.
