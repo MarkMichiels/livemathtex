@@ -9,23 +9,24 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 30 of 32 (Number Formatting)
+Phase: 31 of 32 (Unit Display)
 Plan: Not started
-Status: 🚧 Phase 29 complete, continuing v4.0
-Last activity: 2026-01-15 — Phase 29 Cross-References complete
+Status: 🚧 Phase 30 complete, continuing v4.0
+Last activity: 2026-01-15 — Phase 30 Number Formatting complete
 Branch: `build-all-20260115-110457`
 
-Progress: ██░░░░░░░░ 25% (1 of 4 phases)
+Progress: █████░░░░░ 50% (2 of 4 phases)
 
 **Feature requests being addressed:** ISS-039, ISS-040, ISS-041, ISS-042
 - ISS-040 ✅ Phase 29 complete
+- ISS-039 ✅ Phase 30 complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15 (14 prior + 1 from v4.0)
+- Total plans completed: 16 (14 prior + 2 from v4.0)
 - Average duration: ~11 min
-- Total execution time: ~173 min
+- Total execution time: ~188 min
 
 **By Phase:**
 
@@ -45,6 +46,7 @@ Progress: ██░░░░░░░░ 25% (1 of 4 phases)
 | 12. Unit Warnings | 1/1 | ~13 min | ~13 min |
 | 13. SI Value Fix | 1/1 | ~10 min | ~10 min |
 | 29. Cross-References | 1/1 | ~15 min | ~15 min |
+| 30. Number Formatting | 1/1 | ~15 min | ~15 min |
 
 ## Completed Milestones
 
@@ -74,6 +76,7 @@ Progress: ██░░░░░░░░ 25% (1 of 4 phases)
 - **11-01:** Collect all undefined symbols before raising error to enable implicit multiplication detection
 - **12-01:** Dimension mismatches are warnings (orange) not errors (red), with SI fallback
 - **29-01:** Cross-references use HTML comment to preserve original: `value<!-- {{ref}} -->`
+- **30-01:** Thousands separator threshold lowered to 1000 (was 10000)
 
 ### Deferred Issues
 
@@ -107,25 +110,25 @@ None.
 - **Milestone v3.1 COMPLETE: Complete SymPy Removal, 1 phase (28)**
 - **Milestone v4.0 IN PROGRESS: Features, 4 phases (29-32)**
   - Phase 29 complete: Cross-References (ISS-040)
+  - Phase 30 complete: Number Formatting (ISS-039)
 
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Phase 29 complete
+Stopped at: Phase 30 complete
 Resume file: None
-Next: Plan Phase 30 (Number Formatting)
+Next: Plan Phase 31 (Unit Display)
 
 **v4.0 Progress:**
 - ✅ Phase 29: Cross-References (ISS-040) - 35 new tests, 510 total
-- ⏳ Phase 30: Number Formatting (ISS-039)
+- ✅ Phase 30: Number Formatting (ISS-039) - threshold fix
 - ⏳ Phase 31: Unit Display (ISS-042)
 - ⏳ Phase 32: Array Operations (ISS-041)
 
-### Implementation Notes (Phase 29)
+### Implementation Notes (Phase 30)
 
-- **Module:** `src/livemathtex/parser/reference_parser.py`
-- **Key functions:** `extract_references()`, `restore_references()`, `evaluate_cross_references()`
-- **Syntax:** `{{variable}}` in prose text, evaluated after math blocks
-- **Preservation:** HTML comment `<!-- {{ref}} -->` for clear cycle
-- **ISS-040 fixed:** Cross-references to calculated values work
-- **Tests:** 35 new tests (22 parser + 13 integration), 510 total
+- **File:** `src/livemathtex/engine/evaluator.py` line 723
+- **Change:** Threshold from `>= 10000` to `>= 1000`
+- **Format:** LaTeX thin space `\,` (e.g., `1\,234`)
+- **ISS-039 fixed:** Numbers >= 1000 display with separators
+- **Tests:** 510 total (no new tests, existing updated)

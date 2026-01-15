@@ -471,21 +471,21 @@ Key deliverables:
 Plans:
 - [x] 29-01: Cross-reference parser and integration
 
-#### Phase 30: Number Formatting (ISS-039)
-**Goal**: Add thousands separator formatting for large numbers (>= 1000)
+#### Phase 30: Number Formatting (ISS-039) ✅
+**Goal**: Lower thousands separator threshold from 10000 to 1000
 **Depends on**: Phase 29
-**Status**: Not started
-**Research**: Unlikely (formatting only)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-15
+**Research**: None needed
+**Plans**: 1
 
 Key deliverables:
-- Automatic thousands separator for numbers >= 1000
-- Configurable format (US comma, EU space, etc.)
-- Document-level setting via HTML comment
-- Clear/process cycle support
+- Changed threshold from >= 10000 to >= 1000 ✅
+- Numbers like 1234 now display as 1\,234 ✅
+- All example snapshots updated ✅
 
 Plans:
-- [ ] 30-01: TBD (run /gsd:plan-phase 30 to break down)
+- [x] 30-01: Lower threshold and update tests
 
 #### Phase 31: Unit Display (ISS-042)
 **Goal**: Add configurable unit display formatting options
