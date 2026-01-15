@@ -383,34 +383,27 @@ class TestCustomUnitWithDivision:
         reset_unit_registry()
         reset_sympy_unit_registry()
 
-    def test_define_division_unit_sympy_lookup(self):
-        """SEC === MWh/kg should create proper SymPy unit."""
+    def test_define_division_unit_registry_lookup(self):
+        """SEC === MWh/kg should be registered in custom unit registry."""
         from livemathtex.engine.pint_backend import (
-            get_sympy_unit_registry,
+            get_custom_unit_registry,
+            is_custom_unit,
         )
-        from sympy.physics.units import mega, watt, hour, kilogram
 
-        registry = get_sympy_unit_registry()
+        registry = get_custom_unit_registry()
 
         # Define SEC as MWh/kg
-        registry.define_unit('SEC === MWh/kg')
+        unit_def = registry.define_unit('SEC === MWh/kg')
 
-        # Get the unit
-        sec_unit = registry.get_unit('SEC')
+        # Should return a CustomUnitDefinition
+        assert unit_def is not None
+        assert unit_def.name == 'SEC'
+        assert unit_def.definition_expr == 'MWh/kg'
+        assert unit_def.is_base_unit == False
 
-        # It should NOT be a bare Quantity with no dimensions
-        assert sec_unit is not None
-
-        # It should be equivalent to MWh/kg = mega*watt*hour/kilogram
-        expected = mega * watt * hour / kilogram
-
-        # Check dimensional equivalence (ratio should be dimensionless number)
-        from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
-        ratio = sec_unit / expected
-        ratio_base = convert_to(ratio, [kg, m, s, A, K, mol, cd])
-
-        # Should be 1.0 (same dimensions)
-        assert float(ratio_base) == 1.0
+        # Should be tracked as custom unit
+        assert 'SEC' in registry._custom_units
+        assert is_custom_unit('SEC')
 
     def test_standalone_evaluation_with_custom_division_unit(self):
         """Standalone $var ==$ should work with division-based custom units."""

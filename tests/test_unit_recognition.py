@@ -12,9 +12,8 @@ from livemathtex.engine.pint_backend import (
     is_pint_unit,
     is_custom_unit,
     is_known_unit,
-    pint_to_sympy_with_prefix,
     reset_unit_registry,
-    get_sympy_unit_registry,
+    get_custom_unit_registry,
 )
 
 
@@ -94,7 +93,7 @@ class TestIsCustomUnit:
 
     def test_builtin_custom_units(self):
         """Built-in custom units (€, $) should be recognized."""
-        registry = get_sympy_unit_registry()
+        registry = get_custom_unit_registry()
         assert '€' in registry._custom_units
         assert '$' in registry._custom_units
         assert 'EUR' in registry._custom_units
@@ -102,14 +101,14 @@ class TestIsCustomUnit:
 
     def test_user_defined_custom_unit(self):
         """User-defined custom units should be recognized after definition."""
-        registry = get_sympy_unit_registry()
-        
+        registry = get_custom_unit_registry()
+
         # Before definition
         assert not is_custom_unit('SEC')
-        
+
         # Define custom unit
         registry.define_unit('SEC === kWh/kg')
-        
+
         # After definition
         assert is_custom_unit('SEC')
 
@@ -131,62 +130,6 @@ class TestIsKnownUnit:
         """Unknown strings should not be known."""
         assert not is_known_unit('xyz')
         assert not is_known_unit('')
-
-
-class TestPintToSympy:
-    """Test pint_to_sympy_with_prefix() conversion."""
-
-    def test_base_units(self):
-        """Base units should convert correctly."""
-        from sympy.physics.units import meter, kilogram, second
-        
-        assert pint_to_sympy_with_prefix('m') == meter
-        assert pint_to_sympy_with_prefix('kg') == kilogram
-        assert pint_to_sympy_with_prefix('s') == second
-
-    def test_prefixed_units(self):
-        """Prefixed units should include the prefix."""
-        from sympy.physics.units import kilo, mega, milli, watt, meter
-        
-        result_kW = pint_to_sympy_with_prefix('kW')
-        assert result_kW == kilo * watt
-        
-        result_MW = pint_to_sympy_with_prefix('MW')
-        assert result_MW == mega * watt
-        
-        result_mm = pint_to_sympy_with_prefix('mm')
-        assert result_mm == milli * meter
-
-    def test_energy_units(self):
-        """Energy units like kWh should convert correctly."""
-        from sympy.physics.units import kilo, mega, watt, hour
-        
-        result_kWh = pint_to_sympy_with_prefix('kWh')
-        assert result_kWh == kilo * watt * hour
-        
-        result_MWh = pint_to_sympy_with_prefix('MWh')
-        assert result_MWh == mega * watt * hour
-
-    def test_compound_units(self):
-        """Compound units should parse correctly."""
-        from sympy.physics.units import meter, second
-        
-        result = pint_to_sympy_with_prefix('m/s')
-        # Should be meter / second
-        assert result is not None
-
-    def test_custom_units_via_registry(self):
-        """Custom units should be retrievable via registry."""
-        registry = get_sympy_unit_registry()
-        
-        # € is a custom unit
-        euro = pint_to_sympy_with_prefix('€')
-        assert euro is not None
-
-    def test_unknown_returns_none(self):
-        """Unknown units should return None."""
-        assert pint_to_sympy_with_prefix('xyz') is None
-        assert pint_to_sympy_with_prefix('') is None
 
 
 class TestEdgeCases:
