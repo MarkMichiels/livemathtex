@@ -306,7 +306,7 @@ These should display the correct converted values:
 
 | Parameter | Value |
 |-----------|-------|
-| Energy (kWh) | $5000$ <!-- value:E [kWh] --> |
+| Energy (kWh) | $5\,000$ <!-- value:E [kWh] --> |
 | Energy (MWh) | $5$ <!-- value:E [MWh] --> |
 | Cost (€) | $750$ <!-- value:cost_eur [€] --> |
 | SEC (kWh) | $0.5$ <!-- value:SEC [kWh] --> |
@@ -319,4 +319,4 @@ These should display the correct converted values:
 
 ---
 
-> *livemathtex: 2026-01-15 11:30:37 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.11s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:46:35 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.11s* <!-- livemathtex-meta -->

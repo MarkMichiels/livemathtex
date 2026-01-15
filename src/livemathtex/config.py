@@ -85,6 +85,7 @@ class LivemathConfig:
     auto_simplify: bool = True
     tolerance: float = 1e-12
     unit_format: UnitFormat = UnitFormat.DEFAULT  # ISS-042: Unit display format
+    smart_format: bool = False  # ISS-046: Context-aware number formatting
 
     def with_overrides(self, overrides: Dict[str, Any]) -> "LivemathConfig":
         """

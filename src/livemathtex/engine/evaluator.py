@@ -713,25 +713,31 @@ class Evaluator:
         magnitude = qty.magnitude
         unit = qty.units
 
-        # Format magnitude with config settings
-        digits = config.digits if config else 4
-
-        # Check for very small numbers that should use scientific notation
-        if abs(magnitude) < 0.001 and magnitude != 0:
-            # Use scientific notation
-            formatted_value = f"{magnitude:.{digits}e}"
-        elif abs(magnitude) >= 1000:
-            # ISS-039: Large numbers (>= 1000) - use thousand separators
-            formatted_value = f"{magnitude:,.{digits}f}"
-            # Convert to LaTeX thousand separator (\,)
-            formatted_value = formatted_value.replace(',', '\\,')
+        # ISS-046: Use smart formatting if enabled
+        if config and config.smart_format:
+            formatted_value = self._format_numeric(magnitude, config=config)
+            # Convert thin space to LaTeX \,
+            formatted_value = formatted_value.replace('\u2009', '\\,')
         else:
-            # Normal numbers
-            formatted_value = f"{magnitude:.{digits}f}"
+            # Original behavior: fixed decimal places with thousand separators
+            digits = config.digits if config else 4
 
-        # Strip trailing zeros if they're just .0000
-        if '.' in formatted_value:
-            formatted_value = formatted_value.rstrip('0').rstrip('.')
+            # Check for very small numbers that should use scientific notation
+            if abs(magnitude) < 0.001 and magnitude != 0:
+                # Use scientific notation
+                formatted_value = f"{magnitude:.{digits}e}"
+            elif abs(magnitude) >= 1000:
+                # ISS-039: Large numbers (>= 1000) - use thousand separators
+                formatted_value = f"{magnitude:,.{digits}f}"
+                # Convert to LaTeX thousand separator (\,)
+                formatted_value = formatted_value.replace(',', '\\,')
+            else:
+                # Normal numbers
+                formatted_value = f"{magnitude:.{digits}f}"
+
+            # Strip trailing zeros if they're just .0000
+            if '.' in formatted_value:
+                formatted_value = formatted_value.rstrip('0').rstrip('.')
 
         # Format unit as LaTeX
         unit_str = str(unit)
@@ -1072,6 +1078,10 @@ class Evaluator:
         cfg = config or self.config
         digits = precision if precision is not None else cfg.digits
 
+        # Smart format uses context-aware precision (ISS-046)
+        if cfg.smart_format and precision is None:
+            return self._format_smart(value, digits)
+
         # Check format type from config
         if cfg.format == "scientific":
             return self._format_scientific(value, digits)
@@ -1139,6 +1149,74 @@ class Evaluator:
         # Otherwise use significant figures format (strip trailing zeros)
         return self._format_significant(value, digits, strip_trailing=strip_trailing)
 
+    def _format_smart(self, value: float, max_digits: int) -> str:
+        """
+        Format number with context-aware precision (ISS-046).
+
+        Smart formatting rules:
+        - Large numbers (>=100): Round to integer or 1 decimal
+        - Medium numbers (1-100): Use 1-2 decimals
+        - Small numbers (<1): Use 2-3 significant figures
+        - Very large (>=10^6): Use scientific notation
+        - Very small (<10^-3): Use scientific notation
+        - Always strip trailing zeros
+
+        Args:
+            value: The numeric value to format
+            max_digits: Maximum significant figures (used as upper limit)
+
+        Returns:
+            Formatted string optimized for readability
+        """
+        if value == 0:
+            return "0"
+
+        from math import log10, floor
+
+        abs_value = abs(value)
+        magnitude = floor(log10(abs_value)) if abs_value > 0 else 0
+
+        # Very large or very small: use scientific notation
+        if magnitude >= 6 or magnitude < -3:
+            # Use 2-3 significant figures for scientific notation
+            sig_figs = min(3, max_digits)
+            return self._format_scientific(value, sig_figs)
+
+        # Determine optimal decimal places based on magnitude
+        if abs_value >= 100:
+            # Large numbers: 0-1 decimal place
+            # Round to nearest integer for numbers >= 1000
+            if abs_value >= 1000:
+                rounded = round(value)
+                return self._add_thousands_separator(f"{rounded:.0f}")
+            else:
+                # 100-999: 0-1 decimal
+                decimals = 1 if (abs_value < 500) else 0
+                rounded = round(value, decimals)
+                result = f"{rounded:.{decimals}f}"
+        elif abs_value >= 10:
+            # 10-99: 1 decimal place
+            rounded = round(value, 1)
+            result = f"{rounded:.1f}"
+        elif abs_value >= 1:
+            # 1-9.99: 2 decimal places
+            rounded = round(value, 2)
+            result = f"{rounded:.2f}"
+        else:
+            # Small numbers (<1): use significant figures
+            sig_figs = min(3, max_digits)
+            # Calculate decimals needed for sig_figs
+            decimals = sig_figs - magnitude - 1
+            rounded = round(value, decimals)
+            result = f"{rounded:.{decimals}f}"
+
+        # Always strip trailing zeros
+        if '.' in result:
+            result = result.rstrip('0').rstrip('.')
+
+        # Add thousands separator
+        return self._add_thousands_separator(result)
+
     def _format_significant(self, value: float, sig_figs: int, strip_trailing: bool = True) -> str:
         """Format a number with the specified number of significant figures.
 
@@ -1194,8 +1272,8 @@ class Evaluator:
         if negative:
             integer_part = integer_part[1:]
 
-        # Only add separators if >= 5 digits (10000+)
-        if len(integer_part) >= 5:
+        # Only add separators if >= 4 digits (1000+)
+        if len(integer_part) >= 4:
             # Insert thin space every 3 digits from the right
             parts = []
             while len(integer_part) > 3:
