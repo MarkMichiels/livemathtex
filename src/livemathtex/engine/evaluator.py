@@ -2523,9 +2523,8 @@ class Evaluator:
         """
         Parse and compute a LaTeX expression using Pint for unit handling.
 
-        Uses the v3.0 Pure Pint Architecture: custom tokenizer → parser → Pint evaluation.
-        Falls back to latex2sympy for expressions the custom parser can't handle
-        (e.g., functions like \\ln, \\sin, etc.).
+        Uses the v3.0 Pure Pint Architecture: custom tokenizer -> parser -> Pint evaluation.
+        No fallback to latex2sympy - the custom parser handles everything.
 
         Args:
             expression_latex: LaTeX expression to parse
@@ -2536,67 +2535,7 @@ class Evaluator:
         Raises:
             EvaluationError: If evaluation fails
         """
-        # Try custom parser first
-        try:
-            return self._evaluate_with_custom_parser(expression_latex)
-        except (ParseError, CustomEvaluationError) as e:
-            logger.debug(f"Custom parser failed for '{expression_latex}', falling back to latex2sympy: {e}")
-
-        # Fallback: Original latex2sympy path
-        # This handles functions like \ln(), complex expressions the custom parser doesn't support
-        import pint
-        modified_latex = self._rewrite_with_internal_ids(expression_latex)
-
-        # Apply same preprocessing as _compute
-        modified_latex = modified_latex.replace(r'\ ', ' ')
-        modified_latex = modified_latex.replace(r'\,', ' ')
-        modified_latex = modified_latex.replace('€', 'EUR')
-        modified_latex = modified_latex.replace(r'\cdot', '*')
-        modified_latex = modified_latex.replace(r'\times', '*')
-        modified_latex = modified_latex.replace(r'\div', '/')
-
-        try:
-            expr = latex2sympy(modified_latex)
-        except Exception as e:
-            raise EvaluationError(f"Failed to parse LaTeX '{expression_latex}': {e}")
-
-        # Build Pint symbol map from our symbol table
-        ureg = get_pint_registry()
-        symbol_map = {}
-
-        for sym in expr.free_symbols:
-            sym_name = str(sym)
-
-            # Handle internal IDs - SymPy has different formats for single vs multi-digit
-            import re
-            internal_id_match = re.match(r'^v_\{?(\d+)\}?$', sym_name)
-            if internal_id_match:
-                digit_part = internal_id_match.group(1)
-                internal_id = f"v_{{{digit_part}}}"
-                latex_name = self.symbols.get_latex_name(internal_id)
-                if latex_name:
-                    for name in self.symbols.all_names():
-                        entry = self.symbols.get(name)
-                        if entry and entry.latex_name == latex_name:
-                            pint_qty = self._symbol_to_pint_quantity(entry, ureg)
-                            if pint_qty is not None:
-                                symbol_map[sym_name] = pint_qty
-                            break
-
-            # Check symbol table directly
-            clean_name = self._normalize_symbol_name(sym_name)
-            entry = self.symbols.get(clean_name) or self.symbols.get('\\' + clean_name)
-            if entry:
-                pint_qty = self._symbol_to_pint_quantity(entry, ureg)
-                if pint_qty is not None:
-                    symbol_map[sym_name] = pint_qty
-
-        # Evaluate using Pint
-        try:
-            result = evaluate_sympy_ast_with_pint(expr, symbol_map)
-            return result
-        except PintEvaluationError as e:
-            raise EvaluationError(f"Pint evaluation failed: {e}")
+        return self._evaluate_with_custom_parser(expression_latex)
 
     def _symbol_to_pint_quantity(self, entry: Any, ureg: 'pint.UnitRegistry') -> 'Optional[pint.Quantity]':
         """
