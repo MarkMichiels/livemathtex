@@ -487,21 +487,22 @@ Key deliverables:
 Plans:
 - [x] 30-01: Lower threshold and update tests
 
-#### Phase 31: Unit Display (ISS-042)
+#### Phase 31: Unit Display (ISS-042) ✅
 **Goal**: Add configurable unit display formatting options
 **Depends on**: Phase 30
-**Status**: Not started
-**Research**: Unlikely (Pint formatting)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-15
+**Research**: None needed
+**Plans**: 1
 
 Key deliverables:
-- Fraction notation option: `mg/(L·d)` instead of `mg/d/L`
-- Negative exponent option: `mg·L⁻¹·d⁻¹`
-- Document-level setting via HTML comment
-- Preserve user's unit hint format when possible
+- UnitFormat enum: DEFAULT, FRACTION, EXPONENT ✅
+- Fraction notation: `mg/(L·d)` instead of `mg/d/L` ✅
+- Negative exponent: `mg·L⁻¹·d⁻¹` ✅
+- Config option: `unit_format` in LivemathConfig ✅
 
 Plans:
-- [ ] 31-01: TBD (run /gsd:plan-phase 31 to break down)
+- [x] 31-01: Unit format enum, config, and format functions
 
 #### Phase 32: Array Operations (ISS-041)
 **Goal**: Add array/vector support for repetitive calculations

@@ -9,24 +9,25 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 31 of 32 (Unit Display)
+Phase: 32 of 32 (Array Operations)
 Plan: Not started
-Status: 🚧 Phase 30 complete, continuing v4.0
-Last activity: 2026-01-15 — Phase 30 Number Formatting complete
+Status: 🚧 Phase 31 complete, continuing v4.0
+Last activity: 2026-01-15 — Phase 31 Unit Display complete
 Branch: `build-all-20260115-110457`
 
-Progress: █████░░░░░ 50% (2 of 4 phases)
+Progress: ███████░░░ 75% (3 of 4 phases)
 
 **Feature requests being addressed:** ISS-039, ISS-040, ISS-041, ISS-042
 - ISS-040 ✅ Phase 29 complete
 - ISS-039 ✅ Phase 30 complete
+- ISS-042 ✅ Phase 31 complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16 (14 prior + 2 from v4.0)
-- Average duration: ~11 min
-- Total execution time: ~188 min
+- Total plans completed: 17 (14 prior + 3 from v4.0)
+- Average duration: ~12 min
+- Total execution time: ~208 min
 
 **By Phase:**
 
@@ -47,6 +48,7 @@ Progress: █████░░░░░ 50% (2 of 4 phases)
 | 13. SI Value Fix | 1/1 | ~10 min | ~10 min |
 | 29. Cross-References | 1/1 | ~15 min | ~15 min |
 | 30. Number Formatting | 1/1 | ~15 min | ~15 min |
+| 31. Unit Display | 1/1 | ~20 min | ~20 min |
 
 ## Completed Milestones
 
@@ -111,24 +113,25 @@ None.
 - **Milestone v4.0 IN PROGRESS: Features, 4 phases (29-32)**
   - Phase 29 complete: Cross-References (ISS-040)
   - Phase 30 complete: Number Formatting (ISS-039)
+  - Phase 31 complete: Unit Display (ISS-042)
 
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Phase 30 complete
+Stopped at: Phase 31 complete
 Resume file: None
-Next: Plan Phase 31 (Unit Display)
+Next: Plan Phase 32 (Array Operations)
 
 **v4.0 Progress:**
 - ✅ Phase 29: Cross-References (ISS-040) - 35 new tests, 510 total
 - ✅ Phase 30: Number Formatting (ISS-039) - threshold fix
-- ⏳ Phase 31: Unit Display (ISS-042)
+- ✅ Phase 31: Unit Display (ISS-042) - 16 new tests, 526 total
 - ⏳ Phase 32: Array Operations (ISS-041)
 
-### Implementation Notes (Phase 30)
+### Implementation Notes (Phase 31)
 
-- **File:** `src/livemathtex/engine/evaluator.py` line 723
-- **Change:** Threshold from `>= 10000` to `>= 1000`
-- **Format:** LaTeX thin space `\,` (e.g., `1\,234`)
-- **ISS-039 fixed:** Numbers >= 1000 display with separators
-- **Tests:** 510 total (no new tests, existing updated)
+- **Files:** `config.py`, `pint_backend.py`, `evaluator.py`
+- **Feature:** UnitFormat enum (DEFAULT, FRACTION, EXPONENT)
+- **Formats:** `mg/d/L` (default), `mg/(L·d)` (fraction), `mg·L⁻¹·d⁻¹` (exponent)
+- **ISS-042 fixed:** Unit display format options via config
+- **Tests:** 526 total (16 new tests)
