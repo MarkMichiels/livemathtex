@@ -73,7 +73,7 @@ class TestInlineUnitHintConversion:
         content = '$E := 1000000\\ J$\n$E == [kJ]$'
         result, _ = process_text(content)
 
-        assert '$E == 1000\\ \\text{kJ}$' in result
+        assert '$E == 1\\,000\\ \\text{kJ}$' in result
 
     def test_velocity_conversion(self):
         """Test km/h to m/s conversion."""
@@ -112,7 +112,7 @@ class TestInlineVsHtmlComment:
         content = '$E := 1000000\\ J$\n$E ==$ <!-- [kJ] -->'
         result, _ = process_text(content)
 
-        assert '$E == 1000\\ \\text{kJ}$' in result
+        assert '$E == 1\\,000\\ \\text{kJ}$' in result
         assert '<!-- [kJ] -->' in result  # Comment preserved
 
     def test_html_comment_takes_precedence(self):
@@ -184,7 +184,7 @@ class TestClearTextPreservesInlineUnitHints:
         from livemathtex.core import clear_text
 
         # Processed content with inline unit hint
-        content = '$E := 1000000\\ J$\n$E == 1000\\ \\text{kJ}$ <!-- [kJ] -->'
+        content = '$E := 1000000\\ J$\n$E == 1\\,000\\ \\text{kJ}$ <!-- [kJ] -->'
         cleared, count = clear_text(content)
 
         # HTML comment should be preserved
@@ -196,9 +196,9 @@ class TestClearTextPreservesInlineUnitHints:
         from livemathtex.core import clear_text
 
         # Processed content with inline unit hint syntax
-        content = '$E := 1000000\\ J$\n$E == 1000\\ \\text{kJ}$'
+        content = '$E := 1000000\\ J$\n$E == 1\\,000\\ \\text{kJ}$'
         # Simulate processed output with inline syntax
-        processed = '$E := 1000000\\ J$\n$E == 1000\\ \\text{kJ}$'
+        processed = '$E := 1000000\\ J$\n$E == 1\\,000\\ \\text{kJ}$'
 
         # After processing with inline hint, it would be:
         # $E == 1000\ \text{kJ}$ (no [kJ] visible, it's extracted)
@@ -221,7 +221,7 @@ class TestClearTextPreservesInlineUnitHints:
 
         # Process it
         processed, _ = process_text(input_content)
-        # Now processed has: $E == 1000\ \text{kJ}$
+        # Now processed has: $E == 1\,000\ \text{kJ}$
 
         # Clear it - should restore to $E == [kJ]$
         cleared, count = clear_text(processed)

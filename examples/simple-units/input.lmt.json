@@ -1,17 +1,17 @@
 {
   "version": "3.0",
-  "source": "input.md",
+  "source": "/home/mark/Repositories/livemathtex/examples/simple-units/input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
   },
   "custom_units": {},
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "m_1",
       "original": {
         "value": 10.0,
-        "unit": "kg"
+        "unit": "kilogram"
       },
       "base": {
         "value": 10.0,
@@ -20,11 +20,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "a_1",
       "original": {
         "value": 9.81,
-        "unit": "m/s²"
+        "unit": "meter / second ** 2"
       },
       "base": {
         "value": 9.81,
@@ -33,7 +33,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "F_1",
       "original": {
         "value": 98.10000000000001,
@@ -46,11 +46,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{3}": {
+    "v3": {
       "latex_name": "mass_{obj}",
       "original": {
         "value": 25.0,
-        "unit": "kg"
+        "unit": "kilogram"
       },
       "base": {
         "value": 25.0,
@@ -59,11 +59,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{4}": {
+    "v4": {
       "latex_name": "accel_{g}",
       "original": {
         "value": 9.81,
-        "unit": "m/s²"
+        "unit": "meter / second ** 2"
       },
       "base": {
         "value": 9.81,
@@ -72,7 +72,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{5}": {
+    "v5": {
       "latex_name": "F_2",
       "original": {
         "value": 245.25,
@@ -85,7 +85,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{6}": {
+    "v6": {
       "latex_name": "F_2N",
       "original": {
         "value": 245.25,
@@ -98,7 +98,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{7}": {
+    "v7": {
       "latex_name": "F_2kN",
       "original": {
         "value": 245.25,
@@ -111,7 +111,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{8}": {
+    "v8": {
       "latex_name": "F_2N_inline",
       "original": {
         "value": 245.25,
@@ -124,7 +124,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{9}": {
+    "v9": {
       "latex_name": "F_2kN_inline",
       "original": {
         "value": 245.25,
@@ -137,7 +137,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{10}": {
+    "v10": {
       "latex_name": "ratio",
       "original": {
         "value": 2.5,
@@ -150,7 +150,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{11}": {
+    "v11": {
       "latex_name": "h_{drop}",
       "original": {
         "value": 100.0,
@@ -166,8 +166,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 23:46:36",
-    "duration": "0.35s",
+    "last_run": "2026-01-15 11:30:38",
+    "duration": "0.07s",
     "symbols": 12,
     "custom_units": 0,
     "definitions": 14,

@@ -7,11 +7,11 @@
   },
   "custom_units": {},
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "E_{26}",
       "original": {
         "value": 1473.1166,
-        "unit": "MWh"
+        "unit": "megawatt_hour"
       },
       "base": {
         "value": 5303219760000.0,
@@ -20,11 +20,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "SEC_{26}",
       "original": {
         "value": 13.1528,
-        "unit": "MWh/kg"
+        "unit": "megawatt_hour / kilogram"
       },
       "base": {
         "value": 47350080000.0,
@@ -36,8 +36,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-14 10:05:45",
-    "duration": "0.17s",
+    "last_run": "2026-01-15 10:54:53",
+    "duration": "0.07s",
     "symbols": 2,
     "custom_units": 0,
     "definitions": 3,

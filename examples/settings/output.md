@@ -118,7 +118,7 @@ $\pi_{approx} == 3.14$ <!-- digits:2 format:decimal -->
 
 $price := 1299.99$
 $tax_rate := 0.21$
-$total := price \cdot (1 + tax_rate) == 1572.99$ <!-- digits:2 format:decimal -->
+$total := price \cdot (1 + tax_rate) == 1\,572.99$ <!-- digits:2 format:decimal -->
 
 ### Scientific Measurement
 
@@ -148,4 +148,4 @@ $power == 2\,500\,000$ <!-- format:engineering digits:3 -->
 
 ---
 
-> *livemathtex: 2026-01-15 04:21:15 | 9 definitions, 22 evaluations | no errors | 0.00s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:30:38 | 9 definitions, 22 evaluations | no errors | 0.07s* <!-- livemathtex-meta -->

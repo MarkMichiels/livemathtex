@@ -23,7 +23,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
 - ✅ **v3.0 Pure Pint Architecture** - Phases 23-27 (complete 2026-01-14)
 - ✅ **v3.1 Complete SymPy Removal** - Phase 28 (shipped 2026-01-15)
-- 🚧 **v4.0 Features** - Phases 29-32 (in progress)
+- 🚧 **v4.0 Features** - Phases 29-31 (3 of 4 complete, Array Operations deferred)
 
 ## Phases
 
@@ -454,67 +454,74 @@ See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
 
 **Feature Requests Addressed:** ISS-039, ISS-040, ISS-041, ISS-042
 
-#### Phase 29: Cross-References (ISS-040)
+#### Phase 29: Cross-References (ISS-040) ✅
 **Goal**: Enable `{{variable}}` syntax to reference calculated values in prose text
 **Depends on**: v3.1 complete
-**Status**: Not started
-**Research**: Unlikely (internal parsing)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-15
+**Research**: None needed
+**Plans**: 1
 
 Key deliverables:
-- `{{variable}}` syntax detection in text outside math blocks
-- Variable lookup and value formatting
-- Clear/process cycle support (restore `{{}}` after clear)
-- Configurable output format (value only, value+unit, etc.)
+- `{{variable}}` syntax detection in text outside math blocks ✅
+- Variable lookup and value formatting ✅
+- Clear/process cycle support (restore `{{}}` after clear) ✅
+- Expression support: `{{A / B * 100}}` ✅
 
 Plans:
-- [ ] 29-01: TBD (run /gsd:plan-phase 29 to break down)
+- [x] 29-01: Cross-reference parser and integration
 
-#### Phase 30: Number Formatting (ISS-039)
-**Goal**: Add thousands separator formatting for large numbers (>= 1000)
+#### Phase 30: Number Formatting (ISS-039) ✅
+**Goal**: Lower thousands separator threshold from 10000 to 1000
 **Depends on**: Phase 29
-**Status**: Not started
-**Research**: Unlikely (formatting only)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-15
+**Research**: None needed
+**Plans**: 1
 
 Key deliverables:
-- Automatic thousands separator for numbers >= 1000
-- Configurable format (US comma, EU space, etc.)
-- Document-level setting via HTML comment
-- Clear/process cycle support
+- Changed threshold from >= 10000 to >= 1000 ✅
+- Numbers like 1234 now display as 1\,234 ✅
+- All example snapshots updated ✅
 
 Plans:
-- [ ] 30-01: TBD (run /gsd:plan-phase 30 to break down)
+- [x] 30-01: Lower threshold and update tests
 
-#### Phase 31: Unit Display (ISS-042)
+#### Phase 31: Unit Display (ISS-042) ✅
 **Goal**: Add configurable unit display formatting options
 **Depends on**: Phase 30
-**Status**: Not started
-**Research**: Unlikely (Pint formatting)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-15
+**Research**: None needed
+**Plans**: 1
 
 Key deliverables:
-- Fraction notation option: `mg/(L·d)` instead of `mg/d/L`
-- Negative exponent option: `mg·L⁻¹·d⁻¹`
-- Document-level setting via HTML comment
-- Preserve user's unit hint format when possible
+- UnitFormat enum: DEFAULT, FRACTION, EXPONENT ✅
+- Fraction notation: `mg/(L·d)` instead of `mg/d/L` ✅
+- Negative exponent: `mg·L⁻¹·d⁻¹` ✅
+- Config option: `unit_format` in LivemathConfig ✅
 
 Plans:
-- [ ] 31-01: TBD (run /gsd:plan-phase 31 to break down)
+- [x] 31-01: Unit format enum, config, and format functions
 
-#### Phase 32: Array Operations (ISS-041)
+#### Phase 32: Array Operations (ISS-041) ⏸️ DEFERRED
 **Goal**: Add array/vector support for repetitive calculations
 **Depends on**: Phase 31
-**Status**: Not started
-**Research**: Likely (syntax design, storage format)
-**Plans**: TBD
+**Status**: Deferred to v4.1
+**Reason**: Significant complexity requiring research + multi-component changes
+**Research**: Required (syntax design, storage format, parser changes)
 
-Key deliverables:
+Key deliverables (future):
 - Array definition syntax: `$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$`
 - Element access: `$gamma[0]$` or named index `$gamma[2026]$`
 - Vectorized operations: `$m := V_L \cdot gamma$` (element-wise)
 - Clear/process cycle support (preserve definitions, clear results)
 - IR schema extension for array storage
 
+**Decision:** v4.0 will ship with 3 features (cross-references, number formatting, unit display). Array operations deferred to v4.1 milestone.
+
 Plans:
-- [ ] 32-01: TBD (run /gsd:plan-phase 32 to break down)
+- [ ] 32-01: Research syntax and storage format
+- [ ] 32-02: Parser extension for array literals
+- [ ] 32-03: Evaluator extension for element access
+- [ ] 32-04: Vectorized operations

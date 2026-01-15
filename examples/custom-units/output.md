@@ -44,12 +44,12 @@ $$time := 8\ h$$
 
 **Default (SI base units):**
 
-$$energy\_si := power \cdot time == 40\ \text{h · kW}$$
-$$energy\_si := power \cdot time == 40\ \text{h · kW}$$ <!-- format:scientific -->
+$$energy\_si := power \cdot time == 40\ \text{h·kW}$$
+$$energy\_si := power \cdot time == 40\ \text{h·kW}$$ <!-- format:scientific -->
 
 **In custom unit (kW·h):**
 
-$$energy\_kWh := power \cdot time == 40\ \text{h · kW}$$ <!-- [kW*h] -->
+$$energy\_kWh := power \cdot time == 40\ \text{h·kW}$$ <!-- [kW*h] -->
 $$energy\_kWh := power \cdot time == 40\ \text{kWh}$$ <!-- [kWh] -->
 
 **In decimal format (no scientific notation):**
@@ -73,11 +73,11 @@ $$factor := 2$$
 
 **Default (SI = Pascal):**
 
-$$pressure\_si := pressure\_atm \cdot factor == 2026\ \text{mbar}$$
+$$pressure\_si := pressure\_atm \cdot factor == 2\,026\ \text{mbar}$$
 
 **In custom unit (mbar):**
 
-$$pressure\_mbar := pressure\_atm \cdot factor == 2026\ \text{mbar}$$ <!-- [mbar] digits:4 -->
+$$pressure\_mbar := pressure\_atm \cdot factor == 2\,026\ \text{mbar}$$ <!-- [mbar] digits:4 -->
 
 **Expected:**
 - SI: 202600 Pa (or 2.026e+05 kg/(m·s²))
@@ -177,7 +177,7 @@ $$dig\_eng\_4 := big == 144\,000\,000$$ <!-- digits:4 format:eng -->
 
 Large numbers automatically get thin space separators (≥5 digits):
 
-$$thou\_1 := 1234 == 1234$$ <!-- format:decimal -->
+$$thou\_1 := 1234 == 1\,234$$ <!-- format:decimal -->
 
 $$thou\_2 := 12345 == 12\,345$$ <!-- format:decimal -->
 
@@ -208,11 +208,11 @@ Electricity example with different views:
 $$combo\_power := 5\ kW$$
 $$combo\_hours := 8\ h$$
 
-$$combo\_energy := combo\_power \cdot combo\_hours == 40\ \text{h · kW}$$
+$$combo\_energy := combo\_power \cdot combo\_hours == 40\ \text{h·kW}$$
 
 $$combo\_kwh := combo\_power \cdot combo\_hours == 40\ \text{kWh}$$ <!-- [kWh] -->
 
-$$combo\_sci := combo\_power \cdot combo\_hours == 40\ \text{h · kW}$$ <!-- format:sci -->
+$$combo\_sci := combo\_power \cdot combo\_hours == 40\ \text{h·kW}$$ <!-- format:sci -->
 
 $$combo\_full := combo\_power \cdot combo\_hours == 40\ \text{kWh}$$ <!-- [kWh] digits:2 -->
 
@@ -319,4 +319,4 @@ These should display the correct converted values:
 
 ---
 
-> *livemathtex: 2026-01-15 04:21:15 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.11s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:30:37 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.11s* <!-- livemathtex-meta -->

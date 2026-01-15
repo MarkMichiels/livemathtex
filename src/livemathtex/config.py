@@ -19,6 +19,7 @@ include formatting settings - only operational flags like -o for output path.
 
 from dataclasses import dataclass, replace
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Literal, Optional
 import sys
@@ -32,6 +33,19 @@ else:
 # Type aliases for configuration values
 FormatType = Literal["general", "decimal", "scientific", "engineering"]
 UnitSystem = Literal["SI", "imperial", "CGS"]
+
+
+class UnitFormat(Enum):
+    """Unit display format options (ISS-042).
+
+    Controls how compound units are displayed in output:
+    - DEFAULT: Pint's native format (e.g., mg/d/L)
+    - FRACTION: Parenthesized denominator (e.g., mg/(L·d))
+    - EXPONENT: Negative exponents (e.g., mg·L⁻¹·d⁻¹)
+    """
+    DEFAULT = "default"
+    FRACTION = "fraction"
+    EXPONENT = "exponent"
 
 
 @dataclass(frozen=True)
@@ -70,6 +84,7 @@ class LivemathConfig:
     simplify_units: bool = True
     auto_simplify: bool = True
     tolerance: float = 1e-12
+    unit_format: UnitFormat = UnitFormat.DEFAULT  # ISS-042: Unit display format
 
     def with_overrides(self, overrides: Dict[str, Any]) -> "LivemathConfig":
         """
@@ -89,11 +104,17 @@ class LivemathConfig:
             6
         """
         # Filter to only valid attributes that are not None
-        valid = {
-            k: v
-            for k, v in overrides.items()
-            if hasattr(self, k) and v is not None
-        }
+        valid = {}
+        for k, v in overrides.items():
+            if not hasattr(self, k) or v is None:
+                continue
+            # Handle enum conversion for unit_format
+            if k == 'unit_format' and isinstance(v, str):
+                try:
+                    v = UnitFormat(v)
+                except ValueError:
+                    continue  # Skip invalid enum values
+            valid[k] = v
         if not valid:
             return self
         return replace(self, **valid)

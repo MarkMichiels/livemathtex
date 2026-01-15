@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "source": "input.md",
+  "source": "/home/mark/Repositories/livemathtex/examples/unit-library/input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
@@ -26,25 +26,24 @@
     }
   },
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "electricity\\_price",
       "original": {
         "value": 0.139,
-        "unit": "€/kWh"
+        "unit": "EUR / kilowatt_hour"
       },
       "base": {
-        "value": 0.139,
-        "unit": "€/kWh"
+        "value": 3.8611111111111115e-08,
+        "unit": "EUR * second ** 2 / kilogram / meter ** 2"
       },
-      "conversion_ok": false,
-      "line": 0,
-      "conversion_error": "'€' is not defined in the unit registry"
+      "conversion_ok": true,
+      "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "consumption",
       "original": {
         "value": 24000.0,
-        "unit": "kWh"
+        "unit": "kilowatt_hour"
       },
       "base": {
         "value": 86400000000.0,
@@ -53,7 +52,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "cost",
       "original": {
         "value": 3336.0000000000005,
@@ -66,24 +65,28 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{3}": {
+    "f0": {
       "latex_name": "productivity",
       "original": {
         "value": 5.0,
-        "unit": "g/L"
+        "unit": "gram / liter"
       },
       "base": {
         "value": 4.999999999999999,
         "unit": "kilogram / meter ** 3"
       },
       "conversion_ok": true,
-      "line": 0
+      "line": 0,
+      "formula": {
+        "expression": "5\\ g/L",
+        "depends_on": []
+      }
     },
-    "v_{4}": {
+    "v3": {
       "latex_name": "reactor\\_volume",
       "original": {
         "value": 100.0,
-        "unit": "L"
+        "unit": "liter"
       },
       "base": {
         "value": 0.10000000000000002,
@@ -92,7 +95,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{5}": {
+    "v4": {
       "latex_name": "total",
       "original": {
         "value": 500.0,
@@ -105,7 +108,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{6}": {
+    "v5": {
       "latex_name": "hours\\_per\\_day",
       "original": {
         "value": 8.0,
@@ -118,7 +121,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{7}": {
+    "v6": {
       "latex_name": "days\\_per\\_week",
       "original": {
         "value": 5.0,
@@ -131,7 +134,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{8}": {
+    "v7": {
       "latex_name": "weeks\\_per\\_year",
       "original": {
         "value": 48.0,
@@ -144,7 +147,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{9}": {
+    "v8": {
       "latex_name": "total\\_hours",
       "original": {
         "value": 1920.0,
@@ -160,8 +163,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 23:52:21",
-    "duration": "0.25s",
+    "last_run": "2026-01-15 11:30:38",
+    "duration": "0.07s",
     "symbols": 10,
     "custom_units": 3,
     "definitions": 10,

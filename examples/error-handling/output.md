@@ -105,7 +105,7 @@ $force := N \cdot 10.5
 
 $N_val := 100$
 $force_ok := N_val \cdot 10.5$
-$force_ok == 1050$
+$force_ok == 1\,050$
 
 ---
 
@@ -208,7 +208,7 @@ $invalid_2 := time_1 - vel_1 ==
 
 Different units CAN be multiplied or divided:
 
-$prod := mass_1 \cdot dist_1 == 15\ \text{kg · m}$
+$prod := mass_1 \cdot dist_1 == 15\ \text{kg·m}$
 $velocity_1 := dist_1 / time_1 == 0.3\ \text{m/s}$
 
 ### Compatible units work fine
@@ -235,7 +235,7 @@ $g_{acc} := 9.81\ \frac{m}{s^2}$
 ### Formula definitions (operators between defined variables)
 
 $F_1 := m_1 \cdot g_{acc}$
-$F_1 == 98.1\ \text{kg · m/s^2}$
+$F_1 == 98.1\ \text{kg·m/s^2}$
 
 ### Unit conversions
 
@@ -259,4 +259,4 @@ $F_{1,N} := F_1 == 98.1\ \text{N}$ <!-- [N] -->
 
 ---
 
-> *livemathtex: 2026-01-15 04:21:15 | 43 definitions, 20 evaluations | 15 errors | 0.04s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:30:38 | 43 definitions, 20 evaluations | 14 errors | 0.08s* <!-- livemathtex-meta -->

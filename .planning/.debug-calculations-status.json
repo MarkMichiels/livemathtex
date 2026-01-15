@@ -1,21 +1,9 @@
 {
-  "status": "done",
-  "phase": "completed",
+  "status": "ready",
+  "phase": "review",
   "document": "/home/mark/Repositories/mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md",
-  "timestamp": "2026-01-15T02:32:59+01:00",
-  "issues_created": ["ISS-036", "ISS-037", "ISS-038"],
-  "user_errors_fixed": 0,
-  "workarounds_documented": 3,
-  "total_errors": 98,
-  "bug_patterns": [
-    "ISS-037: Variables in table cells fail with 'argument of type Symbol is not iterable' (4 errors)",
-    "ISS-038: Variables with commas in subscripts fail in expressions with 'I expected something else here' (25 errors)",
-    "ISS-036: Variables with commas in subscripts fail with 'argument of type Symbol is not iterable' (69 errors, context-dependent)"
-  ],
-  "test_files_created": [
-    "tests/test_iss_036_comma_subscript_symbol_not_iterable.md (11 errors, reproduces bug)",
-    "tests/test_iss_037_table_cell_symbol_not_iterable.md (1 error, reproduces bug)",
-    "tests/test_iss_038_comma_subscript_expression_parse_error.md (2 errors, reproduces bug)"
-  ],
-  "user_decision": "ENOUGH - stop debugging, no commit"
+  "timestamp": "$(date -Iseconds)",
+  "issues_created": [],
+  "user_errors_fixed": 10,
+  "workarounds_documented": 1
 }

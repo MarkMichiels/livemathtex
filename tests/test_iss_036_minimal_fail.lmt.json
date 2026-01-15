@@ -1,17 +1,17 @@
 {
   "version": "3.0",
-  "source": "test_iss_036_minimal_fail.md",
+  "source": "tests/test_iss_036_minimal_fail.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
   },
   "custom_units": {},
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "PPE_{red,raw}",
       "original": {
         "value": 4.29,
-        "unit": "µmol/J"
+        "unit": "micromole / joule"
       },
       "base": {
         "value": 4.29e-06,
@@ -20,11 +20,11 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "PPE_{blue,raw}",
       "original": {
         "value": 2.57,
-        "unit": "µmol/J"
+        "unit": "micromole / joule"
       },
       "base": {
         "value": 2.5699999999999995e-06,
@@ -33,7 +33,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "f_{geom}",
       "original": {
         "value": 0.9143,
@@ -46,7 +46,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{3}": {
+    "v3": {
       "latex_name": "PPE_{eff,9010}",
       "original": {
         "value": 3.7650874,
@@ -59,7 +59,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{4}": {
+    "v4": {
       "latex_name": "PPE_{eff,R2}",
       "original": {
         "value": 3.7650874,
@@ -75,8 +75,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-15 02:26:45",
-    "duration": "0.19s",
+    "last_run": "2026-01-15 10:56:35",
+    "duration": "0.06s",
     "symbols": 5,
     "custom_units": 0,
     "definitions": 5,

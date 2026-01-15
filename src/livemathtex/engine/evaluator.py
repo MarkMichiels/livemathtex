@@ -720,10 +720,10 @@ class Evaluator:
         if abs(magnitude) < 0.001 and magnitude != 0:
             # Use scientific notation
             formatted_value = f"{magnitude:.{digits}e}"
-        elif abs(magnitude) >= 10000:
-            # Large numbers - use thousand separators
+        elif abs(magnitude) >= 1000:
+            # ISS-039: Large numbers (>= 1000) - use thousand separators
             formatted_value = f"{magnitude:,.{digits}f}"
-            # Convert to LaTeX thousand separator
+            # Convert to LaTeX thousand separator (\,)
             formatted_value = formatted_value.replace(',', '\\,')
         else:
             # Normal numbers
@@ -739,7 +739,9 @@ class Evaluator:
             return formatted_value
         else:
             # Convert Pint unit to LaTeX using format_unit_latex
-            unit_latex = format_unit_latex(unit)
+            # ISS-042: Pass unit_format from config
+            unit_fmt = config.unit_format.value if config and config.unit_format else None
+            unit_latex = format_unit_latex(unit, unit_format=unit_fmt)
             return f"{formatted_value}\\ \\text{{{unit_latex}}}"
 
     def _pint_unit_to_latex(self, unit_str: str) -> str:
