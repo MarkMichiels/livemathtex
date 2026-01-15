@@ -454,21 +454,22 @@ See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
 
 **Feature Requests Addressed:** ISS-039, ISS-040, ISS-041, ISS-042
 
-#### Phase 29: Cross-References (ISS-040)
+#### Phase 29: Cross-References (ISS-040) ✅
 **Goal**: Enable `{{variable}}` syntax to reference calculated values in prose text
 **Depends on**: v3.1 complete
-**Status**: Not started
-**Research**: Unlikely (internal parsing)
-**Plans**: TBD
+**Status**: Complete
+**Completed**: 2026-01-15
+**Research**: None needed
+**Plans**: 1
 
 Key deliverables:
-- `{{variable}}` syntax detection in text outside math blocks
-- Variable lookup and value formatting
-- Clear/process cycle support (restore `{{}}` after clear)
-- Configurable output format (value only, value+unit, etc.)
+- `{{variable}}` syntax detection in text outside math blocks ✅
+- Variable lookup and value formatting ✅
+- Clear/process cycle support (restore `{{}}` after clear) ✅
+- Expression support: `{{A / B * 100}}` ✅
 
 Plans:
-- [ ] 29-01: TBD (run /gsd:plan-phase 29 to break down)
+- [x] 29-01: Cross-reference parser and integration
 
 #### Phase 30: Number Formatting (ISS-039)
 **Goal**: Add thousands separator formatting for large numbers (>= 1000)

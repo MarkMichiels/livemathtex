@@ -5,26 +5,27 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** Ready for next milestone
+**Current focus:** v4.0 Features milestone
 
 ## Current Position
 
-Phase: 29 of 32 (Cross-References)
+Phase: 30 of 32 (Number Formatting)
 Plan: Not started
-Status: 🚧 Milestone v4.0 Features created
-Last activity: 2026-01-15 — Milestone v4.0 created with 4 phases (29-32)
-Branch: `master`
+Status: 🚧 Phase 29 complete, continuing v4.0
+Last activity: 2026-01-15 — Phase 29 Cross-References complete
+Branch: `build-all-20260115-110457`
 
-Progress: ░░░░░░░░░░ 0%
+Progress: ██░░░░░░░░ 25% (1 of 4 phases)
 
 **Feature requests being addressed:** ISS-039, ISS-040, ISS-041, ISS-042
+- ISS-040 ✅ Phase 29 complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14 (2 from v1.2 + 3 from v1.3 + 3 from v1.4 + 5 from v1.5 + 1 from v1.6)
+- Total plans completed: 15 (14 prior + 1 from v4.0)
 - Average duration: ~11 min
-- Total execution time: ~158 min
+- Total execution time: ~173 min
 
 **By Phase:**
 
@@ -43,6 +44,7 @@ Progress: ░░░░░░░░░░ 0%
 | 11. Token Classification | 1/1 | ~13 min | ~13 min |
 | 12. Unit Warnings | 1/1 | ~13 min | ~13 min |
 | 13. SI Value Fix | 1/1 | ~10 min | ~10 min |
+| 29. Cross-References | 1/1 | ~15 min | ~15 min |
 
 ## Completed Milestones
 
@@ -71,6 +73,7 @@ Progress: ░░░░░░░░░░ 0%
 - **03-01:** Added check in `_handle_unit_definition` to prevent redefining existing Pint units
 - **11-01:** Collect all undefined symbols before raising error to enable implicit multiplication detection
 - **12-01:** Dimension mismatches are warnings (orange) not errors (red), with SI fallback
+- **29-01:** Cross-references use HTML comment to preserve original: `value<!-- {{ref}} -->`
 
 ### Deferred Issues
 
@@ -101,76 +104,28 @@ None.
 - Milestone v2.0 complete: Function evaluation fixed (Phase 21)
 - Milestone v2.1 complete: Superscript variable names (Phase 22)
 - **Milestone v3.0 COMPLETE: Pure Pint Architecture, 5 phases (23-27)**
-  - Major refactor: Remove latex2sympy and SymPy dependencies
-  - Custom tokenizer + parser for LaTeX expressions
-  - Direct Pint evaluation without SymPy intermediate
 - **Milestone v3.1 COMPLETE: Complete SymPy Removal, 1 phase (28)**
-  - Removed ALL SymPy and latex2sympy from codebase
-  - Fixed ISS-035, ISS-036, ISS-037, ISS-038 (root cause: latex2sympy corruption)
-  - ~1,500 lines of dead code removed
-  - Extended custom parser with math functions, units, currency symbols
+- **Milestone v4.0 IN PROGRESS: Features, 4 phases (29-32)**
+  - Phase 29 complete: Cross-References (ISS-040)
 
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Milestone v3.1 complete
+Stopped at: Phase 29 complete
 Resume file: None
-Next: User to merge to master and tag
+Next: Plan Phase 30 (Number Formatting)
 
-**v3.1 Complete Summary:**
-- ✅ Phase 28: Complete SymPy/latex2sympy Removal (6 plans)
-- ~1,500 lines removed
-- 475 tests passing
-- Parser extended with math functions, units, currency
+**v4.0 Progress:**
+- ✅ Phase 29: Cross-References (ISS-040) - 35 new tests, 510 total
+- ⏳ Phase 30: Number Formatting (ISS-039)
+- ⏳ Phase 31: Unit Display (ISS-042)
+- ⏳ Phase 32: Array Operations (ISS-041)
 
-**v3.0 Complete Summary:**
-- ✅ Phase 23: Expression Tokenizer (47 tests, 169 lines)
-- ✅ Phase 24: Expression Parser (69 tests, 225 lines)
-- ✅ Phase 25: Direct Pint Evaluator (47 tests, 153 lines)
-- ✅ Phase 26: Evaluator Integration (try-first-fallback pattern, 528 tests pass)
-- ✅ Phase 27: Custom parser primary path (constants, braces, fallback retained)
+### Implementation Notes (Phase 29)
 
-### Implementation Notes (Phase 12)
-
-- **Warning exception:** `UnitConversionWarning` in `utils/errors.py`
-- **Detection:** Dimension mismatch errors detected by keywords in exception message
-- **Evaluator:** Added `_warning_count`, `get_warning_count()`, `_format_warning()`
-- **SI fallback:** `_extract_unit_string()` and `_format_si_value()` helpers
-- **Footer:** Shows "no errors, 1 warning" format
-- **Clear patterns:** Added `\color{orange}` removal to `clear_text()`
-- **ISS-017 fixed:** Unit conversion failures show warnings with SI value
-- **Tests:** 345 tests pass (plus 2 xfailed for pre-existing bugs)
-
-### Implementation Notes (Phase 11)
-
-- **Module:** `src/livemathtex/engine/token_classifier.py`
-- **Key classes:** `TokenClassifier`, `TokenType` enum, `ImplicitMultInfo` dataclass
-- **Detection:** `detect_implicit_multiplication()` identifies when latex2sympy splits multi-letter identifiers
-- **Unit conflicts:** Single-letter unit tracking (A=ampere, V=volt, etc.)
-- **ISS-018 fixed:** Error messages now mention intended multi-letter symbol
-- **ISS-022 fixed:** Diagnostics explain implicit multiplication pattern
-- **Tests:** 46 tests in `tests/test_token_classifier.py`, 348 total tests pass
-
-### Implementation Notes (Phase 10)
-
-- **Refactored:** `clear_text()` now uses span-based operations
-- **Old function:** Preserved as `_clear_text_regex()` for reference
-- **Two-pass approach:** Remove error markup first, then re-parse for accurate spans
-- **Unit preservation:** Properly extracts units from `\text{}` in results
-- **ISS-021 fixed:** Document corruption around multiline errors eliminated
-- **Tests:** 27 tests in `tests/test_clear_v2.py`, 302 total tests pass
-
-### Implementation Notes (Phase 9)
-
-- **Module:** `src/livemathtex/parser/calculation_parser.py`
-- **Key dataclasses:** `Span` (start/end offsets), `ParsedCalculation` (operation, spans)
-- **Operations:** `===`, `:=`, `==`, `=>`, `:=_==`, `value`, `ERROR`
-- **All spans are document-relative** (not math-block-relative)
-- **Tests:** 36 tests in `tests/test_calculation_parser.py`
-
-### Implementation Notes (Phase 8)
-
-- **Hybrid stack:** markdown-it-py + dollarmath (doc structure) + pylatexenc (LaTeX positions)
-- **Key insight:** Inline math tokens are children of `inline` tokens, not top-level
-- **Module:** `src/livemathtex/parser/markdown_parser.py`
-- **Tests:** 34 tests in `tests/test_markdown_parser.py`
+- **Module:** `src/livemathtex/parser/reference_parser.py`
+- **Key functions:** `extract_references()`, `restore_references()`, `evaluate_cross_references()`
+- **Syntax:** `{{variable}}` in prose text, evaluated after math blocks
+- **Preservation:** HTML comment `<!-- {{ref}} -->` for clear cycle
+- **ISS-040 fixed:** Cross-references to calculated values work
+- **Tests:** 35 new tests (22 parser + 13 integration), 510 total
