@@ -24,6 +24,7 @@ from typing import Optional
 
 from .parser.lexer import Lexer
 from .parser.models import MathBlock
+from .parser.reference_parser import extract_references, restore_references
 from .engine.evaluator import Evaluator
 from .render.markdown import MarkdownRenderer
 from .ir import IRBuilder, LivemathIR, SymbolEntry, ValueWithUnit
@@ -473,7 +474,133 @@ def clear_text(content: str) -> tuple[str, int]:
     # 8. Clean up excessive newlines
     cleared = re.sub(r'\n{3,}', '\n\n', cleared)
 
-    return cleared, count
+    # 9. Restore cross-references: value<!-- {{ref}} --> → {{ref}}
+    cleared, ref_count = restore_references(cleared)
+
+    return cleared, count + ref_count
+
+
+def evaluate_cross_references(
+    content: str,
+    evaluator: Evaluator,
+    config: Optional[LivemathConfig] = None
+) -> tuple[str, int, int]:
+    """
+    Evaluate {{variable}} cross-references in document content.
+
+    Cross-references allow calculated values to appear in prose text:
+    - Simple variables: {{C_{max}}} → 550 kg<!-- {{C_{max}}} -->
+    - Expressions: {{A / B * 100}} → 93.8%<!-- {{A / B * 100}} -->
+
+    Args:
+        content: Document content with cross-references
+        evaluator: Evaluator with populated symbol table
+        config: Optional LivemathConfig for formatting
+
+    Returns:
+        Tuple of (processed_content, refs_evaluated, refs_errored)
+    """
+    from .parser.expression_tokenizer import ExpressionTokenizer
+    from .parser.expression_parser import ExpressionParser, ParseError
+    from .engine.expression_evaluator import evaluate_expression_tree, EvaluationError
+    from .engine.pint_backend import get_unit_registry, format_unit_latex
+
+    refs = extract_references(content)
+    if not refs:
+        return content, 0, 0
+
+    ureg = get_unit_registry()
+    evaluated = 0
+    errored = 0
+
+    # Build symbol dict from evaluator's symbol table
+    # Map latex_name → Pint Quantity
+    symbols_dict = {}
+    for name in evaluator.symbols.all_names():
+        entry = evaluator.symbols.get(name)
+        if entry and entry.si_value is not None:
+            latex_name = entry.latex_name or name
+            try:
+                # Create Pint Quantity from stored value
+                if entry.si_unit:
+                    qty = ureg.Quantity(float(entry.si_value), str(entry.si_unit))
+                else:
+                    qty = float(entry.si_value)
+                symbols_dict[latex_name] = qty
+            except Exception:
+                continue
+
+    # Process references in reverse order to maintain correct offsets
+    edits = []  # (start, end, replacement)
+
+    for ref in refs:
+        try:
+            # Parse and evaluate the expression
+            tokenizer = ExpressionTokenizer(ref.content)
+            tokens = tokenizer.tokenize()
+            parser = ExpressionParser(tokens)
+            tree = parser.parse()
+
+            result = evaluate_expression_tree(tree, symbols_dict, ureg)
+
+            # Format the result
+            if hasattr(result, 'magnitude'):
+                # Pint Quantity - format with unit
+                value = result.magnitude
+                unit_str = str(result.units)
+                if unit_str == 'dimensionless':
+                    unit_str = ''
+
+                # Format value with reasonable precision
+                if isinstance(value, float):
+                    if abs(value) >= 1000:
+                        formatted_value = f"{value:,.0f}".replace(',', ' ')
+                    elif abs(value) >= 1:
+                        formatted_value = f"{value:.2f}"
+                    else:
+                        formatted_value = f"{value:.4f}"
+                else:
+                    formatted_value = str(value)
+
+                if unit_str:
+                    replacement_value = f"{formatted_value} {unit_str}"
+                else:
+                    replacement_value = formatted_value
+            else:
+                # Plain number
+                if isinstance(result, float):
+                    if abs(result) >= 1000:
+                        formatted_value = f"{result:,.0f}".replace(',', ' ')
+                    elif abs(result) >= 1:
+                        formatted_value = f"{result:.2f}"
+                    else:
+                        formatted_value = f"{result:.4f}"
+                else:
+                    formatted_value = str(result)
+                replacement_value = formatted_value
+
+            # Build replacement with HTML comment for clear cycle
+            replacement = f"{replacement_value}<!-- {{{{{ref.content}}}}} -->"
+            edits.append((ref.start, ref.end, replacement))
+            evaluated += 1
+
+        except (ParseError, EvaluationError) as e:
+            # Error - keep original reference with error marker
+            replacement = f"{{{{ERROR: {str(e)}}}}}"
+            edits.append((ref.start, ref.end, replacement))
+            errored += 1
+        except Exception as e:
+            # Unexpected error
+            replacement = f"{{{{ERROR: {str(e)}}}}}"
+            edits.append((ref.start, ref.end, replacement))
+            errored += 1
+
+    # Apply edits in reverse order
+    result = content
+    for start, end, replacement in reversed(edits):
+        result = result[:start] + replacement + result[end:]
+
+    return result, evaluated, errored
 
 
 def process_file(
@@ -621,6 +748,16 @@ def process_file(
 
     renderer = MarkdownRenderer()
     new_doc_content = renderer.render(document, results, metadata=metadata)
+
+    # 9a. ISS-040: Evaluate cross-references {{variable}} in prose text
+    new_doc_content, refs_evaluated, refs_errored = evaluate_cross_references(
+        new_doc_content, evaluator, config
+    )
+
+    # Update stats with cross-reference counts
+    if refs_evaluated > 0 or refs_errored > 0:
+        ir.stats["cross_refs"] = refs_evaluated
+        ir.stats["cross_ref_errors"] = refs_errored
 
     # 10. Write output markdown
     with open(resolved_output, 'w') as f:
@@ -818,6 +955,16 @@ def process_text(
 
     renderer = MarkdownRenderer()
     new_doc_content = renderer.render(document, results, metadata=metadata)
+
+    # ISS-040: Evaluate cross-references {{variable}} in prose text
+    new_doc_content, refs_evaluated, refs_errored = evaluate_cross_references(
+        new_doc_content, evaluator, config
+    )
+
+    # Update stats with cross-reference counts
+    if refs_evaluated > 0 or refs_errored > 0:
+        ir.stats["cross_refs"] = refs_evaluated
+        ir.stats["cross_ref_errors"] = refs_errored
 
     return new_doc_content, ir
 
