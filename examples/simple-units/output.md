@@ -26,7 +26,7 @@ $m_1 := 10\ kg$
 $a_1 := 9.81\ \frac{m}{s^2}$
 
 Calculate force:
-$F_1 := m_1 \cdot a_1 == 98.1\ \text{kg · m/s^2}$
+$F_1 := m_1 \cdot a_1 == 98.1\ \text{kg·m/s^2}$
 
 ### Option 2: Descriptive names (with subscripts)
 
@@ -38,7 +38,7 @@ $mass_{obj} := 25\ kg$
 $accel_{g} := 9.81\ \frac{m}{s^2}$
 
 Calculate force:
-$F_2 := mass_{obj} \cdot accel_{g} == 245.25\ \text{kg · m/s^2}$
+$F_2 := mass_{obj} \cdot accel_{g} == 245.25\ \text{kg·m/s^2}$
 
 Convert to Newtons (HTML comment syntax):
 $F_2N := F_2 == 245.25\ \text{N}$ <!-- [N] -->
@@ -84,4 +84,4 @@ $t_{fall} := \sqrt{\frac{2 \cdot h_{drop}}{g}} ==
 
 ---
 
-> *livemathtex: 2026-01-15 04:21:15 | 14 definitions, 8 evaluations | 2 errors | 0.01s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:30:38 | 14 definitions, 8 evaluations | 2 errors | 0.07s* <!-- livemathtex-meta -->

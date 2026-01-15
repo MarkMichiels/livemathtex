@@ -85,14 +85,14 @@ $H_{static} := h_d - h_s == 17\ \text{m}$
 
 Using Darcy-Weisbach equation:
 
-$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 4.1313e-08\ \text{m^6 · s^2/h^2/mm^5}$$
+$$H_f := f_d \cdot \frac{L_{pipe}}{D_{pipe}} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 4.1313e-08\ \text{m^6·s^2/h^2/mm^5}$$
 
 ### Minor Losses
 
 K-factor for fittings (dimensionless):
 $K_{fit} := 5$
 
-$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 1.0328e-05\ \text{m^5 · s^2/h^2/mm^4}$$
+$$H_m := K_{fit} \cdot \frac{vel^2}{2 \cdot g_{acc}} == 1.0328e-05\ \text{m^5·s^2/h^2/mm^4}$$
 
 ---
 
@@ -144,4 +144,4 @@ $$P_{motor} := \frac{P_{hyd}}{eta_p \cdot eta_m} == 4.2358\ \text{kW}$$ <!-- [kW
 
 ---
 
-> *livemathtex: 2026-01-15 11:21:15 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.08s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:30:37 | 19 definitions, 11 evaluations, 7 value refs | no errors | 0.07s* <!-- livemathtex-meta -->

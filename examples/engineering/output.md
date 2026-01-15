@@ -138,4 +138,4 @@ $A_m := \frac{A_0}{length} == 2.7265$
 
 ---
 
-> *livemathtex: 2026-01-15 11:21:15 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.07s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:30:37 | 26 definitions, 16 evaluations, 6 value refs | no errors | 0.07s* <!-- livemathtex-meta -->

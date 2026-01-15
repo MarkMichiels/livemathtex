@@ -1,13 +1,13 @@
 {
   "version": "3.0",
-  "source": "input.md",
+  "source": "/home/mark/Repositories/livemathtex/examples/simple/input.md",
   "unit_backend": {
     "name": "pint",
     "version": "0.25.2"
   },
   "custom_units": {},
   "symbols": {
-    "v_{0}": {
+    "v0": {
       "latex_name": "x",
       "original": {
         "value": 5.0,
@@ -20,7 +20,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{1}": {
+    "v1": {
       "latex_name": "a_1",
       "original": {
         "value": 10.0,
@@ -33,7 +33,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{2}": {
+    "v2": {
       "latex_name": "b_1",
       "original": {
         "value": 5.0,
@@ -46,7 +46,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{3}": {
+    "v3": {
       "latex_name": "total",
       "original": {
         "value": 15.0,
@@ -59,7 +59,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{4}": {
+    "v4": {
       "latex_name": "product",
       "original": {
         "value": 50.0,
@@ -72,7 +72,7 @@
       "conversion_ok": true,
       "line": 0
     },
-    "v_{5}": {
+    "v5": {
       "latex_name": "ratio",
       "original": {
         "value": 2.0,
@@ -88,8 +88,8 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-13 23:46:35",
-    "duration": "0.29s",
+    "last_run": "2026-01-15 11:30:38",
+    "duration": "0.06s",
     "symbols": 6,
     "custom_units": 0,
     "definitions": 7,

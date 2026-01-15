@@ -148,4 +148,4 @@ $power == 2\,500\,000$ <!-- format:engineering digits:3 -->
 
 ---
 
-> *livemathtex: 2026-01-15 11:21:16 | 9 definitions, 22 evaluations | no errors | 0.07s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 11:30:38 | 9 definitions, 22 evaluations | no errors | 0.07s* <!-- livemathtex-meta -->
