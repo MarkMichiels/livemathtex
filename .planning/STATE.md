@@ -5,22 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** v4.0 Features milestone
+**Current focus:** v4.0 Features milestone - COMPLETE
 
 ## Current Position
 
-Phase: 32 of 32 (Array Operations)
-Plan: Not started
-Status: 🚧 Phase 31 complete, continuing v4.0
-Last activity: 2026-01-15 — Phase 31 Unit Display complete
-Branch: `build-all-20260115-110457`
+Phase: 31 of 31 (Unit Display) - COMPLETE
+Plan: All plans executed
+Status: ✅ v4.0 milestone complete, ready for merge
+Last activity: 2026-01-15 — v4.0 Features complete
+Branch: `build-all-20260115-110457` → merge to master
 
-Progress: ███████░░░ 75% (3 of 4 phases)
+Progress: ██████████ 100% (3 of 3 phases - Phase 32 deferred to v4.1)
 
-**Feature requests being addressed:** ISS-039, ISS-040, ISS-041, ISS-042
-- ISS-040 ✅ Phase 29 complete
-- ISS-039 ✅ Phase 30 complete
-- ISS-042 ✅ Phase 31 complete
+**Feature requests addressed:** ISS-039, ISS-040, ISS-042
+- ISS-040 ✅ Phase 29 complete (Cross-References)
+- ISS-039 ✅ Phase 30 complete (Number Formatting)
+- ISS-042 ✅ Phase 31 complete (Unit Display)
+- ISS-041 ⏸️ Deferred to v4.1 (Array Operations)
 
 ## Performance Metrics
 
@@ -64,6 +65,7 @@ Progress: ███████░░░ 75% (3 of 4 phases)
 | v1.8 | — | 2026-01-13 | — (verification only) |
 | v3.0 | v3.0.0 | 2026-01-14 | — |
 | v3.1 | v3.1.0 | 2026-01-15 | .planning/milestones/v3.1-ROADMAP.md |
+| v4.0 | v4.0.0 | 2026-01-15 | — |
 
 ## Accumulated Context
 
@@ -110,28 +112,31 @@ None.
 - Milestone v2.1 complete: Superscript variable names (Phase 22)
 - **Milestone v3.0 COMPLETE: Pure Pint Architecture, 5 phases (23-27)**
 - **Milestone v3.1 COMPLETE: Complete SymPy Removal, 1 phase (28)**
-- **Milestone v4.0 IN PROGRESS: Features, 4 phases (29-32)**
+- **Milestone v4.0 COMPLETE: Features, 3 phases (29-31)**
   - Phase 29 complete: Cross-References (ISS-040)
   - Phase 30 complete: Number Formatting (ISS-039)
   - Phase 31 complete: Unit Display (ISS-042)
+  - Phase 32 deferred: Array Operations (ISS-041) → v4.1
 
 ## Session Continuity
 
 Last session: 2026-01-15
-Stopped at: Phase 31 complete
+Stopped at: v4.0 milestone complete
 Resume file: None
-Next: Plan Phase 32 (Array Operations)
+Next: Merge to master, tag v4.0.0
 
-**v4.0 Progress:**
+**v4.0 Summary:**
 - ✅ Phase 29: Cross-References (ISS-040) - 35 new tests, 510 total
 - ✅ Phase 30: Number Formatting (ISS-039) - threshold fix
 - ✅ Phase 31: Unit Display (ISS-042) - 16 new tests, 526 total
-- ⏳ Phase 32: Array Operations (ISS-041)
+- ⏸️ Phase 32: Array Operations (ISS-041) - deferred to v4.1 (complexity)
 
-### Implementation Notes (Phase 31)
+### v4.0 Milestone Completion
 
-- **Files:** `config.py`, `pint_backend.py`, `evaluator.py`
-- **Feature:** UnitFormat enum (DEFAULT, FRACTION, EXPONENT)
-- **Formats:** `mg/d/L` (default), `mg/(L·d)` (fraction), `mg·L⁻¹·d⁻¹` (exponent)
-- **ISS-042 fixed:** Unit display format options via config
-- **Tests:** 526 total (16 new tests)
+**Features Delivered:**
+1. **Cross-References** (ISS-040): `{{variable}}` syntax for prose text
+2. **Number Formatting** (ISS-039): Thousands separator threshold lowered to 1000
+3. **Unit Display** (ISS-042): UnitFormat enum (DEFAULT, FRACTION, EXPONENT)
+
+**Tests:** 526 total (51 new tests across 3 phases)
+**Status:** Ready for merge to master

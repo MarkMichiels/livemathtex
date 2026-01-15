@@ -23,7 +23,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
 - ✅ **v3.0 Pure Pint Architecture** - Phases 23-27 (complete 2026-01-14)
 - ✅ **v3.1 Complete SymPy Removal** - Phase 28 (shipped 2026-01-15)
-- 🚧 **v4.0 Features** - Phases 29-32 (in progress)
+- 🚧 **v4.0 Features** - Phases 29-31 (3 of 4 complete, Array Operations deferred)
 
 ## Phases
 
@@ -504,19 +504,24 @@ Key deliverables:
 Plans:
 - [x] 31-01: Unit format enum, config, and format functions
 
-#### Phase 32: Array Operations (ISS-041)
+#### Phase 32: Array Operations (ISS-041) ⏸️ DEFERRED
 **Goal**: Add array/vector support for repetitive calculations
 **Depends on**: Phase 31
-**Status**: Not started
-**Research**: Likely (syntax design, storage format)
-**Plans**: TBD
+**Status**: Deferred to v4.1
+**Reason**: Significant complexity requiring research + multi-component changes
+**Research**: Required (syntax design, storage format, parser changes)
 
-Key deliverables:
+Key deliverables (future):
 - Array definition syntax: `$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$`
 - Element access: `$gamma[0]$` or named index `$gamma[2026]$`
 - Vectorized operations: `$m := V_L \cdot gamma$` (element-wise)
 - Clear/process cycle support (preserve definitions, clear results)
 - IR schema extension for array storage
 
+**Decision:** v4.0 will ship with 3 features (cross-references, number formatting, unit display). Array operations deferred to v4.1 milestone.
+
 Plans:
-- [ ] 32-01: TBD (run /gsd:plan-phase 32 to break down)
+- [ ] 32-01: Research syntax and storage format
+- [ ] 32-02: Parser extension for array literals
+- [ ] 32-03: Evaluator extension for element access
+- [ ] 32-04: Vectorized operations
