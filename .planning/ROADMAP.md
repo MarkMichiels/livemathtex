@@ -23,7 +23,8 @@ None (regex patterns, Python, Pint library)
 - ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
 - ✅ **v3.0 Pure Pint Architecture** - Phases 23-27 (complete 2026-01-14)
 - ✅ **v3.1 Complete SymPy Removal** - Phase 28 (shipped 2026-01-15)
-- 🚧 **v4.0 Features** - Phases 29-31 (3 of 4 complete, Array Operations deferred)
+- ✅ **v4.0 Features** - Phases 29-31 (shipped 2026-01-15)
+- 📋 **v4.1 Bug Fixes & Enhancements** - Phases 32-38 (7 phases planned)
 
 ## Phases
 
@@ -448,80 +449,181 @@ See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
 
 </details>
 
-### 🚧 v4.0 Features (In Progress)
+<details>
+<summary>✅ v4.0 Features (Phases 29-31) - COMPLETE 2026-01-15</summary>
 
 **Milestone Goal:** Add user-requested features for improved document workflow: cross-references to calculated values, number formatting, and unit display options.
 
-**Feature Requests Addressed:** ISS-039, ISS-040, ISS-041, ISS-042
+**Features Delivered:**
+- Phase 29: Cross-References (ISS-040) ✅
+- Phase 30: Number Formatting (ISS-039) ✅
+- Phase 31: Unit Display (ISS-042) ✅
+- Phase 32: Array Operations (ISS-041) → deferred to v4.1
 
-#### Phase 29: Cross-References (ISS-040) ✅
-**Goal**: Enable `{{variable}}` syntax to reference calculated values in prose text
-**Depends on**: v3.1 complete
-**Status**: Complete
-**Completed**: 2026-01-15
-**Research**: None needed
+</details>
+
+### 📋 v4.1 Bug Fixes & Enhancements (Planned)
+
+**Milestone Goal:** Fix critical bugs discovered in production use and add remaining features.
+
+**Issues Addressed:** ISS-043, ISS-030, ISS-047, ISS-044, ISS-046, ISS-041, ISS-045
+
+**Priority Order:**
+1. 🐛 Bugs (critical fixes)
+2. ✨ Features (user value)
+3. 📚 Documentation (cleanup)
+
+---
+
+## 🐛 Bugs (Phases 32-34)
+
+#### Phase 32: Dimensionless Unit Bug (ISS-043)
+**Goal**: Fix dimensionless calculations incorrectly converted to kg/mg units
+**Depends on**: v4.0 complete
+**Status**: Planned
+**Research**: Unlikely (root cause documented in ISSUES.md)
 **Plans**: 1
 
-Key deliverables:
-- `{{variable}}` syntax detection in text outside math blocks ✅
-- Variable lookup and value formatting ✅
-- Clear/process cycle support (restore `{{}}` after clear) ✅
-- Expression support: `{{A / B * 100}}` ✅
+**Problem:** When calculating a dimensionless value (e.g., ratio × constant), LiveMathTeX incorrectly displays result with `kg/mg` units, dividing value by 1,000,000.
+
+**Example:**
+```latex
+$U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 ==$
+```
+Expected: `54.08` (dimensionless)
+Actual: `5.4084e-05 kg/mg` (wrong!)
+
+**Test file:** `tests/test_iss_043_dimensionless_unit_conversion_bug.md`
 
 Plans:
-- [x] 29-01: Cross-reference parser and integration
+- [ ] 32-01: Fix dimensionless unit handling in evaluator
 
-#### Phase 30: Number Formatting (ISS-039) ✅
-**Goal**: Lower thousands separator threshold from 10000 to 1000
-**Depends on**: Phase 29
-**Status**: Complete
-**Completed**: 2026-01-15
-**Research**: None needed
+#### Phase 33: µmol JSON Output Bug (ISS-030)
+**Goal**: Fix µmol unit storage in JSON causing 1,000,000x errors
+**Depends on**: Phase 32
+**Status**: Planned
+**Research**: Unlikely (root cause documented)
 **Plans**: 1
 
-Key deliverables:
-- Changed threshold from >= 10000 to >= 1000 ✅
-- Numbers like 1234 now display as 1\,234 ✅
-- All example snapshots updated ✅
+**Problem:** When calculations involve µmol units, value is stored in JSON with wrong unit (mol instead of µmol), causing subsequent conversions to be 1,000,000x too large.
+
+**Test file:** `tests/test_iss_030_inplace_update.md`
 
 Plans:
-- [x] 30-01: Lower threshold and update tests
+- [ ] 33-01: Fix unit conversion in JSON serialization
 
-#### Phase 31: Unit Display (ISS-042) ✅
-**Goal**: Add configurable unit display formatting options
-**Depends on**: Phase 30
-**Status**: Complete
-**Completed**: 2026-01-15
-**Research**: None needed
+#### Phase 34: Function Evaluation (ISS-047)
+**Goal**: Fix remaining function evaluation issues for production use
+**Depends on**: Phase 33
+**Status**: Planned
+**Research**: Likely (need to identify all failure cases)
+**Plans**: 2
+
+**Problem:** While Phase 21 (v2.0) fixed basic function evaluation, real-world testing shows 6 errors on 4 function evaluations. Functions are not production-ready.
+
+**Symptoms:**
+- `Error: Unexpected token after expression: lparen '(' at position 2`
+- `Error: Undefined variable: a` (for function parameters)
+- Functions defined but cannot be called reliably
+
+**Test file:** `tests/test_functions.md`
+
+Plans:
+- [ ] 34-01: Investigate and categorize function evaluation failures
+- [ ] 34-02: Fix function call parsing and parameter substitution
+
+---
+
+## ✨ Features (Phases 35-37)
+
+#### Phase 35: \frac in Unit Expressions (ISS-044)
+**Goal**: Support `\frac` syntax in unit expressions for variable definitions
+**Depends on**: Phase 34
+**Status**: Planned
+**Research**: Unlikely
 **Plans**: 1
 
-Key deliverables:
-- UnitFormat enum: DEFAULT, FRACTION, EXPONENT ✅
-- Fraction notation: `mg/(L·d)` instead of `mg/d/L` ✅
-- Negative exponent: `mg·L⁻¹·d⁻¹` ✅
-- Config option: `unit_format` in LivemathConfig ✅
+**Problem:** Parser doesn't support `\frac` in unit expressions:
+```latex
+$gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$  <!-- FAILS -->
+$gamma_{26} := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}}$  <!-- Works -->
+```
+
+**Test file:** `tests/test_iss_044_frac_in_unit_expressions.md`
 
 Plans:
-- [x] 31-01: Unit format enum, config, and format functions
+- [ ] 35-01: Extend parser to handle \frac in unit definitions
 
-#### Phase 32: Array Operations (ISS-041) ⏸️ DEFERRED
+#### Phase 36: Smart Number Formatting (ISS-046)
+**Goal**: Add intelligent context-aware number formatting
+**Depends on**: Phase 35
+**Status**: Planned
+**Research**: Likely (design decisions needed)
+**Plans**: 2
+
+**Problem:** Fixed significant figures produce inconsistent results:
+| Current | Desired | Rationale |
+|---------|---------|-----------|
+| `24.1916 mm` | `24.2 mm` | 1 decimal for dimensions |
+| `165.347 1/m` | `165 m⁻¹` | Integer for S/V ratio |
+| `11.9467 kW` | `12 kW` | Round to nearest for power |
+
+**Implementation:**
+- Add `smart_format` boolean setting (default: false)
+- Context-aware precision based on magnitude and unit type
+- Round to "nice" numbers where appropriate
+
+Plans:
+- [ ] 36-01: Design smart formatting rules
+- [ ] 36-02: Implement smart_format option
+
+#### Phase 37: Array Operations (ISS-041)
 **Goal**: Add array/vector support for repetitive calculations
-**Depends on**: Phase 31
-**Status**: Deferred to v4.1
-**Reason**: Significant complexity requiring research + multi-component changes
-**Research**: Required (syntax design, storage format, parser changes)
+**Depends on**: Phase 36
+**Status**: Planned
+**Research**: Required (syntax design, storage format)
+**Plans**: 4
 
-Key deliverables (future):
-- Array definition syntax: `$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$`
+**Real-world impact:** High - Documents with 40+ repetitive calculations reduced to ~8 array definitions.
+
+**Example transformation:**
+```latex
+# Current (40+ lines):
+$gamma_{26} := 15\ mg/L/d$
+$gamma_{27} := 30.5\ mg/L/d$
+...
+
+# With arrays (8 lines):
+$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$
+$m := V_L \cdot gamma$
+```
+
+**Key deliverables:**
+- Array definition syntax: `$gamma := [15, 30.5, 34]\ mg/L/d$`
 - Element access: `$gamma[0]$` or named index `$gamma[2026]$`
 - Vectorized operations: `$m := V_L \cdot gamma$` (element-wise)
-- Clear/process cycle support (preserve definitions, clear results)
-- IR schema extension for array storage
-
-**Decision:** v4.0 will ship with 3 features (cross-references, number formatting, unit display). Array operations deferred to v4.1 milestone.
 
 Plans:
-- [ ] 32-01: Research syntax and storage format
-- [ ] 32-02: Parser extension for array literals
-- [ ] 32-03: Evaluator extension for element access
-- [ ] 32-04: Vectorized operations
+- [ ] 37-01: Research syntax and storage format
+- [ ] 37-02: Parser extension for array literals
+- [ ] 37-03: Evaluator extension for element access
+- [ ] 37-04: Vectorized operations
+
+---
+
+## 📚 Documentation (Phase 38)
+
+#### Phase 38: Documentation Update (ISS-045)
+**Goal**: Update USAGE.md with repetitive calculations guidance
+**Depends on**: Phase 37
+**Status**: Planned
+**Research**: None
+**Plans**: 1
+
+**Content to add:**
+- Reference to array operations (once implemented)
+- Workarounds for current limitations
+- Best practices for organizing repetitive calculations
+
+Plans:
+- [ ] 38-01: Update USAGE.md with array operations and best practices

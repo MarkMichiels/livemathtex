@@ -2,193 +2,148 @@
 
 Enhancements discovered during execution. Not critical - address in future phases.
 
+## Open Bugs
+
+### ISS-043: Dimensionless Calculation Incorrectly Converted to kg/mg Units
+
+- **Discovered:** 2026-01-15 (during debug-calculations workflow on astaxanthin_production_analysis.md)
+- **Type:** Bug
+- **Description:** When calculating a dimensionless value (e.g., a ratio × dimensionless constant), LiveMathTeX incorrectly displays the result with `kg/mg` units, causing the value to be divided by 1,000,000. The numeric calculation is correct, but the displayed value is wrong.
+- **Expected:** Result should be dimensionless (e.g., `54.08` or `54.08%`)
+- **Actual:** Result is displayed as `5.4084e-05 kg/mg` (1,000,000x too small)
+- **Root cause:** LiveMathTeX is calculating the correct numeric value but then incorrectly trying to convert it to `kg/mg` units. To convert dimensionless to `kg/mg`, it divides by 1,000,000 (since 1 kg = 1,000,000 mg), producing the wrong displayed value. This occurs even when there is no `[kg/mg]` unit hint in the input.
+- **Impact:** High - Causes cascading errors in all dependent calculations (energy, SEC, cost calculations that depend on uptime values). The numeric calculation is correct, but the displayed value is wrong, making it impossible to use the result in subsequent calculations.
+- **Test file:** `tests/test_iss_043_dimensionless_unit_conversion_bug.md`
+- **Example:**
+  ```latex
+  $T_{26} := 112\ \text{kg}$
+  $C_{26} := 186.3778\ \text{kg}$
+  $U_{26} := \frac{T_{26}}{C_{26}} \cdot 90 ==$ <!-- Dimensionless (percentage) -->
+  ```
+  Expected: `54.08` (dimensionless)
+  Actual: `5.4084e-05 kg/mg` (wrong!)
+
 ## Open Enhancements
-
----
-
-### ISS-042: Better Unit Display Formatting
-
-**Status:** Open (Feature Request)
-**Created:** 2026-01-15
-**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
-
-**Description:**
-Compound units are displayed in Pint's default format (e.g., `mg/d/L`) which may not match preferred scientific notation (e.g., `mg/(L·d)` or `mg·L⁻¹·d⁻¹`). Users should be able to control unit display format.
-
-**Test file:** `tests/test_iss_042_unit_display_formatting.md`
-
-**Expected:** Can control unit display format via configuration (e.g., `<!-- unit-format:fraction -->`)
-**Actual:** Units are displayed in Pint's default format only
-
-**Root cause:** Unit formatting uses Pint's default string representation without formatting options.
-
-**Impact:** Low-Medium - Improves readability and matches scientific conventions. Some journals prefer specific unit formats.
-
-**Feature Request:**
-Add unit formatting options:
-- Prefer fraction notation: `mg/(L·d)` instead of `mg/d/L`
-- Use negative exponents: `mg·L⁻¹·d⁻¹`
-- Configurable via `<!-- unit-format:fraction -->` or document setting
-- Preserve user's unit hint format when possible
-
-**Preferred:** Configurable option with sensible defaults.
-
-**⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement). Unit format settings must remain in comments after `clear`.
-
----
-
-### ISS-041: Array/Vector Operations for Repetitive Calculations
-
-**Status:** Open (Feature Request)
-**Created:** 2026-01-15
-**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
-
-**Description:**
-Many documents have repetitive calculations for different values (e.g., years 2026-2030, multiple reactors). Currently, each calculation must be defined manually, leading to verbose code.
-
-**Test file:** `tests/test_iss_041_array_operations.md`
-
-**Expected:** Can define arrays and iterate over them to calculate values
-**Actual:** Must manually define each calculation (e.g., `gamma_26`, `gamma_27`, etc.)
-
-**Root cause:** LiveMathTeX doesn't support array/vector operations.
-
-**Impact:** Medium - Reduces code duplication for repetitive calculations. Improves maintainability when values change.
-
-**Feature Request:**
-Add array/vector support:
-- Define arrays: `$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$`
-- Element access: `$gamma[0]$` or `$gamma_26$` (if array indexed by year)
-- Vectorized operations: `$m := V_L \cdot gamma$` (element-wise multiplication)
-- Array indexing: Support for named indices (e.g., `gamma[2026]`)
-
-**Preferred:** Start with basic array support, then add vectorized operations.
-
-**⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement). Array definitions must remain after `clear`, only calculated results removed.
-
----
-
-### ISS-040: Cross-References to Calculated Values in Text
-
-**Status:** Open (Feature Request)
-**Created:** 2026-01-15
-**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
-
-**Description:**
-Documents often need to reference calculated values in prose text (e.g., executive summaries, conclusions). Currently, variables in text are not evaluated, requiring manual copy-paste of calculated values.
-
-**Test file:** `tests/test_iss_040_cross_references.md`
-
-**Expected:** Can reference variables like `{{C_max}}` in text to display calculated values
-**Actual:** Variables in text are not evaluated (or require full math block syntax)
-
-**Root cause:** LiveMathTeX only processes math blocks (`$...$`), not inline variable references in text.
-
-**Impact:** High - Enables "single source of truth" documents where calculated values automatically appear in executive summaries, conclusions, and other prose sections. Reduces manual errors from copy-paste.
-
-**Feature Request:**
-Add syntax for inline variable references in text:
-- Option 1: `{{variable}}` syntax (e.g., `{{C_max}}` → `550 kg`)
-- Option 2: `$variable$` in text (outside math blocks) gets evaluated
-- Option 3: Special syntax like `\ref{C_max}` or `@C_max`
-
-**Preferred:** Option 1 (`{{variable}}`) to distinguish from math blocks and allow unit formatting.
-
-**⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement). After `clear`, `{{variable}}` syntax must be restored, not the evaluated value.
-
-**Example:**
-```markdown
-The maximum capacity is **{{C_max}} kg/year**.
-The 2030 target is **{{T_2030}} kg/year**, which is **{{T_2030 / C_max * 100}}%** of maximum.
-```
-
----
-
-### ISS-039: Thousands Separator Formatting
-
-**Status:** Open (Feature Request)
-**Created:** 2026-01-15
-**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
-
-**Description:**
-Large numbers (>= 1000) are displayed without thousands separators, making them harder to read. For example, `37824` should be displayed as `37,824` (or `37 824` in European format).
-
-**Test file:** `tests/test_iss_039_thousands_separator.md`
-
-**Expected:** Numbers >= 1000 should display with thousands separators (e.g., `37,824` instead of `37824`)
-**Actual:** Numbers are displayed without separators (e.g., `37824`)
-
-**Root cause:** The number formatting in `_format_si_value()` and related functions doesn't add thousands separators.
-
-**Impact:** Medium - Improves readability of large numbers in documents, especially for engineering calculations with values in thousands/millions.
-
-**Feature Request:**
-Add automatic thousands separator formatting:
-- Option 1: Always format numbers >= 1000 with separators
-- Option 2: Configurable via `<!-- format:thousands -->` or document setting
-- Option 3: Use locale-aware formatting (US: comma, EU: space or period)
-
-**Preferred:** Option 2 (configurable) with default enabled for numbers >= 1000.
-
-**⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement).
-
----
-
-## Closed Issues
-
-### ISS-036: Variables with commas in subscripts fail with "argument of type 'Symbol' is not iterable" (potential regression of ISS-034)
-
-**Resolved:** 2026-01-15 - Fixed in v3.1 (SymPy removal)
-**Solution:** The "argument of type 'Symbol' is not iterable" error is fixed. The custom expression parser handles commas in subscripts correctly. Remaining errors in test file are due to invalid test data syntax (e.g., `== [g/d]` which is not valid LiveMathTeX syntax).
-
-### ISS-035: Multi-letter variable names parsed as implicit multiplication
-
-**Resolved:** 2026-01-15 - Not a bug (expected behavior with workaround)
-**Solution:** This is expected behavior of LaTeX math notation - `Cost` in LaTeX means `C × o × s × t`. Use subscripts for multi-letter variable names: `Cost_{26}` instead of `Cost`. For custom unit prefixes like `k€`, define explicitly: `k€ === 1000\ €`. This is standard LaTeX convention, not a bug.
-
-### ISS-038: Variables with commas in subscripts fail in expressions with "I expected something else here"
-
-**Resolved:** 2026-01-15 - Fixed in v3.1 (SymPy removal)
-**Solution:** The complete removal of latex2sympy and SymPy in v3.1 fixed this issue. The custom expression parser now handles commas in subscripts correctly. Test file `tests/test_iss_038_comma_subscript_expression_parse_error.md` now processes with 0 errors.
-
-### ISS-037: Variables in table cells fail with "argument of type 'Symbol' is not iterable"
-
-**Resolved:** 2026-01-15 - Fixed in v3.1 (SymPy removal)
-**Solution:** The complete removal of latex2sympy and SymPy in v3.1 fixed this issue. The root cause was latex2sympy's Symbol handling. Test file `tests/test_iss_037_table_cell_symbol_not_iterable.md` now processes with 0 errors.
-
-### ISS-033: Variable name with superscript (R^2) conflicts with unit (molar_gas_constant ** 2)
-
-**Resolved:** 2026-01-14 - Fixed in v2.1 Phase 22
-**Solution:** Updated `check_variable_name_conflict()` in `pint_backend.py` to treat superscripts (`^`) the same as subscripts (`_`) for disambiguation purposes. Variable names containing `^` are now explicitly allowed without unit conflict checking. This allows common mathematical notation like `R^2` (coefficient of determination) without conflicting with unit expressions like `R**2` (molar_gas_constant ** 2).
-
-### ISS-034: Variable parsing fails for variables with commas in subscript
-
-**Resolved:** 2026-01-14 - Already fixed (verified during v2.1 build cycle)
-**Solution:** Variables with commas in subscripts (e.g., `PAR_{R2,umol}`) now parse and evaluate correctly. Test case `PAR_{R2,umol} := 1413 µmol/s` followed by `PAR_{R2} := PAR_{R2,umol} \cdot t_{day}` produces correct result `122.0832 mol/d`. The fix was likely a side effect of earlier parser improvements.
-
-### ISS-032: Function evaluation fails - "Cannot convert expression to float"
-
-**Resolved:** 2026-01-14 - Fixed in v2.0 Phase 21
-**Solution:** Three interrelated bugs fixed in `evaluator.py`:
-1. Function name normalization in `_substitute_symbols` - normalized lookup key to match stored key
-2. Function latex_name extraction - stored just the function name (e.g., `PPE_{eff}`) instead of full signature (`PPE_{eff}(r_{frac})`)
-3. Internal ID reverse lookup - when expression is rewritten to use internal IDs like `f_{0}`, added reverse mapping to find original symbol
-
-All 365 tests pass + 3 xpassed. Function calls like `PPE_{eff}(0.90)` now correctly evaluate to `3.765`.
-
-### ISS-031: Unit propagation failure when multiplying unit by dimensionless value
-
-**Resolved:** 2026-01-14 - Fixed as side effect of ISS-030 fix in v1.8 Phase 20
-**Solution:** The regex fix in `_compute_with_pint` that resolved ISS-030 also fixed this issue. Testing confirms `PPE_{eff} := PPE_{red} \cdot f_{geom}` now correctly produces `3.9223 micromol/J` instead of treating the result as dimensionless. The SymPy symbol format mismatch was preventing proper unit lookup, which caused Pint evaluation to fail and fall back to SymPy (which doesn't preserve units).
 
 ### ISS-030: Unit conversion bug - µmol not converted to mol in JSON output
 
-**Resolved:** 2026-01-13 - Fixed in v1.8 Phase 20
-**Solution:** The root cause was a regex mismatch in `_compute_with_pint`. SymPy parses internal IDs differently:
-- Single digit: `v_0` (no braces)
-- Multi digit: `v_{15}` (with braces)
+- **Discovered:** 2026-01-13 (during debug-calculations workflow on astaxanthin_production_analysis.md)
+- **Type:** Bug
+- **Description:** When calculations involve µmol (micromol) units, LiveMathTeX correctly calculates the value but stores it in JSON with the wrong unit (mol instead of µmol), causing subsequent conversions to be 1,000,000x too large. Example: `$PAR_{rct} := P_{LED,dc} \cdot PPE_{eff}$` correctly calculates `7530.9 µmol/s`, but stores it in JSON as `7530.9 mol/s`, leading to `650,670,299 mol/day` instead of `650.6 mol/day` when converting to the target unit.
+- **Expected:** JSON output should store values with correct units (e.g., `0.0075309 mol/s` or `7530.9 µmol/s`, not `7530.9 mol/s`)
+- **Actual:**
+  - Calculation gives correct value: `7530.9 µmol/s`
+  - JSON stores: `7530.9 mol/s` (missing µmol → mol conversion)
+  - Output shows: `7531 mol/d` (verkeerd - zou `650.6 mol/d` moeten zijn)
+  - Note: De verwachte conversie `7530.9 mol/s × 86400 s/day = 650,670,299 mol/day` gebeurt niet, wat suggereert dat er mogelijk een extra bug is in de conversie naar target unit
+- **Root cause:**
+  - The JSON serialization process does not properly convert µmol to mol when storing values
+  - The value magnitude is stored correctly, but the unit is changed from `µmol/s` to `mol/s` without adjusting the magnitude
+  - This affects any calculation chain that involves µmol units
+- **Impact:** High (causes incorrect results in documents using µmol units, especially in bioprocess calculations)
+- **Effort:** Medium (fix unit conversion in JSON serialization)
+- **Suggested phase:** Current
+- **Files to change:**
+  - `src/livemathtex/engine/evaluator.py` - JSON serialization logic for units
+  - `src/livemathtex/ir/schema.py` - IR unit storage format
+  - `src/livemathtex/engine/pint_backend.py` - Unit conversion helpers
+- **Test file:** `tests/test_iss_030_inplace_update.md` - Reproduces the bug with minimal example
+- **Affected document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md` (line 251: `PAR_{rct}` calculation)
+- **Investigation notes:**
+  - Manual Pint calculation confirms: `7530.9 µmol/s = 0.0075309 mol/s = 650.6 mol/day` ✓
+  - LiveMathTeX JSON shows: `"value": 7530.906240000001, "unit": "mol/s"` (WRONG - should be `0.0075309 mol/s` or `7530.9 µmol/s`)
+  - The bug is in how the value is stored, not in the calculation itself
 
-But our internal ID format always uses braces: `v_{0}`, `v_{1}`, `v_{15}`. Fixed regex from `r'^v_\{(\d+)\}$'` to `r'^v_\{?(\d+)\}?$'` to handle both formats. Also added ISS-013 inline unit hint tracking to `process_text_v3`. All 365 tests pass.
+### ISS-044: Support \frac in Unit Expressions for Variable Definitions
+
+- **Discovered:** 2026-01-15 (during debug-calculations workflow on astaxanthin_production_analysis.md)
+- **Type:** Feature Request
+- **Description:** The LiveMathTeX parser currently does not support the use of `\frac` within unit expressions when defining a variable with a value and an explicit unit. For example, `$gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$` fails with a parsing error. However, `\frac` works correctly within calculation expressions (e.g., `$gamma_{26} := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}}$`).
+- **Expected:** The parser should correctly interpret `\frac` within unit expressions for variable definitions, allowing for more natural LaTeX syntax.
+- **Actual:** Parsing error "Unexpected token after expression: frac".
+- **Root cause:** The parser's handling of unit expressions in variable definitions needs to be extended to correctly interpret `\frac` as part of the unit.
+- **Impact:** Medium - Requires users to use a less intuitive calculation syntax for compound unit definitions, leading to less readable code.
+- **Test file:** `tests/test_iss_044_frac_in_unit_expressions.md`
+- **⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement). The `\frac` syntax in unit definitions must be preserved after `clear`.
+
+### ISS-045: Update USAGE.md to Document Repetitive Calculations and Array Operations
+
+- **Discovered:** 2026-01-15 (during document improvement workflow on astaxanthin_production_analysis.md)
+- **Type:** Documentation
+- **Description:** USAGE.md mentions "Matrices & Vectors" but doesn't document:
+  1. Array/vector operations for repetitive calculations (ISS-041 feature request)
+  2. Workarounds for repetitive calculations until arrays are implemented
+  3. Best practices for organizing repetitive calculations
+- **Expected:** USAGE.md includes section on repetitive calculations with:
+  - Reference to ISS-041 (array operations feature request)
+  - Workarounds for current limitations
+  - Best practices and examples
+- **Actual:** USAGE.md only shows basic matrix/vector syntax, no guidance on repetitive calculations
+- **Root cause:** Documentation gap - feature request (ISS-041) exists but not documented in user guide.
+- **Impact:** Medium - Documentation gap makes it unclear how to handle repetitive calculations. Users resort to verbose manual definitions.
+- **Test file:** `tests/test_iss_045_update_usage_doc.md`
+- **Action Items:**
+  1. Add section "Repetitive Calculations" to USAGE.md
+  2. Document ISS-041 as planned feature
+  3. Show workarounds for current limitations
+  4. Provide best practices and examples
+
+### ISS-046: Intelligent Number Formatting (Smart Rounding)
+
+- **Discovered:** 2026-01-15 (user feedback on astaxanthin_production_analysis.md)
+- **Type:** Feature Request
+- **Description:** Current number formatting uses fixed significant figures (default: 4), which produces inconsistent and sometimes ugly results. For example:
+  - `24.1916` (4 decimals, but could be `24.2` for readability)
+  - `165.347` (3 decimals, but could be `165` or `165.3`)
+  - `11.9467` (4 decimals, but could be `11.9` or `12`)
+- **Proposed Intelligence:**
+  1. **Context-aware precision**: Different precision based on magnitude and unit type
+  2. **Smart rounding**: Round to "nice" numbers (1, 2, 5, 10, 20, 50, 100, etc.)
+  3. **Unit-appropriate precision**:
+     - Large values (kg, MWh): 0-2 decimals
+     - Medium values (W, g/d): 1-3 decimals
+     - Small values (mg/L, µmol/J): 2-4 decimals
+     - Percentages: 1-2 decimals
+  4. **Avoid trailing zeros**: `24.0` → `24`, `10.00` → `10`
+  5. **Scientific notation threshold**: Use scientific notation for very large/small numbers
+- **Examples of desired output:**
+  | Current | Desired | Rationale |
+  |---------|---------|-----------|
+  | `24.1916 mm` | `24.2 mm` | 1 decimal sufficient for dimensions |
+  | `165.347 1/m` | `165 m⁻¹` | Integer for S/V ratio |
+  | `11.9467 kW` | `12 kW` | Round to nearest integer for power |
+  | `3.9223 µmol/J` | `3.92 µmol/J` | 2 decimals for efficiency |
+  | `186.3778 kg` | `186 kg` | Integer for capacity |
+  | `54.08%` | `54%` | Integer for percentages |
+- **Implementation approach:**
+  1. Add `smart_format` boolean setting (default: false for backward compatibility)
+  2. When enabled, analyze magnitude and unit type
+  3. Apply context-appropriate precision
+  4. Round to "nice" numbers where appropriate
+- **Impact:** Medium - Significantly improves readability of calculated values in documents.
+
+### ISS-047: Function Evaluation Issues in Real-World Usage
+
+- **Discovered:** 2026-01-15 (during document improvement workflow on astaxanthin_production_analysis.md)
+- **Type:** Bug/Enhancement
+- **Description:** While Phase 21 (v2.0) fixed basic function evaluation (ISS-032), real-world testing shows functions still have issues. Testing with `astaxanthin_production_analysis.md` showed 6 errors on 4 function evaluations, indicating functions are not production-ready.
+- **Expected:** Functions should work reliably for real-world use cases like:
+  - `$PPE_{eff}(r_{frac}) := (r_{frac} \cdot 4.29 + (1 - r_{frac}) \cdot 2.57) \cdot 0.9143$`
+  - `$PPE_{test} := PPE_{eff}(0.90) ==$` (should evaluate correctly)
+- **Actual:** Function evaluation produces errors:
+  - `Error: Unexpected token after expression: lparen '(' at position 2`
+  - `Error: Undefined variable: a` (for function parameters)
+  - Functions defined but cannot be called reliably
+- **Root cause:** While ISS-032 was marked as resolved, real-world testing reveals remaining issues with:
+  1. Function call parsing (parentheses handling)
+  2. Parameter substitution in multi-parameter functions
+  3. Complex function names with subscripts
+- **Impact:** High - Prevents using functions for repetitive calculations, forcing verbose manual definitions. Arrays (ISS-041) would help, but functions are also needed for reusable calculations.
+- **Test file:** `tests/test_functions.md` (created during testing, shows 6 errors on 4 evaluations)
+- **Related:** ISS-032 (marked resolved, but needs verification for production use)
+- **Next Round:** Verify Phase 21 fixes work in production, identify and fix remaining issues
+
+## Closed Issues
 
 ### ISS-029: Rate × time calculations produce incorrect results (regression of ISS-024)
 
@@ -358,5 +313,4 @@ Added 5 tests in `TestCustomUnitWithDivision` class.
 **Solution:** Added dimensional compatibility checking. Pre-checks dimensions before addition/subtraction operations. Incompatible unit operations now produce clear error messages.
 
 ---
-
-*Last reviewed: 2026-01-14 (All issues resolved, v2.0 complete)*
+*Last reviewed: 2026-01-15 (v4.0 issues identified during document improvement workflow)*

@@ -5,23 +5,26 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** v4.0 Features milestone - COMPLETE
+**Current focus:** v4.1 Bug Fixes & Enhancements milestone
 
 ## Current Position
 
-Phase: 31 of 31 (Unit Display) - COMPLETE
-Plan: All plans executed
-Status: ✅ v4.0 milestone complete, ready for merge
-Last activity: 2026-01-15 — v4.0 Features complete
-Branch: `build-all-20260115-110457` → merge to master
+Phase: 32 of 38 (Dimensionless Unit Bug) - PLANNED
+Plan: Not started
+Status: 📋 v4.1 milestone ready to start
+Last activity: 2026-01-16 — v4.1 milestone organized
+Branch: master
 
-Progress: ██████████ 100% (3 of 3 phases - Phase 32 deferred to v4.1)
+Progress: ░░░░░░░░░░ 0% (0 of 7 phases)
 
-**Feature requests addressed:** ISS-039, ISS-040, ISS-042
-- ISS-040 ✅ Phase 29 complete (Cross-References)
-- ISS-039 ✅ Phase 30 complete (Number Formatting)
-- ISS-042 ✅ Phase 31 complete (Unit Display)
-- ISS-041 ⏸️ Deferred to v4.1 (Array Operations)
+**v4.1 Phases:**
+- Phase 32: 🐛 Dimensionless Unit Bug (ISS-043)
+- Phase 33: 🐛 µmol JSON Output Bug (ISS-030)
+- Phase 34: 🐛 Function Evaluation (ISS-047)
+- Phase 35: ✨ \frac in Unit Expressions (ISS-044)
+- Phase 36: ✨ Smart Number Formatting (ISS-046)
+- Phase 37: ✨ Array Operations (ISS-041)
+- Phase 38: 📚 Documentation Update (ISS-045)
 
 ## Performance Metrics
 
@@ -120,23 +123,14 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-01-15
-Stopped at: v4.0 milestone complete
+Last session: 2026-01-16
+Stopped at: v4.1 milestone organized
 Resume file: None
-Next: Merge to master, tag v4.0.0
+Next: Start Phase 32 (Dimensionless Unit Bug)
 
-**v4.0 Summary:**
-- ✅ Phase 29: Cross-References (ISS-040) - 35 new tests, 510 total
-- ✅ Phase 30: Number Formatting (ISS-039) - threshold fix
-- ✅ Phase 31: Unit Display (ISS-042) - 16 new tests, 526 total
-- ⏸️ Phase 32: Array Operations (ISS-041) - deferred to v4.1 (complexity)
+**v4.1 Milestone Overview:**
+- 🐛 3 bug fixes (Phases 32-34)
+- ✨ 3 features (Phases 35-37)
+- 📚 1 documentation update (Phase 38)
 
-### v4.0 Milestone Completion
-
-**Features Delivered:**
-1. **Cross-References** (ISS-040): `{{variable}}` syntax for prose text
-2. **Number Formatting** (ISS-039): Thousands separator threshold lowered to 1000
-3. **Unit Display** (ISS-042): UnitFormat enum (DEFAULT, FRACTION, EXPONENT)
-
-**Tests:** 526 total (51 new tests across 3 phases)
-**Status:** Ready for merge to master
+**Priority:** Bugs first, then features, then docs
