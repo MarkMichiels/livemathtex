@@ -1,0 +1,89 @@
+{
+  "version": "3.0",
+  "source": "tests/test_frac_unit_expressions.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {
+    "v0": {
+      "latex_name": "conc_1",
+      "original": {
+        "value": 15.0,
+        "unit": "milligram / liter"
+      },
+      "base": {
+        "value": 0.014999999999999998,
+        "unit": "kilogram / meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v1": {
+      "latex_name": "rate_1",
+      "original": {
+        "value": 15.0,
+        "unit": "milligram / day / liter"
+      },
+      "base": {
+        "value": 1.736111111111111e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v2": {
+      "latex_name": "Vol",
+      "original": {
+        "value": 1000.0,
+        "unit": "liter"
+      },
+      "base": {
+        "value": 1.0000000000000002,
+        "unit": "meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v3": {
+      "latex_name": "daily_{mass}",
+      "original": {
+        "value": 15000.0,
+        "unit": "milligram / day"
+      },
+      "base": {
+        "value": 1.736111111111111e-07,
+        "unit": "kilogram / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v4": {
+      "latex_name": "power_{rate}",
+      "original": {
+        "value": 100.0,
+        "unit": "kilowatt / meter ** 3"
+      },
+      "base": {
+        "value": 100000.0,
+        "unit": "kilogram / meter / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-16 00:39:22",
+    "duration": "0.07s",
+    "symbols": 5,
+    "custom_units": 0,
+    "definitions": 5,
+    "evaluations": 4,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0,
+    "warnings": 0
+  }
+}

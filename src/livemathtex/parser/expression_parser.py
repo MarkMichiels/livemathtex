@@ -462,6 +462,9 @@ class ExpressionParser:
                 num_parts.append(token.value)
             elif token.type == TokenType.OPERATOR and token.value == "^":
                 num_parts.append("**")
+            elif token.type == TokenType.OPERATOR and token.value in ("\\cdot", "\\times", "*"):
+                # Handle multiplication operators in unit expressions (L \cdot d, etc.)
+                num_parts.append("*")
             elif token.type == TokenType.LBRACE:
                 # Handle nested braces like m^{3}
                 self._advance()
@@ -508,6 +511,9 @@ class ExpressionParser:
                 denom_parts.append(token.value)
             elif token.type == TokenType.OPERATOR and token.value == "^":
                 denom_parts.append("**")
+            elif token.type == TokenType.OPERATOR and token.value in ("\\cdot", "\\times", "*"):
+                # Handle multiplication operators in unit expressions (L \cdot d, etc.)
+                denom_parts.append("*")
             elif token.type == TokenType.LBRACE:
                 # Handle nested braces
                 self._advance()
@@ -544,8 +550,14 @@ class ExpressionParser:
         numerator = "".join(num_parts)
         denominator = "".join(denom_parts)
 
+        # Build unit string with proper grouping for compound denominators
+        # For "L*d" denominator, we need "mg/(L*d)" for Pint to parse correctly
+        if "*" in denominator:
+            unit_str = f"{numerator}/({denominator})"
+        else:
+            unit_str = f"{numerator}/{denominator}"
+
         # Check if result is a valid unit
-        unit_str = f"{numerator}/{denominator}"
         if is_pint_unit(unit_str):
             return unit_str
 
@@ -556,7 +568,8 @@ class ExpressionParser:
 
         # Fallback: if it looks like a unit pattern, accept it
         # The evaluator will validate later
-        if len(numerator) <= 3 and len(denominator) <= 3:
+        # Allow longer compound units (e.g., mg/(L*day))
+        if len(numerator) <= 10 and len(denominator) <= 10:
             return unit_str
 
         self.pos = saved_pos
