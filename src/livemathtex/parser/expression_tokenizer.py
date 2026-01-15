@@ -77,6 +77,10 @@ class ExpressionTokenizer:
         # Multi-letter variables with simple subscript (no braces)
         # x_1, E_0 (but not just x or E alone)
         (re.compile(r"[A-Za-z]+_[A-Za-z0-9]+"), TokenType.VARIABLE, False),
+        # Simple alphanumeric internal IDs (v0, v1, f0, x0, etc.)
+        # Must be a letter followed by digits only (not letter+letter like "kg")
+        # This supports the v3.0 internal ID format
+        (re.compile(r"[vfx]\d+"), TokenType.VARIABLE, False),
         # Greek letters (common ones used in math/physics)
         (
             re.compile(

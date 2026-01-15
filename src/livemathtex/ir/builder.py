@@ -77,12 +77,12 @@ class IRBuilder:
         """
         Load symbols from a library JSON file into the IR.
 
-        Library format (v2.0):
+        Library format (v3.0):
         {
             "name": "Library Name",
             "symbols": {
                 "symbol_name": {
-                    "id": "v_{0}",
+                    "id": "v0",
                     "original": {"value": 42, "unit": "kg"},
                     "si": {"value": 42, "unit": "kilogram"},
                     "valid": true,

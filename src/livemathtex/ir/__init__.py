@@ -1,14 +1,15 @@
 """
 Intermediate Representation (IR) module for livemathtex.
 
-Version 2.0 - Simplified schema:
+Version 3.0 - Schema with simple internal IDs:
 - Symbols with original and SI-converted values
 - Custom unit definitions
 - Errors array with line numbers
 
-Symbol normalization uses the v_{n}/f_{n} architecture:
-- Variables: v_{0}, v_{1}, v_{2}, ...
-- Functions: f_{0}, f_{1}, f_{2}, ...
+Symbol normalization uses the v0/f0/x0 architecture:
+- Variables: v0, v1, v2, ...
+- Formulas: f0, f1, f2, ...
+- Parameters: x0, x1, x2, ...
 
 See symbols.py NameGenerator for the implementation.
 """

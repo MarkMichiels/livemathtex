@@ -56,7 +56,7 @@ class SymbolEntry:
     Complete information about a defined symbol.
 
     Attributes:
-        id: Internal ID (e.g., "v_{0}" or "v1")
+        id: Internal ID (e.g., "v0", "v1", "f0")
         original: User's input value and unit (for display)
         si: SI-converted value and unit (for calculations)
         valid: Whether the unit conversion was successful
