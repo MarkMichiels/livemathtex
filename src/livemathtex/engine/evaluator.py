@@ -1,8 +1,8 @@
 """
 LiveMathTeX Evaluator - Core calculation engine.
 
-v3.0 Pure Pint Architecture:
-- All calculations use the custom parser + Pint (no sympy/the old latex parser)
+Architecture:
+- All calculations use the custom parser + Pint
 - Symbol normalization uses v_{n} / f_{n} naming scheme
 - Variables: v_{0}, v_{1}, v_{2}, ...
 - Functions: f_{0}, f_{1}, f_{2}, ...
@@ -51,7 +51,7 @@ GREEK_LETTERS_REVERSE = {v: k for k, v in GREEK_LETTERS.items()}
 
 class Evaluator:
     """
-    Executes calculations using SymPy and a SymbolTable.
+    Executes calculations using Pint and a SymbolTable.
     """
 
     # ISSUE-002: RESERVED_UNIT_NAMES removed.
@@ -547,8 +547,8 @@ class Evaluator:
         target = self._normalize_symbol_name(calc.target)
         import re
         from .pint_backend import (
-            sympy_strip_unit_from_value as strip_unit_from_value,
-            get_sympy_unit_registry as get_unit_registry,
+            strip_unit_from_value,
+            get_custom_unit_registry as get_unit_registry,
         )
 
         # CHECK: Prevent variable names that conflict with known unit names
@@ -559,7 +559,7 @@ class Evaluator:
         func_match = re.match(r'^\s*([a-zA-Z_]\w*)\s*\(\s*([a-zA-Z_]\w*)\s*\)\s*$', target) if target else None
 
         if func_match:
-            # v3.0: Function definitions are stored as formulas, not sympy.Lambda
+            # Function definitions are stored as formulas
             # The formula will be evaluated by substituting the parameter value when called
             func_name = func_match.group(1)
             arg_name = func_match.group(2)
@@ -577,7 +577,7 @@ class Evaluator:
 
             self.symbols.set(
                 func_name,
-                value=None,  # v3.0: No sympy.Lambda, use formula_expression instead
+                value=None,  # Use formula_expression instead
                 raw_latex=rhs_raw,
                 latex_name=func_latex_name,
                 valid=True,
@@ -595,7 +595,7 @@ class Evaluator:
             assignment_latex = f"{original_target} := {rhs_raw}"
 
         elif target:
-            # v3.0: Use Pint for all calculations - no sympy fallback
+            # Use Pint for all calculations
             from .pint_backend import format_pint_unit
 
             # Compute the expression using Pint
@@ -610,7 +610,7 @@ class Evaluator:
             base_result = pint_result.to_base_units()
             si_value = float(base_result.magnitude)
             si_unit_str = format_pint_unit(base_result.units)
-            # Create sympy unit placeholder for storage (temporary - will be removed in later phase)
+            # Store unit as string
             si_unit = si_unit_str if si_unit_str != 'dimensionless' else None
             valid = True  # Pint handles all conversions
 
@@ -660,12 +660,9 @@ class Evaluator:
         lhs = lhs_part.strip()
 
         # ISS-024 FIX: Use Pint for evaluation to ensure proper unit cancellation
-        # ISS-037 FIX: Don't fall back to SymPy for dimensionless results - Pint handles them correctly
-        # v3.0: No fallback to SymPy - custom parser handles everything
         pint_result = self._compute_with_pint(lhs)
         result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
 
-        # v3.0: Skip LHS normalization - no longer using the old latex parser
         # The original LaTeX is preserved as-is
         return f"{lhs} == {result_latex}"
 
@@ -819,7 +816,7 @@ class Evaluator:
 
         from .pint_backend import format_pint_unit
 
-        # v3.0: Use Pint for all calculations - no sympy fallback
+        # Use Pint for all calculations
         pint_result = self._compute_with_pint(rhs)
 
         # Extract magnitude and unit from Pint result
@@ -857,10 +854,6 @@ class Evaluator:
 
         return f"{lhs} := {rhs} == {result_latex}"
 
-# NOTE: Dead sympy code removed in v3.0 (Phase 28):
-    # - _check_undefined_symbols, _check_dimensional_compatibility
-    # - _check_add_dimensional_compatibility, _extract_unit_from_value
-    # - _convert_to_si, _validate_round_trip
 
     def _normalize_unit_string(self, unit_str: str) -> str:
         """
@@ -898,22 +891,17 @@ class Evaluator:
 
         return unit_str
 
-    # NOTE: Dead sympy code removed in v3.0 (Phase 28):
-    # - _parse_unit_with_prefix, _apply_conversion, _extract_unit_string, _format_si_value
-    # Unit parsing/conversion is now handled by Pint backend exclusively.
-
     def _handle_symbolic(self, calc: Calculation) -> str:
         """Handle $expr =>$
 
-        v3.0: Symbolic operations (differentiation, etc.) are not supported
-        in the Pint-based evaluator. This feature requires sympy which has
-        been removed to fix stability issues (ISS-035, ISS-036, etc.).
+        Symbolic operations (differentiation, integration, etc.) are not
+        supported in the current evaluator.
         """
         content = calc.latex
         lhs = content.split("=>")[0].strip()
 
         raise EvaluationError(
-            f"Symbolic operations (=>) are not supported in v3.0. "
+            f"Symbolic operations (=>) are not supported. "
             f"Expression: {lhs}"
         )
 
@@ -1007,7 +995,7 @@ class Evaluator:
         # Register in Pint backend for value: directive conversions (ISSUE-001 fix)
         define_custom_unit_from_latex(unit_name, definition)
 
-        # Also register in SymPy registry for calculation purposes
+        # Also register in custom unit registry
         registry = get_unit_registry()
         unit_def = registry.define_unit(full_definition)
 
@@ -1053,15 +1041,8 @@ class Evaluator:
         # Fallback: return the numeric value without conversion
         return self._extract_numeric_value(value)
 
-    # NOTE: Dead sympy code removed in v3.0 (Phase 28):
-    # - _get_numeric_in_unit, _parse_unit_expression, _parse_single_unit
-    # Unit conversion now handled by Pint backend exclusively.
-
     def _extract_numeric_value(self, value: Any) -> float:
-        """Extract the numeric value from a stored value.
-
-        v3.0: Values are stored as floats from Pint, so this is simplified.
-        """
+        """Extract the numeric value from a stored value."""
         # Direct float conversion - should work for all v3.0 values
         try:
             return float(value)
@@ -1341,8 +1322,7 @@ class Evaluator:
         """
         Evaluate a LaTeX expression using the custom tokenizer/parser pipeline.
 
-        This is the v3.0 Pure Pint Architecture path that bypasses the old latex parser
-        and SymPy entirely. Uses:
+        Uses:
         - ExpressionTokenizer (Phase 23)
         - ExpressionParser (Phase 24)
         - evaluate_expression_tree (Phase 25)
@@ -1415,7 +1395,7 @@ class Evaluator:
         """
         Convert a SymbolValue entry to a Pint Quantity.
 
-        v3.0: Simplified to work with numeric values only (no sympy conversion).
+        Simplified to work with numeric values only.
 
         Args:
             entry: A SymbolValue from the symbol table
@@ -1459,9 +1439,3 @@ class Evaluator:
 
         except Exception:
             return None
-
-
-    # NOTE: Dead sympy code removed in v3.0 (Phase 28):
-    # - _normalize_latex, _format_result_with_display, _format_result
-    # - _format_unit_part, _make_katex_compatible
-    # These functions used the old latex parser for formatting which is no longer available.

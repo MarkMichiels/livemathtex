@@ -56,7 +56,7 @@ class SymbolEntry:
     Complete information about a defined symbol.
 
     Attributes:
-        id: Internal ID for latex2sympy (e.g., "v_{0}")
+        id: Internal ID (e.g., "v_{0}" or "v1")
         original: User's input value and unit (for display)
         si: SI-converted value and unit (for calculations)
         valid: Whether the unit conversion was successful

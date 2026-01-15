@@ -2,8 +2,6 @@
 Expression tree evaluator for LiveMathTeX.
 
 Evaluates ExprNode trees directly using Pint for unit-aware calculations.
-This is the direct replacement for evaluate_sympy_ast_with_pint() that
-eliminates the SymPy dependency.
 
 Key features:
 - Walks expression tree and evaluates with Pint
@@ -52,8 +50,8 @@ def evaluate_expression_tree(
     """
     Evaluate an expression tree using Pint for unit-aware calculations.
 
-    This walks the ExprNode tree from the parser and evaluates it directly
-    with Pint, without any SymPy involvement.
+    Walks the ExprNode tree from the parser and evaluates it directly
+    with Pint.
 
     Args:
         node: Root node of expression tree (from ExpressionParser)

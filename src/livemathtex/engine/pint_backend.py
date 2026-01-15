@@ -440,8 +440,7 @@ def is_known_unit(token: str) -> bool:
     return is_pint_unit(token) or is_custom_unit(token)
 
 
-# NOTE: pint_to_sympy() and pint_to_sympy_with_prefix() removed in Phase 28.
-# SymPy unit conversion is no longer needed - all unit handling uses Pint directly.
+# All unit handling uses Pint directly.
 
 
 def parse_value_with_unit(text: str) -> Optional[ParsedQuantity]:
@@ -1312,10 +1311,9 @@ def evaluate_formula_with_units(
 
 
 # =============================================================================
-# Custom Unit Registry (Pure Pint - No SymPy)
+# Custom Unit Registry
 # =============================================================================
-# Phase 28: SymPy removed. This registry tracks custom units defined via ===
-# syntax. Pint handles all actual unit operations.
+# Tracks custom units defined via === syntax. Pint handles all unit operations.
 # =============================================================================
 
 
@@ -1448,35 +1446,8 @@ def reset_custom_unit_registry():
         _custom_unit_registry.reset()
 
 
-# Backwards compatibility aliases
-# evaluator.py imports these names - keep them working
+# Alias for backwards compatibility
 UnitRegistry = CustomUnitRegistry
-get_sympy_unit_registry = get_custom_unit_registry
-reset_sympy_unit_registry = reset_custom_unit_registry
-
-
-# =============================================================================
-# Backwards Compatibility: sympy_strip_unit_from_value
-# =============================================================================
-# Phase 28: This function is kept for backwards compatibility but now uses
-# the pure Pint strip_unit_from_value() internally.
-# =============================================================================
-
-
-def sympy_strip_unit_from_value(latex: str) -> tuple[str, Optional[str], Optional[Any]]:
-    """
-    Strip the unit from a value expression and parse it.
-
-    Phase 28: This is now an alias to strip_unit_from_value for backwards
-    compatibility. The third return value (previously SymPy unit) is now
-    a Pint unit.
-
-    Used by evaluator.py for parsing assignments like "100\\ kg".
-
-    Returns:
-        Tuple of (value_latex, unit_string or None, pint_unit or None)
-    """
-    return strip_unit_from_value(latex)
 
 
 def reset_unit_registry():
@@ -1498,7 +1469,7 @@ def get_unit_dimensionality(unit_expr: Any) -> Optional[str]:
     Uses Pint to determine the physical dimension of a unit.
 
     Args:
-        unit_expr: A Pint unit, SymPy unit Quantity, or unit string
+        unit_expr: A Pint unit or unit string
 
     Returns:
         Dimensionality string like '[mass]', '[length]', '[time]',
@@ -1595,14 +1566,6 @@ def are_dimensions_compatible(dim1: Optional[str], dim2: Optional[str]) -> bool:
 
     # Compare dimensionality strings
     return dim1 == dim2
-
-
-# =============================================================================
-# Backwards Compatibility: PintEvaluationError
-# =============================================================================
-# Phase 28: SymPy AST evaluation removed. This exception class kept for
-# backwards compatibility in case any code catches it.
-# =============================================================================
 
 
 class PintEvaluationError(Exception):

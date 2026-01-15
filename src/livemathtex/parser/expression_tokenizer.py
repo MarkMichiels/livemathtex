@@ -5,7 +5,7 @@ Tokenizes LaTeX math expressions into typed tokens. Uses priority-ordered
 pattern matching to correctly identify units, variables, operators, etc.
 
 Key design principle: Units and multi-letter variables MUST be matched
-before single letters to avoid latex2sympy's implicit multiplication issues.
+before single letters to avoid implicit multiplication issues.
 """
 
 import re

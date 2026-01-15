@@ -379,9 +379,7 @@ class TestCustomUnitWithDivision:
 
     def setup_method(self):
         """Reset registry before each test."""
-        from livemathtex.engine.pint_backend import reset_sympy_unit_registry
         reset_unit_registry()
-        reset_sympy_unit_registry()
 
     def test_define_division_unit_registry_lookup(self):
         """SEC === MWh/kg should be registered in custom unit registry."""
