@@ -137,14 +137,14 @@ def _lookup_variable(
     """
     Look up a variable in the symbol table or mathematical constants.
 
-    Tries multiple name formats to handle LaTeX variations:
+    Tries multiple name formats to handle variations:
     - Mathematical constants (pi, e)
-    - Exact match (E_{26})
-    - Normalized (E_26)
-    - Without braces
+    - Internal IDs (v0, v1, f0, f1) - direct exact match
+    - LaTeX names (E_{26}, PPE_{eff}) - exact or normalized
+    - Without braces (E_26)
 
     Args:
-        name: Variable name from parser (may include LaTeX formatting)
+        name: Variable name from parser (internal ID or LaTeX format)
         symbols: Symbol table mapping names to Pint Quantities
         ureg: Pint UnitRegistry
 
