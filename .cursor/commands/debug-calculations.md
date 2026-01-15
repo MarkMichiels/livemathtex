@@ -1,16 +1,84 @@
 ---
 description: Debug LiveMathTeX calculations and create issues for bugs
+args:
+  - name: document
+    description: Path to the markdown document to debug (e.g., /debug-calculations path/to/document.md)
+    required: true
 ---
 
 # Debug Calculations — Issue Detection Workflow
 
 Same workflow as `/build-calculations`, but automatically detects issues and creates ISS entries for bugs in LiveMathTeX.
 
+**Usage:** `/debug-calculations <document.md>`
+
 **Design intent:** Systematically debug calculation problems, distinguish user errors from LiveMathTeX bugs, and document bugs as issues for future fixes.
 
 **Interactive mode:** Workflow continues until user explicitly says "it's done" or "enough". Status is tracked in a status file for external monitoring.
 
 **⚠️ WORKSPACE-AWARE COMMAND:** This command works across your entire workspace. Documents can be in any repository (mark-private, proviron, axabio-literature, etc.), but LiveMathTeX planning files (ISSUES.md, LESSONS_LEARNED.md) are in the `livemathtex` repository.
+
+---
+
+## 🚨 EXECUTION PLAN — START HERE
+
+**⚠️ CRITICAL: This plan MUST be created FIRST using `todo_write`, before any other steps!**
+
+**The AI assistant must create this todo list in "plan mode" - this allows all steps to be executed one by one. All workflow steps are included in this plan. Steps can be skipped if not needed (e.g., if synchronization is disabled, skip setup-monitor-0 and setup-claude-0), but the plan structure ensures nothing is forgotten.**
+
+**Create this exact todo list using `todo_write` with `merge: false`:**
+
+```json
+[
+  {"id": "plan-0", "content": "PLAN: Create execution plan showing all workflow steps and ask user if they want to proceed (Y/N)", "status": "in_progress"},
+  {"id": "plan-approval-0", "content": "PLAN-APPROVAL: Wait for user response (Y/N) - if N, stop workflow", "status": "pending"},
+  {"id": "setup-0", "content": "SETUP: Ask user about automatic synchronization (Y/N) - wait for answer", "status": "pending"},
+  {"id": "setup-monitor-0", "content": "SETUP-MONITOR: If Y, start monitoring script in visible terminal window (livemathtex repo)", "status": "pending"},
+  {"id": "setup-claude-0", "content": "SETUP-CLAUDE: If Y, launch Claude Code in visible terminal window (livemathtex repo, NOT GSD repo) with /gsd:build-all", "status": "pending"},
+  {"id": "setup-flag-0", "content": "SETUP-FLAG: Store synchronization flag (.planning/.sync-enabled)", "status": "pending"},
+  {"id": "context-0", "content": "CONTEXT: Detect livemathtex repository and read ISSUES.md to understand current state", "status": "pending"},
+  {"id": "context-lessons-0", "content": "CONTEXT-LESSONS: Read LESSONS_LEARNED.md to understand patterns and workarounds", "status": "pending"},
+  {"id": "clean-1", "content": "CLEAN: Clean source document to remove error markup (creates temp_input_clean.md)", "status": "pending"},
+  {"id": "expect-1", "content": "EXPECT: Calculate expected values manually and add to output document (creates temp_output_expected.md)", "status": "pending"},
+  {"id": "process-1", "content": "PROCESS: Run livemathtex process to compute actual values (creates temp_output_actual.md)", "status": "pending"},
+  {"id": "diff-1", "content": "DIFF: Compare expected vs actual values using git diff to identify discrepancies", "status": "pending"},
+  {"id": "classify-1", "content": "CLASSIFY: For each discrepancy, determine if it's a user error or LiveMathTeX bug (check ISSUES.md first!)", "status": "pending"},
+  {"id": "issue-check-1", "content": "ISSUE-CHECK: For each bug, check if issue already exists in ISSUES.md (avoid duplicates)", "status": "pending"},
+  {"id": "issue-test-1", "content": "ISSUE-TEST: For each new bug, create isolated test file in tests/test_iss_XXX_<description>.md", "status": "pending"},
+  {"id": "issue-create-1", "content": "ISSUE-CREATE: Run /gsd:create-issue to document each new bug with test file reference", "status": "pending"},
+  {"id": "fix-user-1", "content": "FIX-USER: Fix all user errors in original input.md file (not temp files)", "status": "pending"},
+  {"id": "fix-workaround-1", "content": "FIX-WORKAROUND: Document workarounds for bugs in original file and LESSONS_LEARNED.md", "status": "pending"},
+  {"id": "fix-iterate-1", "content": "FIX-ITERATE: If user errors fixed, return to clean-1 and reprocess until all errors resolved", "status": "pending"},
+  {"id": "learn-1", "content": "LEARN: Update LESSONS_LEARNED.md with new patterns, workarounds, and classification insights", "status": "pending"},
+  {"id": "status-1", "content": "STATUS: Update .planning/.debug-calculations-status.json with current status", "status": "pending"},
+  {"id": "review-0", "content": "REVIEW: Show summary and ask user for feedback (Y/N/ENOUGH/CONTINUE) - wait for answer", "status": "pending"},
+  {"id": "review-handle-0", "content": "REVIEW-HANDLE: Process user response - if Y: commit, if N: collect fixes, if ENOUGH: stop, if CONTINUE: restart from clean-1", "status": "pending"},
+  {"id": "final-1", "content": "FINAL: Update original input.md file with correct values (only if review-0 approved with Y)", "status": "pending"},
+  {"id": "final-commit-1", "content": "FINAL-COMMIT: Commit original file with descriptive message (only if review-0 approved with Y)", "status": "pending"},
+  {"id": "post-0", "content": "POST: Write retrospective summary (what was processed, issues found, what was tricky)", "status": "pending"},
+  {"id": "post-improve-0", "content": "POST-IMPROVE: Propose concrete command improvements based on retrospective", "status": "pending"},
+  {"id": "post-commit-0", "content": "POST-COMMIT: Ask user YES/NO to commit command changes, commit if YES", "status": "pending"}
+]
+```
+
+**⚠️ CRITICAL RULES:**
+- ✅ **ALWAYS create this plan FIRST** using `todo_write` before doing anything else
+- ✅ **ALWAYS wait for user responses** at plan-approval-0, setup-0, and review-0
+- ✅ **Follow the plan step by step** - execute each todo item in order
+- ✅ **Steps can be skipped if not needed** (e.g., if synchronization is N, skip setup-monitor-0 and setup-claude-0)
+- ✅ **NEVER proceed without explicit user approval** (Y/N answers)
+- ✅ **ALWAYS check ISSUES.md** before creating new issues (issue-check-1)
+- ✅ **ALWAYS create test files** before creating issues (issue-test-1)
+- ✅ **ALWAYS fix in original file** not temp files (fix-user-1)
+
+**How to use this plan:**
+1. Create the todo list using `todo_write` with `merge: false` (this puts the AI in "plan mode")
+2. Execute each step one by one, following the todo list
+3. Mark each step as completed when done
+4. Skip steps only if logic requires it (e.g., if setup-0 = N, skip setup-monitor-0)
+5. All steps are in the plan - nothing should be forgotten
+
+---
 
 **Repository Relationship:**
 - **livemathtex repo**: Contains LiveMathTeX tool, planning files (ISSUES.md, LESSONS_LEARNED.md), and this command. Detected automatically via git or workspace context.
@@ -32,118 +100,173 @@ LMT_REPO=$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || \
 DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || echo ".")
 ```
 
+
+## Detailed Implementation Steps
+
+### STEP 0: Create Plan (plan-0)
+
+**Action:**
+1. Detect document repository and livemathtex repository
+2. Create the todo list above using `todo_write` with `merge: false`
+3. Show plan to user:
+   ```
+   📋 Debug Calculations Workflow Plan Created
+
+   **Document:** [document path]
+   **Repository:** [detected repository]
+
+   **Workflow Steps:** [list all steps from plan]
+
+   Do you want to proceed with debugging? (Y/N)
+   ```
+4. **⚠️ CRITICAL: WAIT for user response before proceeding!**
+
+### STEP 0.5: Plan Approval (plan-approval-0)
+
+**Action:**
+- If user says **N**: Stop workflow, mark status as "cancelled"
+- If user says **Y**: Continue to setup-0
+- **⚠️ CRITICAL: Do NOT proceed without explicit Y/N answer!**
+
 ---
 
-## 🚨 MANDATORY: Setup and Create Todo List FIRST
+### STEP 1: Setup and Synchronization (setup-0)
 
-**BEFORE doing ANYTHING else:**
+**Only proceed if user answered Y to the plan question.**
 
 1. **Ask user about automatic synchronization:**
    ```
    🔄 Automatic Synchronization Setup
 
-   Do you want to enable automatic synchronization with Claude Code (build-all)?
+   Do you want to enable FULLY AUTOMATIC synchronization with Claude CLI (build-all)?
 
    This will:
-   - Start monitoring script to coordinate workflows
-   - Launch Claude Code with /gsd:build-all to resolve issues
-   - Automatically coordinate between debug-calculations and build-all
+   - Start monitoring script in a visible terminal window (watches status files)
+   - Launch Claude CLI with AUTOMATIC command pipe (receives commands from monitor)
+   - **FULLY AUTOMATIC:** When debug creates issues → monitor sends /gsd:build-all automatically
+   - **NO MANUAL TYPING:** Claude CLI receives commands via named pipe
 
-   Enable automatic synchronization? (Y/N)
+   **Note:** Both workflows operate on the SAME livemathtex repository.
+
+   Enable FULLY AUTOMATIC synchronization? (Y/N)
    ```
+
+   **⚠️ CRITICAL: WAIT for user response (Y or N) before proceeding!**
 
    **If Y (enable synchronization):**
 
-   a. **Start monitoring script:**
+   **⚠️ ARCHITECTURE: Both workflows run in the SAME repository (livemathtex)!**
+   - `/debug-calculations` (this command, in Cursor) → livemathtex/.planning/
+   - `/gsd:build-all` (Claude CLI terminal) → livemathtex/.planning/
+   - Monitor coordinates both via status files
+
+   **The AI assistant MUST automatically start both terminals:**
+
+   a. **Start MONITOR in visible terminal window (FOREGROUND):**
       ```bash
-      # Detect livemathtex repository
-      LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
-        find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
-        find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
-        echo ".")
+      LMT_REPO="$HOME/Repositories/livemathtex"
 
-      # Start monitoring script in background
-      cd "$LMT_REPO"
-      nohup python scripts/monitor_debug_build.py > .planning/.monitor.log 2>&1 &
-      MONITOR_PID=$!
-      echo "$MONITOR_PID" > .planning/.monitor.pid
-
-      # Wait a moment for script to start
-      sleep 2
-
-      # Verify it's running
-      if ps -p $MONITOR_PID > /dev/null; then
-        echo "✅ Monitoring script started (PID: $MONITOR_PID)"
+      if command -v gnome-terminal >/dev/null 2>&1; then
+        gnome-terminal --title "🔄 LiveMathTeX Monitor" --geometry=100x30 -- bash -c "
+          cd '$LMT_REPO'
+          echo '════════════════════════════════════════════════════════════════════'
+          echo '  🔄 LiveMathTeX Workflow Monitor'
+          echo '════════════════════════════════════════════════════════════════════'
+          echo ''
+          echo '  Watching: $LMT_REPO/.planning/'
+          echo '  - .debug-calculations-status.json (Cursor)'
+          echo '  - .build-all-status.json (Claude CLI)'
+          echo ''
+          echo '  Press Ctrl+C to stop monitoring'
+          echo '════════════════════════════════════════════════════════════════════'
+          echo ''
+          python scripts/monitor_debug_build.py --project-repo '$LMT_REPO' --interval 10
+          echo ''
+          echo 'Monitor stopped. Press Enter to close.'
+          read
+        "
+      elif command -v xterm >/dev/null 2>&1; then
+        xterm -title "LiveMathTeX Monitor" -geometry 100x30 -e "
+          cd '$LMT_REPO' && python scripts/monitor_debug_build.py --project-repo '$LMT_REPO' --interval 10; bash
+        " &
       else
-        echo "⚠️  Monitoring script may have failed to start. Check .planning/.monitor.log"
+        echo "❌ No terminal emulator found (gnome-terminal, xterm)"
+        echo "   Please open a terminal manually and run:"
+        echo "   cd $LMT_REPO && python scripts/monitor_debug_build.py"
       fi
       ```
 
-   b. **Launch Claude Code with build-all:**
+   b. **Start CLAUDE CLI with automatic command pipe (fully automated):**
       ```bash
-      # Detect get-shit-done repository
-      GSD_REPO=$(find "$HOME/Repositories" -maxdepth 2 -name "get-shit-done" -type d 2>/dev/null | head -1 || echo "")
+      LMT_REPO="$HOME/Repositories/livemathtex"
+      PIPE_PATH="$LMT_REPO/.planning/.claude-command-pipe"
 
-      if [ -n "$GSD_REPO" ]; then
-        echo "🚀 Launching Claude Code with /gsd:build-all..."
+      # Create the named pipe for receiving commands from monitor
+      mkdir -p "$LMT_REPO/.planning"
+      rm -f "$PIPE_PATH"  # Remove old pipe if exists
+      mkfifo "$PIPE_PATH"
 
-        # Check if cc command is available (alias from ~/.bashrc)
-        # cc = 'cd ~/Repositories/mark-private && claude --dangerously-skip-permissions --system-prompt "$(cat CLAUDE.md)"'
-        if command -v cc >/dev/null 2>&1 || command -v claude >/dev/null 2>&1; then
-          # Launch Claude Code in background with prompt via stdin
-          # The cc alias already handles context loading, but we need to change to GSD repo
-          # Alternative: Use claude directly with GSD repo context
+      if command -v gnome-terminal >/dev/null 2>&1; then
+        gnome-terminal --title "🔨 Claude CLI - Auto Build" --geometry=120x40 -- bash -c "
+          cd '$LMT_REPO'
+          PIPE='$PIPE_PATH'
 
-          # Method: Launch claude directly in GSD repo with prompt
-          cd "$GSD_REPO"
+          echo '════════════════════════════════════════════════════════════════════'
+          echo '  🔨 Claude CLI - FULLY AUTOMATED'
+          echo '════════════════════════════════════════════════════════════════════'
+          echo ''
+          echo '  Directory: $LMT_REPO'
+          echo '  Command pipe: \$PIPE'
+          echo ''
+          echo '  ✅ FULLY AUTOMATIC:'
+          echo '     - Monitor detects new issues → sends /gsd:build-all'
+          echo '     - Claude receives command automatically'
+          echo '     - No manual intervention needed!'
+          echo ''
+          echo '  Starting Claude CLI with command pipe...'
+          echo '════════════════════════════════════════════════════════════════════'
+          echo ''
 
-          # Create prompt file for Claude Code
-          cat > /tmp/claude_code_build_all_prompt.txt <<'PROMPT_EOF'
-Please execute the following command:
+          # Start a background job that reads from pipe and writes to Claude stdin
+          # Uses a co-process so commands from pipe are forwarded to Claude
+          while true; do
+            if read -r cmd < \"\$PIPE\" 2>/dev/null; then
+              echo \"[MONITOR] Received command: \$cmd\"
+              echo \"\$cmd\"
+            fi
+          done | claude --dangerously-skip-permissions
 
-/gsd:build-all
-
-This will automatically plan and execute all phases to resolve issues created by debug-calculations.
-PROMPT_EOF
-
-          # Launch Claude Code with prompt via stdin (non-blocking)
-          # Use claude directly (not cc alias, since we're in GSD repo)
-          if command -v claude >/dev/null 2>&1; then
-            nohup bash -c "cd '$GSD_REPO' && claude --dangerously-skip-permissions < /tmp/claude_code_build_all_prompt.txt" > /tmp/claude-code-build-all.log 2>&1 &
-            CLAUDE_CODE_PID=$!
-            echo "$CLAUDE_CODE_PID" > .planning/.claude-code.pid
-            echo "✅ Claude Code launched (PID: $CLAUDE_CODE_PID)"
-            echo "   Log: /tmp/claude-code-build-all.log"
-          else
-            echo "⚠️  claude command not found. Please start Claude Code manually:"
-            echo "   cd $GSD_REPO"
-            echo "   cc  # or: claude"
-            echo "   Then run: /gsd:build-all"
-          fi
-        else
-          # Fallback - inform user to start manually
-          echo "⚠️  cc command not found (check ~/.bashrc for alias)."
-          echo "   Please start Claude Code manually:"
-          echo "   cd $GSD_REPO"
-          echo "   cc  # or: claude"
-          echo "   Then run: /gsd:build-all"
-        fi
+          # Cleanup on exit
+          rm -f \"\$PIPE\"
+          echo ''
+          echo 'Claude CLI exited. Press Enter to close.'
+          read
+        "
+      elif command -v xterm >/dev/null 2>&1; then
+        xterm -title "Claude CLI - Auto Build" -geometry 120x40 -e "
+          cd '$LMT_REPO'
+          PIPE='$PIPE_PATH'
+          while true; do
+            read -r cmd < \"\$PIPE\" 2>/dev/null && echo \"\$cmd\"
+          done | claude --dangerously-skip-permissions
+          rm -f \"\$PIPE\"
+          bash
+        " &
       else
-        echo "⚠️  get-shit-done repository not found."
-        echo "   Please start Claude Code manually with /gsd:build-all"
+        echo "❌ No terminal emulator found (gnome-terminal, xterm)"
+        echo "   Install gnome-terminal for fully automated operation."
       fi
       ```
 
-      **Note:** The `cc` alias from `~/.bashrc` is:
-      ```bash
-      alias cc='cd ~/Repositories/mark-private && claude --dangerously-skip-permissions --system-prompt "$(cat CLAUDE.md)"'
-      ```
-
-      For launching in GSD repo, we use `claude` directly (not the `cc` alias) since we need to be in the GSD directory context.
+   **After both terminals are open - IT'S FULLY AUTOMATIC:**
+   - Monitor window shows status of both workflows
+   - When debug creates issues → monitor automatically sends `/gsd:build-all` to Claude
+   - When build-all completes → monitor signals debug to continue
+   - No manual typing needed!
 
    c. **Store synchronization flag:**
       ```bash
-      echo "true" > .planning/.sync-enabled
+      echo "true" > "$LMT_REPO/.planning/.sync-enabled"
       ```
 
    **If N (no synchronization):**
@@ -151,8 +274,8 @@ PROMPT_EOF
    ℹ️  Automatic synchronization disabled.
    Debug workflow will run independently.
    ```
-   - Store flag: `echo "false" > .planning/.sync-enabled`
-   - Continue with normal debug workflow (no monitoring script)
+   - Store flag: `echo "false" > "$LMT_REPO/.planning/.sync-enabled"`
+   - Continue with normal debug workflow (no monitoring script, no Claude Code)
 
 2. **Read existing issues for context:**
    ```bash
@@ -180,48 +303,14 @@ PROMPT_EOF
    - When creating issues, they are added to the **local** ISSUES.md file
    - Consider if issues should be merged to main branch later
 
-2. **Create this exact todo list** using `todo_write` with `merge: false`:
-
-**Standard mode (no loop):**
-```json
-[
-  {"id": "context-0", "content": "CONTEXT: Read ISSUES.md and LESSONS_LEARNED.md to understand current state", "status": "in_progress"},
-  {"id": "clean-1", "content": "CLEAN: Clean source document to remove error markup", "status": "pending"},
-  {"id": "expect-1", "content": "EXPECT: Calculate expected values manually and add to output document", "status": "pending"},
-  {"id": "process-1", "content": "PROCESS: Run livemathtex process to compute actual values", "status": "pending"},
-  {"id": "diff-1", "content": "DIFF: Compare expected vs actual values to identify discrepancies", "status": "pending"},
-  {"id": "classify-1", "content": "CLASSIFY: Determine if discrepancy is user error or LiveMathTeX bug", "status": "pending"},
-  {"id": "issue-1", "content": "ISSUE: Create ISS entry if bug detected", "status": "pending"},
-  {"id": "fix-1", "content": "FIX: Fix user errors and document workarounds for bugs", "status": "pending"},
-  {"id": "learn-1", "content": "LEARN: Document findings in lessons learned", "status": "pending"}
-]
-```
-
-**Standard workflow (interactive):**
-```json
-[
-  {"id": "setup-0", "content": "SETUP: Ask user about automatic synchronization and start monitor/Claude Code if enabled", "status": "in_progress"},
-  {"id": "context-0", "content": "CONTEXT: Read ISSUES.md and LESSONS_LEARNED.md to understand current state", "status": "pending"},
-  {"id": "clean-1", "content": "CLEAN: Clean source document to remove error markup", "status": "pending"},
-  {"id": "expect-1", "content": "EXPECT: Calculate expected values manually and add to output document", "status": "pending"},
-  {"id": "process-1", "content": "PROCESS: Run livemathtex process to compute actual values", "status": "pending"},
-  {"id": "diff-1", "content": "DIFF: Compare expected vs actual values to identify discrepancies", "status": "pending"},
-  {"id": "classify-1", "content": "CLASSIFY: Determine if discrepancy is user error or LiveMathTeX bug", "status": "pending"},
-  {"id": "issue-1", "content": "ISSUE: Create ISS entry if bug detected", "status": "pending"},
-  {"id": "fix-1", "content": "FIX: Fix user errors and document workarounds for bugs", "status": "pending"},
-  {"id": "learn-1", "content": "LEARN: Document findings in lessons learned", "status": "pending"},
-  {"id": "status-1", "content": "STATUS: Update status file and check if user wants to continue", "status": "pending"},
-  {"id": "review-0", "content": "REVIEW GATE: User reviews results and provides feedback (Y/N/ENOUGH to proceed)", "status": "pending"},
-  {"id": "final-1", "content": "FINAL: Update original file and commit (only after approval)", "status": "pending"},
-  {"id": "post-0", "content": "POST: Retrospective + improve this command + ask YES/NO to commit command changes", "status": "pending"}
-]
-```
+**Note:** The plan above is the complete execution plan. All steps are detailed below.
 
 ### 🛑 BLOCKING RULES
 
 | Phase | Depends on | Explanation |
 |-------|------------|-------------|
-| `setup-0` | None | Must setup synchronization before starting workflow |
+| `plan-0` | None | **MUST create plan first and ask user if they want to proceed** |
+| `setup-0` | `plan-0` approved (Y) | Must wait for user approval before setup |
 | `context-0` | `setup-0` completed | Must setup before reading context |
 | `clean-1` | `context-0` completed | Must understand existing issues before starting |
 | `expect-1` | `clean-1` completed | Cannot add expected values without clean source |
@@ -236,6 +325,27 @@ PROMPT_EOF
 | `final-1` | `review-0` approved (Y) | Cannot commit without approval |
 | `post-0` | `final-1` completed | Cannot improve command until workflow complete |
 
+**⚠️ CRITICAL: Always wait for user responses before proceeding to next phase!**
+
+### 🚨 WAITING RULES
+
+**CRITICAL: The AI assistant MUST wait for explicit user responses before proceeding:**
+
+| Step | Must Wait For | What to Do |
+|------|---------------|------------|
+| `plan-0` | User says "Y" or "N" to proceed | Show plan, ask "Do you want to proceed?", **STOP and wait** |
+| `setup-0` | User says "Y" or "N" to synchronization | Ask about sync, **STOP and wait** for answer |
+| `review-0` | User says "Y", "N", "ENOUGH", or "CONTINUE" | Show summary, ask for review, **STOP and wait** |
+| Any question | User response | **NEVER proceed without explicit user approval** |
+
+**Common mistakes to avoid:**
+- ❌ **DON'T** continue after asking a question without waiting
+- ❌ **DON'T** assume user wants to proceed
+- ❌ **DON'T** skip steps because "it seems obvious"
+- ✅ **DO** show plan first
+- ✅ **DO** wait for explicit "Y" or "N" answers
+- ✅ **DO** stop and wait after every question
+
 ---
 
 ## Workflow Overview
@@ -244,10 +354,14 @@ PROMPT_EOF
 
 ```mermaid
 graph TB
-    START[Start Debug] --> SETUP{Setup<br/>Sync with Claude Code?}
-    SETUP -->|Yes| MONITOR[Start Monitor Script<br/>Launch Claude Code]
+    START[Start Debug] --> PLAN[Create Plan<br/>Show all steps]
+    PLAN -->|Wait for Y| ASK{User wants<br/>to proceed?}
+    ASK -->|N| STOP[Stop Workflow]
+    ASK -->|Y| SETUP{Setup<br/>Sync with Claude Code?}
+    SETUP -->|Yes| MONITOR[Start Monitor Script<br/>in Terminal Window]
     SETUP -->|No| CONTEXT[Read Context<br/>ISSUES.md]
-    MONITOR --> CONTEXT
+    MONITOR --> CLAUDE[Launch Claude Code<br/>in livemathtex repo<br/>Terminal Window]
+    CLAUDE --> CONTEXT
     CONTEXT --> CLEAN[Clean Source<br/>Remove error markup]
     CLEAN --> EXPECT[Calculate Expected<br/>Add to output doc]
     EXPECT --> PROCESS[Process with LiveMathTeX<br/>Compute actual values]
@@ -268,10 +382,14 @@ graph TB
     COMMIT --> POST[Post-Evaluation<br/>Improve command]
     CLEANUP --> DONE[✅ Document Complete]
     POST --> DONE
+    STOP --> DONE
 
     style START fill:#4a90e2,stroke:#2e5c8a,color:#fff
+    style PLAN fill:#ff9800,stroke:#f57c00,color:#fff
+    style ASK fill:#ff9800,stroke:#f57c00,color:#fff
     style SETUP fill:#ff9800,stroke:#f57c00,color:#fff
     style MONITOR fill:#9b59b6,stroke:#7d3c98,color:#fff
+    style CLAUDE fill:#9b59b6,stroke:#7d3c98,color:#fff
     style CONTEXT fill:#4a90e2,stroke:#2e5c8a,color:#fff
     style CLEAN fill:#f39c12,stroke:#c87f0a,color:#fff
     style EXPECT fill:#9b59b6,stroke:#7d3c98,color:#fff
@@ -287,6 +405,7 @@ graph TB
     style CLEANUP fill:#e74c3c,stroke:#c0392b,color:#fff
     style POST fill:#9b59b6,stroke:#7d3c98,color:#fff
     style DONE fill:#27ae60,stroke:#1e8449,color:#fff
+    style STOP fill:#e74c3c,stroke:#c0392b,color:#fff
 ```
 
 ---
@@ -423,106 +542,166 @@ graph TB
    - Document workaround referencing existing issue
    - Continue to next discrepancy
 
-2. **Isolate bug in test document** (REQUIRED before creating issue):
+2. **🚨 MANDATORY: Create isolated test file BEFORE creating issue:**
 
-   **Goal:** Create a minimal, reproducible test case in a separate file that isolates the bug.
+   **Goal:** Create a minimal, reproducible test case that isolates the bug. This file will be used by the debugger (GSD build-all) to verify the fix works.
 
-   **Action:**
-   - Create test file in `$LMT_REPO/tests/test_iss_XXX_<description>.md` (where XXX is the next issue number)
-   - Extract ONLY the failing calculation(s) and minimal dependencies
-   - Include unit validation section if units are involved
-   - Add SI base units in comments to help identify unit issues early
-   - Follow the SAME output format as the original document (inline, output file, timestamp, etc.)
-   - Test the isolated case to confirm it reproduces the bug
+   **Why this is required:**
+   - The test file proves the bug exists
+   - It provides a minimal reproduction case for debugging
+   - GSD can use it to verify the fix works
+   - It becomes part of the test suite after the fix
 
-   **Test file structure:**
+   **Step-by-step:**
+
+   **Step 2a: Determine next ISS number**
+   ```bash
+   # Find highest ISS number in ISSUES.md
+   grep -o 'ISS-[0-9]\+' "$LMT_REPO/.planning/ISSUES.md" | sed 's/ISS-//' | sort -n | tail -1
+   # Add 1 to get next number (e.g., if highest is 035, use 036)
+   ```
+
+   **Step 2b: Create test file with naming convention**
+   ```bash
+   # Filename: tests/test_iss_XXX_<snake_case_description>.md
+   # Example: tests/test_iss_036_currency_unit_conversion.md
+   touch "$LMT_REPO/tests/test_iss_XXX_<description>.md"
+   ```
+
+   **Step 2c: Fill in the test file using this EXACT template:**
+
    ```markdown
    <!-- livemathtex: output=inplace, json=true, digits=4 -->
-   <!-- NOTE: Use SAME settings as original document! -->
 
-   # Test ISS-XXX: <Bug Description>
+   # Test ISS-XXX: <Short Bug Description>
 
-   This test reproduces the bug where <description>.
-
-   ## Unit Validation (if units involved)
-
-   <!-- Test all units used in this document -->
-   $u_{unit1} := 1\ unit1$ <!-- [unit1] SI base: [dimension] -->
-   ...
+   This test reproduces the bug where <one sentence description>.
 
    ## Test Case
 
-   **Setup:** <minimal setup>
-   **Expected:** <expected behavior>
-   **Actual:** <actual behavior>
+   **Setup:** <What conditions trigger the bug>
 
-   ### Calculation
+   **Expected:** <What SHOULD happen>
 
-   <!-- ONLY the failing calculation and minimal dependencies -->
-   $var1 := value1$
-   $var2 := value2$
-   $result := calculation == expected_value$ <!-- [unit] -->
+   **Actual:** <What ACTUALLY happens (the bug)>
 
-   **Expected result:** `expected_value unit`
-   **Actual result:** `actual_value unit` (description of error)
+   ### Minimal Reproduction
+
+   <!-- ONLY the minimum code needed to reproduce the bug -->
+   <!-- Include variable definitions that the failing calculation depends on -->
+
+   $var1 := value1\ \text{unit}$
+   $var2 := value2\ \text{unit}$
+
+   <!-- The failing calculation -->
+   $result := calculation ==$ <!-- [expected_unit] -->
+
+   ### Expected vs Actual
+
+   | | Value | Unit |
+   |---|---|---|
+   | **Expected** | X.XXX | unit |
+   | **Actual** | Y.YYY | wrong_unit or error |
 
    ### Steps to Reproduce
 
-   1. Run: `livemathtex clear test_iss_XXX_<description>.md`
-   2. Run: `livemathtex process test_iss_XXX_<description>.md`
-   3. Check result - should show `<expected>` but shows `<actual>`
+   1. Clear: `livemathtex clear tests/test_iss_XXX_<description>.md`
+   2. Process: `livemathtex process tests/test_iss_XXX_<description>.md`
+   3. Observe: <what to look for>
 
-   ### Root Cause
+   ### Root Cause Analysis
 
-   <Analysis of root cause>
+   <Brief analysis of WHY the bug occurs - which component fails>
+
+   ### Impact
+
+   <High/Medium/Low> - <Why this impact level>
 
    ---
    ```
 
-   **⚠️ CRITICAL: Follow original document's output format:**
-   - If original uses `output=inplace` → Use `output=inplace` in test file
-   - If original uses `output=file` → Use `output=file` in test file
-   - If original uses `json=true` → Use `json=true` in test file
-   - If original uses `digits=4` → Use `digits=4` in test file
-   - **DO NOT** create extra output files - follow the configured format exactly
+   **Step 2d: Verify the test file reproduces the bug**
+   ```bash
+   cd "$LMT_REPO"
+   livemathtex clear tests/test_iss_XXX_<description>.md
+   livemathtex process tests/test_iss_XXX_<description>.md
+   # Verify the error/wrong result appears
+   ```
+
+   **⚠️ CRITICAL RULES for test files:**
+   - ✅ Use SAME livemathtex settings as original document (output, json, digits)
+   - ✅ Include ONLY minimal code to reproduce (no unrelated calculations)
+   - ✅ Test file MUST reproduce the bug when processed
+   - ✅ Filename MUST match pattern: `test_iss_XXX_<description>.md`
+   - ❌ DO NOT create test file if bug cannot be isolated
+   - ❌ DO NOT include working calculations that aren't needed
 
 3. **Run `/gsd:create-issue`** to document the bug:
+
+   **⚠️ ONLY after test file is created and verified!**
+
    ```
    /gsd:create-issue
    ```
 
-   **Important:** This creates the issue in the **livemathtex repository** (where you run the command from, or explicitly specify livemathtex repo).
+   **When GSD asks for details, provide:**
+   - **Brief description:** One-line summary of the bug
+   - **Test file:** `tests/test_iss_XXX_<description>.md` ← **REQUIRED!**
+   - **Expected vs Actual:** What should happen vs what happens
+   - **Root cause:** Brief analysis (from test file)
+   - **Impact:** High/Medium/Low
+   - **Source document:** Path to original document where bug was discovered
 
-4. **Provide context:**
-   - Describe the calculation that fails
-   - Show expected vs actual values
-   - Show error message (if any)
-   - **Reference the test file:** `tests/test_iss_XXX_<description>.md` (REQUIRED)
-   - Reference related issues if applicable
-   - Note which repository the original document is in (if not livemathtex)
+   **Example conversation with `/gsd:create-issue`:**
+   ```
+   You: "Unit propagation fails when multiplying by dimensionless value.
+        Test file: tests/test_iss_036_unit_propagation.md
+        Expected: 3.922 µmol/J, Actual: 3.922 (dimensionless)
+        Root cause: Pint loses unit when multiplying by dimensionless
+        Impact: High - breaks many engineering calculations
+        Source: mark-private/.../astaxanthin_production_analysis.md"
+   ```
 
-5. **Verify issue created:**
-   - Check `$LMT_REPO/.planning/ISSUES.md` for new entry (where `$LMT_REPO` is the livemathtex repository root)
-   - Verify ISS number assigned
-   - Verify issue description is clear
-   - Verify test file reference is included
+4. **Verify issue was created correctly:**
+   ```bash
+   # Check ISSUES.md for new entry
+   grep "ISS-XXX" "$LMT_REPO/.planning/ISSUES.md"
+   ```
 
-**Example Issue Description:**
+   **Verify these fields are present:**
+   - ✅ ISS number matches test file number
+   - ✅ Test file is referenced: `**Test file:** tests/test_iss_XXX_...`
+   - ✅ Description is clear and actionable
+   - ✅ Impact and root cause are documented
+
+**Example Issue in ISSUES.md:**
+```markdown
+### ISS-036: Unit propagation fails when multiplying unit by dimensionless value
+
+**Status:** Open
+**Created:** 2026-01-15
+**Source:** `mark-private/.../astaxanthin_production_analysis.md`
+
+**Description:**
+When multiplying a unit (e.g., µmol/J) by a dimensionless value (e.g., 0.9143),
+LiveMathTeX loses the unit and shows the result as "dimensionless" instead of
+preserving the original unit.
+
+**Test file:** `tests/test_iss_036_unit_propagation.md`
+
+**Expected:** `4.29 µmol/J × 0.9143 = 3.922 µmol/J`
+**Actual:** `3.922` (dimensionless) with warning
+
+**Root cause:** Pint evaluator doesn't preserve units when multiplying by dimensionless.
+
+**Impact:** High - breaks many engineering calculations that use factors.
 ```
-Calculation with \pi fails:
-- Expression: $d_{tube} := \frac{2 \cdot d_{weld}}{\pi} ==$
-- Expected: 0.02419 m (with d_{weld} = 38 mm)
-- Actual: Error: isinstance() arg 2 must be a type...
-- Root cause: SymPy constant Pi not handled in Pint evaluator
-- Test file: tests/test_iss_025_pi_constant.md (isolated test case)
-- Related: None (new issue)
-```
 
-**Self-check:**
-- ✅ All bugs documented as issues before proceeding
-- ✅ Each bug has isolated test file in `tests/` directory
-- ✅ Test file follows original document's output format
-- ✅ Issue does not already exist (checked ISSUES.md)
+**Self-check before proceeding:**
+- ✅ Test file exists and reproduces the bug
+- ✅ Issue created with test file reference
+- ✅ Issue does not duplicate existing issue
+- ✅ ISS number in issue matches test file name
 
 ---
 
