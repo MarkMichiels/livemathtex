@@ -23,6 +23,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
 - ✅ **v3.0 Pure Pint Architecture** - Phases 23-27 (complete 2026-01-14)
 - ✅ **v3.1 Complete SymPy Removal** - Phase 28 (shipped 2026-01-15)
+- 🚧 **v4.0 Features** - Phases 29-31 (in progress)
 
 ## Phases
 
@@ -446,3 +447,57 @@ See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
 **Issues Resolved:** ISS-035, ISS-036, ISS-037, ISS-038
 
 </details>
+
+### 🚧 v4.0 Features (In Progress)
+
+**Milestone Goal:** Add user-requested features for improved document workflow: cross-references to calculated values, number formatting, and unit display options.
+
+**Feature Requests Addressed:** ISS-039, ISS-040, ISS-042
+
+#### Phase 29: Cross-References (ISS-040)
+**Goal**: Enable `{{variable}}` syntax to reference calculated values in prose text
+**Depends on**: v3.1 complete
+**Status**: Not started
+**Research**: Unlikely (internal parsing)
+**Plans**: TBD
+
+Key deliverables:
+- `{{variable}}` syntax detection in text outside math blocks
+- Variable lookup and value formatting
+- Clear/process cycle support (restore `{{}}` after clear)
+- Configurable output format (value only, value+unit, etc.)
+
+Plans:
+- [ ] 29-01: TBD (run /gsd:plan-phase 29 to break down)
+
+#### Phase 30: Number Formatting (ISS-039)
+**Goal**: Add thousands separator formatting for large numbers (>= 1000)
+**Depends on**: Phase 29
+**Status**: Not started
+**Research**: Unlikely (formatting only)
+**Plans**: TBD
+
+Key deliverables:
+- Automatic thousands separator for numbers >= 1000
+- Configurable format (US comma, EU space, etc.)
+- Document-level setting via HTML comment
+- Clear/process cycle support
+
+Plans:
+- [ ] 30-01: TBD (run /gsd:plan-phase 30 to break down)
+
+#### Phase 31: Unit Display (ISS-042)
+**Goal**: Add configurable unit display formatting options
+**Depends on**: Phase 30
+**Status**: Not started
+**Research**: Unlikely (Pint formatting)
+**Plans**: TBD
+
+Key deliverables:
+- Fraction notation option: `mg/(L·d)` instead of `mg/d/L`
+- Negative exponent option: `mg·L⁻¹·d⁻¹`
+- Document-level setting via HTML comment
+- Preserve user's unit hint format when possible
+
+Plans:
+- [ ] 31-01: TBD (run /gsd:plan-phase 31 to break down)
