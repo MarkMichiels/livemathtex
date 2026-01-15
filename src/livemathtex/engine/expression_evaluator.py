@@ -23,6 +23,8 @@ from livemathtex.parser.expression_parser import (
     UnaryOpNode,
     FracNode,
     UnitAttachNode,
+    SqrtNode,
+    FuncNode,
 )
 from livemathtex.engine.pint_backend import get_unit_registry
 
@@ -117,7 +119,9 @@ def _eval_node(
     if isinstance(node, UnitAttachNode):
         expr_value = _eval_node(node.expr, symbols, ureg)
         try:
-            unit = ureg(node.unit)
+            # Normalize currency symbols to Pint-compatible names
+            unit_str = node.unit.replace("€", "EUR").replace("$", "USD")
+            unit = ureg(unit_str)
             # If expression already has units, multiply; if dimensionless, convert
             if expr_value.dimensionless:
                 return expr_value.magnitude * unit
@@ -125,6 +129,16 @@ def _eval_node(
                 return expr_value * unit
         except pint.UndefinedUnitError:
             raise EvaluationError(f"Unknown unit: {node.unit}")
+
+    # SqrtNode: square root of operand
+    if isinstance(node, SqrtNode):
+        operand = _eval_node(node.operand, symbols, ureg)
+        return operand**0.5
+
+    # FuncNode: math function application
+    if isinstance(node, FuncNode):
+        operand = _eval_node(node.operand, symbols, ureg)
+        return _apply_math_func(node.func, operand, ureg)
 
     raise EvaluationError(f"Unknown node type: {type(node).__name__}")
 
@@ -233,3 +247,64 @@ def _apply_binary_op(
         return left**exp
 
     raise EvaluationError(f"Unknown operator: {op}")
+
+
+def _apply_math_func(
+    func: str,
+    operand: pint.Quantity,
+    ureg: pint.UnitRegistry,
+) -> pint.Quantity:
+    """
+    Apply a mathematical function to a Pint Quantity.
+
+    Args:
+        func: Function name (ln, log, sin, cos, tan, exp, abs)
+        operand: The operand quantity
+        ureg: Pint UnitRegistry
+
+    Returns:
+        Result as Pint Quantity
+
+    Raises:
+        EvaluationError: If function is unknown or operand is invalid
+    """
+    # Get the magnitude for functions that require dimensionless input
+    if isinstance(operand, pint.Quantity):
+        if operand.dimensionless:
+            val = float(operand.magnitude)
+        else:
+            # For some functions, we need dimensionless input
+            if func in ("sin", "cos", "tan", "ln", "log", "exp"):
+                raise EvaluationError(
+                    f"Function \\{func} requires dimensionless argument, "
+                    f"got: {operand.units}"
+                )
+            val = operand
+    else:
+        val = float(operand)
+
+    if func == "ln":
+        return math.log(val) * ureg.dimensionless
+
+    if func == "log":
+        return math.log10(val) * ureg.dimensionless
+
+    if func == "sin":
+        return math.sin(val) * ureg.dimensionless
+
+    if func == "cos":
+        return math.cos(val) * ureg.dimensionless
+
+    if func == "tan":
+        return math.tan(val) * ureg.dimensionless
+
+    if func == "exp":
+        return math.exp(val) * ureg.dimensionless
+
+    if func == "abs":
+        # abs preserves units
+        if isinstance(operand, pint.Quantity):
+            return abs(operand.magnitude) * operand.units
+        return abs(val) * ureg.dimensionless
+
+    raise EvaluationError(f"Unknown function: \\{func}")

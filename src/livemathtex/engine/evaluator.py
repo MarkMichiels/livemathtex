@@ -969,7 +969,11 @@ class Evaluator:
         Returns:
             The original LaTeX (unit definitions don't produce output)
         """
-        from .pint_backend import define_custom_unit_from_latex, is_pint_unit
+        from .pint_backend import (
+            define_custom_unit_from_latex,
+            is_pint_unit,
+            get_custom_unit_registry as get_unit_registry,
+        )
 
         unit_name = calc.target.strip() if calc.target else ""
         definition = calc.original_result.strip() if calc.original_result else ""

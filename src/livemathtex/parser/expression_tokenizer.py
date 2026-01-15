@@ -22,6 +22,8 @@ class TokenType(Enum):
     UNIT = "unit"  # \text{kg}, \mathrm{MWh}
     OPERATOR = "operator"  # +, -, *, /, ^, \cdot, \times
     FRAC = "frac"  # \frac
+    SQRT = "sqrt"  # \sqrt
+    FUNC = "func"  # \ln, \log, \sin, \cos, \tan, etc.
     LPAREN = "lparen"  # (, \left(
     RPAREN = "rparen"  # ), \right)
     LBRACE = "lbrace"  # {
@@ -67,7 +69,7 @@ class ExpressionTokenizer:
         # Numbers (including scientific notation)
         # Must come before variables to not split "1e6" at "e"
         (re.compile(r"\d+\.?\d*(?:[eE][+-]?\d+)?"), TokenType.NUMBER, False),
-        # Multi-letter variables with subscripts in braces - BEFORE single letters
+        # Multi-letter variables with subscripts in braces - high priority
         # E_{26}, PPE_{eff}, Cost_{total}
         (re.compile(r"[A-Za-z]+_\{[^}]+\}"), TokenType.VARIABLE, False),
         # Note: Superscript patterns REMOVED - in evaluations, ^ is always an operator
@@ -77,6 +79,9 @@ class ExpressionTokenizer:
         # Multi-letter variables with simple subscript (no braces)
         # x_1, E_0 (but not just x or E alone)
         (re.compile(r"[A-Za-z]+_[A-Za-z0-9]+"), TokenType.VARIABLE, False),
+        # Multi-letter variables with escaped underscore: reactor\_volume
+        # These are common in LaTeX when _ is part of the name, not a subscript
+        (re.compile(r"[A-Za-z]+(?:\\_[A-Za-z]+)+"), TokenType.VARIABLE, False),
         # Simple alphanumeric internal IDs (v0, v1, f0, x0, etc.)
         # Must be a letter followed by digits only (not letter+letter like "kg")
         # This supports the v3.0 internal ID format
@@ -92,8 +97,45 @@ class ExpressionTokenizer:
             TokenType.VARIABLE,
             False,
         ),
+        # Common multi-letter units - MUST come before single-letter fallback
+        # These bare units appear after backslash-space: "100\ kg", "5\ kW"
+        # Longest first to avoid partial matches (e.g., MWh before MW before W)
+        # Compound prefixed units (3+ letters)
+        (re.compile(r"(?:MWh|kWh|GWh|TWh|Wh)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:MPa|kPa|GPa|hPa)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:mbar|bar)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:mol|kmol|mmol)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:min|day|dag|uur|jaar)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:EUR|USD)\b"), TokenType.UNIT, False),
+        # Currency symbols (€, $)
+        (re.compile(r"[€$]"), TokenType.UNIT, False),
+        # Two-letter prefixed units (order: longer prefixes first, then common)
+        (re.compile(r"(?:MW|GW|TW|kW|mW)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:MJ|GJ|TJ|kJ|mJ)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:MN|GN|kN|mN)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:MV|kV|mV)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:MA|kA|mA|µA|uA)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:km|cm|mm|µm|um|nm|pm)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:kg|mg|µg|ug|ng|pg)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:ms|µs|us|ns|ps)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:mL|µL|uL|nL)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:Hz|kHz|MHz|GHz)\b"), TokenType.UNIT, False),
+        (re.compile(r"(?:Pa|eV|cd|lm|lx)\b"), TokenType.UNIT, False),
+        # Compound units with division (g/L, m/s, kg/m^3, etc.)
+        # These must match as a single unit token, not as division
+        (re.compile(r"g/L\b"), TokenType.UNIT, False),
+        (re.compile(r"m/s\b"), TokenType.UNIT, False),
+        (re.compile(r"m/s\^2\b"), TokenType.UNIT, False),
+        (re.compile(r"kg/m\^3\b"), TokenType.UNIT, False),
+        (re.compile(r"mg/L\b"), TokenType.UNIT, False),
+        (re.compile(r"µg/L\b"), TokenType.UNIT, False),
+        (re.compile(r"mol/L\b"), TokenType.UNIT, False),
         # Fraction command
         (re.compile(r"\\frac"), TokenType.FRAC, False),
+        # Square root command
+        (re.compile(r"\\sqrt"), TokenType.SQRT, False),
+        # Math functions
+        (re.compile(r"\\(?:ln|log|sin|cos|tan|exp|abs)"), TokenType.FUNC, False),
         # LaTeX multiplication operators
         (re.compile(r"\\cdot"), TokenType.OPERATOR, False),
         (re.compile(r"\\times"), TokenType.OPERATOR, False),
@@ -108,6 +150,10 @@ class ExpressionTokenizer:
         # Braces
         (re.compile(r"\{"), TokenType.LBRACE, False),
         (re.compile(r"\}"), TokenType.RBRACE, False),
+        # Plain multi-letter variables: productivity, volume, rate
+        # Must come AFTER unit patterns to avoid matching "kg" as variable
+        # But BEFORE single-letter fallback
+        (re.compile(r"[A-Za-z]{2,}"), TokenType.VARIABLE, False),
         # Single letters LAST (fallback) - after all multi-letter patterns
         (re.compile(r"[A-Za-z]"), TokenType.VARIABLE, False),
         # Whitespace patterns to skip (None token type = skip)

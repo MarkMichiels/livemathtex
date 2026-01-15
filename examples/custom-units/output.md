@@ -133,7 +133,7 @@ $$pi\_val := 3.14159265359$$
 
 $$fmt\_general := big == 144\,000\,000$$
 
-$$fmt\_general\_med := medium == 12\,350$$
+$$fmt\_general\_med := medium == 12\,345.6789$$
 
 **`format:decimal`** - Force decimal notation:
 
@@ -141,15 +141,15 @@ $$fmt\_decimal := big == 144\,000\,000$$ <!-- format:decimal -->
 
 **`format:scientific`** or `format:sci` - Scientific notation (1.23e+05):
 
-$$fmt\_sci := big == 1.440e+08$$ <!-- format:scientific -->
+$$fmt\_sci := big == 144\,000\,000$$ <!-- format:scientific -->
 
-$$fmt\_sci\_small := small == 1.234e-05$$ <!-- format:sci -->
+$$fmt\_sci\_small := small == 1.2345e-05$$ <!-- format:sci -->
 
 **`format:engineering`** or `format:eng` - Powers of 3 (kilo, mega, etc.):
 
-$$fmt\_eng := big == 144.0e6$$ <!-- format:engineering -->
+$$fmt\_eng := big == 144\,000\,000$$ <!-- format:engineering -->
 
-$$fmt\_eng\_small := small == 12.35e-6$$ <!-- format:eng -->
+$$fmt\_eng\_small := small == 1.2345e-05$$ <!-- format:eng -->
 
 ---
 
@@ -157,19 +157,19 @@ $$fmt\_eng\_small := small == 12.35e-6$$ <!-- format:eng -->
 
 **`digits:N`** - Control precision:
 
-$$dig\_default := pi\_val == 3.142$$
+$$dig\_default := pi\_val == 3.1416$$
 
-$$dig\_2 := pi\_val == 3.1$$ <!-- digits:2 -->
+$$dig\_2 := pi\_val == 3.14$$ <!-- digits:2 -->
 
-$$dig\_4 := pi\_val == 3.142$$ <!-- digits:4 -->
+$$dig\_4 := pi\_val == 3.1416$$ <!-- digits:4 -->
 
-$$dig\_8 := pi\_val == 3.1415927$$ <!-- digits:8 -->
+$$dig\_8 := pi\_val == 3.14159265$$ <!-- digits:8 -->
 
 **Digits + Format combined:**
 
-$$dig\_sci\_3 := big == 1.44e+08$$ <!-- digits:3 format:sci -->
+$$dig\_sci\_3 := big == 144\,000\,000$$ <!-- digits:3 format:sci -->
 
-$$dig\_eng\_4 := big == 144.0e6$$ <!-- digits:4 format:eng -->
+$$dig\_eng\_4 := big == 144\,000\,000$$ <!-- digits:4 format:eng -->
 
 ---
 
@@ -230,19 +230,19 @@ $$neg := -12345678 == -12\,345\,678$$ <!-- format:decimal -->
 
 **Very small (auto → scientific):**
 
-$$tiny := 0.000000001 == 1.000e-09$$
+$$tiny := 0.000000001 == 1.0000e-09$$
 
 **Very small (forced scientific):**
 
-$$tiny\_sci := 0.000000001 == 1.000e-09$$ <!-- format:sci -->
+$$tiny\_sci := 0.000000001 == 1.0000e-09$$ <!-- format:sci -->
 
 **Very large (auto → scientific at 10⁹+):**
 
-$$huge := 1000000000000000 == 1.000e+15$$
+$$huge := 1000000000000000 == 1\,000\,000\,000\,000\,000$$
 
 **Very large (engineering):**
 
-$$huge\_eng := 1000000000000000 == 1.000e15$$ <!-- format:eng -->
+$$huge\_eng := 1000000000000000 == 1\,000\,000\,000\,000\,000$$ <!-- format:eng -->
 
 **Very large (forced decimal):**
 
@@ -319,4 +319,4 @@ These should display the correct converted values:
 
 ---
 
-> *livemathtex: 2026-01-13 23:46:30 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.86s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 04:21:15 | 62 definitions, 42 evaluations, 4 value refs | no errors | 0.11s* <!-- livemathtex-meta -->

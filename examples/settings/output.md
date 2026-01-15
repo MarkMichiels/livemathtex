@@ -31,16 +31,16 @@ Controls the number of **significant figures** in numeric output.
 ### Examples
 
 **2 significant figures:**
-$3.142 == 3.1$ <!-- digits:2 -->
+$\pi_{approx} == 3.14$ <!-- digits:2 -->
 
 **4 significant figures (default):**
-$3.142 == 3.142$
+$\pi_{approx} == 3.1416$
 
 **6 significant figures:**
-$3.142 == 3.14159$ <!-- digits:6 -->
+$\pi_{approx} == 3.141593$ <!-- digits:6 -->
 
 **10 significant figures:**
-$3.142 == 3.141592654$ <!-- digits:10 -->
+$\pi_{approx} == 3.1415926536$ <!-- digits:10 -->
 
 ---
 
@@ -59,41 +59,41 @@ Controls **how numbers are displayed**. Four options available:
 
 Auto-switches between decimal and scientific notation based on `exponential_threshold`:
 
-$\text{large} == 123\,500\,000$
+$large == 123\,456\,789.1235$
 
-$\text{medium} == 42.5$
+$medium == 42.5$
 
-$\text{small} == 0.000001235$
+$small == 1.2346e-06$
 
 ### 2.2 Scientific Format
 
 Always uses exponential notation (`1.23e+04`):
 
-$\text{large} == 1.235e+08$ <!-- format:scientific -->
+$large == 123\,456\,789.1235$ <!-- format:scientific -->
 
-$\text{medium} == 4.250e+01$ <!-- format:scientific -->
+$medium == 42.5$ <!-- format:scientific -->
 
-$\text{small} == 1.235e-06$ <!-- format:scientific -->
+$small == 1.2346e-06$ <!-- format:scientific -->
 
 ### 2.3 Engineering Format
 
 Like scientific, but exponents are always multiples of 3 (kilo, mega, milli, micro):
 
-$\text{large} == 123.5e6$ <!-- format:engineering -->
+$large == 123\,456\,789.1235$ <!-- format:engineering -->
 
-$\text{medium} == 42.50$ <!-- format:engineering -->
+$medium == 42.5$ <!-- format:engineering -->
 
-$\text{small} == 1.235e-6$ <!-- format:engineering -->
+$small == 1.2346e-06$ <!-- format:engineering -->
 
 ### 2.4 Decimal Format
 
 Fixed number of decimal places (digits = decimal places, not significant figures):
 
-$\text{medium} == 42.5$ <!-- format:decimal digits:2 -->
+$medium == 42.5$ <!-- format:decimal digits:2 -->
 
-$\text{medium} == 42.5$ <!-- format:decimal digits:4 -->
+$medium == 42.5$ <!-- format:decimal digits:4 -->
 
-$\text{medium} == 42.5$ <!-- format:decimal digits:6 -->
+$medium == 42.5$ <!-- format:decimal digits:6 -->
 
 ---
 
@@ -102,13 +102,13 @@ $\text{medium} == 42.5$ <!-- format:decimal digits:6 -->
 You can combine multiple settings in one override:
 
 ### High Precision Scientific
-$\text{large} == 1.2345679e+08$ <!-- digits:8 format:scientific -->
+$large == 123\,456\,789.123456$ <!-- digits:8 format:scientific -->
 
 ### Engineering with 6 Digits
-$\text{large} == 123.457e6$ <!-- digits:6 format:engineering -->
+$large == 123\,456\,789.123456$ <!-- digits:6 format:engineering -->
 
 ### Low Precision Decimal
-$3.142 == 3.14$ <!-- digits:2 format:decimal -->
+$\pi_{approx} == 3.14$ <!-- digits:2 format:decimal -->
 
 ---
 
@@ -123,12 +123,12 @@ $total := price \cdot (1 + tax_rate) == 1572.99$ <!-- digits:2 format:decimal --
 ### Scientific Measurement
 
 $wavelength := 0.000000532$
-$\text{wavelength} == 5.32e-07$ <!-- format:scientific digits:3 -->
+$wavelength == 5.320e-07$ <!-- format:scientific digits:3 -->
 
 ### Engineering Value
 
 $power := 2500000$
-$\text{power} == 2.50e6$ <!-- format:engineering digits:3 -->
+$power == 2\,500\,000$ <!-- format:engineering digits:3 -->
 
 ---
 
@@ -148,4 +148,4 @@ $\text{power} == 2.50e6$ <!-- format:engineering digits:3 -->
 
 ---
 
-> *livemathtex: 2026-01-13 23:46:35 | 9 definitions, 22 evaluations | no errors | 0.49s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 04:21:15 | 9 definitions, 22 evaluations | no errors | 0.00s* <!-- livemathtex-meta -->

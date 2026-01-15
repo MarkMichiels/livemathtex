@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from livemathtex.parser.expression_tokenizer import Token, TokenType
+from livemathtex.engine.pint_backend import is_pint_unit
 
 
 class ParseError(Exception):
@@ -80,6 +81,21 @@ class UnitAttachNode(ExprNode):
 
     expr: ExprNode
     unit: str  # Unit string without \\text{} wrapper
+
+
+@dataclass
+class SqrtNode(ExprNode):
+    """Square root node (\\sqrt{expr})."""
+
+    operand: ExprNode
+
+
+@dataclass
+class FuncNode(ExprNode):
+    """Math function node (\\ln{expr}, \\sin{expr}, etc.)."""
+
+    func: str  # Function name without backslash (ln, sin, cos, etc.)
+    operand: ExprNode
 
 
 # =============================================================================
@@ -214,6 +230,14 @@ class ExpressionParser:
         if self._check(TokenType.FRAC):
             return self._parse_fraction()
 
+        # Square root
+        if self._check(TokenType.SQRT):
+            return self._parse_sqrt()
+
+        # Math functions (ln, sin, cos, etc.)
+        if self._check(TokenType.FUNC):
+            return self._parse_func()
+
         # Parenthesized expression
         if self._check(TokenType.LPAREN):
             self._advance()  # consume '('
@@ -286,12 +310,224 @@ class ExpressionParser:
         node = FracNode(numerator, denominator)
         return self._maybe_attach_unit(node)
 
+    def _parse_sqrt(self) -> ExprNode:
+        r"""Parse \sqrt{expr}."""
+        self._advance()  # consume SQRT token
+
+        # Expect opening brace
+        if not self._check(TokenType.LBRACE):
+            raise ParseError(
+                f"Expected '{{' after \\sqrt at position {self._current().start}"
+            )
+        self._advance()  # consume '{'
+
+        operand = self._expression()
+
+        if not self._check(TokenType.RBRACE):
+            raise ParseError(
+                f"Expected '}}' after sqrt argument at position "
+                f"{self._current().start}"
+            )
+        self._advance()  # consume '}'
+
+        node = SqrtNode(operand)
+        return self._maybe_attach_unit(node)
+
+    def _parse_func(self) -> ExprNode:
+        r"""Parse \ln{expr}, \sin{expr}, etc."""
+        token = self._advance()  # consume FUNC token
+        # Extract function name (strip backslash)
+        func_name = token.value.lstrip("\\")
+
+        # Expect opening brace (or parenthesis)
+        if self._check(TokenType.LBRACE):
+            self._advance()  # consume '{'
+            operand = self._expression()
+            if not self._check(TokenType.RBRACE):
+                raise ParseError(
+                    f"Expected '}}' after \\{func_name} argument at position "
+                    f"{self._current().start}"
+                )
+            self._advance()  # consume '}'
+        elif self._check(TokenType.LPAREN):
+            self._advance()  # consume '('
+            operand = self._expression()
+            if not self._check(TokenType.RPAREN):
+                raise ParseError(
+                    f"Expected ')' after \\{func_name} argument at position "
+                    f"{self._current().start}"
+                )
+            self._advance()  # consume ')'
+        else:
+            # Function followed by just a primary (e.g., \sin x)
+            operand = self._primary()
+
+        node = FuncNode(func_name, operand)
+        return self._maybe_attach_unit(node)
+
     def _maybe_attach_unit(self, node: ExprNode) -> ExprNode:
-        """Check if next token is a unit and attach it to the expression."""
+        r"""Check if next token is a unit and attach it to the expression.
+
+        Handles:
+        - Explicit UNIT tokens: \text{kg}, \mathrm{kW}
+        - Bare variable tokens that are valid Pint units: kg, kW, m, s
+        - Unit fractions: \frac{g}{d}, \frac{m^3}{h}
+
+        This enables the common LaTeX patterns:
+        - 100\ m (number backslash-space unit)
+        - 49020\ \frac{g}{d} (number backslash-space unit fraction)
+        """
+        # Check for explicit UNIT token (\text{kg}, \mathrm{kW})
         if self._check(TokenType.UNIT):
             unit_token = self._advance()
             return UnitAttachNode(node, unit_token.value)
+
+        # Check for bare variable that is a valid Pint unit
+        # This handles the pattern: 100\ m, 5\ kg, 1000\ kW
+        if self._check(TokenType.VARIABLE):
+            var_token = self._current()
+            if is_pint_unit(var_token.value):
+                self._advance()
+                return UnitAttachNode(node, var_token.value)
+
+        # Check for unit fraction: \frac{numerator_unit}{denominator_unit}
+        # This handles: 49020\ \frac{g}{d}, 50\ \frac{m^3}{h}
+        if self._check(TokenType.FRAC):
+            unit_str = self._try_parse_unit_fraction()
+            if unit_str:
+                return UnitAttachNode(node, unit_str)
+
         return node
+
+    def _try_parse_unit_fraction(self) -> Optional[str]:
+        r"""Try to parse \frac{num}{denom} as a unit string.
+
+        Returns the unit string like "g/d" or "m**3/h" if valid,
+        or None if this is not a unit fraction.
+
+        Does NOT consume tokens if parsing fails (backtracks).
+        """
+        # Save position for backtracking
+        saved_pos = self.pos
+
+        # Consume FRAC
+        self._advance()
+
+        # Expect opening brace for numerator
+        if not self._check(TokenType.LBRACE):
+            self.pos = saved_pos
+            return None
+        self._advance()
+
+        # Parse numerator content (should be unit-like)
+        num_parts = []
+        while not self._check(TokenType.RBRACE) and not self._check(TokenType.EOF):
+            token = self._current()
+            if token.type == TokenType.VARIABLE:
+                num_parts.append(token.value)
+            elif token.type == TokenType.UNIT:
+                num_parts.append(token.value)
+            elif token.type == TokenType.OPERATOR and token.value == "^":
+                num_parts.append("**")
+            elif token.type == TokenType.LBRACE:
+                # Handle nested braces like m^{3}
+                self._advance()
+                while not self._check(TokenType.RBRACE) and not self._check(TokenType.EOF):
+                    inner = self._current()
+                    if inner.type == TokenType.NUMBER:
+                        num_parts.append(inner.value)
+                    elif inner.type == TokenType.VARIABLE:
+                        num_parts.append(inner.value)
+                    elif inner.type == TokenType.OPERATOR:
+                        num_parts.append(inner.value)
+                    self._advance()
+                # Consume closing brace
+                if self._check(TokenType.RBRACE):
+                    self._advance()
+                continue  # Don't advance again
+            elif token.type == TokenType.NUMBER:
+                num_parts.append(token.value)
+            else:
+                # Unknown token in numerator
+                self.pos = saved_pos
+                return None
+            self._advance()
+
+        # Consume closing brace of numerator
+        if not self._check(TokenType.RBRACE):
+            self.pos = saved_pos
+            return None
+        self._advance()
+
+        # Expect opening brace for denominator
+        if not self._check(TokenType.LBRACE):
+            self.pos = saved_pos
+            return None
+        self._advance()
+
+        # Parse denominator content
+        denom_parts = []
+        while not self._check(TokenType.RBRACE) and not self._check(TokenType.EOF):
+            token = self._current()
+            if token.type == TokenType.VARIABLE:
+                denom_parts.append(token.value)
+            elif token.type == TokenType.UNIT:
+                denom_parts.append(token.value)
+            elif token.type == TokenType.OPERATOR and token.value == "^":
+                denom_parts.append("**")
+            elif token.type == TokenType.LBRACE:
+                # Handle nested braces
+                self._advance()
+                while not self._check(TokenType.RBRACE) and not self._check(TokenType.EOF):
+                    inner = self._current()
+                    if inner.type == TokenType.NUMBER:
+                        denom_parts.append(inner.value)
+                    elif inner.type == TokenType.VARIABLE:
+                        denom_parts.append(inner.value)
+                    elif inner.type == TokenType.OPERATOR:
+                        denom_parts.append(inner.value)
+                    self._advance()
+                if self._check(TokenType.RBRACE):
+                    self._advance()
+                continue
+            elif token.type == TokenType.NUMBER:
+                denom_parts.append(token.value)
+            else:
+                self.pos = saved_pos
+                return None
+            self._advance()
+
+        # Consume closing brace of denominator
+        if not self._check(TokenType.RBRACE):
+            self.pos = saved_pos
+            return None
+        self._advance()
+
+        # Build unit string
+        if not num_parts or not denom_parts:
+            self.pos = saved_pos
+            return None
+
+        numerator = "".join(num_parts)
+        denominator = "".join(denom_parts)
+
+        # Check if result is a valid unit
+        unit_str = f"{numerator}/{denominator}"
+        if is_pint_unit(unit_str):
+            return unit_str
+
+        # Also try with original variable names as units (single letters)
+        # This handles cases like g/d where g and d are single-letter units
+        if is_pint_unit(numerator) or is_pint_unit(denominator):
+            return unit_str
+
+        # Fallback: if it looks like a unit pattern, accept it
+        # The evaluator will validate later
+        if len(numerator) <= 3 and len(denominator) <= 3:
+            return unit_str
+
+        self.pos = saved_pos
+        return None
 
     # -------------------------------------------------------------------------
     # Token Helper Methods
