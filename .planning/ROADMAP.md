@@ -22,7 +22,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v2.0 Function Evaluation** - Phase 21 (shipped 2026-01-14)
 - ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
 - ✅ **v3.0 Pure Pint Architecture** - Phases 23-27 (complete 2026-01-14)
-- 🚧 **v3.1 Table and Comma Subscript Fixes** - Phases 28-29 (in progress)
+- ✅ **v3.1 Complete SymPy Removal** - Phase 28 (shipped 2026-01-15)
 
 ## Phases
 
@@ -430,37 +430,19 @@ Key deliverables:
 Plans:
 - [x] 27-01: Custom parser primary path (complete 2026-01-14)
 
-### ✅ v3.1 Complete SymPy Removal (Complete 2026-01-15)
+<details>
+<summary>✅ v3.1 Complete SymPy Removal (Phase 28) - SHIPPED 2026-01-15</summary>
 
-**Milestone Goal:** Complete removal of SymPy and latex2sympy from the codebase. All bugs (ISS-035, ISS-036, ISS-037, ISS-038) are caused by latex2sympy's global state corruption - fix by removing it entirely.
+**Milestone Goal:** Complete removal of SymPy and latex2sympy from the codebase.
 
-**Issues to Resolve:** ISS-035, ISS-036, ISS-037, ISS-038
+See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
 
-#### Phase 28: Complete SymPy/latex2sympy Removal
-**Goal**: Remove ALL SymPy and latex2sympy code, no fallbacks, clean Pure Pint architecture
-**Depends on**: v3.0 complete
-**Status**: Planning complete, ready to execute
-**Research**: Not needed (removal, not implementation)
-**Plans**: 6 plans
+**Summary:**
+- Phase 28: Complete SymPy/latex2sympy Removal (6 plans)
+- ~1,500 lines of dead code removed
+- Extended custom parser with math functions, units, currency symbols
+- Simplified internal IDs from v_{0} to v0 format
 
-**What gets removed:**
-- evaluator.py: 106 sympy references → 0
-- pint_backend.py: 148 sympy references → 0
-- token_classifier.py: DELETE entire file
-- core.py: 4 sympy references → 0
-- Internal IDs: v_{0} format → v0 format (no LaTeX)
-- Dependencies: sympy, latex2sympy2 uninstalled
+**Issues Resolved:** ISS-035, ISS-036, ISS-037, ISS-038
 
-**Issues Addressed:**
-- ISS-037: Variables in table cells fail (caused by latex2sympy corruption)
-- ISS-035: Multi-letter variables parsed as multiplication (caused by latex2sympy)
-- ISS-038: Comma subscripts fail in expressions (caused by latex2sympy)
-- ISS-036: Comma subscripts fail with Symbol error (caused by latex2sympy)
-
-Plans:
-- [x] 28-01: Remove latex2sympy fallback from evaluator.py
-- [x] 28-02: Remove SymPy from pint_backend.py
-- [x] 28-03: Remove SymPy from remaining files, delete token_classifier.py
-- [x] 28-04: Simplify internal IDs (v_{0} → v0)
-- [x] 28-05: Uninstall packages from dependencies
-- [x] 28-06: Full test suite verification and bug fixes
+</details>

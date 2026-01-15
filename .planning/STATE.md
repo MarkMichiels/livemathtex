@@ -2,36 +2,23 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-12)
+See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** All issues resolved
+**Current focus:** Ready for next milestone
 
 ## Current Position
 
-Phase: 28 (Complete SymPy/latex2sympy Removal)
-Plan: 6 of 6 complete
-Status: Phase complete
-Last activity: 2026-01-15 — Completed 28-06-PLAN.md (full test verification)
-Branch: `feature/v3-pure-pint`
+Phase: None active
+Plan: None
+Status: ✅ Milestone v3.1 SHIPPED
+Last activity: 2026-01-15 — Milestone v3.1 complete, ready to merge and tag
+Branch: `feature/v3-pure-pint` (ready to merge to master)
 
-**Milestone v3.1: Complete SymPy Removal**
-
-Goal: Remove ALL SymPy and latex2sympy from codebase. No fallbacks. Pure Pint only.
-
-Plans:
-- ✅ 28-01: Remove latex2sympy fallback from evaluator.py (19 min, ~1000 lines removed)
-- ✅ 28-02: Remove SymPy from pint_backend.py (13 min, ~450 lines removed)
-- ✅ 28-03: Remove from remaining files (already done in 28-01/28-02)
-- ✅ 28-04: Simplify internal IDs v_{0}→v0 (10 min)
-- ✅ 28-05: Uninstall packages (2 min)
-- ✅ 28-06: Full test verification (14 min, 52→0 failures)
-
-Progress: ██████████ 100% (6/6 plans complete)
-
-**Root cause of all issues:**
-latex2sympy corrupts global state when parsing fails. This causes ISS-035, ISS-036, ISS-037, ISS-038.
-Solution: Remove latex2sympy entirely instead of patching around corruption.
+**Next steps:**
+1. Merge feature/v3-pure-pint to master
+2. Tag v3.1.0
+3. Push tag to remote
 
 ## Performance Metrics
 
@@ -70,6 +57,8 @@ Solution: Remove latex2sympy entirely instead of patching around corruption.
 | v1.6 | v1.6.0 | 2026-01-13 | — |
 | v1.7 | — | 2026-01-13 | — |
 | v1.8 | — | 2026-01-13 | — (verification only) |
+| v3.0 | v3.0.0 | 2026-01-14 | — |
+| v3.1 | v3.1.0 | 2026-01-15 | .planning/milestones/v3.1-ROADMAP.md |
 
 ## Accumulated Context
 
@@ -116,16 +105,24 @@ None.
   - Major refactor: Remove latex2sympy and SymPy dependencies
   - Custom tokenizer + parser for LaTeX expressions
   - Direct Pint evaluation without SymPy intermediate
-- **Milestone v3.1 created: Table and Comma Subscript Fixes, 2 phases (28-29)**
-  - Fix table cell parsing (ISS-035, ISS-037)
-  - Fix comma subscript handling (ISS-036, ISS-038)
+- **Milestone v3.1 COMPLETE: Complete SymPy Removal, 1 phase (28)**
+  - Removed ALL SymPy and latex2sympy from codebase
+  - Fixed ISS-035, ISS-036, ISS-037, ISS-038 (root cause: latex2sympy corruption)
+  - ~1,500 lines of dead code removed
+  - Extended custom parser with math functions, units, currency symbols
 
 ## Session Continuity
 
-Last session: 2026-01-15T09:19:38Z
-Stopped at: Phase 28 complete - all SymPy removed, 475 tests pass
+Last session: 2026-01-15
+Stopped at: Milestone v3.1 complete
 Resume file: None
-Next: Merge feature/v3-pure-pint to master, tag v3.1.0
+Next: User to merge to master and tag
+
+**v3.1 Complete Summary:**
+- ✅ Phase 28: Complete SymPy/latex2sympy Removal (6 plans)
+- ~1,500 lines removed
+- 475 tests passing
+- Parser extended with math functions, units, currency
 
 **v3.0 Complete Summary:**
 - ✅ Phase 23: Expression Tokenizer (47 tests, 169 lines)
