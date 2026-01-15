@@ -430,36 +430,37 @@ Key deliverables:
 Plans:
 - [x] 27-01: Custom parser primary path (complete 2026-01-14)
 
-### 🚧 v3.1 Table and Comma Subscript Fixes (In Progress)
+### 🚧 v3.1 Complete SymPy Removal (In Progress)
 
-**Milestone Goal:** Fix variable handling in markdown tables and subscripts with commas to enable processing of complex scientific documents.
+**Milestone Goal:** Complete removal of SymPy and latex2sympy from the codebase. All bugs (ISS-035, ISS-036, ISS-037, ISS-038) are caused by latex2sympy's global state corruption - fix by removing it entirely.
 
 **Issues to Resolve:** ISS-035, ISS-036, ISS-037, ISS-038
 
-#### Phase 28: Table Cell Parsing
-**Goal**: Fix variables in table cells that fail with "Symbol not iterable" errors (ISS-035, ISS-037)
+#### Phase 28: Complete SymPy/latex2sympy Removal
+**Goal**: Remove ALL SymPy and latex2sympy code, no fallbacks, clean Pure Pint architecture
 **Depends on**: v3.0 complete
-**Status**: Not started
-**Research**: Unlikely (bug fix - table-specific code path)
-**Plans**: TBD
+**Status**: Planning complete, ready to execute
+**Research**: Not needed (removal, not implementation)
+**Plans**: 6 plans
+
+**What gets removed:**
+- evaluator.py: 106 sympy references → 0
+- pint_backend.py: 148 sympy references → 0
+- token_classifier.py: DELETE entire file
+- core.py: 4 sympy references → 0
+- Internal IDs: v_{0} format → v0 format (no LaTeX)
+- Dependencies: sympy, latex2sympy2 uninstalled
 
 **Issues Addressed:**
-- ISS-037: Variables in table cells fail with "argument of type 'Symbol' is not iterable" (High)
-- ISS-035: Multi-letter variable names in tables parsed as implicit multiplication (Medium)
+- ISS-037: Variables in table cells fail (caused by latex2sympy corruption)
+- ISS-035: Multi-letter variables parsed as multiplication (caused by latex2sympy)
+- ISS-038: Comma subscripts fail in expressions (caused by latex2sympy)
+- ISS-036: Comma subscripts fail with Symbol error (caused by latex2sympy)
 
 Plans:
-- [ ] 28-01: TBD
-
-#### Phase 29: Comma Subscript Handling
-**Goal**: Fix variables with commas in subscripts that fail in expressions (ISS-036, ISS-038)
-**Depends on**: Phase 28
-**Status**: Not started
-**Research**: Unlikely (bug fix - subscript parsing)
-**Plans**: TBD
-
-**Issues Addressed:**
-- ISS-038: Variables with commas in subscripts fail in expressions with "I expected something else here" (High - 25 errors)
-- ISS-036: Variables with commas in subscripts fail with "Symbol not iterable" (Medium)
-
-Plans:
-- [ ] 29-01: TBD
+- [ ] 28-01: Remove latex2sympy fallback from evaluator.py
+- [ ] 28-02: Remove SymPy from pint_backend.py
+- [ ] 28-03: Remove SymPy from remaining files, delete token_classifier.py
+- [ ] 28-04: Simplify internal IDs (v_{0} → v0)
+- [ ] 28-05: Uninstall packages from dependencies
+- [ ] 28-06: Full test suite verification and bug fixes

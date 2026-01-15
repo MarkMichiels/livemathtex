@@ -17,16 +17,12 @@ This test reproduces the bug where evaluating variables in markdown table cells 
 **Define variables:**
 $E_{26} := 1473.1166\ MWh$
 $SEC_{26} := 13.1528\ \frac{MWh}{kg}$
-$Cost_{26} := 204.7632\ k€
-\\ \color{red}{\text{
-    Error: Undefined variable 'k'. ('k' is also a unit: unit. Use a subscript like 'k\_tot' to avoid confusion with the unit.)}}$
+$Cost_{26} := 204.7632\ k€$
 
 **Use in table:**
 | Year | Energy (MWh) | SEC (MWh/kg) | Cost (k€) |
 |------|--------------|--------------|-----------|
-| 2026 | $E_{26} == 1473.1166\ \text{MWh}$ <!-- [MWh] --> | $SEC_{26} == 13.1528\ \text{MWh/kg}$ <!-- [MWh/kg] --> | $Cost_{26} ==
-\\ \color{red}{\text{
-    Error: Undefined variable 'Cost'. Note: 'Cost' was parsed as implicit multiplication (C*o*s*t). Define '\$Cost := ...\$' before use, or use a structured name like 'Cost\_\{...\}'. ('C' is also a unit (coulomb); 's' is also a unit (second))}}$ <!-- [k€] --> |
+| 2026 | $E_{26} == [MWh]$ <!-- [MWh] --> | $SEC_{26} == [MWh/kg]$ <!-- [MWh/kg] --> | $Cost_{26} ==$ <!-- [k€] --> |
 
 **Expected result:** Table should display calculated values: `1473.1166 MWh`, `13.1528 MWh/kg`, `204.7632 k€`
 
@@ -48,4 +44,4 @@ $Cost_{26} := 204.7632\ k€
 
 ---
 
-> *livemathtex: 2026-01-14 10:05:45 | 3 definitions, 3 evaluations | 2 errors | 0.17s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-15 02:48:18 | cleared 2 evaluations | no errors | <1s* <!-- livemathtex-meta -->

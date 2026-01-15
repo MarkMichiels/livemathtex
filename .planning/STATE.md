@@ -9,27 +9,29 @@ See: .planning/PROJECT.md (updated 2026-01-12)
 
 ## Current Position
 
-Phase: 28 of 29 (table cell parsing)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-01-15 — Milestone v3.1 created
+Phase: 28 (Complete SymPy/latex2sympy Removal)
+Plan: 6 plans created (28-01 through 28-06)
+Status: Ready to execute
+Last activity: 2026-01-15 — Phase 28 replanned for complete SymPy removal
 Branch: `feature/v3-pure-pint`
 
-**Milestone v3.1: Table and Comma Subscript Fixes**
+**Milestone v3.1: Complete SymPy Removal**
 
-Goal: Fix variable handling in markdown tables and subscripts with commas.
+Goal: Remove ALL SymPy and latex2sympy from codebase. No fallbacks. Pure Pint only.
 
-Phases:
-- Phase 28: Table Cell Parsing - Fix variables in table cells (ISS-035, ISS-037)
-- Phase 29: Comma Subscript Handling - Fix comma subscripts in expressions (ISS-036, ISS-038)
+Plans:
+- 28-01: Remove latex2sympy fallback from evaluator.py
+- 28-02: Remove SymPy from pint_backend.py
+- 28-03: Remove from remaining files, delete token_classifier.py
+- 28-04: Simplify internal IDs (v_{0} → v0)
+- 28-05: Uninstall packages
+- 28-06: Full test verification
 
-Progress: ░░░░░░░░░░ 0% (0/2 phases complete)
+Progress: ░░░░░░░░░░ 0% (0/6 plans complete)
 
-**Issues to Resolve:**
-- ISS-037: Variables in table cells fail (High)
-- ISS-038: Comma subscripts in expressions fail (High)
-- ISS-036: Comma subscripts fail with Symbol error (Medium)
-- ISS-035: Multi-letter variable names in tables (Medium)
+**Root cause of all issues:**
+latex2sympy corrupts global state when parsing fails. This causes ISS-035, ISS-036, ISS-037, ISS-038.
+Solution: Remove latex2sympy entirely instead of patching around corruption.
 
 ## Performance Metrics
 

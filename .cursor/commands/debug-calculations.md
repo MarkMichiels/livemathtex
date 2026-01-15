@@ -24,7 +24,7 @@ Same workflow as `/build-calculations`, but automatically detects issues and cre
 
 **⚠️ CRITICAL: This plan MUST be created FIRST using `todo_write`, before any other steps!**
 
-**The AI assistant must create this todo list in "plan mode" - this allows all steps to be executed one by one. All workflow steps are included in this plan. Steps can be skipped if not needed (e.g., if synchronization is disabled, skip setup-monitor-0 and setup-claude-0), but the plan structure ensures nothing is forgotten.**
+**The AI assistant must create this todo list in "plan mode" - this allows all steps to be executed one by one. All workflow steps are included in this plan. Steps can be skipped if not needed, but the plan structure ensures nothing is forgotten.**
 
 **Create this exact todo list using `todo_write` with `merge: false`:**
 
@@ -32,10 +32,6 @@ Same workflow as `/build-calculations`, but automatically detects issues and cre
 [
   {"id": "plan-0", "content": "PLAN: Create execution plan showing all workflow steps and ask user if they want to proceed (Y/N)", "status": "in_progress"},
   {"id": "plan-approval-0", "content": "PLAN-APPROVAL: Wait for user response (Y/N) - if N, stop workflow", "status": "pending"},
-  {"id": "setup-0", "content": "SETUP: Ask user about automatic synchronization (Y/N) - wait for answer", "status": "pending"},
-  {"id": "setup-monitor-0", "content": "SETUP-MONITOR: If Y, start monitoring script in visible terminal window (livemathtex repo)", "status": "pending"},
-  {"id": "setup-claude-0", "content": "SETUP-CLAUDE: If Y, launch Claude Code in visible terminal window (livemathtex repo, NOT GSD repo) with /gsd:build-all", "status": "pending"},
-  {"id": "setup-flag-0", "content": "SETUP-FLAG: Store synchronization flag (.planning/.sync-enabled)", "status": "pending"},
   {"id": "context-0", "content": "CONTEXT: Detect livemathtex repository and read ISSUES.md to understand current state", "status": "pending"},
   {"id": "context-lessons-0", "content": "CONTEXT-LESSONS: Read LESSONS_LEARNED.md to understand patterns and workarounds", "status": "pending"},
   {"id": "clean-1", "content": "CLEAN: Clean source document to remove error markup (creates temp_input_clean.md)", "status": "pending"},
@@ -63,9 +59,8 @@ Same workflow as `/build-calculations`, but automatically detects issues and cre
 
 **⚠️ CRITICAL RULES:**
 - ✅ **ALWAYS create this plan FIRST** using `todo_write` before doing anything else
-- ✅ **ALWAYS wait for user responses** at plan-approval-0, setup-0, and review-0
+- ✅ **ALWAYS wait for user responses** at plan-approval-0 and review-0
 - ✅ **Follow the plan step by step** - execute each todo item in order
-- ✅ **Steps can be skipped if not needed** (e.g., if synchronization is N, skip setup-monitor-0 and setup-claude-0)
 - ✅ **NEVER proceed without explicit user approval** (Y/N answers)
 - ✅ **ALWAYS check ISSUES.md** before creating new issues (issue-check-1)
 - ✅ **ALWAYS create test files** before creating issues (issue-test-1)
@@ -125,159 +120,12 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 
 **Action:**
 - If user says **N**: Stop workflow, mark status as "cancelled"
-- If user says **Y**: Continue to setup-0
+- If user says **Y**: Continue to context-0
 - **⚠️ CRITICAL: Do NOT proceed without explicit Y/N answer!**
 
 ---
 
-### STEP 1: Setup and Synchronization (setup-0)
-
-**Only proceed if user answered Y to the plan question.**
-
-1. **Ask user about automatic synchronization:**
-   ```
-   🔄 Automatic Synchronization Setup
-
-   Do you want to enable FULLY AUTOMATIC synchronization with Claude CLI (build-all)?
-
-   This will:
-   - Start monitoring script in a visible terminal window (watches status files)
-   - Launch Claude CLI with AUTOMATIC command pipe (receives commands from monitor)
-   - **FULLY AUTOMATIC:** When debug creates issues → monitor sends /gsd:build-all automatically
-   - **NO MANUAL TYPING:** Claude CLI receives commands via named pipe
-
-   **Note:** Both workflows operate on the SAME livemathtex repository.
-
-   Enable FULLY AUTOMATIC synchronization? (Y/N)
-   ```
-
-   **⚠️ CRITICAL: WAIT for user response (Y or N) before proceeding!**
-
-   **If Y (enable synchronization):**
-
-   **⚠️ ARCHITECTURE: Both workflows run in the SAME repository (livemathtex)!**
-   - `/debug-calculations` (this command, in Cursor) → livemathtex/.planning/
-   - `/gsd:build-all` (Claude CLI terminal) → livemathtex/.planning/
-   - Monitor coordinates both via status files
-
-   **The AI assistant MUST automatically start both terminals:**
-
-   a. **Start MONITOR in visible terminal window (FOREGROUND):**
-      ```bash
-      LMT_REPO="$HOME/Repositories/livemathtex"
-
-      if command -v gnome-terminal >/dev/null 2>&1; then
-        gnome-terminal --title "🔄 LiveMathTeX Monitor" --geometry=100x30 -- bash -c "
-          cd '$LMT_REPO'
-          echo '════════════════════════════════════════════════════════════════════'
-          echo '  🔄 LiveMathTeX Workflow Monitor'
-          echo '════════════════════════════════════════════════════════════════════'
-          echo ''
-          echo '  Watching: $LMT_REPO/.planning/'
-          echo '  - .debug-calculations-status.json (Cursor)'
-          echo '  - .build-all-status.json (Claude CLI)'
-          echo ''
-          echo '  Press Ctrl+C to stop monitoring'
-          echo '════════════════════════════════════════════════════════════════════'
-          echo ''
-          python scripts/monitor_debug_build.py --project-repo '$LMT_REPO' --interval 10
-          echo ''
-          echo 'Monitor stopped. Press Enter to close.'
-          read
-        "
-      elif command -v xterm >/dev/null 2>&1; then
-        xterm -title "LiveMathTeX Monitor" -geometry 100x30 -e "
-          cd '$LMT_REPO' && python scripts/monitor_debug_build.py --project-repo '$LMT_REPO' --interval 10; bash
-        " &
-      else
-        echo "❌ No terminal emulator found (gnome-terminal, xterm)"
-        echo "   Please open a terminal manually and run:"
-        echo "   cd $LMT_REPO && python scripts/monitor_debug_build.py"
-      fi
-      ```
-
-   b. **Start CLAUDE CLI with automatic command pipe (fully automated):**
-      ```bash
-      LMT_REPO="$HOME/Repositories/livemathtex"
-      PIPE_PATH="$LMT_REPO/.planning/.claude-command-pipe"
-
-      # Create the named pipe for receiving commands from monitor
-      mkdir -p "$LMT_REPO/.planning"
-      rm -f "$PIPE_PATH"  # Remove old pipe if exists
-      mkfifo "$PIPE_PATH"
-
-      if command -v gnome-terminal >/dev/null 2>&1; then
-        gnome-terminal --title "🔨 Claude CLI - Auto Build" --geometry=120x40 -- bash -c "
-          cd '$LMT_REPO'
-          PIPE='$PIPE_PATH'
-
-          echo '════════════════════════════════════════════════════════════════════'
-          echo '  🔨 Claude CLI - FULLY AUTOMATED'
-          echo '════════════════════════════════════════════════════════════════════'
-          echo ''
-          echo '  Directory: $LMT_REPO'
-          echo '  Command pipe: \$PIPE'
-          echo ''
-          echo '  ✅ FULLY AUTOMATIC:'
-          echo '     - Monitor detects new issues → sends /gsd:build-all'
-          echo '     - Claude receives command automatically'
-          echo '     - No manual intervention needed!'
-          echo ''
-          echo '  Starting Claude CLI with command pipe...'
-          echo '════════════════════════════════════════════════════════════════════'
-          echo ''
-
-          # Start a background job that reads from pipe and writes to Claude stdin
-          # Uses a co-process so commands from pipe are forwarded to Claude
-          while true; do
-            if read -r cmd < \"\$PIPE\" 2>/dev/null; then
-              echo \"[MONITOR] Received command: \$cmd\"
-              echo \"\$cmd\"
-            fi
-          done | claude --dangerously-skip-permissions
-
-          # Cleanup on exit
-          rm -f \"\$PIPE\"
-          echo ''
-          echo 'Claude CLI exited. Press Enter to close.'
-          read
-        "
-      elif command -v xterm >/dev/null 2>&1; then
-        xterm -title "Claude CLI - Auto Build" -geometry 120x40 -e "
-          cd '$LMT_REPO'
-          PIPE='$PIPE_PATH'
-          while true; do
-            read -r cmd < \"\$PIPE\" 2>/dev/null && echo \"\$cmd\"
-          done | claude --dangerously-skip-permissions
-          rm -f \"\$PIPE\"
-          bash
-        " &
-      else
-        echo "❌ No terminal emulator found (gnome-terminal, xterm)"
-        echo "   Install gnome-terminal for fully automated operation."
-      fi
-      ```
-
-   **After both terminals are open - IT'S FULLY AUTOMATIC:**
-   - Monitor window shows status of both workflows
-   - When debug creates issues → monitor automatically sends `/gsd:build-all` to Claude
-   - When build-all completes → monitor signals debug to continue
-   - No manual typing needed!
-
-   c. **Store synchronization flag:**
-      ```bash
-      echo "true" > "$LMT_REPO/.planning/.sync-enabled"
-      ```
-
-   **If N (no synchronization):**
-   ```
-   ℹ️  Automatic synchronization disabled.
-   Debug workflow will run independently.
-   ```
-   - Store flag: `echo "false" > "$LMT_REPO/.planning/.sync-enabled"`
-   - Continue with normal debug workflow (no monitoring script, no Claude Code)
-
-2. **Read existing issues for context:**
+### STEP 1: Read Context (context-0)
    ```bash
    # Detect livemathtex repository
    LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
@@ -310,8 +158,7 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 | Phase | Depends on | Explanation |
 |-------|------------|-------------|
 | `plan-0` | None | **MUST create plan first and ask user if they want to proceed** |
-| `setup-0` | `plan-0` approved (Y) | Must wait for user approval before setup |
-| `context-0` | `setup-0` completed | Must setup before reading context |
+| `context-0` | `plan-0` approved (Y) | Must read context after plan approval |
 | `clean-1` | `context-0` completed | Must understand existing issues before starting |
 | `expect-1` | `clean-1` completed | Cannot add expected values without clean source |
 | `process-1` | `expect-1` completed | Cannot process without expected values for comparison |
@@ -334,7 +181,6 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 | Step | Must Wait For | What to Do |
 |------|---------------|------------|
 | `plan-0` | User says "Y" or "N" to proceed | Show plan, ask "Do you want to proceed?", **STOP and wait** |
-| `setup-0` | User says "Y" or "N" to synchronization | Ask about sync, **STOP and wait** for answer |
 | `review-0` | User says "Y", "N", "ENOUGH", or "CONTINUE" | Show summary, ask for review, **STOP and wait** |
 | Any question | User response | **NEVER proceed without explicit user approval** |
 
@@ -350,18 +196,14 @@ DOC_REPO=$(git -C $(dirname input.md) rev-parse --show-toplevel 2>/dev/null || e
 
 ## Workflow Overview
 
-**Interactive workflow (with optional synchronization):**
+**Interactive workflow:**
 
 ```mermaid
 graph TB
     START[Start Debug] --> PLAN[Create Plan<br/>Show all steps]
     PLAN -->|Wait for Y| ASK{User wants<br/>to proceed?}
     ASK -->|N| STOP[Stop Workflow]
-    ASK -->|Y| SETUP{Setup<br/>Sync with Claude Code?}
-    SETUP -->|Yes| MONITOR[Start Monitor Script<br/>in Terminal Window]
-    SETUP -->|No| CONTEXT[Read Context<br/>ISSUES.md]
-    MONITOR --> CLAUDE[Launch Claude Code<br/>in livemathtex repo<br/>Terminal Window]
-    CLAUDE --> CONTEXT
+    ASK -->|Y| CONTEXT[Read Context<br/>ISSUES.md]
     CONTEXT --> CLEAN[Clean Source<br/>Remove error markup]
     CLEAN --> EXPECT[Calculate Expected<br/>Add to output doc]
     EXPECT --> PROCESS[Process with LiveMathTeX<br/>Compute actual values]
@@ -378,9 +220,9 @@ graph TB
     REVIEW -->|N| FIX
     REVIEW -->|CONTINUE| CLEAN
     REVIEW -->|Y| COMMIT[Commit Original File]
-    REVIEW -->|ENOUGH| CLEANUP[Stop Monitor<br/>Cleanup]
+    REVIEW -->|ENOUGH| OPTIONAL[Optional: Start<br/>Claude CLI Build]
     COMMIT --> POST[Post-Evaluation<br/>Improve command]
-    CLEANUP --> DONE[✅ Document Complete]
+    OPTIONAL --> DONE[✅ Document Complete]
     POST --> DONE
     STOP --> DONE
 
@@ -402,7 +244,7 @@ graph TB
     style STATUS fill:#9b59b6,stroke:#7d3c98,color:#fff
     style REVIEW fill:#ff9800,stroke:#f57c00,color:#fff
     style COMMIT fill:#4a90e2,stroke:#2e5c8a,color:#fff
-    style CLEANUP fill:#e74c3c,stroke:#c0392b,color:#fff
+    style OPTIONAL fill:#9b59b6,stroke:#7d3c98,color:#fff
     style POST fill:#9b59b6,stroke:#7d3c98,color:#fff
     style DONE fill:#27ae60,stroke:#1e8449,color:#fff
     style STOP fill:#e74c3c,stroke:#c0392b,color:#fff
@@ -496,7 +338,10 @@ graph TB
    - If unit hint doesn't match result type → User error
    - If unit hint correct but conversion fails → Bug
 
-**Self-check:** Each discrepancy classified before proceeding.
+**Self-check:**
+- ✅ Errors grouped by pattern
+- ✅ Each pattern classified (not each individual error)
+- ✅ Classification complete before proceeding
 
 ---
 
@@ -628,12 +473,25 @@ graph TB
    # Verify the error/wrong result appears
    ```
 
+   **🚨 CRITICAL: Test file MUST FAIL when processed!**
+
+   **If test file passes (0 errors) but original document fails:**
+   1. The bug is likely **context-dependent**
+   2. Expand test file with more context from original document:
+      - Start with the exact failing section from original
+      - Include variables defined earlier that might affect parsing
+      - Use binary search: start with full document, remove sections until bug disappears, then add back minimal needed context
+   3. Continue expanding until test file fails
+   4. **DO NOT create issue until test file actually fails**
+
    **⚠️ CRITICAL RULES for test files:**
    - ✅ Use SAME livemathtex settings as original document (output, json, digits)
    - ✅ Include ONLY minimal code to reproduce (no unrelated calculations)
-   - ✅ Test file MUST reproduce the bug when processed
+   - ✅ **Test file MUST FAIL when processed** - if it passes, expand with more context
    - ✅ Filename MUST match pattern: `test_iss_XXX_<description>.md`
+   - ✅ For context-dependent bugs, add note: "**Note:** This test requires significant context to reproduce. Simple test cases pass, but this expanded version fails."
    - ❌ DO NOT create test file if bug cannot be isolated
+   - ❌ DO NOT create issue if test file passes (0 errors)
    - ❌ DO NOT include working calculations that aren't needed
 
 3. **Run `/gsd:create-issue`** to document the bug:
@@ -891,7 +749,7 @@ At this point, the workflow should be complete:
 Please review and respond:
 - **Y** = proceed to commit original file
 - **N** = collect corrections, apply fixes, then repeat `review-0`
-- **ENOUGH** = stop debugging, mark status as "done", workflow complete (no commit)
+- **ENOUGH** = stop debugging, mark status as "done", workflow complete (no commit). Optionally start Claude CLI to build all issues.
 - **CONTINUE** = continue debugging (restart from clean-1, check for resolved issues first)
 ```
 
@@ -909,26 +767,35 @@ Please review and respond:
 - Update status file: `"status": "done"`
 - Show final summary
 - **Do NOT commit** - user wants to stop
-- **Stop monitoring script and cleanup (if synchronization was enabled):**
-  ```bash
-  # Check if sync was enabled
-  LMT_REPO=$(git -C "$(dirname "")" rev-parse --show-toplevel 2>/dev/null || \
-    find . -maxdepth 3 -name ".planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
-    find "$HOME" -maxdepth 4 -path "*/livemathtex/.planning" -type d -exec dirname {} \; 2>/dev/null | head -1 || \
-    echo ".")
+- **Optional: Ask if user wants to start Claude CLI to build all:**
+  ```
+  🔨 Start Claude CLI to build all issues?
 
-  if [ -f "$LMT_REPO/.planning/.sync-enabled" ] && [ "$(cat "$LMT_REPO/.planning/.sync-enabled")" = "true" ]; then
-    # Stop monitoring script if still running
-    if [ -f "$LMT_REPO/.planning/.monitor.pid" ]; then
-      MONITOR_PID=$(cat "$LMT_REPO/.planning/.monitor.pid")
-      if ps -p $MONITOR_PID > /dev/null 2>&1; then
-        echo "🛑 Stopping monitoring script (PID: $MONITOR_PID)..."
-        kill $MONITOR_PID 2>/dev/null || true
-        rm -f "$LMT_REPO/.planning/.monitor.pid"
-      fi
-    fi
-    # Cleanup sync flag
-    rm -f "$LMT_REPO/.planning/.sync-enabled"
+  Would you like to start Claude CLI in a terminal to build all issues?
+  Claude CLI will automatically run: /gsd:build-all livemathtex
+
+  Start Claude CLI? (Y/N)
+  ```
+
+  **If Y:**
+  ```bash
+  # Start Claude CLI in terminal window
+  LMT_REPO="$HOME/Repositories/livemathtex"
+
+  if command -v gnome-terminal >/dev/null 2>&1; then
+    gnome-terminal --title "🔨 Claude CLI - Build All" --geometry=120x40 -- bash -c "
+      cd '$LMT_REPO'
+      cc '/gsd:build-all livemathtex'
+    "
+  elif command -v xterm >/dev/null 2>&1; then
+    xterm -title "Claude CLI - Build All" -geometry 120x40 -e "
+      cd '$LMT_REPO'
+      cc '/gsd:build-all livemathtex'
+    " &
+  else
+    echo "Open a terminal and run:"
+    echo "  cd $LMT_REPO"
+    echo "  cc '/gsd:build-all livemathtex'"
   fi
   ```
 - End workflow

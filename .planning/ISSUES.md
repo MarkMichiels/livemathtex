@@ -6,6 +6,78 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ---
 
+### ISS-037: Variables in table cells fail with "argument of type 'Symbol' is not iterable"
+
+**Status:** Open
+**Created:** 2026-01-15
+**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+**Description:**
+Variables that work correctly outside tables fail when used in table cells with error "argument of type 'Symbol' is not iterable". The same variable evaluates correctly when used in regular text, but fails when used inside a markdown table cell.
+
+**Test file:** `tests/test_iss_037_table_cell_symbol_not_iterable.md`
+
+**Expected:** Variable should evaluate correctly in table cells (same as outside tables)
+**Actual:** Error: "Failed to parse LaTeX 'U_{27}': argument of type 'Symbol' is not iterable"
+
+**Root cause:** Table cell parsing uses a different code path than regular text parsing, and this code path has a bug where it tries to iterate over a Symbol object incorrectly.
+
+**Impact:** High - prevents using calculated variables in tables, which is common in scientific/engineering documents.
+
+**Related Issues:**
+- ISS-035: Multi-letter variable names in tables parsed as implicit multiplication (different error, but also table-specific)
+
+---
+
+### ISS-038: Variables with commas in subscripts fail in expressions with "I expected something else here"
+
+**Status:** Open
+**Created:** 2026-01-15
+**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+**Description:**
+Variables with commas in subscripts fail when used in expressions (multiplication, division, addition) with error "I expected something else here". This is a different error than ISS-036 - it occurs when the variable is used in an expression, not just referenced.
+
+**Test file:** `tests/test_iss_038_comma_subscript_expression_parse_error.md`
+
+**Expected:** Variables should work correctly in expressions
+**Actual:** Error: "Failed to parse LaTeX 'PAR_{R2,umol} \cdot t_{day}': I expected something else here"
+
+**Root cause:** When variables with commas in subscripts are used in expressions, the parser fails. Variable name normalization (comma → underscore) happens, but the parser still can't handle the normalized form in expressions.
+
+**Impact:** High - prevents using variables with commas in any calculations (25 errors in source document).
+
+**Related Issues:**
+- ISS-036: Variables with commas in subscripts fail with "argument of type 'Symbol' is not iterable" (different error, different context)
+- ISS-034: Variable parsing fails for variables with commas in subscript (marked RESOLVED, but this is a different manifestation)
+
+---
+
+### ISS-036: Variables with commas in subscripts fail with "argument of type 'Symbol' is not iterable" (potential regression of ISS-034)
+
+**Status:** Open (needs investigation)
+**Created:** 2026-01-15
+**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+**Description:**
+Variables with commas in subscripts (e.g., `PPE_{eff,9010}`) fail to parse/evaluate with error "argument of type 'Symbol' is not iterable" in certain contexts. Simple test cases work correctly, but complex expressions in the source document fail.
+
+**Test file:** `tests/test_iss_036_comma_subscript_symbol_not_iterable.md`
+
+**Note:** Simple test case passes (no errors), suggesting the bug may be context-dependent or require complex expressions to trigger.
+
+**Expected:** Variables with commas in subscripts should parse and evaluate correctly (as ISS-034 claimed to fix)
+**Actual:** Error: "Failed to parse LaTeX 'PPE_{eff,9010}': argument of type 'Symbol' is not iterable" (in complex expressions)
+
+**Root cause:** Unknown - may be related to how Symbol objects are handled during parsing of complex expressions with variables containing commas in subscripts.
+
+**Impact:** Medium - prevents using descriptive variable names with multiple subscripts in complex expressions.
+
+**Related Issues:**
+- ISS-034: Variable parsing fails for variables with commas in subscript (marked RESOLVED, but bug still occurs with different error in complex contexts)
+
+---
+
 ### ISS-035: Multi-letter variable names in tables parsed as implicit multiplication
 
 **Status:** Open (updated)

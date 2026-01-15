@@ -699,15 +699,12 @@ class Evaluator:
         lhs = lhs_part.strip()
 
         # ISS-024 FIX: Use Pint for evaluation to ensure proper unit cancellation
+        # ISS-037 FIX: Don't fall back to SymPy for dimensionless results - Pint handles them correctly
         try:
             pint_result = self._compute_with_pint(lhs)
-            # Check if result has units - if dimensionless, fall back to SymPy formatting
-            # which properly handles scientific/engineering format settings
-            if str(pint_result.units) == 'dimensionless' or pint_result.dimensionless:
-                raise EvaluationError("Dimensionless - use SymPy formatting")
             result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
         except EvaluationError:
-            # Fallback to SymPy evaluation if Pint fails or result is dimensionless
+            # Fallback to SymPy evaluation only if Pint fails completely
             value = self._compute(lhs, propagate_units=True)
 
             # Check for undefined variables (symbols that weren't substituted)
@@ -996,24 +993,12 @@ class Evaluator:
                 pint_result = None
 
         # ISS-024 FIX: Use Pint for display formatting to get proper unit cancellation
-        if pint_storage_used or (pint_result is not None and not (str(pint_result.units) == 'dimensionless' or pint_result.dimensionless)):
+        # ISS-037 FIX: Always use Pint for formatting (including dimensionless results)
+        if pint_storage_used or pint_result is not None:
             result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
         else:
-            # Fallback to SymPy formatting
-            # Use unit_comment for display conversion
-            # If unit_comment is specified, don't auto-convert to SI in _format_result
-            # ISS-017: Catch UnitConversionWarning and show SI fallback with orange warning
-            result_unit = sympy_unit if sympy_unit is not None else (self._extract_unit_from_value(value)[0] if hasattr(value, 'as_coeff_Mul') else None)
-            display_value = value * result_unit if result_unit else value
-            try:
-                display_value, suffix = self._apply_conversion(display_value, calc.unit_comment)
-                skip_si_conversion = bool(calc.unit_comment)
-                result_latex = self._format_result(display_value, skip_si_conversion=skip_si_conversion, config=cfg)
-            except UnitConversionWarning as w:
-                # Increment warning counter
-                self._warning_count += 1
-                # Show SI value with orange warning message
-                result_latex = f"{w.si_value}\n\\\\ {self._format_warning(f'Warning: {w}')}"
+            # Fallback: simple numeric formatting when Pint completely fails
+            result_latex = self._format_number(float(value) if value is not None else 0, cfg)
 
         # IMPORTANT: Keep original RHS LaTeX for definitions
         # Don't re-format it - user's notation should be preserved
@@ -1409,6 +1394,11 @@ class Evaluator:
             UnitConversionWarning: If dimensions are incompatible (with SI fallback)
         """
         if not target_unit_latex:
+            return value, ""
+
+        # ISS-037 FIX: Handle "dimensionless" specially - it's not a unit to convert to
+        # This prevents calling _compute("dimensionless") which corrupts latex2sympy2.var
+        if target_unit_latex.strip().lower() == 'dimensionless':
             return value, ""
 
         try:

@@ -462,4 +462,78 @@ $PPE_{eff} := PPE_{red} \cdot f_{geom} ==$ <!-- [µmol/J] -->
 
 ---
 
-**Last Updated:** 2026-01-13
+---
+
+### Variables in Table Cells Fail with "Symbol is not iterable" (ISS-037)
+
+**Problem:** Variables that work correctly outside tables fail when used in table cells with error "argument of type 'Symbol' is not iterable".
+
+**Example:**
+```latex
+$U_{27} := \frac{T_{27}}{C_{27}} \cdot 90 == 49.87$  <!-- Works outside table -->
+
+| Year | Uptime |
+|------|--------|
+| 2027 | $U_{27} ==$  <!-- Fails in table cell -->
+```
+
+**Workaround (until ISS-037 is fixed):**
+1. **Option 1:** Calculate values outside table, then use plain numbers in table:
+   ```latex
+   $U_{27} := \frac{T_{27}}{C_{27}} \cdot 90 == 49.87$
+
+   | Year | Uptime |
+   |------|--------|
+   | 2027 | 49.87% |  <!-- Use calculated value directly -->
+   ```
+
+2. **Option 2:** Use intermediate variables without subscripts:
+   ```latex
+   $U_{27} := \frac{T_{27}}{C_{27}} \cdot 90 == 49.87$
+   $U27 := U_{27}$  <!-- Create alias without subscript -->
+
+   | Year | Uptime |
+   |------|--------|
+   | 2027 | $U27 ==$  <!-- Use alias in table -->
+   ```
+
+**Impact:** High - prevents using calculated variables in tables, which is common in scientific/engineering documents.
+
+**Date:** 2026-01-15
+**Document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+---
+
+### Variables with Commas in Subscripts - Complex Expressions (ISS-036)
+
+**Problem:** Variables with commas in subscripts (e.g., `PPE_{eff,9010}`) fail in complex expressions with error "argument of type 'Symbol' is not iterable", even though simple cases work.
+
+**Example:**
+```latex
+$PPE_{eff,9010} := (0.90 \cdot PPE_{red,raw} + 0.10 \cdot PPE_{blue,raw}) \cdot f_{geom} ==$  <!-- Fails -->
+$PPE_{eff,R2} := PPE_{eff,9010} ==$  <!-- Also fails -->
+```
+
+**Workaround (until ISS-036 is fixed):**
+1. **Option 1:** Avoid commas in subscripts - use underscores or different naming:
+   ```latex
+   $PPE_{eff_9010} := ...$  <!-- Use underscore instead of comma -->
+   $PPE_{eff_R2} := PPE_{eff_9010} ==$  <!-- Works -->
+   ```
+
+2. **Option 2:** Use intermediate variables without commas:
+   ```latex
+   $PPE_{eff9010} := (0.90 \cdot PPE_{red,raw} + 0.10 \cdot PPE_{blue,raw}) \cdot f_{geom} ==$
+   $PPE_{eff_R2} := PPE_{eff9010} ==$  <!-- Works -->
+   ```
+
+**Note:** Simple test cases with commas work correctly, suggesting the bug is context-dependent or requires complex expressions to trigger.
+
+**Impact:** Medium - prevents using descriptive variable names with multiple subscripts in complex expressions.
+
+**Date:** 2026-01-15
+**Document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+---
+
+**Last Updated:** 2026-01-15
