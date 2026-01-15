@@ -458,7 +458,7 @@ Plans:
 - ISS-036: Comma subscripts fail with Symbol error (caused by latex2sympy)
 
 Plans:
-- [ ] 28-01: Remove latex2sympy fallback from evaluator.py
+- [x] 28-01: Remove latex2sympy fallback from evaluator.py
 - [ ] 28-02: Remove SymPy from pint_backend.py
 - [ ] 28-03: Remove SymPy from remaining files, delete token_classifier.py
 - [ ] 28-04: Simplify internal IDs (v_{0} → v0)
