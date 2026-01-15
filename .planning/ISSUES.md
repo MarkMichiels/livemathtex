@@ -134,63 +134,27 @@ Add automatic thousands separator formatting:
 
 ---
 
+## Closed Issues
+
 ### ISS-036: Variables with commas in subscripts fail with "argument of type 'Symbol' is not iterable" (potential regression of ISS-034)
 
-**Status:** Open (needs investigation)
-**Created:** 2026-01-15
-**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+**Resolved:** 2026-01-15 - Fixed in v3.1 (SymPy removal)
+**Solution:** The "argument of type 'Symbol' is not iterable" error is fixed. The custom expression parser handles commas in subscripts correctly. Remaining errors in test file are due to invalid test data syntax (e.g., `== [g/d]` which is not valid LiveMathTeX syntax).
 
-**Description:**
-Variables with commas in subscripts (e.g., `PPE_{eff,9010}`) fail to parse/evaluate with error "argument of type 'Symbol' is not iterable" in certain contexts. Simple test cases work correctly, but complex expressions in the source document fail.
+### ISS-035: Multi-letter variable names parsed as implicit multiplication
 
-**Test file:** `tests/test_iss_036_comma_subscript_symbol_not_iterable.md`
+**Resolved:** 2026-01-15 - Not a bug (expected behavior with workaround)
+**Solution:** This is expected behavior of LaTeX math notation - `Cost` in LaTeX means `C × o × s × t`. Use subscripts for multi-letter variable names: `Cost_{26}` instead of `Cost`. For custom unit prefixes like `k€`, define explicitly: `k€ === 1000\ €`. This is standard LaTeX convention, not a bug.
 
-**Note:** Simple test case passes (no errors), suggesting the bug may be context-dependent or require complex expressions to trigger.
+### ISS-038: Variables with commas in subscripts fail in expressions with "I expected something else here"
 
-**Expected:** Variables with commas in subscripts should parse and evaluate correctly (as ISS-034 claimed to fix)
-**Actual:** Error: "Failed to parse LaTeX 'PPE_{eff,9010}': argument of type 'Symbol' is not iterable" (in complex expressions)
+**Resolved:** 2026-01-15 - Fixed in v3.1 (SymPy removal)
+**Solution:** The complete removal of latex2sympy and SymPy in v3.1 fixed this issue. The custom expression parser now handles commas in subscripts correctly. Test file `tests/test_iss_038_comma_subscript_expression_parse_error.md` now processes with 0 errors.
 
-**Root cause:** Unknown - may be related to how Symbol objects are handled during parsing of complex expressions with variables containing commas in subscripts.
+### ISS-037: Variables in table cells fail with "argument of type 'Symbol' is not iterable"
 
-**Impact:** Medium - prevents using descriptive variable names with multiple subscripts in complex expressions.
-
-**Related Issues:**
-- ISS-034: Variable parsing fails for variables with commas in subscript (marked RESOLVED, but bug still occurs with different error in complex contexts)
-
----
-
-### ISS-035: Multi-letter variable names in tables parsed as implicit multiplication
-
-**Status:** Open (updated)
-**Created:** 2026-01-14
-**Updated:** 2026-01-14
-**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
-
-**Description:**
-Multi-letter variable names (like `Cost`) in markdown table cells are parsed as implicit multiplication (`C*o*s*t`). This is a latex2sympy limitation, not a table-specific bug. The originally reported "Symbol not iterable" error no longer reproduces - actual errors are:
-1. `Cost` → "Undefined variable 'Cost'. Note: 'Cost' was parsed as implicit multiplication (C*o*s*t)"
-2. `k€` → "Undefined variable 'k'" (k is not a prefix for custom unit €)
-
-**Error:**
-```
-Error: Undefined variable 'Cost'. Note: 'Cost' was parsed as implicit multiplication (C*o*s*t).
-```
-
-**Test file:** `tests/test_iss_035_symbol_not_iterable_in_tables.md`
-
-**Root cause:**
-1. **Multi-letter variable names:** latex2sympy parses `Cost` as `C*o*s*t` (implicit multiplication) - same as ISS-018
-2. **Custom unit prefix:** `k€` doesn't work because Pint's SI prefix `k` doesn't apply to custom units
-
-**Impact:** Medium - use subscripts for variable names (`Cost_{26}` instead of `Cost`) and define custom units with prefixes explicitly.
-
-**Workaround:** Use subscripts: `Cost_{26}` instead of `Cost`. For k€, define explicitly: `k€ === 1000\ €`
-
-**Note:** This is the same root cause as ISS-018 (implicit multiplication). Consider closing as duplicate.
-
----
-
-## Closed Issues
+**Resolved:** 2026-01-15 - Fixed in v3.1 (SymPy removal)
+**Solution:** The complete removal of latex2sympy and SymPy in v3.1 fixed this issue. The root cause was latex2sympy's Symbol handling. Test file `tests/test_iss_037_table_cell_symbol_not_iterable.md` now processes with 0 errors.
 
 ### ISS-033: Variable name with superscript (R^2) conflicts with unit (molar_gas_constant ** 2)
 

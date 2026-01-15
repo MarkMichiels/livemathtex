@@ -11,14 +11,15 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 Phase: None active
 Plan: None
-Status: ✅ Milestone v3.1 SHIPPED
-Last activity: 2026-01-15 — Milestone v3.1 complete, ready to merge and tag
-Branch: `feature/v3-pure-pint` (ready to merge to master)
+Status: ✅ Milestone v3.1 SHIPPED, merged and tagged
+Last activity: 2026-01-15 — Merged to master, tagged v3.1.0, pushed to remote
+Branch: `master`
 
-**Next steps:**
-1. Merge feature/v3-pure-pint to master
-2. Tag v3.1.0
-3. Push tag to remote
+**Remaining open issues:** 4 feature requests (ISS-039, ISS-040, ISS-041, ISS-042)
+**No bugs remaining** - all bugs fixed in v3.1
+
+**Bugs closed by v3.1:**
+- ISS-035, ISS-036, ISS-037, ISS-038 - All "Symbol not iterable" errors fixed
 
 ## Performance Metrics
 
