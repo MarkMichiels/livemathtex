@@ -18,9 +18,7 @@ This test demonstrates the desired behavior where `\frac` can be used in unit ex
 $\gamma_{26} := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}} == 15\ \text{mg/d/L}$ <!-- [mg/L/day] -->
 
 <!-- Desired syntax (should work but currently fails): -->
-<!-- $gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}} ==
-\\ \color{red}{\text{
-    Error: Unexpected token after expression: frac '\textbackslash\{\}frac' at position 4}}$ <!-- [mg/L/day] --> -->
+<!-- $gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}} == 15\ \text{mg/d/L}$ <!-- [mg/L/day] --> -->
 
 ### Expected vs Actual
 
@@ -61,4 +59,4 @@ Support `\frac` in unit expressions for variable definitions:
 
 ---
 
-> *livemathtex: 2026-01-16 00:27:48 | 4 definitions, 2 evaluations | 3 errors | 0.06s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 00:38:03 | 4 definitions, 2 evaluations | 2 errors | 0.06s* <!-- livemathtex-meta -->

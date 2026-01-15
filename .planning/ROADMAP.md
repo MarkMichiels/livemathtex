@@ -517,23 +517,24 @@ Plans:
 
 ## ✨ Features (Phases 35-37)
 
-#### Phase 35: \frac in Unit Expressions (ISS-044)
+#### Phase 35: \frac in Unit Expressions (ISS-044) ✅ FIXED
 **Goal**: Support `\frac` syntax in unit expressions for variable definitions
 **Depends on**: Phase 34
-**Status**: Planned
-**Research**: Unlikely
-**Plans**: 1
+**Status**: ✅ Complete (2026-01-16)
+**Research**: N/A
 
-**Problem:** Parser doesn't support `\frac` in unit expressions:
-```latex
-$gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$  <!-- FAILS -->
-$gamma_{26} := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}}$  <!-- Works -->
-```
+**Solution:** Extended `_try_parse_unit_fraction()` in expression_parser.py:
+- Handle `\cdot`, `\times`, and `*` operators in unit fraction numerator/denominator
+- Convert multiplication operators to `*` for Pint compatibility
+- Group compound denominators with parentheses: `mg/(L*d)` for correct parsing
+- Increased length limits for compound unit validation
+- Test: `$conc := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}} == 15\ \text{mg/d/L}$`
+- Verified: Process-clear-process cycle preserves `\frac` syntax (idempotent)
 
-**Test file:** `tests/test_iss_044_frac_in_unit_expressions.md`
+**Test file:** `tests/test_frac_unit_expressions.md`
 
 Plans:
-- [ ] 35-01: Extend parser to handle \frac in unit definitions
+- [x] 35-01: Extend parser to handle \frac in unit definitions
 
 #### Phase 36: Smart Number Formatting (ISS-046)
 **Goal**: Add intelligent context-aware number formatting

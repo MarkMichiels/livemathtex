@@ -8,18 +8,6 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-### ISS-044: Support \frac in Unit Expressions for Variable Definitions
-
-- **Discovered:** 2026-01-15 (during debug-calculations workflow on astaxanthin_production_analysis.md)
-- **Type:** Feature Request
-- **Description:** The LiveMathTeX parser currently does not support the use of `\frac` within unit expressions when defining a variable with a value and an explicit unit. For example, `$gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}$` fails with a parsing error. However, `\frac` works correctly within calculation expressions (e.g., `$gamma_{26} := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}}$`).
-- **Expected:** The parser should correctly interpret `\frac` within unit expressions for variable definitions, allowing for more natural LaTeX syntax.
-- **Actual:** Parsing error "Unexpected token after expression: frac".
-- **Root cause:** The parser's handling of unit expressions in variable definitions needs to be extended to correctly interpret `\frac` as part of the unit.
-- **Impact:** Medium - Requires users to use a less intuitive calculation syntax for compound unit definitions, leading to less readable code.
-- **Test file:** `tests/test_iss_044_frac_in_unit_expressions.md`
-- **⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement). The `\frac` syntax in unit definitions must be preserved after `clear`.
-
 ### ISS-045: Update USAGE.md to Document Repetitive Calculations and Array Operations
 
 - **Discovered:** 2026-01-15 (during document improvement workflow on astaxanthin_production_analysis.md)
@@ -77,6 +65,17 @@ Enhancements discovered during execution. Not critical - address in future phase
 - **Impact:** Medium - Significantly improves readability of calculated values in documents.
 
 ## Closed Issues
+
+### ISS-044: Support \frac in Unit Expressions for Variable Definitions
+
+**Resolved:** 2026-01-16 - Fixed in v4.1 Phase 35
+**Solution:** Extended `_try_parse_unit_fraction()` in expression_parser.py:
+- Handle `\cdot`, `\times`, and `*` operators in unit fraction numerator/denominator
+- Convert multiplication operators to `*` for Pint compatibility
+- Group compound denominators with parentheses: `mg/(L*d)` for correct parsing
+- Increased length limits for compound unit validation (up to 10 chars)
+- Test: `$conc := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}} == 15\ \text{mg/d/L}$`
+- Verified: Process-clear-process cycle preserves `\frac` syntax (idempotent)
 
 ### ISS-047: Function Evaluation Issues in Real-World Usage
 

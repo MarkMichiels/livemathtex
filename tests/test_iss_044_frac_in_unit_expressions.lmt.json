@@ -7,8 +7,8 @@
   },
   "custom_units": {},
   "symbols": {
-    "v0": {
-      "latex_name": "\\gamma_{26}",
+    "v1": {
+      "latex_name": "gamma_{26}",
       "original": {
         "value": 15.0,
         "unit": "milligram / day / liter"
@@ -23,7 +23,7 @@
   },
   "errors": [],
   "stats": {
-    "last_run": "2026-01-16 00:27:48",
+    "last_run": "2026-01-16 00:38:03",
     "duration": "0.06s",
     "symbols": 1,
     "custom_units": 0,
@@ -31,7 +31,7 @@
     "evaluations": 2,
     "symbolic": 0,
     "value_refs": 0,
-    "errors": 3,
+    "errors": 2,
     "warnings": 0
   }
 }

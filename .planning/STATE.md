@@ -9,20 +9,20 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 35 of 38 (\frac in Unit Expressions) - PLANNING
+Phase: 36 of 38 (Smart Number Formatting) - NEXT
 Plan: Not started
-Status: 📋 v4.1 milestone in progress (Phases 32-34 complete)
-Last activity: 2026-01-16 — Phase 34 (ISS-047) fixed
+Status: 📋 v4.1 milestone in progress (Phases 32-35 complete)
+Last activity: 2026-01-16 — Phase 35 (ISS-044) fixed
 Branch: build-all-20260116-002609
 
-Progress: ████████░░ 43% (3 of 7 phases complete)
+Progress: █████████░ 57% (4 of 7 phases complete)
 
 **v4.1 Phases:**
 - Phase 32: ✅ Dimensionless Unit Bug (ISS-043) - VERIFIED FIXED
 - Phase 33: ✅ µmol JSON Output Bug (ISS-030) - VERIFIED FIXED
 - Phase 34: ✅ Function Evaluation (ISS-047) - FIXED
-- Phase 35: ✨ \frac in Unit Expressions (ISS-044) - NEXT
-- Phase 36: ✨ Smart Number Formatting (ISS-046)
+- Phase 35: ✅ \frac in Unit Expressions (ISS-044) - FIXED
+- Phase 36: ✨ Smart Number Formatting (ISS-046) - NEXT
 - Phase 37: ✨ Array Operations (ISS-041)
 - Phase 38: 📚 Documentation Update (ISS-045)
 
