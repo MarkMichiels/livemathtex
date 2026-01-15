@@ -579,12 +579,10 @@ class Evaluator:
         func_match = re.match(r'^\s*([a-zA-Z_]\w*)\s*\(\s*([a-zA-Z_]\w*)\s*\)\s*$', target) if target else None
 
         if func_match:
+            # v3.0: Function definitions are stored as formulas, not sympy.Lambda
+            # The formula will be evaluated by substituting the parameter value when called
             func_name = func_match.group(1)
             arg_name = func_match.group(2)
-            arg_sym = sympy.Symbol(arg_name)
-            # Use local override to prevent variable substitution during definition
-            expr = self._compute(rhs_raw, local_overrides={arg_name: arg_sym})
-            func_obj = sympy.Lambda(arg_sym, expr)
 
             # v3.0: Track function as formula with parameter (only in clean ID mode)
             dependencies = []
@@ -593,25 +591,23 @@ class Evaluator:
                 dependencies = self._find_dependencies(rhs_raw, exclude_params=[arg_name])
                 formula_expr = self._convert_expression_to_clean_ids(rhs_raw, exclude_params=[arg_name])
 
-            # ISS-032 FIX: Extract just the function name from original_target for latex_name
-            # This allows _rewrite_with_internal_ids to find function calls like PPE_{eff}(0.90)
-            # original_target is like "PPE_{eff}(r_{frac})", we need just "PPE_{eff}"
+            # Extract just the function name from original_target for latex_name
             func_latex_match = re.match(r'^([^(]+)\s*\(', original_target)
             func_latex_name = func_latex_match.group(1).strip() if func_latex_match else original_target
 
             self.symbols.set(
                 func_name,
-                value=func_obj,
+                value=None,  # v3.0: No sympy.Lambda, use formula_expression instead
                 raw_latex=rhs_raw,
-                latex_name=func_latex_name,  # ISS-032: Just the function name, not full signature
+                latex_name=func_latex_name,
                 valid=True,
                 line=getattr(self, '_current_line', 0),
-                # v3.0 formula tracking (only populated in clean ID mode)
+                # v3.0 formula tracking
                 is_formula=True,
-                formula_expression=formula_expr,
+                formula_expression=formula_expr if formula_expr else rhs_raw,
                 depends_on=dependencies,
-                parameters=[arg_name] if getattr(self.symbols, '_use_clean_ids', False) else [],
-                parameter_latex=[arg_name] if getattr(self.symbols, '_use_clean_ids', False) else [],
+                parameters=[arg_name],
+                parameter_latex=[arg_name],
             )
 
             # Use original target for display (preserves \Delta etc.)
@@ -619,39 +615,24 @@ class Evaluator:
             assignment_latex = f"{original_target} := {rhs_raw}"
 
         elif target:
-            # Try to strip unit from the RHS (e.g., "0.139\ €/kWh" -> "0.139", "€/kWh")
-            value_latex, unit_latex, sympy_unit = strip_unit_from_value(rhs_raw)
+            # v3.0: Use Pint for all calculations - no sympy fallback
+            from .pint_backend import format_pint_unit
 
-            # ISS-009 FIX: If unit was explicitly given, compute value without unit.
-            # If no unit stripped (formula like E_1 / m_1), compute WITH unit propagation
-            # so that units from variables are carried through the calculation.
-            if sympy_unit is not None:
-                # Explicit unit given - compute just the numeric value
-                value = self._compute(value_latex)
-            else:
-                # No explicit unit - compute entire expression with unit propagation
-                value = self._compute(rhs_raw, propagate_units=True)
+            # Compute the expression using Pint
+            pint_result = self._compute_with_pint(rhs_raw)
 
-            # IMPORTANT: Simplify symbolic expressions to numeric
-            # This must happen BEFORE extracting unit
-            if hasattr(value, 'evalf'):
-                value = value.evalf()
+            # Extract magnitude and unit from Pint result
+            original_value = float(pint_result.magnitude)
+            result_unit_str = format_pint_unit(pint_result.units)
+            result_unit_latex = result_unit_str if result_unit_str != 'dimensionless' else ""
 
-            # Extract unit from computed result if it has units (and no explicit unit was given)
-            result_unit = sympy_unit
-            result_unit_latex = unit_latex or ""
-            if sympy_unit is None:
-                # No explicit unit - extract from computed value
-                result_unit, result_unit_latex = self._extract_unit_from_value(value)
-                if result_unit is not None:
-                    # Store just the numeric part
-                    value = self._extract_numeric_value(value)
-
-            # Extract numeric original value
-            original_value = self._extract_numeric_value(value) if value is not None else None
-
-            # Convert to SI if there's a unit
-            si_value, si_unit, valid = self._convert_to_si(value, result_unit)
+            # Convert to SI base units
+            base_result = pint_result.to_base_units()
+            si_value = float(base_result.magnitude)
+            si_unit_str = format_pint_unit(base_result.units)
+            # Create sympy unit placeholder for storage (temporary - will be removed in later phase)
+            si_unit = si_unit_str if si_unit_str != 'dimensionless' else None
+            valid = True  # Pint handles all conversions
 
             # v3.0: Classify and track dependencies (only in clean ID mode)
             is_formula_flag = False
@@ -673,7 +654,7 @@ class Evaluator:
                 raw_latex=rhs_raw,
                 latex_name=original_target,
                 original_value=original_value,
-                original_unit=result_unit_latex or None,  # Use extracted unit if no explicit unit
+                original_unit=result_unit_latex or None,
                 valid=valid,
                 line=getattr(self, '_current_line', 0),
                 # v3.0 formula tracking (only populated in clean ID mode)
@@ -700,30 +681,9 @@ class Evaluator:
 
         # ISS-024 FIX: Use Pint for evaluation to ensure proper unit cancellation
         # ISS-037 FIX: Don't fall back to SymPy for dimensionless results - Pint handles them correctly
-        try:
-            pint_result = self._compute_with_pint(lhs)
-            result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
-        except EvaluationError:
-            # Fallback to SymPy evaluation only if Pint fails completely
-            value = self._compute(lhs, propagate_units=True)
-
-            # Check for undefined variables (symbols that weren't substituted)
-            self._check_undefined_symbols(value, lhs)
-
-            # ISSUE-006: Check for dimensional compatibility in additions/subtractions
-            self._check_dimensional_compatibility(value, lhs)
-
-            # Use unit_comment from parser for display conversion
-            # ISS-017: Catch UnitConversionWarning and show SI fallback with orange warning
-            try:
-                value, suffix = self._apply_conversion(value, calc.unit_comment)
-                skip_si_conversion = bool(calc.unit_comment)
-                result_latex = self._format_result(value, skip_si_conversion=skip_si_conversion, config=cfg)
-            except UnitConversionWarning as w:
-                # Increment warning counter
-                self._warning_count += 1
-                # Show SI value with orange warning message
-                result_latex = f"{w.si_value}\n\\\\ {self._format_warning(f'Warning: {w}')}"
+        # v3.0: No fallback to SymPy - custom parser handles everything
+        pint_result = self._compute_with_pint(lhs)
+        result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
 
         # Format LHS too? "x * y" -> "x \cdot y"
         # The user said "input mee formatten". LHS of evaluation is input.
@@ -879,126 +839,39 @@ class Evaluator:
         rhs_part, result_part = part2.split("==", 1)
         rhs = rhs_part.strip()
 
-        from .pint_backend import sympy_strip_unit_from_value as strip_unit_from_value, format_pint_unit
+        from .pint_backend import format_pint_unit
 
-        # Try to strip unit from RHS (in case it's a simple value with unit)
-        value_latex, unit_latex, sympy_unit = strip_unit_from_value(rhs)
+        # v3.0: Use Pint for all calculations - no sympy fallback
+        pint_result = self._compute_with_pint(rhs)
 
-        # If unit was found, compute value without unit
-        if sympy_unit is not None:
-            value = self._compute(value_latex)
-        else:
-            # No unit stripped - compute entire expression (may include unit propagation)
-            value = self._compute(rhs, propagate_units=True)
+        # Extract magnitude and unit from Pint result
+        original_value = float(pint_result.magnitude)
+        original_unit_str = format_pint_unit(pint_result.units)
+        original_unit = original_unit_str if original_unit_str != 'dimensionless' else None
 
-        # Check for undefined variables (symbols that weren't substituted)
-        self._check_undefined_symbols(value, rhs)
-
-        # ISSUE-006: Check for dimensional compatibility in additions/subtractions
-        self._check_dimensional_compatibility(value, rhs)
-
-        # IMPORTANT: Simplify symbolic expressions (like 39.32/pi² + 17) to numeric
-        # This must happen BEFORE extracting unit, otherwise we get complex unit strings
-        if hasattr(value, 'evalf'):
-            value = value.evalf()
+        # Convert to SI base units
+        base_result = pint_result.to_base_units()
+        si_value = float(base_result.magnitude)
+        si_unit_str = format_pint_unit(base_result.units)
+        si_unit = si_unit_str if si_unit_str != 'dimensionless' else None
 
         # Store with normalized name (e.g., \Delta T_h -> Delta_T_h)
         normalized_lhs = self._normalize_symbol_name(lhs)
 
-        # ISS-030 FIX: Use Pint magnitudes for storage to correctly handle prefix units
-        # SymPy expands prefixes (µmol → 1e-6 * mol) but the magnitude gets lost during
-        # unit extraction because _extract_unit_from_value returns the base unit without prefix.
-        # Pint correctly maintains the magnitude through the calculation.
-        #
-        # Strategy: Keep SymPy units for storage (needed for value_with_unit multiplication),
-        # but use Pint magnitudes (which are correct even with prefixes).
-        pint_storage_used = False
-        pint_result = None
-        try:
-            pint_result = self._compute_with_pint(rhs)
+        self.symbols.set(
+            normalized_lhs,
+            value=si_value,
+            unit=si_unit,
+            raw_latex=rhs,
+            latex_name=lhs,
+            original_value=original_value,
+            original_unit=original_unit,
+            valid=True,
+            line=getattr(self, '_current_line', 0)
+        )
 
-            # Check if result has meaningful units (not just dimensionless)
-            if not (str(pint_result.units) == 'dimensionless' or pint_result.dimensionless):
-                # Get Pint magnitudes (these are correct for prefix units)
-                pint_original_value = float(pint_result.magnitude)
-                pint_original_unit_str = format_pint_unit(pint_result.units)
-
-                base_result = pint_result.to_base_units()
-                pint_si_value = float(base_result.magnitude)
-
-                # Still use SymPy unit for storage (needed for value_with_unit property)
-                # Extract the SymPy unit from the SymPy-computed value
-                result_unit = None
-                result_unit_latex = unit_latex or ""
-                if sympy_unit is None:
-                    result_unit, result_unit_latex = self._extract_unit_from_value(value)
-                else:
-                    result_unit = sympy_unit
-
-                # Convert SymPy unit to SI for storage (keep SymPy unit object, not string)
-                _, si_unit, valid = self._convert_to_si(1, result_unit) if result_unit else (1, None, True)
-
-                pint_storage_used = True
-
-                self.symbols.set(
-                    normalized_lhs,
-                    value=pint_si_value,  # Use Pint magnitude (correct for prefixes)
-                    unit=si_unit,  # Keep SymPy unit object
-                    raw_latex=rhs,
-                    latex_name=lhs,
-                    original_value=pint_original_value,  # Use Pint magnitude
-                    original_unit=pint_original_unit_str or result_unit_latex,  # Use Pint unit string
-                    valid=valid,
-                    line=getattr(self, '_current_line', 0)
-                )
-        except EvaluationError:
-            pass  # Fall through to SymPy-based storage
-
-        # Fallback: Use SymPy-based storage if Pint didn't work
-        if not pint_storage_used:
-            # Extract unit from computed result if it has units
-            result_unit = None
-            result_unit_latex = unit_latex or ""
-            if sympy_unit is None:
-                # No explicit unit - extract from computed value
-                result_unit, result_unit_latex = self._extract_unit_from_value(value)
-                if result_unit is not None:
-                    # Store just the numeric part
-                    value = self._extract_numeric_value(value)
-            else:
-                result_unit = sympy_unit
-
-            # Extract numeric original value
-            original_value = self._extract_numeric_value(value) if value is not None else None
-
-            # Convert to SI if there's a unit
-            si_value, si_unit, valid = self._convert_to_si(value, result_unit)
-
-            self.symbols.set(
-                normalized_lhs,
-                value=si_value,
-                unit=si_unit,
-                raw_latex=rhs,
-                latex_name=lhs,
-                original_value=original_value,
-                original_unit=result_unit_latex or None,
-                valid=valid,
-                line=getattr(self, '_current_line', 0)
-            )
-
-            # Also compute Pint result for display (may succeed even if storage failed)
-            try:
-                pint_result = self._compute_with_pint(rhs)
-            except EvaluationError:
-                pint_result = None
-
-        # ISS-024 FIX: Use Pint for display formatting to get proper unit cancellation
-        # ISS-037 FIX: Always use Pint for formatting (including dimensionless results)
-        if pint_storage_used or pint_result is not None:
-            result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
-        else:
-            # Fallback: simple numeric formatting when Pint completely fails
-            result_latex = self._format_number(float(value) if value is not None else 0, cfg)
+        # Format result using Pint
+        result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
 
         # IMPORTANT: Keep original RHS LaTeX for definitions
         # Don't re-format it - user's notation should be preserved
@@ -1384,128 +1257,8 @@ class Evaluator:
         # Fallback to _compute for complex expressions
         return None
 
-    def _apply_conversion(self, value: Any, target_unit_latex: str):
-        """
-        Attempts to convert value to the target unit defined by latex string.
-        Returns (new_value, suffix_string)
-
-        Raises:
-            ValueError: If the target unit is not recognized
-            UnitConversionWarning: If dimensions are incompatible (with SI fallback)
-        """
-        if not target_unit_latex:
-            return value, ""
-
-        # ISS-037 FIX: Handle "dimensionless" specially - it's not a unit to convert to
-        # This prevents calling _compute("dimensionless") which corrupts latex2sympy2.var
-        if target_unit_latex.strip().lower() == 'dimensionless':
-            return value, ""
-
-        try:
-            # Normalize Unicode characters (e.g., m³/s → m^3/s, · → *)
-            normalized_unit = self._normalize_unit_string(target_unit_latex)
-
-            # First check the unit registry for custom units (mbar, kWh, €, etc.)
-            registry = get_unit_registry()
-            target_unit = registry.get_unit(normalized_unit)
-
-            # If not in registry, try to parse as a prefixed unit (kW, MHz, etc.)
-            if target_unit is None:
-                target_unit = self._parse_unit_with_prefix(normalized_unit)
-
-            # If that didn't work, try _compute for complex expressions
-            # Use force_units=True to ensure single letters like m, s are units
-            if target_unit is None:
-                target_unit = self._compute(normalized_unit, force_units=True)
-
-            from sympy.physics.units import convert_to, kg, m, s, A, K, mol, cd
-            from sympy.physics.units import Quantity
-            from sympy.physics.units.dimensions import Dimension
-            import sympy
-
-            # Validate that we actually got a unit (not just an undefined symbol)
-            # A valid unit should contain Quantity atoms (physical units)
-            if target_unit is None:
-                raise ValueError(
-                    f"Unrecognized unit in comment: '{target_unit_latex}'. "
-                    f"Define it first with '$$ {target_unit_latex} === ... $$'"
-                )
-
-            # Check if the result contains any actual units (Quantity objects)
-            has_units = False
-            if hasattr(target_unit, 'atoms'):
-                has_units = bool(target_unit.atoms(Quantity))
-            elif isinstance(target_unit, Quantity):
-                has_units = True
-
-            if not has_units:
-                raise ValueError(
-                    f"Unrecognized unit in comment: '{target_unit_latex}'. "
-                    f"Define it first with '$$ {target_unit_latex} === ... $$'"
-                )
-
-            # Strategy for unit conversion:
-            # 1. Calculate ratio: value / target_unit (gives dimensionless number)
-            # 2. Convert ratio to base SI to get a pure number
-            # 3. Return the number with the original unit string for display
-
-            ratio = value / target_unit
-            # List of SI base units to simplify the remainder into
-            base_units = [kg, m, s, A, K, mol, cd]
-
-            ratio_base = convert_to(ratio, base_units)
-
-            # Try to get a pure numeric value
-            if hasattr(ratio_base, 'evalf'):
-                numeric_value = float(ratio_base.evalf())
-            else:
-                numeric_value = float(ratio_base)
-
-            # Create a symbol for the target unit display
-            # Use simple text wrapping for simple units (kW, m/s)
-            # Don't wrap if unit contains LaTeX commands (\frac, etc.)
-            if '\\' in target_unit_latex:
-                # Contains LaTeX - use as-is (e.g., \frac{m}{s})
-                unit_symbol = sympy.Symbol(target_unit_latex)
-            else:
-                # Simple unit - wrap in \text{} for proper rendering
-                unit_symbol = sympy.Symbol(f'\\text{{{target_unit_latex}}}')
-
-            new_value = numeric_value * unit_symbol
-
-            return new_value, "" # No suffix needed, renderer handles comment
-        except ValueError:
-            # Re-raise ValueError for unrecognized units
-            raise
-        except Exception as e:
-            # ISS-017: Check if this is a dimension mismatch (warning) vs other error
-            # Dimension mismatches should be warnings with SI fallback, not errors
-            error_str = str(e).lower()
-            is_dimension_error = (
-                'dimension' in error_str or
-                'incompatible' in error_str or
-                'cannot convert' in error_str or
-                'typeerror' in error_str  # Often from sympy dimension checks
-            )
-
-            if is_dimension_error:
-                # Get the current unit from the value for the warning message
-                current_unit_str = self._extract_unit_string(value)
-                # Get SI representation of the value
-                si_value_str = self._format_si_value(value)
-
-                raise UnitConversionWarning(
-                    f"Cannot convert from '{current_unit_str}' to '{target_unit_latex}' - dimensions incompatible",
-                    current_unit=current_unit_str,
-                    target_unit=target_unit_latex,
-                    si_value=si_value_str
-                ) from e
-            else:
-                # Other errors remain as ValueError (unrecognized units, etc.)
-                raise ValueError(
-                    f"Unit conversion failed for '{target_unit_latex}': {e}. "
-                    f"Check that the unit is properly defined and dimensionally compatible."
-                ) from e
+    # NOTE: _apply_conversion() function removed in v3.0 (Phase 28)
+    # Unit conversion is now handled by Pint in _format_pint_result()
 
     def _extract_unit_string(self, value: Any) -> str:
         """
@@ -1567,19 +1320,19 @@ class Evaluator:
             return str(value)
 
     def _handle_symbolic(self, calc: Calculation) -> str:
-        """Handle $expr =>$"""
+        """Handle $expr =>$
+
+        v3.0: Symbolic operations (differentiation, etc.) are not supported
+        in the Pint-based evaluator. This feature requires sympy which has
+        been removed to fix stability issues (ISS-035, ISS-036, etc.).
+        """
         content = calc.latex
         lhs = content.split("=>")[0].strip()
 
-        # For symbolic, we just parse and return the latex of the expression,
-        # but simplified or acted upon (e.g. diff).
-        # But wait, how do we trigger 'diff'?
-        # User writes "$diff(f(x), x) =>$"
-        # So we just compute 'lhs' as usual. _compute handles function calls like diff if mapped.
-
-        value = self._compute(lhs)
-        result_latex = self._simplify_subscripts(sympy.latex(value))
-        return f"{lhs} => {result_latex}"
+        raise EvaluationError(
+            f"Symbolic operations (=>) are not supported in v3.0. "
+            f"Expression: {lhs}"
+        )
 
     def _handle_value_display(self, calc: Calculation, config: Optional[LivemathConfig] = None) -> str:
         """
@@ -2167,301 +1920,10 @@ class Evaluator:
 
         return result
 
-    def _compute(self, expression_latex: str, local_overrides: Dict[str, Any] = None, force_units: bool = False, propagate_units: bool = False) -> Any:
-        r"""
-        Parse and compute a LaTeX expression.
-
-        Architecture follows the Symbol Mapping principle:
-        1. Rewrite expression with internal names (simple strings)
-        2. Apply remaining LaTeX preprocessing
-        3. Parse with latex2sympy
-        4. Evaluate
-
-        Args:
-            expression_latex: LaTeX expression to parse
-            local_overrides: Optional dict of symbol -> value overrides
-            force_units: If True, treat single letters as SI units (for unit parsing)
-            propagate_units: If True, substitute values WITH their units for unit propagation
-        """
-        import re
-
-        # =================================================================
-        # STEP 0: Rewrite expression with internal IDs (v_{n} format)
-        # =================================================================
-        # Replace known LaTeX variable forms with v_{0}, v_{1}, etc.
-        # This format is 100% compatible with latex2sympy!
-        modified_latex = self._rewrite_with_internal_ids(expression_latex)
-
-        # =================================================================
-        # STEP 1: LaTeX preprocessing (for remaining LaTeX)
-        # =================================================================
-
-        # 1a. Spacing normalization
-        modified_latex = modified_latex.replace(r'\ ', ' ')  # non-breaking space
-        modified_latex = modified_latex.replace(r'\,', ' ')  # thin space
-
-        # 1b. Special character substitution
-        modified_latex = modified_latex.replace('€', 'EUR')
-
-        # 1c. Protect multi-letter units from being split by latex2sympy
-        # E.g., "kg" → "\text{kg}" so it becomes a single symbol
-        # Must do this BEFORE latex2sympy parses "kg" as "k*g"
-        protected_units = [
-            # Mass
-            'kg', 'mg', 'ug', 'ng',
-            # Length
-            'km', 'cm', 'mm', 'um', 'nm', 'pm',
-            # Time
-            'ms', 'us', 'ns', 'ps', 'min', 'hour',
-            # Power/Energy
-            'kW', 'MW', 'GW', 'mW', 'kJ', 'MJ', 'GJ', 'mJ', 'kWh', 'MWh',
-            # Pressure
-            'kPa', 'MPa', 'mPa', 'mbar', 'hPa',
-            # Frequency
-            'kHz', 'MHz', 'GHz', 'THz',
-            # Electrical
-            'kV', 'mV', 'uV', 'mA', 'uA', 'nA',
-            # Volume
-            'mL', 'uL', 'nL',
-            # Other
-            'mol', 'bar', 'Pa', 'Hz',
-        ]
-        # Sort by length descending to avoid partial matches
-        for unit in sorted(protected_units, key=len, reverse=True):
-            # Only replace if not already protected (not inside \text{})
-            # Use word boundaries to avoid partial matches
-            pattern = rf'(?<!\\text\{{)(?<![a-zA-Z]){re.escape(unit)}(?![a-zA-Z_{{}}])'
-            modified_latex = re.sub(pattern, rf'\\text{{{unit}}}', modified_latex)
-
-        # 1c. Normalize subscript separators (for NEW variables not yet in symbol table)
-        def normalize_subscript(m):
-            content = m.group(1)
-            content = content.replace('/', '_per_')
-            content = content.replace(',', '_')
-            return f'_{{{content}}}'
-        modified_latex = re.sub(r'_\{([^}]+)\}', normalize_subscript, modified_latex)
-
-        # =================================================================
-        # STEP 2: Structural normalization (minimal)
-        # =================================================================
-        #
-        # Note: With the v_{n} internal ID system, most complex preprocessing
-        # is no longer needed. Known variables are already replaced with v_{0}, v_{1}, etc.
-        # We only need to handle edge cases for NEW variables not yet defined.
-
-        # Add explicit braces around subscripts without braces for consistency
-        modified_latex = re.sub(
-            r'([a-zA-Z])_([a-zA-Z0-9])(?![a-zA-Z0-9])',
-            r'\1_{\2}',
-            modified_latex
-        )
-
-        try:
-            expr = latex2sympy(modified_latex)
-        except Exception as e:
-            raise EvaluationError(f"Failed to parse LaTeX '{expression_latex}': {e}")
-
-        subs_dict = {}
-
-        # Detect if this is a "formula" vs a "definition with units"
-        # Key insight:
-        # - Definitions have numbers followed by units: "1000 kg/m³", "9.81 m/s²"
-        # - Formulas have variables and maybe simple constants: "ρ · g · Q", "vel^2 / (2 · g)"
-        #
-        # Heuristic: A "definition with units" has a decimal number (like 9.81, 1000.5)
-        # or a number immediately followed by a unit-like pattern
-        # Simple integers like 2, 4, pi in formulas are OK
-        #
-        # EXCEPTION: force_units=True (for parsing unit expressions like "\frac{m}{s}")
-
-        # Check for decimal numbers (likely a measurement value)
-        has_decimal = bool(re.search(r'\d+\.\d+', expression_latex))
-
-        # Check for number followed by unit-like pattern (e.g., "100 m", "1000 kg")
-        # This catches:
-        # - "1000 \frac{kg}{m^3}" - fraction units
-        # - "9.81 \frac{m}{s^2}" - decimal + fraction
-        # - "100 m" - simple number + single letter unit
-        # - "-2 m" - negative number + unit
-        # - "50 L/min" - unit with division
-        # - "10 \cdot kg" - number with cdot followed by unit
-        # - "25 · kg" - number with Unicode middle dot followed by unit
-        has_number_unit_pattern = bool(re.search(
-            r'-?\d+\s*(\\frac|\\text|[a-zA-Z]{1,3}[/\^]|kg|kW|kJ|kPa|mbar|Pa|Hz|mol|[a-zA-Z]$|[a-zA-Z]\s*$)',
-            expression_latex
-        ))
-
-        # Also check for \cdot patterns with multi-letter units (these are definitions)
-        # e.g., "10 \cdot kg", "25 · kg"
-        has_cdot_unit_pattern = bool(re.search(
-            r'\d+\s*(\\cdot|·|\*)\s*(kg|kW|kJ|kPa|mbar|mol|bar|Pa|Hz|mm|cm|km|ms|min|hour)',
-            expression_latex
-        ))
-
-        # It's a "definition with units" if it has decimals OR number+unit patterns
-        is_definition_with_units = (has_decimal or has_number_unit_pattern or has_cdot_unit_pattern) and not force_units
-        is_pure_formula = not is_definition_with_units and not force_units
-
-        # 1. Handle Symbols (Variables + Units)
-        # Sort symbols by name for deterministic error messages (Python sets are unordered)
-        # ISS-018: Collect ALL undefined symbols first, then check for implicit multiplication
-        undefined_symbols = []  # List of (sym, clean_name, is_unit) tuples
-
-        for sym in sorted(expr.free_symbols, key=lambda s: str(s)):
-            sym_name = str(sym)
-
-            # Clean name: convert to internal representation
-            # Following Cortex-JS / MathJSON standard for symbol normalization
-            import re
-
-            # Handle \text{base}_subscript pattern -> base_subscript
-            # This is how we protect multi-letter names with subscripts
-            subscript_match = re.match(r'^\\text\{([^}]+)\}_(.+)$', sym_name)
-            if subscript_match:
-                base = subscript_match.group(1)
-                subscript = subscript_match.group(2)
-                clean_name = f"{base}_{subscript}"
-            else:
-                # Simple \text{name} or \mathrm{name} wrapper -> name
-                match = re.match(r'^\\(text|mathrm)\{([^}]+)\}$', sym_name)
-                if match:
-                    clean_name = match.group(2)
-                else:
-                    clean_name = sym_name
-
-            # Normalize any remaining LaTeX patterns (Greek letters, etc.)
-            # This ensures \Delta_T_h stored as Delta_T_h is found when
-            # latex2sympy produces a symbol like Delta_T_h or \text{Delta_T_h}
-            if clean_name and (clean_name.startswith('\\') or '_' in clean_name):
-                clean_name = self._normalize_symbol_name(clean_name)
-
-            # Debug
-            # print(f"DEBUG: sym='{sym_name}' clean='{clean_name}'")
-
-            # 0. Check overrides
-            if local_overrides and clean_name in local_overrides:
-                subs_dict[sym] = local_overrides[clean_name]
-                continue
-
-            # 1. Check if this is an internal ID (v_0, v_1, etc.)
-            # After _rewrite_with_internal_ids(), variables become v_{0} -> v_0 in SymPy
-            if clean_name.startswith('v_') and clean_name[2:].isdigit():
-                # Convert SymPy form (v_0) back to LaTeX form (v_{0}) for lookup
-                internal_id = f"v_{{{clean_name[2:]}}}"
-                latex_name = self.symbols.get_latex_name(internal_id)
-                if latex_name:
-                    # Find the value by searching all symbols for this latex_name
-                    for name in self.symbols.all_names():
-                        entry = self.symbols.get(name)
-                        if entry and entry.latex_name == latex_name:
-                            # Use value_with_unit for unit propagation, otherwise just value
-                            subs_dict[sym] = entry.value_with_unit if propagate_units else entry.value
-                            break
-                    if sym in subs_dict:
-                        continue
-
-            # 2. Check in Symbol Table (try multiple name formats)
-            # latex2sympy converts \Delta_h -> Delta_h, so we need to match
-            known = self.symbols.get(clean_name)
-            if not known:
-                # Try with backslash prefix (for Greek letters stored as \Delta_h)
-                known = self.symbols.get('\\' + clean_name)
-            if known:
-                # Use value_with_unit for unit propagation, otherwise just value
-                subs_dict[sym] = known.value_with_unit if propagate_units else known.value
-                continue
-
-            # 3. Check if symbol is a known unit (via Pint dynamic lookup)
-            # ISSUE-003 FIX: Undefined symbols that match unit names are ALWAYS errors.
-            # Units belong as suffixes to numbers (5\ V), not as standalone symbols.
-            # This prevents silent corruption where V becomes volt instead of undefined variable.
-            from .pint_backend import is_pint_unit
-
-            is_unit = is_pint_unit(clean_name)
-
-            # ISS-018: Collect undefined symbols instead of raising immediately
-            undefined_symbols.append((sym, clean_name, is_unit))
-
-        # ISS-018, ISS-022: Check for implicit multiplication pattern before raising errors
-        if undefined_symbols:
-            # Check if this looks like implicit multiplication of a multi-letter identifier
-            impl_info = self.classifier.detect_implicit_multiplication(
-                expression_latex, expr.free_symbols
-            )
-
-            if impl_info:
-                # Generate specialized error message mentioning the multi-letter identifier
-                msg = f"Undefined variable '{impl_info.intended_symbol}'."
-                msg += f" Note: '{impl_info.intended_symbol}' was parsed as implicit multiplication ({impl_info.split_as})."
-                msg += f" Define '${impl_info.intended_symbol} := ...$' before use, or use a structured name like '{impl_info.intended_symbol}_{{...}}'."
-
-                if impl_info.unit_conflicts:
-                    conflict_details = []
-                    for letter in impl_info.unit_conflicts:
-                        unit_name = self.classifier.has_unit_conflict(letter)
-                        if unit_name:
-                            conflict_details.append(f"'{letter}' is also a unit ({unit_name})")
-                    if conflict_details:
-                        msg += f" ({'; '.join(conflict_details)})"
-
-                raise EvaluationError(msg)
-
-            # Fallback to original error handling for each undefined symbol
-            for sym, clean_name, is_unit in undefined_symbols:
-                if is_unit:
-                    # Undefined symbol matches a unit name - always an error
-                    # Units can only be used in value definitions, not in formulas
-                    unit_desc = self._get_unit_description(clean_name)
-                    raise EvaluationError(
-                        f"Undefined variable '{clean_name}'. "
-                        f"('{clean_name}' is also a unit: {unit_desc}. "
-                        f"Use a subscript like '{clean_name}_tot' to avoid confusion with the unit.)"
-                    )
-                else:
-                    # Undefined symbol that is NOT a unit - still an error
-                    # All variables must be defined before use
-                    raise EvaluationError(
-                        f"Undefined variable '{clean_name}'. Define it before use."
-                    )
-
-        # 2. Handle Functions (f(x))
-        # latex2sympy parses "f(5)" as Function("f")(5)
-        # We need to replace Function("f") with our Lambda.
-        # Note: expr.free_symbols does NOT include functions.
-        for func in expr.atoms(sympy.Function):
-            func_name_raw = str(func.func)  # e.g., 'f_{test}' or 'f_{0}'
-            # ISS-032 FIX: Normalize the function name for lookup
-            # Functions are stored with normalized names (no braces), but
-            # latex2sympy produces names with braces like 'f_{test}'
-            func_name = self._normalize_symbol_name(func_name_raw)
-
-            if local_overrides and func_name in local_overrides:
-                 # Substitute the function object itself?
-                 # subs({Function('f'): lambda_obj}) works
-                 subs_dict[func.func] = local_overrides[func_name]
-                 continue
-
-            # Try direct lookup first
-            known = self.symbols.get(func_name)
-
-            # ISS-032 FIX: If not found, check if this is an internal ID (f_{0}, f_{1}, etc.)
-            # and reverse-map to the original symbol name
-            if not known and func_name_raw.startswith('f_'):
-                # func_name_raw might be 'f_{0}' - try to find the symbol by internal_id
-                latex_name = self.symbols.get_latex_name(func_name_raw)
-                if latex_name:
-                    # Find the symbol that has this latex_name
-                    orig_name = self._normalize_symbol_name(latex_name)
-                    known = self.symbols.get(orig_name)
-
-            if known:
-                # We expect known.value to be a Lambda or something callable
-                subs_dict[func.func] = known.value
-
-        if subs_dict:
-            expr = expr.subs(subs_dict)
-
-        return expr
+    # NOTE: _compute() function removed in v3.0 (Phase 28)
+    # The latex2sympy-based computation has been replaced by the custom parser
+    # which uses Pint for unit handling. All computation now goes through
+    # _compute_with_pint() -> _evaluate_with_custom_parser().
 
     def _evaluate_with_custom_parser(self, expression_latex: str) -> 'pint.Quantity':
         """
