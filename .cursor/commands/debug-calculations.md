@@ -1,5 +1,5 @@
 ---
-description: Debug LiveMathTeX calculations and create issues for bugs
+description: Debug LiveMathTeX calculations and create issues for bugs and feature requests
 args:
   - name: document
     description: Path to the markdown document to debug (e.g., /debug-calculations path/to/document.md)
@@ -8,11 +8,11 @@ args:
 
 # Debug Calculations — Issue Detection Workflow
 
-Same workflow as `/build-calculations`, but automatically detects issues and creates ISS entries for bugs in LiveMathTeX.
+Same workflow as `/build-calculations`, but automatically detects issues and creates ISS entries for bugs and feature requests in LiveMathTeX.
 
 **Usage:** `/debug-calculations <document.md>`
 
-**Design intent:** Systematically debug calculation problems, distinguish user errors from LiveMathTeX bugs, and document bugs as issues for future fixes.
+**Design intent:** Systematically debug calculation problems, distinguish user errors from LiveMathTeX bugs, document bugs as issues for future fixes, and identify feature requests that would improve LiveMathTeX based on real-world document usage.
 
 **Interactive mode:** Workflow continues until user explicitly says "it's done" or "enough". Status is tracked in a status file for external monitoring.
 
@@ -38,10 +38,11 @@ Same workflow as `/build-calculations`, but automatically detects issues and cre
   {"id": "expect-1", "content": "EXPECT: Calculate expected values manually and add to output document (creates temp_output_expected.md)", "status": "pending"},
   {"id": "process-1", "content": "PROCESS: Run livemathtex process to compute actual values (creates temp_output_actual.md)", "status": "pending"},
   {"id": "diff-1", "content": "DIFF: Compare expected vs actual values using git diff to identify discrepancies", "status": "pending"},
-  {"id": "classify-1", "content": "CLASSIFY: For each discrepancy, determine if it's a user error or LiveMathTeX bug (check ISSUES.md first!)", "status": "pending"},
-  {"id": "issue-check-1", "content": "ISSUE-CHECK: For each bug, check if issue already exists in ISSUES.md (avoid duplicates)", "status": "pending"},
-  {"id": "issue-test-1", "content": "ISSUE-TEST: For each new bug, create isolated test file in tests/test_iss_XXX_<description>.md", "status": "pending"},
-  {"id": "issue-create-1", "content": "ISSUE-CREATE: Run /gsd:create-issue to document each new bug with test file reference", "status": "pending"},
+  {"id": "classify-1", "content": "CLASSIFY: For each discrepancy, determine if it's a user error, LiveMathTeX bug, or feature request (check ISSUES.md first!)", "status": "pending"},
+  {"id": "improve-0", "content": "IMPROVE: If CONTINUE mode, analyze document for improvements and potential feature requests", "status": "pending"},
+  {"id": "issue-check-1", "content": "ISSUE-CHECK: For each bug/feature, check if issue already exists in ISSUES.md (avoid duplicates)", "status": "pending"},
+  {"id": "issue-test-1", "content": "ISSUE-TEST: For each new bug/feature, create isolated test file in tests/test_iss_XXX_<description>.md", "status": "pending"},
+  {"id": "issue-create-1", "content": "ISSUE-CREATE: Add issue/feature request to ISSUES.md with test file reference", "status": "pending"},
   {"id": "fix-user-1", "content": "FIX-USER: Fix all user errors in original input.md file (not temp files)", "status": "pending"},
   {"id": "fix-workaround-1", "content": "FIX-WORKAROUND: Document workarounds for bugs in original file and LESSONS_LEARNED.md", "status": "pending"},
   {"id": "fix-iterate-1", "content": "FIX-ITERATE: If user errors fixed, return to clean-1 and reprocess until all errors resolved", "status": "pending"},
@@ -288,14 +289,15 @@ graph TB
 
 ### Step 5: Classify Discrepancies (classify-1)
 
-**Goal:** Determine if each discrepancy is a user error or a LiveMathTeX bug.
+**Goal:** Determine if each discrepancy is a user error, a LiveMathTeX bug, or a feature request opportunity.
 
 **Classification Criteria:**
 
 | Type | Indicators | Action |
 |------|------------|--------|
-| **LiveMathTeX Bug** | - Known issue pattern (ISS-024, ISS-025, etc.)<br/>- Order of magnitude errors (86,400x, etc.)<br/>- SymPy constant errors (`\pi`, `e`)<br/>- Unit propagation failures<br/>- Error messages from LiveMathTeX | Create ISS entry |
+| **LiveMathTeX Bug** | - Known issue pattern (ISS-024, ISS-025, etc.)<br/>- Order of magnitude errors (86,400x, etc.)<br/>- SymPy constant errors (`\pi`, `e`)<br/>- Unit propagation failures<br/>- Error messages from LiveMathTeX | Create ISS entry (bug) |
 | **User Error** | - Incorrect unit hints<br/>- Wrong calculation formula<br/>- Missing variable definitions<br/>- Incorrect unit definitions | Fix in source document |
+| **Feature Request** | - Missing functionality that would improve usability<br/>- Formatting improvements (thousands separators, unit display)<br/>- Syntax improvements (cross-references, arrays)<br/>- Workarounds that could be automated | Create ISS entry (feature request) |
 | **Ambiguous** | - Could be either<br/>- Need investigation | Investigate further, then classify |
 
 **Investigation Steps:**
@@ -484,41 +486,55 @@ graph TB
    3. Continue expanding until test file fails
    4. **DO NOT create issue until test file actually fails**
 
-   **⚠️ CRITICAL RULES for test files:**
-   - ✅ Use SAME livemathtex settings as original document (output, json, digits)
-   - ✅ Include ONLY minimal code to reproduce (no unrelated calculations)
-   - ✅ **Test file MUST FAIL when processed** - if it passes, expand with more context
-   - ✅ Filename MUST match pattern: `test_iss_XXX_<description>.md`
-   - ✅ For context-dependent bugs, add note: "**Note:** This test requires significant context to reproduce. Simple test cases pass, but this expanded version fails."
-   - ❌ DO NOT create test file if bug cannot be isolated
-   - ❌ DO NOT create issue if test file passes (0 errors)
-   - ❌ DO NOT include working calculations that aren't needed
+**⚠️ CRITICAL RULES for test files:**
+  - ✅ Use SAME livemathtex settings as original document (output, json, digits)
+  - ✅ Include ONLY minimal code to reproduce (no unrelated calculations)
+  - ✅ **For bugs: Test file MUST FAIL when processed** - if it passes, expand with more context
+  - ✅ **For feature requests: Test file demonstrates the desired behavior** (may pass or fail, depending on feature)
+  - ✅ Filename MUST match pattern: `test_iss_XXX_<description>.md`
+  - ✅ For context-dependent bugs, add note: "**Note:** This test requires significant context to reproduce. Simple test cases pass, but this expanded version fails."
+  - ✅ **For feature requests: Include idempotence requirement** - settings must be preserved after `process` and `clear` cycles
+  - ❌ DO NOT create test file if bug cannot be isolated (unless it's a feature request)
+  - ❌ DO NOT create issue if test file passes (0 errors) for bugs (but OK for feature requests)
+  - ❌ DO NOT include working calculations that aren't needed
 
-3. **Run `/gsd:create-issue`** to document the bug:
+3. **Add issue/feature request to ISSUES.md:**
 
    **⚠️ ONLY after test file is created and verified!**
 
-   ```
-   /gsd:create-issue
+   **For bugs:** Use `/gsd:create-issue` or add directly to ISSUES.md
+   **For feature requests:** Add directly to ISSUES.md in "Open Enhancements" section
+
+   **Add to ISSUES.md using this template:**
+
+   ```markdown
+   ### ISS-XXX: <Short Description>
+
+   **Status:** Open [or "Open (Feature Request)" for features]
+   **Created:** YYYY-MM-DD
+   **Source:** `path/to/original/document.md`
+
+   **Description:**
+   <One paragraph description of the bug or feature request>
+
+   **Test file:** `tests/test_iss_XXX_<description>.md`
+
+   **Expected:** <What SHOULD happen>
+   **Actual:** <What ACTUALLY happens (for bugs) or "Not implemented" (for features)>
+
+   **Root cause:** <Brief analysis - which component fails or why feature is needed>
+
+   **Impact:** <High/Medium/Low> - <Why this impact level>
+
+   **⚠️ CRITICAL REQUIREMENT (for feature requests):** Settings must be preserved after `process` and `clear` cycles (idempotence requirement).
+
+   ---
    ```
 
-   **When GSD asks for details, provide:**
-   - **Brief description:** One-line summary of the bug
-   - **Test file:** `tests/test_iss_XXX_<description>.md` ← **REQUIRED!**
-   - **Expected vs Actual:** What should happen vs what happens
-   - **Root cause:** Brief analysis (from test file)
-   - **Impact:** High/Medium/Low
-   - **Source document:** Path to original document where bug was discovered
-
-   **Example conversation with `/gsd:create-issue`:**
-   ```
-   You: "Unit propagation fails when multiplying by dimensionless value.
-        Test file: tests/test_iss_036_unit_propagation.md
-        Expected: 3.922 µmol/J, Actual: 3.922 (dimensionless)
-        Root cause: Pint loses unit when multiplying by dimensionless
-        Impact: High - breaks many engineering calculations
-        Source: mark-private/.../astaxanthin_production_analysis.md"
-   ```
+   **For feature requests, also include:**
+   - **Feature Request:** section with options and preferred approach
+   - **Example:** showing desired syntax/behavior
+   - **Idempotence requirement:** explicitly stated
 
 4. **Verify issue was created correctly:**
    ```bash
@@ -624,6 +640,83 @@ $d_{tube} := \frac{2 \cdot d_{weld}}{\pi} ==$ <!-- [m] -->
 - **Always fix issues in original `input.md`, then recreate temp files**
 
 **Self-check:** All user errors fixed, all bugs documented with workarounds, original file updated.
+
+---
+
+## PHASE 7.5: Document Improvement Analysis (improve-0)
+
+### Step 7.5: Analyze Document for Improvements (improve-0)
+
+**Goal:** When user says "CONTINUE improve" or asks to improve the document, analyze it for potential feature requests and formatting improvements.
+
+**When to run:**
+- User says "CONTINUE improve" in review-0
+- User explicitly asks to improve/analyze the document
+- After all errors are fixed and document is working correctly
+
+**Action:**
+
+1. **Analyze document for improvement opportunities:**
+   - **Formatting improvements:** Thousands separators, number formatting, unit display
+   - **Missing features:** Cross-references, arrays, better syntax
+   - **Usability issues:** Repetitive patterns, verbose syntax, manual workarounds
+   - **Workarounds that could be automated:** Manual calculations that could be built-in
+
+2. **Identify feature request opportunities:**
+   - Look for patterns that would benefit from new features
+   - Check if similar features exist in other tools (Mathcad, Jupyter, etc.)
+   - Consider what would make LiveMathTeX better based on real document usage
+   - Think about idempotence: how would this feature work with `process`/`clear` cycles?
+
+3. **Create feature requests:**
+   - For each improvement opportunity, create a feature request in ISSUES.md
+   - Include test file demonstrating the desired behavior
+   - Document idempotence requirement explicitly
+   - Provide examples of how the feature would be used
+
+**Example analysis questions:**
+- Are there repetitive calculations that could use arrays?
+- Are there hardcoded values in text that should reference calculations?
+- Are there formatting issues (thousands separators, unit display)?
+- Are there workarounds that could be built-in features?
+- What would make this document easier to write/maintain?
+
+**Feature request template:**
+```markdown
+### ISS-XXX: <Feature Name>
+
+**Status:** Open (Feature Request)
+**Created:** YYYY-MM-DD
+**Source:** `path/to/original/document.md`
+
+**Description:**
+<What feature is needed and why>
+
+**Test file:** `tests/test_iss_XXX_<description>.md`
+
+**Expected:** <What SHOULD happen when feature is implemented>
+**Actual:** <Current behavior or "Not implemented">
+
+**Root cause:** <Why this feature would improve LiveMathTeX>
+
+**Impact:** <High/Medium/Low> - <Why this impact level>
+
+**Feature Request:**
+<Options and preferred approach>
+
+**⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement).
+
+**Example:**
+<Show desired syntax/behavior>
+
+---
+```
+
+**Self-check:**
+- ✅ Document analyzed for improvement opportunities
+- ✅ Feature requests created with test files
+- ✅ Idempotence requirement documented for each feature
+- ✅ Examples provided showing desired behavior
 
 ---
 
@@ -750,7 +843,8 @@ Please review and respond:
 - **Y** = proceed to commit original file
 - **N** = collect corrections, apply fixes, then repeat `review-0`
 - **ENOUGH** = stop debugging, mark status as "done", workflow complete (no commit). Optionally start Claude CLI to build all issues.
-- **CONTINUE** = continue debugging (restart from clean-1, check for resolved issues first)
+- **CONTINUE debug** = continue debugging (restart from clean-1, check for resolved issues first)
+- **CONTINUE improve** = analyze document for improvements and feature requests (proceed to improve-0)
 ```
 
 **After user response:**
@@ -800,11 +894,20 @@ Please review and respond:
   ```
 - End workflow
 
-**If CONTINUE (continue debugging):**
-- Check if issues were resolved (by external process like GSD)
-- Update status: `"status": "active"`
-- Restart from `clean-1` (recreate temp files from updated original)
-- Continue workflow until next `review-0`
+**If CONTINUE (continue debugging or analyze for improvements):**
+- Ask user what they want to continue with:
+  - **"CONTINUE debug"** = Check if issues were resolved, restart from `clean-1`
+  - **"CONTINUE improve"** = Analyze document for improvements and feature requests
+- If "CONTINUE debug":
+  - Check if issues were resolved (by external process like GSD)
+  - Update status: `"status": "active"`
+  - Restart from `clean-1` (recreate temp files from updated original)
+  - Continue workflow until next `review-0`
+- If "CONTINUE improve" or user asks to improve document:
+  - Proceed to `improve-0` phase (document improvement analysis)
+  - Analyze document for formatting improvements, missing features, usability issues
+  - Create feature requests for improvements that would make LiveMathTeX better
+  - Document improvements in ISSUES.md as feature requests (not bugs)
 
 ---
 
@@ -957,6 +1060,13 @@ If **NO**, do not commit (leave changes unstaged or revert).
 - ✅ Wrong unit definitions
 - ✅ Variable definition order issues
 
+**Feature Requests (create enhancement issue):**
+- ✅ Missing functionality that would improve usability
+- ✅ Formatting improvements (thousands separators, unit display options)
+- ✅ Syntax improvements (cross-references in text, array operations)
+- ✅ Workarounds that could be automated
+- ✅ Patterns that would benefit from new features
+
 **When in doubt:**
 - **🚨 FIRST: Check `$LMT_REPO/.planning/ISSUES.md` for similar issues** (where `$LMT_REPO` is the livemathtex repository root)
   - Search by error message, calculation type, or symptom
@@ -1102,4 +1212,6 @@ grep -E "^\*\*ISS-[0-9]+" "$LMT_REPO/.planning/ISSUES.md" | grep -E "RESOLVED|FI
 
 ---
 
-**Key Principle:** Systematically debug, classify issues, document bugs, and fix user errors to build correct documents iteratively. Status tracking allows external processes to monitor progress and coordinate issue resolution. User controls when to continue or stop debugging.
+**Key Principle:** Systematically debug, classify issues, document bugs and feature requests, and fix user errors to build correct documents iteratively. Status tracking allows external processes to monitor progress and coordinate issue resolution. User controls when to continue debugging or analyze for improvements.
+
+**Feature Requests:** When analyzing documents, identify improvements that would make LiveMathTeX better. All feature requests must include idempotence requirements (settings preserved after `process`/`clear` cycles).

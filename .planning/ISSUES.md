@@ -6,50 +6,131 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ---
 
-### ISS-037: Variables in table cells fail with "argument of type 'Symbol' is not iterable"
+### ISS-042: Better Unit Display Formatting
 
-**Status:** Open
+**Status:** Open (Feature Request)
 **Created:** 2026-01-15
 **Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
 
 **Description:**
-Variables that work correctly outside tables fail when used in table cells with error "argument of type 'Symbol' is not iterable". The same variable evaluates correctly when used in regular text, but fails when used inside a markdown table cell.
+Compound units are displayed in Pint's default format (e.g., `mg/d/L`) which may not match preferred scientific notation (e.g., `mg/(L·d)` or `mg·L⁻¹·d⁻¹`). Users should be able to control unit display format.
 
-**Test file:** `tests/test_iss_037_table_cell_symbol_not_iterable.md`
+**Test file:** `tests/test_iss_042_unit_display_formatting.md`
 
-**Expected:** Variable should evaluate correctly in table cells (same as outside tables)
-**Actual:** Error: "Failed to parse LaTeX 'U_{27}': argument of type 'Symbol' is not iterable"
+**Expected:** Can control unit display format via configuration (e.g., `<!-- unit-format:fraction -->`)
+**Actual:** Units are displayed in Pint's default format only
 
-**Root cause:** Table cell parsing uses a different code path than regular text parsing, and this code path has a bug where it tries to iterate over a Symbol object incorrectly.
+**Root cause:** Unit formatting uses Pint's default string representation without formatting options.
 
-**Impact:** High - prevents using calculated variables in tables, which is common in scientific/engineering documents.
+**Impact:** Low-Medium - Improves readability and matches scientific conventions. Some journals prefer specific unit formats.
 
-**Related Issues:**
-- ISS-035: Multi-letter variable names in tables parsed as implicit multiplication (different error, but also table-specific)
+**Feature Request:**
+Add unit formatting options:
+- Prefer fraction notation: `mg/(L·d)` instead of `mg/d/L`
+- Use negative exponents: `mg·L⁻¹·d⁻¹`
+- Configurable via `<!-- unit-format:fraction -->` or document setting
+- Preserve user's unit hint format when possible
+
+**Preferred:** Configurable option with sensible defaults.
+
+**⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement). Unit format settings must remain in comments after `clear`.
 
 ---
 
-### ISS-038: Variables with commas in subscripts fail in expressions with "I expected something else here"
+### ISS-041: Array/Vector Operations for Repetitive Calculations
 
-**Status:** Open
+**Status:** Open (Feature Request)
 **Created:** 2026-01-15
 **Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
 
 **Description:**
-Variables with commas in subscripts fail when used in expressions (multiplication, division, addition) with error "I expected something else here". This is a different error than ISS-036 - it occurs when the variable is used in an expression, not just referenced.
+Many documents have repetitive calculations for different values (e.g., years 2026-2030, multiple reactors). Currently, each calculation must be defined manually, leading to verbose code.
 
-**Test file:** `tests/test_iss_038_comma_subscript_expression_parse_error.md`
+**Test file:** `tests/test_iss_041_array_operations.md`
 
-**Expected:** Variables should work correctly in expressions
-**Actual:** Error: "Failed to parse LaTeX 'PAR_{R2,umol} \cdot t_{day}': I expected something else here"
+**Expected:** Can define arrays and iterate over them to calculate values
+**Actual:** Must manually define each calculation (e.g., `gamma_26`, `gamma_27`, etc.)
 
-**Root cause:** When variables with commas in subscripts are used in expressions, the parser fails. Variable name normalization (comma → underscore) happens, but the parser still can't handle the normalized form in expressions.
+**Root cause:** LiveMathTeX doesn't support array/vector operations.
 
-**Impact:** High - prevents using variables with commas in any calculations (25 errors in source document).
+**Impact:** Medium - Reduces code duplication for repetitive calculations. Improves maintainability when values change.
 
-**Related Issues:**
-- ISS-036: Variables with commas in subscripts fail with "argument of type 'Symbol' is not iterable" (different error, different context)
-- ISS-034: Variable parsing fails for variables with commas in subscript (marked RESOLVED, but this is a different manifestation)
+**Feature Request:**
+Add array/vector support:
+- Define arrays: `$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$`
+- Element access: `$gamma[0]$` or `$gamma_26$` (if array indexed by year)
+- Vectorized operations: `$m := V_L \cdot gamma$` (element-wise multiplication)
+- Array indexing: Support for named indices (e.g., `gamma[2026]`)
+
+**Preferred:** Start with basic array support, then add vectorized operations.
+
+**⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement). Array definitions must remain after `clear`, only calculated results removed.
+
+---
+
+### ISS-040: Cross-References to Calculated Values in Text
+
+**Status:** Open (Feature Request)
+**Created:** 2026-01-15
+**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+**Description:**
+Documents often need to reference calculated values in prose text (e.g., executive summaries, conclusions). Currently, variables in text are not evaluated, requiring manual copy-paste of calculated values.
+
+**Test file:** `tests/test_iss_040_cross_references.md`
+
+**Expected:** Can reference variables like `{{C_max}}` in text to display calculated values
+**Actual:** Variables in text are not evaluated (or require full math block syntax)
+
+**Root cause:** LiveMathTeX only processes math blocks (`$...$`), not inline variable references in text.
+
+**Impact:** High - Enables "single source of truth" documents where calculated values automatically appear in executive summaries, conclusions, and other prose sections. Reduces manual errors from copy-paste.
+
+**Feature Request:**
+Add syntax for inline variable references in text:
+- Option 1: `{{variable}}` syntax (e.g., `{{C_max}}` → `550 kg`)
+- Option 2: `$variable$` in text (outside math blocks) gets evaluated
+- Option 3: Special syntax like `\ref{C_max}` or `@C_max`
+
+**Preferred:** Option 1 (`{{variable}}`) to distinguish from math blocks and allow unit formatting.
+
+**⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement). After `clear`, `{{variable}}` syntax must be restored, not the evaluated value.
+
+**Example:**
+```markdown
+The maximum capacity is **{{C_max}} kg/year**.
+The 2030 target is **{{T_2030}} kg/year**, which is **{{T_2030 / C_max * 100}}%** of maximum.
+```
+
+---
+
+### ISS-039: Thousands Separator Formatting
+
+**Status:** Open (Feature Request)
+**Created:** 2026-01-15
+**Source:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+**Description:**
+Large numbers (>= 1000) are displayed without thousands separators, making them harder to read. For example, `37824` should be displayed as `37,824` (or `37 824` in European format).
+
+**Test file:** `tests/test_iss_039_thousands_separator.md`
+
+**Expected:** Numbers >= 1000 should display with thousands separators (e.g., `37,824` instead of `37824`)
+**Actual:** Numbers are displayed without separators (e.g., `37824`)
+
+**Root cause:** The number formatting in `_format_si_value()` and related functions doesn't add thousands separators.
+
+**Impact:** Medium - Improves readability of large numbers in documents, especially for engineering calculations with values in thousands/millions.
+
+**Feature Request:**
+Add automatic thousands separator formatting:
+- Option 1: Always format numbers >= 1000 with separators
+- Option 2: Configurable via `<!-- format:thousands -->` or document setting
+- Option 3: Use locale-aware formatting (US: comma, EU: space or period)
+
+**Preferred:** Option 2 (configurable) with default enabled for numbers >= 1000.
+
+**⚠️ CRITICAL REQUIREMENT:** Settings must be preserved after `process` and `clear` cycles (idempotence requirement).
 
 ---
 

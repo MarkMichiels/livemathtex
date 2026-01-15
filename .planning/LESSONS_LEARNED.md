@@ -536,4 +536,31 @@ $PPE_{eff,R2} := PPE_{eff,9010} ==$  <!-- Also fails -->
 
 ---
 
+### \frac in Unit Expressions for Definitions Not Supported
+
+**Problem:** Using `\frac` in unit expressions for variable definitions fails with "Unexpected token after expression: frac".
+
+**Example (FAILS):**
+```latex
+$\gamma_{26} := 15\ \frac{\text{mg}}{\text{L} \cdot \text{d}} ==$  <!-- Error! -->
+```
+
+**Example (WORKS):**
+```latex
+$\gamma_{26} := \frac{15\ \text{mg}}{\text{L} \cdot \text{d}} ==$  <!-- Works! -->
+```
+
+**Root Cause:** The parser doesn't support `\frac` in unit expressions for definitions (value with unit expression). However, `\frac` works fine in calculations (fraction of values).
+
+**Workaround:** Change from "value with unit expression" to "calculation":
+- ❌ `15\ \frac{\text{mg}}{\text{L} \cdot \text{d}}` (value with unit expression - fails)
+- ✅ `\frac{15\ \text{mg}}{\text{L} \cdot \text{d}}` (calculation - works)
+
+**Impact:** Medium - requires syntax change for compound unit definitions.
+
+**Date:** 2026-01-15
+**Document:** `mark-private/private/axabio_confidential/business/abp_2026_2030/docs/astaxanthin_production_analysis.md`
+
+---
+
 **Last Updated:** 2026-01-15
