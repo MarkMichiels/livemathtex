@@ -76,28 +76,17 @@ Enhancements discovered during execution. Not critical - address in future phase
   4. Round to "nice" numbers where appropriate
 - **Impact:** Medium - Significantly improves readability of calculated values in documents.
 
+## Closed Issues
+
 ### ISS-047: Function Evaluation Issues in Real-World Usage
 
-- **Discovered:** 2026-01-15 (during document improvement workflow on astaxanthin_production_analysis.md)
-- **Type:** Bug/Enhancement
-- **Description:** While Phase 21 (v2.0) fixed basic function evaluation (ISS-032), real-world testing shows functions still have issues. Testing with `astaxanthin_production_analysis.md` showed 6 errors on 4 function evaluations, indicating functions are not production-ready.
-- **Expected:** Functions should work reliably for real-world use cases like:
-  - `$PPE_{eff}(r_{frac}) := (r_{frac} \cdot 4.29 + (1 - r_{frac}) \cdot 2.57) \cdot 0.9143$`
-  - `$PPE_{test} := PPE_{eff}(0.90) ==$` (should evaluate correctly)
-- **Actual:** Function evaluation produces errors:
-  - `Error: Unexpected token after expression: lparen '(' at position 2`
-  - `Error: Undefined variable: a` (for function parameters)
-  - Functions defined but cannot be called reliably
-- **Root cause:** While ISS-032 was marked as resolved, real-world testing reveals remaining issues with:
-  1. Function call parsing (parentheses handling)
-  2. Parameter substitution in multi-parameter functions
-  3. Complex function names with subscripts
-- **Impact:** High - Prevents using functions for repetitive calculations, forcing verbose manual definitions. Arrays (ISS-041) would help, but functions are also needed for reusable calculations.
-- **Test file:** `tests/test_functions.md` (created during testing, shows 6 errors on 4 evaluations)
-- **Related:** ISS-032 (marked resolved, but needs verification for production use)
-- **Next Round:** Verify Phase 21 fixes work in production, identify and fix remaining issues
-
-## Closed Issues
+**Resolved:** 2026-01-16 - Fixed in v4.1 Phase 34
+**Solution:** Added FunctionCallNode to expression parser and evaluator:
+- Parser now detects variable followed by LPAREN as function call
+- Tokenizer recognizes comma as operator for argument separation
+- Evaluator looks up function by internal_id (f0, f1) and latex_name (PPE_{eff})
+- Substitutes argument values and evaluates formula expression
+- Test: `PPE_{eff}(0.90) == 3.7651` now works correctly
 
 ### ISS-043: Dimensionless Calculation Incorrectly Converted to kg/mg Units
 

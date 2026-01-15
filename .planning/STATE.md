@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 34 of 38 (Function Evaluation) - PLANNING
+Phase: 35 of 38 (\frac in Unit Expressions) - PLANNING
 Plan: Not started
-Status: 📋 v4.1 milestone in progress (Phases 32-33 verified fixed)
-Last activity: 2026-01-16 — build-all verified ISS-043 and ISS-030 fixed
+Status: 📋 v4.1 milestone in progress (Phases 32-34 complete)
+Last activity: 2026-01-16 — Phase 34 (ISS-047) fixed
 Branch: build-all-20260116-002609
 
-Progress: ██████░░░░ 29% (2 of 7 phases verified fixed)
+Progress: ████████░░ 43% (3 of 7 phases complete)
 
 **v4.1 Phases:**
 - Phase 32: ✅ Dimensionless Unit Bug (ISS-043) - VERIFIED FIXED
 - Phase 33: ✅ µmol JSON Output Bug (ISS-030) - VERIFIED FIXED
-- Phase 34: 🐛 Function Evaluation (ISS-047) - NEXT
-- Phase 35: ✨ \frac in Unit Expressions (ISS-044)
+- Phase 34: ✅ Function Evaluation (ISS-047) - FIXED
+- Phase 35: ✨ \frac in Unit Expressions (ISS-044) - NEXT
 - Phase 36: ✨ Smart Number Formatting (ISS-046)
 - Phase 37: ✨ Array Operations (ISS-041)
 - Phase 38: 📚 Documentation Update (ISS-045)

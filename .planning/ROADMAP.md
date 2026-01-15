@@ -497,25 +497,21 @@ Plans:
 Plans:
 - [x] N/A - Already fixed by v3.0 refactor
 
-#### Phase 34: Function Evaluation (ISS-047)
+#### Phase 34: Function Evaluation (ISS-047) ✅ FIXED
 **Goal**: Fix remaining function evaluation issues for production use
 **Depends on**: Phase 33
-**Status**: Planned
-**Research**: Likely (need to identify all failure cases)
-**Plans**: 2
+**Status**: ✅ Complete (2026-01-16)
+**Research**: N/A
 
-**Problem:** While Phase 21 (v2.0) fixed basic function evaluation, real-world testing shows 6 errors on 4 function evaluations. Functions are not production-ready.
-
-**Symptoms:**
-- `Error: Unexpected token after expression: lparen '(' at position 2`
-- `Error: Undefined variable: a` (for function parameters)
-- Functions defined but cannot be called reliably
-
-**Test file:** `tests/test_functions.md`
+**Solution:** Added FunctionCallNode to expression parser and evaluator:
+- Parser detects variable followed by LPAREN as function call
+- Tokenizer recognizes comma as operator for argument separation
+- Evaluator looks up function by internal_id (f0, f1) and latex_name (PPE_{eff})
+- Substitutes argument values and evaluates formula expression
+- Test: `PPE_{eff}(0.90) == 3.7651` works correctly
 
 Plans:
-- [ ] 34-01: Investigate and categorize function evaluation failures
-- [ ] 34-02: Fix function call parsing and parameter substitution
+- [x] 34-01: Fix function call parsing and parameter substitution
 
 ---
 
