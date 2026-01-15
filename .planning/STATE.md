@@ -9,16 +9,15 @@ See: .planning/PROJECT.md (updated 2026-01-15)
 
 ## Current Position
 
-Phase: 29 of 31 (Cross-References)
+Phase: 29 of 32 (Cross-References)
 Plan: Not started
 Status: 🚧 Milestone v4.0 Features created
-Last activity: 2026-01-15 — Milestone v4.0 created with 3 phases (29-31)
+Last activity: 2026-01-15 — Milestone v4.0 created with 4 phases (29-32)
 Branch: `master`
 
 Progress: ░░░░░░░░░░ 0%
 
-**Feature requests being addressed:** ISS-039, ISS-040, ISS-042
-**Deferred:** ISS-041 (Array operations - more complex, v4.1 candidate)
+**Feature requests being addressed:** ISS-039, ISS-040, ISS-041, ISS-042
 
 ## Performance Metrics
 

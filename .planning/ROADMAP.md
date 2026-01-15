@@ -23,7 +23,7 @@ None (regex patterns, Python, Pint library)
 - ✅ **v2.1 Superscript Variable Names** - Phase 22 (shipped 2026-01-14)
 - ✅ **v3.0 Pure Pint Architecture** - Phases 23-27 (complete 2026-01-14)
 - ✅ **v3.1 Complete SymPy Removal** - Phase 28 (shipped 2026-01-15)
-- 🚧 **v4.0 Features** - Phases 29-31 (in progress)
+- 🚧 **v4.0 Features** - Phases 29-32 (in progress)
 
 ## Phases
 
@@ -452,7 +452,7 @@ See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
 
 **Milestone Goal:** Add user-requested features for improved document workflow: cross-references to calculated values, number formatting, and unit display options.
 
-**Feature Requests Addressed:** ISS-039, ISS-040, ISS-042
+**Feature Requests Addressed:** ISS-039, ISS-040, ISS-041, ISS-042
 
 #### Phase 29: Cross-References (ISS-040)
 **Goal**: Enable `{{variable}}` syntax to reference calculated values in prose text
@@ -501,3 +501,20 @@ Key deliverables:
 
 Plans:
 - [ ] 31-01: TBD (run /gsd:plan-phase 31 to break down)
+
+#### Phase 32: Array Operations (ISS-041)
+**Goal**: Add array/vector support for repetitive calculations
+**Depends on**: Phase 31
+**Status**: Not started
+**Research**: Likely (syntax design, storage format)
+**Plans**: TBD
+
+Key deliverables:
+- Array definition syntax: `$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$`
+- Element access: `$gamma[0]$` or named index `$gamma[2026]$`
+- Vectorized operations: `$m := V_L \cdot gamma$` (element-wise)
+- Clear/process cycle support (preserve definitions, clear results)
+- IR schema extension for array storage
+
+Plans:
+- [ ] 32-01: TBD (run /gsd:plan-phase 32 to break down)
