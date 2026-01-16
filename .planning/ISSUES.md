@@ -8,63 +8,31 @@ None.
 
 ## Open Enhancements
 
+None.
+
+## Closed Issues
+
 ### ISS-053: LLM-Aware Documentation and Cursor Integration
 
-**Discovered:** 2026-01-16
-**Type:** Enhancement
-**Severity:** High - Critical for LLM-driven workflows
-
-**Problem:** LLMs (Claude, GPT, etc.) don't know how to correctly format documents for LiveMathTeX. This results in:
-1. Wrong syntax (e.g., `L/h` instead of `\text{L/h}`)
-2. Variable names that conflict with Pint units (`a`, `m`, `h`, `g`, etc.)
-3. Inconsistent use of operators (`:=` vs `==` vs `=>`)
-4. No use of features like unit hints, cross-references, arrays
-5. Poor structuring of calculations
-
-**Solution approach:**
-
-1. **Cursor Rules (.mdc)** - Create `livemathtex.mdc` with:
-   - Syntax cheatsheet (which operator when)
-   - Variable naming conventions (avoid unit names)
-   - Unit syntax rules (`\text{}` when needed)
-   - Best practices for document structure
-
-2. **Cursor Commands** - Update `/livemathtex` command with:
-   - Explanation of all features (arrays, functions, cross-refs)
-   - Examples of correct usage
-   - Common pitfalls and how to avoid them
-
-3. **USAGE.md LLM section** - Add:
-   - "For AI Assistants" section with machine-readable syntax rules
-   - Explicit do's and don'ts
-   - Template for new documents
-
-4. **Examples as reference** - Point LLMs to `examples/` directory
-
-**Goal:** An LLM generating LiveMathTeX documents produces working output without manual corrections.
+**Resolved:** 2026-01-16 - Fixed in v4.2 Phase 41
+**Solution:**
+- Created `.cursor/rules/livemathtex.mdc` with comprehensive syntax guide for AI assistants
+- Added "For AI Assistants" section to USAGE.md with critical syntax rules
+- Updated `/livemathtex` command to reference new documentation
+- Documented when `\text{}` is needed, variable naming conventions, cross-references
 
 ---
 
 ### ISS-052: Improve Unit Syntax Intuitiveness
 
-**Discovered:** 2026-01-16
-**Type:** Enhancement
-**Severity:** Low - Documentation/UX
+**Resolved:** 2026-01-16 - Fixed in v4.2 Phase 41 (documentation approach)
+**Solution:**
+- Documented when `\text{}` is required in Cursor rules and USAGE.md
+- Clear rule: compound units with `/` or multi-letter names need `\text{}`
+- Simple SI units work without wrapper
+- Rule of thumb: when in doubt, use `\text{}`
 
-**Problem:** Unit syntax requires `\text{}` wrapper in some contexts, which is not intuitive.
-
-**Example:**
-```latex
-$flow := 1000\ L/h$  <!-- Fails: "Undefined variable: h" -->
-$flow := 1000\ \text{L/h}$  <!-- Works -->
-```
-
-**Suggestion:** Either:
-1. Auto-detect common unit patterns without `\text{}`
-2. Better document when `\text{}` is required
-3. Improve error messages to suggest the fix
-
-## Closed Issues
+---
 
 ### ISS-048: Function Call Lookup Bug with Multiple Functions
 

@@ -271,6 +271,8 @@ livemathtex process input.md
 ## Deep References
 
 - **[USAGE.md](../../docs/USAGE.md)** — full syntax & configuration
+- **[For AI Assistants](../../docs/USAGE.md#for-ai-assistants)** — LLM-specific guidance
+- **[livemathtex.mdc](../rules/livemathtex.mdc)** — Cursor rule file for AI assistants
 - **[ARCHITECTURE.md](../../docs/ARCHITECTURE.md)** — IR + internals
 - **[ISSUES.md](../../.planning/ISSUES.md)** — known bugs and enhancements
 - **[LESSONS_LEARNED.md](../../.planning/LESSONS_LEARNED.md)** — patterns and solutions

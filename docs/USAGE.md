@@ -1648,6 +1648,146 @@ See `examples/unit-library/input.md` for a comprehensive unit library template.
 
 ---
 
+## For AI Assistants
+
+This section provides guidance for AI assistants (Claude, GPT, Cursor AI, etc.) generating LiveMathTeX documents. Following these rules ensures documents process correctly on first try.
+
+### Critical Syntax Rules
+
+#### 1. Unit Syntax: When to Use `\text{}`
+
+**Always use `\text{}` for compound units:**
+```latex
+$flow := 1000\ \text{L/h}$           ✅ Correct
+$rate := 15\ \text{mg/L/d}$          ✅ Correct
+$density := 1000\ \text{kg/m}^3$     ✅ Correct
+
+$flow := 1000\ L/h$                  ❌ FAILS: "Undefined variable: h"
+```
+
+**Simple SI units work without `\text{}`:**
+```latex
+$mass := 5\ kg$     ✅ Works
+$length := 10\ m$   ✅ Works
+```
+
+**Rule of thumb:** When in doubt, use `\text{}` - it always works.
+
+#### 2. Variable Naming: Avoid Unit Conflicts
+
+Single-letter names that match Pint units cause errors:
+
+| Avoid | Conflicts With | Use Instead |
+|-------|---------------|-------------|
+| `m` | meter | `m_{obj}`, `mass` |
+| `s` | second | `s_{dist}`, `span` |
+| `h` | hour | `h_{tank}`, `height` |
+| `a` | year (annum) | `a_{1}`, `accel` |
+| `g` | gram | `g_{acc}`, `gravity` |
+| `A` | ampere | `A_{pipe}`, `area` |
+| `V` | volt | `V_{tank}`, `volume` |
+| `L` | liter | `L_{pipe}`, `length` |
+
+**Best practice:** Always use descriptive subscripts for physical quantities.
+
+#### 3. Unit Attachment: Backslash-Space Required
+
+```latex
+$P := 310.7\ \text{kW}$    ✅ Correct (backslash-space before unit)
+$P := 310.7 \text{kW}$     ❌ Wrong (regular space)
+$P := 310.7\text{kW}$      ❌ Wrong (no space)
+```
+
+#### 4. Don't Redefine Built-in Units
+
+Pint knows most units. Do NOT define these:
+```latex
+$$ kWh === kW \cdot h $$   ❌ Error: kWh already exists
+$$ MWh === MW \cdot h $$   ❌ Error: MWh already exists
+```
+
+Just use them directly:
+```latex
+$E := 100\ kWh$            ✅ Works - Pint knows kWh
+$E := 500\ MWh$            ✅ Works - Pint knows MWh
+```
+
+**Only define:** Currency (`€ === €`), non-standard abbreviations (`dag === day`).
+
+### Document Template for AI Assistants
+
+```markdown
+<!-- livemathtex: output=output.md, json=true, digits=4 -->
+
+# Calculation Title
+
+## Custom Units (only if needed)
+
+$$ € === € $$
+
+## Input Parameters
+
+$P_{motor} := 310.7\ \text{kW}$
+$t_{annual} := 8760\ h$
+$\eta := 0.92$
+
+## Calculations
+
+$E_{annual} := P_{motor} \cdot t_{annual} ==$  <!-- [MWh] -->
+
+$E_{net} := E_{annual} \cdot \eta ==$  <!-- [MWh] -->
+
+## Results
+
+The motor consumes {{E_annual [MWh]}} annually, with {{E_net [MWh]}} net output.
+```
+
+### Cross-References for Dynamic Text
+
+Insert calculated values into prose:
+```markdown
+$flow := 50\ \text{m}^3/\text{h}$
+
+The pump operates at {{flow}} (or {{flow [L/min]}} in L/min).
+```
+
+### Verification Through Units
+
+**Always include units** - they enable dimensional analysis:
+
+```latex
+# ✅ GOOD: Units verify calculation
+$P := 310.7\ \text{kW}$
+$t := 8760\ h$
+$E := P \cdot t ==$  <!-- [MWh] -->
+# If you accidentally used seconds, the wrong result reveals the error
+
+# ❌ BAD: No verification possible
+$P := 310.7$
+$t := 8760$
+$E := P \cdot t ==$
+# No way to verify correctness - defeats the purpose
+```
+
+### Quick Checklist for AI-Generated Documents
+
+Before finishing a document, verify:
+
+- [ ] Compound units wrapped in `\text{}` (e.g., `\text{L/h}`, `\text{mg/L/d}`)
+- [ ] Variable names don't conflict with units (no bare `m`, `s`, `h`, `a`, `g`)
+- [ ] Backslash-space before all units (`10\ kg`, not `10kg`)
+- [ ] No redefinition of built-in units (kWh, MWh, mol/day all work automatically)
+- [ ] Document directive at top for output control
+- [ ] Physical quantities have units for verification
+
+### See Also
+
+- `.cursor/rules/livemathtex.mdc` - Comprehensive rule file for Cursor AI
+- `examples/` directory - Working examples for all features
+- `/livemathtex` command - Interactive reference
+
+---
+
 ## Summary
 
 LiveMathTeX transforms Markdown into live technical documents:

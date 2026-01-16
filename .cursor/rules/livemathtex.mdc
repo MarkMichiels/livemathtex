@@ -1,0 +1,256 @@
+---
+description: LiveMathTeX syntax and conventions for AI assistants generating calculation documents
+globs: ["**/*.md", "**/*.lmt.md"]
+---
+
+# LiveMathTeX Syntax Guide for AI Assistants
+
+When generating or editing LiveMathTeX documents, follow these rules strictly.
+
+## Quick Reference
+
+| Operator | Purpose | Example |
+|----------|---------|---------|
+| `:=` | Define variable | `$x := 5$` |
+| `==` | Evaluate | `$x ==$` |
+| `:= ==` | Define + evaluate | `$y := x^2 ==$` |
+| `===` | Define custom unit | `$€ === €$` |
+| `=>` | Symbolic result | `$f'(x) =>$` |
+
+## CRITICAL: Unit Syntax Rules
+
+### When to Use `\text{}`
+
+**Rule:** Use `\text{}` for compound units containing `/` or multi-letter unit names.
+
+```latex
+# ✅ CORRECT
+$flow := 1000\ \text{L/h}$
+$rate := 15\ \text{mg/L/d}$
+$density := 1000\ \text{kg/m}^3$
+
+# ❌ WRONG - will fail with "Undefined variable"
+$flow := 1000\ L/h$
+$rate := 15\ mg/L/d$
+```
+
+**Simple units work without `\text{}`:**
+```latex
+$mass := 5\ kg$
+$length := 10\ m$
+$time := 3600\ s$
+```
+
+**When in doubt, use `\text{}`** - it always works.
+
+### Unit Attachment Pattern
+
+Always use backslash-space (`\ `) between number and unit:
+```latex
+$P := 310.7\ \text{kW}$    # ✅ Correct
+$P := 310.7 \text{kW}$     # ❌ Missing backslash-space
+$P := 310.7\text{kW}$      # ❌ Missing space entirely
+```
+
+## Variable Naming: Avoid Unit Conflicts
+
+**NEVER** use single letters that are Pint units as variable names:
+
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| `m` | meter | `m_{obj}`, `mass` |
+| `s` | second | `s_{1}`, `dist` |
+| `h` | hour | `h_{tank}`, `height` |
+| `a` | year (annum) | `a_{1}`, `accel` |
+| `g` | gram | `g_{acc}`, `gravity` |
+| `A` | ampere | `A_{pipe}`, `area` |
+| `V` | volt | `V_{tank}`, `volume` |
+| `L` | liter | `L_{pipe}`, `length` |
+
+**Best practice:** Always use descriptive subscripts:
+```latex
+$m_{rock} := 5\ kg$        # ✅ Clear and safe
+$A_{pipe} := 0.05\ m^2$    # ✅ Clear and safe
+$g_{acc} := 9.81\ \text{m/s}^2$  # ✅ Clear and safe
+```
+
+## Cross-References
+
+Insert calculated values into prose text:
+
+```markdown
+$flow := 50\ \text{m}^3/\text{h}$
+$pressure := 5\ bar$
+
+The pump operates at {{flow}} with {{pressure}} head.
+```
+
+**With unit conversion:**
+```markdown
+The flow rate is {{flow [L/min]}} liters per minute.
+```
+
+## Document Structure
+
+### Recommended Template
+
+```markdown
+<!-- livemathtex: output=output.md, json=true, digits=4 -->
+
+# Document Title
+
+## Unit Definitions (if needed)
+
+$$ € === € $$
+
+## Input Parameters
+
+$P := 310.7\ \text{kW}$
+$t := 8760\ h$
+
+## Calculations
+
+$E := P \cdot t ==$  <!-- [MWh] -->
+
+## Results Summary
+
+The annual energy is {{E [MWh]}}.
+```
+
+### Document Directive Options
+
+```markdown
+<!-- livemathtex: output=output.md, json=true -->
+<!-- livemathtex: digits=6, format=engineering -->
+<!-- livemathtex: smart_format=true -->
+```
+
+## Arrays
+
+Define and operate on arrays:
+
+```latex
+$values := [1, 2, 3, 4, 5]$
+$rates := [15, 30.5, 34]\ \text{mg/L/d}$
+
+# Element access (zero-indexed)
+$first := values[0] ==$
+
+# Vectorized operations
+$doubled := values * 2 ==$
+$mass := V_L \cdot rates ==$
+```
+
+## Functions
+
+```latex
+$f(x) := x^2 + 2x + 1$
+$PPE_{eff}(r) := r \cdot 4.29$
+
+# Call functions
+$result := f(3) ==$
+$efficiency := PPE_{eff}(0.90) ==$
+```
+
+## Common Mistakes and Fixes
+
+### Missing `\text{}` for Compound Units
+
+```latex
+# ❌ ERROR: "Undefined variable: h"
+$flow := 1000\ L/h$
+
+# ✅ FIX: Wrap in \text{}
+$flow := 1000\ \text{L/h}$
+```
+
+### Variable Name Conflicts with Units
+
+```latex
+# ❌ ERROR: "Variable name 'a' conflicts with unit 'year'"
+$a := 9.81\ \text{m/s}^2$
+
+# ✅ FIX: Use subscript
+$a_{grav} := 9.81\ \text{m/s}^2$
+```
+
+### Missing Backslash-Space Before Unit
+
+```latex
+# ❌ WRONG: Unit not recognized
+$mass := 10kg$
+
+# ✅ FIX: Add backslash-space
+$mass := 10\ kg$
+```
+
+### Redefining Existing Units
+
+```latex
+# ❌ ERROR: Pint already knows kWh
+$$ kWh === kW \cdot h $$
+
+# ✅ FIX: Don't define - just use it
+$E := 100\ kWh$
+```
+
+### Using `=` Instead of `:=` or `==`
+
+```latex
+# ❌ ERROR in calculation block
+$y = x + 3$
+
+# ✅ FIX: Use correct operator
+$y := x + 3$     # Define
+$y == x + 3$     # Evaluate
+$y := x + 3 ==$  # Define + evaluate
+```
+
+## Unit Conversion
+
+Request specific output units with `<!-- [unit] -->` or inline `[unit]`:
+
+```latex
+# HTML comment (invisible in rendered output)
+$E := P \cdot t ==$  <!-- [MWh] -->
+
+# Inline (visible in rendered output)
+$E := P \cdot t == [MWh]$
+```
+
+## Built-in Units (Do NOT Redefine)
+
+Pint already knows these - use them directly:
+- SI: `m`, `kg`, `s`, `A`, `K`, `mol`, `cd`
+- Derived: `N`, `J`, `W`, `Pa`, `V`, `Hz`, `ohm`
+- Prefixed: `kW`, `MW`, `mm`, `km`, `kWh`, `MWh`, `mg`, `mL`
+- Time: `year`, `yr`, `day`, `d`, `hour`, `h`, `min`, `s`
+- Compound: `mol/day`, `g/day`, `mg/L/day`, `kg/year`, `MWh/kg`
+
+**Only define:** Currency (`€`, `$`), non-standard abbreviations (`dag === day`)
+
+## Verification Workflow
+
+Always include units for verification:
+
+```latex
+# ✅ GOOD: Units enable dimensional analysis
+$P := 310.7\ \text{kW}$
+$t := 8760\ h$
+$E := P \cdot t ==$  <!-- [MWh] -->
+# → If you used seconds by mistake, wrong result reveals the error
+
+# ❌ BAD: No verification possible
+$P := 310.7$
+$t := 8760$
+$E := P \cdot t ==$
+# → No way to verify correctness
+```
+
+## CLI Commands
+
+```bash
+livemathtex process input.md -o output.md  # Process
+livemathtex clear output.md                 # Remove results
+livemathtex inspect input.lmt.json          # Debug IR
+```
