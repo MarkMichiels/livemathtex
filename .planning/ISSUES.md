@@ -4,11 +4,110 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Bugs
 
-*None currently open*
+### ISS-048: Function Call Lookup Bug with Multiple Functions
+
+**Discovered:** 2026-01-16
+**Type:** Bug
+**Severity:** High - Blocks multi-function documents
+
+**Problem:** When multiple user-defined functions are defined in a document, the function lookup fails with incorrect internal ID concatenation.
+
+**Example:**
+```latex
+$f(x) := x^2$           % becomes f0
+$PPE_{eff}(r) := r * 4.29$  % becomes f1
+$result := PPE_{eff}(0.70) ==$  % looks for f01 instead of f1
+```
+
+**Impact:** User-defined functions only work when there is exactly ONE function defined. This severely limits the usefulness of function definitions.
+
+**Root cause:** The function lookup logic concatenates function indices incorrectly.
+
+---
+
+### ISS-049: Cross-Reference Unit Conversion Parsed as Array Index
+
+**Discovered:** 2026-01-16
+**Type:** Bug
+**Severity:** High - Core feature broken
+
+**Problem:** The `{{variable [unit]}}` syntax for unit conversion in cross-references is being parsed as array indexing instead of unit hint.
+
+**Example:**
+```markdown
+$flow := 1000\ \text{L/h}$
+The flow is {{flow [m³/h]}}.  <!-- Should convert to m³/h -->
+```
+
+**Actual output:**
+```
+{{ERROR: Undefined variable: m}}
+{{ERROR: Array index must be dimensionless}}
+```
+
+**Impact:** Cross-references with unit conversion are completely broken.
+
+---
+
+### ISS-050: Cross-Reference Variable Lookup Fails for Subscripts and Underscores
+
+**Discovered:** 2026-01-16
+**Type:** Bug
+**Severity:** High - Core feature broken
+
+**Problem:** Cross-references fail to find variables with:
+1. LaTeX subscripts: `{{η_sys}}` → "Empty expression" or "Undefined variable: sys"
+2. Escaped underscores: Variable defined as `unit\_cost` but cross-ref looks for `unit_cost`
+
+**Examples from output:**
+```
+{{η_sys}} → ERROR: Empty expression
+{{total_cost}} → ERROR: Undefined variable: total_cost
+{{design_flow}} → ERROR: Undefined variable: design_flow
+```
+
+**Impact:** Most real-world cross-references fail because engineering documents use subscripted variable names.
+
+---
+
+### ISS-051: Cross-Reference Output Uses SI Base Units Instead of Original
+
+**Discovered:** 2026-01-16
+**Type:** Bug
+**Severity:** Medium - Poor UX
+
+**Problem:** Cross-references output values in verbose SI base units instead of the original/readable units.
+
+**Example:**
+```
+$P_{motor} := 5.5\ kW$
+{{P_motor}} → "5 500 kilogram * meter ** 2 / second ** 3"
+```
+
+**Expected:** `5.5 kW` or at least `5500 W`
+
+**Impact:** Makes cross-references unusable for readable documentation.
 
 ## Open Enhancements
 
-*None currently open*
+### ISS-052: Improve Unit Syntax Intuitiveness
+
+**Discovered:** 2026-01-16
+**Type:** Enhancement
+**Severity:** Low - Documentation/UX
+
+**Problem:** Unit syntax requires `\text{}` wrapper in some contexts, which is not intuitive.
+
+**Example:**
+```latex
+$flow := 1000\ L/h$  <!-- Fails: "Undefined variable: h" -->
+$flow := 1000\ \text{L/h}$  <!-- Works -->
+```
+
+**Suggestion:** Either:
+1. Auto-detect common unit patterns without `\text{}`
+2. Better document when `\text{}` is required
+3. Improve error messages to suggest the fix
 
 ## Closed Issues
 
@@ -249,4 +348,4 @@ Added 5 tests in `TestCustomUnitWithDivision` class.
 **Solution:** Added dimensional compatibility checking. Pre-checks dimensions before addition/subtraction operations. Incompatible unit operations now produce clear error messages.
 
 ---
-*Last reviewed: 2026-01-15 (v4.0 issues identified during document improvement workflow)*
+*Last reviewed: 2026-01-16 (5 new issues from v4.1 examples testing)*

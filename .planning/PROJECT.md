@@ -35,7 +35,11 @@ Processing must be idempotent - running process on an already-processed file sho
 
 <!-- Current scope. Building toward these. -->
 
-None currently. All known issues resolved.
+- ISS-048: Function lookup bug with multiple functions (High)
+- ISS-049: Cross-reference unit conversion parsed as array index (High)
+- ISS-050: Cross-reference variable lookup fails for subscripts (High)
+- ISS-051: Cross-reference output uses SI base units (Medium)
+- ISS-052: Unit syntax intuitiveness (Enhancement)
 
 ### Out of Scope
 
@@ -71,4 +75,4 @@ None currently. All known issues resolved.
 | Custom LaTeX parser | Direct Pint evaluation, no SymPy dependency | ✓ Shipped v3.0/v3.1 |
 
 ---
-*Last updated: 2026-01-15 — v3.1 shipped*
+*Last updated: 2026-01-16 — 5 open issues discovered during v4.1 examples*
