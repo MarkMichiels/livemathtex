@@ -18,7 +18,7 @@ $area := len \cdot wid == 50\ \text{m^2}$
 
 Now reference them in text using `{{variable}}` syntax:
 
-The room has dimensions 10.00 meter<!-- {{len}} --> × 5.00 meter<!-- {{wid}} -->, giving a total area of 50.00 meter ** 2<!-- {{area}} -->.
+The room has dimensions 10.00 m<!-- {{len}} --> × 5.00 m<!-- {{wid}} -->, giving a total area of 50.00 m²<!-- {{area}} -->.
 
 ---
 
@@ -30,9 +30,9 @@ $flow := 1000\ \text{L/h}$
 
 $pressure := 250000\ Pa$
 
-The flow rate is {{ERROR: Undefined variable: m}} (or {{ERROR: Undefined variable: L}} in L/min).
+The flow rate is 1.00 m³/h<!-- {{flow [m³/h]}} --> (or 16.67 L/min<!-- {{flow [L/min]}} --> in L/min).
 
-The pressure is {{ERROR: Array index must be dimensionless}} bar (or {{ERROR: Array index must be dimensionless}} kPa).
+The pressure is 2.50 bar<!-- {{pressure [bar]}} --> bar (or 250.00 kiloPa<!-- {{pressure [kPa]}} --> kPa).
 
 ---
 
@@ -50,9 +50,9 @@ $\eta := 0.78$
 
 ### Report Text with Cross-References
 
-The selected pump operates at a flow rate of 34.72 meter ** 3 / second<!-- {{Q_p}} --> with a head of 25.00 meter<!-- {{head}} -->. The motor is rated for 5 500 kilogram * meter ** 2 / second ** 3<!-- {{P_motor}} -->, achieving an efficiency of {{ERROR: Empty expression}}.
+The selected pump operates at a flow rate of 34.72 m³/s<!-- {{Q_p}} --> with a head of 25.00 m<!-- {{head}} -->. The motor is rated for 5 500 W<!-- {{P_motor}} -->, achieving an efficiency of 0.7800<!-- {{η}} -->.
 
-At the design point, the pump delivers {{ERROR: Undefined variable: L}} liters per minute.
+At the design point, the pump delivers 2 083 333 L/min<!-- {{Q_p [L/min]}} --> liters per minute.
 
 ---
 
@@ -76,10 +76,10 @@ $weight := mass \cdot grav == 1.50e+12\ \text{kg^3·m^2/s^2}$
 
 | Parameter | Value | Unit |
 |-----------|-------|------|
-| Density | 1 000 000 000 kilogram ** 3 / meter ** 3<!-- {{density}} --> | kg/m³ |
-| Volume | 15.62 meter ** 3<!-- {{vol}} --> | m³ |
-| Mass | 15 625 000 000 kilogram ** 3<!-- {{mass}} --> | kg |
-| Weight | {{ERROR: Array index must be dimensionless}} | kN |
+| Density | 1 000 000 000 kg³/m³<!-- {{density}} --> | kg/m³ |
+| Volume | 15.62 m³<!-- {{vol}} --> | m³ |
+| Mass | 15 625 000 000 kg³<!-- {{mass}} --> | kg |
+| Weight | {{ERROR: Cannot convert to kN: Cannot convert from 'kilogram ** 3 * meter ** 2 / second ** 2' ([mass] ** 3 * [length] ** 2 / [time] ** 2) to 'kilonewton' ([mass] * [length] / [time] ** 2)}} | kN |
 
 ---
 
@@ -99,7 +99,7 @@ $\eta_{sys} := P_{out} / P_{in} == 0.85$
 
 ### Report
 
-The system converts 100.00 kilogram * meter ** 2 / second ** 3<!-- {{P_in}} --> of input power to 85.00 kilogram * meter ** 2 / second ** 3<!-- {{P_out}} --> of useful output, achieving an efficiency of {{ERROR: Undefined variable: sys}}.
+The system converts 100.00 W<!-- {{P_in}} --> of input power to 85.00 W<!-- {{P_out}} --> of useful output, achieving an efficiency of 0.8500<!-- {{η_sys}} -->.
 
 ---
 
@@ -123,7 +123,7 @@ $profit := revenue - total\_cost == 10\,000\ \text{€}$
 
 ### Financial Summary
 
-With a production volume of 500.00 kilogram<!-- {{production}} -->, total manufacturing cost is {{ERROR: Undefined variable: total_cost}}. At a selling price of {{ERROR: Undefined variable: selling_price}}, total revenue is 22 500 EUR<!-- {{revenue}} -->, yielding a profit of 10 000 EUR<!-- {{profit}} -->.
+With a production volume of 500.00 kg<!-- {{production}} -->, total manufacturing cost is 12 500 EUR<!-- {{total_cost}} -->. At a selling price of 45.00 EUR/kg<!-- {{selling_price}} -->, total revenue is 22 500 EUR<!-- {{revenue}} -->, yielding a profit of 10 000 EUR<!-- {{profit}} -->.
 
 ---
 
@@ -140,8 +140,8 @@ $design\_pressure := 5\ bar$
 ### Testing Section (references earlier values)
 
 Testing confirmed the system meets design specifications:
-- Flow: {{ERROR: Undefined variable: design_flow}} ✓
-- Pressure: {{ERROR: Undefined variable: design_pressure}} ✓
+- Flow: 0.0017 m³/s<!-- {{design_flow}} --> ✓
+- Pressure: 500 000 kg/m/s²<!-- {{design_pressure}} --> ✓
 
 ---
 
@@ -181,12 +181,12 @@ With smart formatting enabled:
 
 | Feature | Syntax | Example |
 |---------|--------|---------|
-| Basic reference | `{{var}}` | The length is 10.00 meter<!-- {{len}} -->. |
-| With unit | `{{var [unit]}}` | Flow is 0.0003 meter ** 3 / second<!-- {{flow}} --> (use unit hint). |
-| In tables | Same syntax | Area = 50.00 meter ** 2<!-- {{area}} --> |
+| Basic reference | `{{var}}` | The length is 10.00 m<!-- {{len}} -->. |
+| With unit | `{{var [unit]}}` | Flow is 0.0003 m³/s<!-- {{flow}} --> (use unit hint). |
+| In tables | Same syntax | Area = 50.00 m²<!-- {{area}} --> |
 
 **Key insight:** Cross-references create living documents where changing a calculation automatically updates every place that value is used!
 
 ---
 
-> *livemathtex: 2026-01-16 01:38:25 | 27 definitions, 7 evaluations | no errors | 0.08s* <!-- livemathtex-meta -->
+> *livemathtex: 2026-01-16 02:13:04 | 27 definitions, 7 evaluations | no errors | 0.10s* <!-- livemathtex-meta -->

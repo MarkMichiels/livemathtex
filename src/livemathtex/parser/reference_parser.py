@@ -23,10 +23,12 @@ class Reference:
         content: The content inside the braces (e.g., "C_{max}")
         start: Start position in the document
         end: End position in the document (exclusive)
+        unit_hint: Optional unit to convert the result to (e.g., "m³/h")
     """
     content: str
     start: int
     end: int
+    unit_hint: Optional[str] = None
 
 
 @dataclass
@@ -117,15 +119,20 @@ def extract_references(content: str) -> List[Reference]:
         - Skips references inside math blocks, code blocks, and HTML comments
         - Handles escaped \{{ which should be treated as literal {{
         - Handles nested braces like {{C_{max}}} correctly
+        - Supports unit hint syntax: {{var [unit]}} for unit conversion
     """
     references = []
     excluded_ranges = find_math_block_ranges(content)
 
-    # Pattern: {{ followed by content with balanced braces until }}
+    # Pattern: {{ followed by content with balanced braces, optional [unit], then }}
     # Must not be escaped (preceded by \)
-    # Content can include single braces {} but must end with }}
-    # Use: match everything including nested {} until we hit }}
-    pattern = r'(?<!\\)\{\{((?:[^{}]|\{[^{}]*\})*)\}\}'
+    # Content can include single braces {} but must end with }} or [unit]}}
+    # Group 1: variable/expression content (everything before optional [unit])
+    # Group 2: optional unit hint (inside [])
+    #
+    # ISS-049: The [unit] syntax must be extracted BEFORE expression parsing
+    # to avoid confusion with array indexing syntax
+    pattern = r'(?<!\\)\{\{((?:[^{}\[\]]|\{[^{}]*\})*?)(?:\s*\[([^\]]+)\])?\}\}'
 
     for match in re.finditer(pattern, content):
         start = match.start()
@@ -134,40 +141,47 @@ def extract_references(content: str) -> List[Reference]:
         if is_in_excluded_range(start, excluded_ranges):
             continue
 
+        ref_content = match.group(1).strip()
+        unit_hint = match.group(2).strip() if match.group(2) else None
+
         references.append(Reference(
-            content=match.group(1).strip(),
+            content=ref_content,
             start=start,
-            end=match.end()
+            end=match.end(),
+            unit_hint=unit_hint
         ))
 
     return references
 
 
 def find_processed_references(content: str) -> List[tuple]:
-    """Find previously processed references (value<!-- {{ref}} -->).
+    """Find previously processed references (value<!-- {{ref}} --> or value<!-- {{ref [unit]}} -->).
 
     Returns:
-        List of (full_match_start, full_match_end, reference_content) tuples
+        List of (full_match_start, full_match_end, reference_content, unit_hint) tuples
+        where unit_hint may be None if no unit hint was present
     """
     results = []
 
-    # Pattern: numeric value with optional unit/symbol followed by <!-- {{...}} -->
+    # Pattern: numeric value with optional unit/symbol followed by <!-- {{...}} --> or <!-- {{... [unit]}} -->
     # Value format: number + optional unit/symbol (e.g., "550 kg", "93.8%", "1.5 m/s")
     # Content can include nested {} for LaTeX subscripts
-    pattern = r'([\d.]+(?:[%]|(?:\s+[A-Za-z/]+))?)\s*<!-- \{\{((?:[^{}]|\{[^{}]*\})*)\}\} -->'
+    # ISS-049: Also capture optional [unit] hint for restoration
+    pattern = r'([\d.,\s]+(?:[%]|(?:\s*[A-Za-z²³/*^]+(?:/[A-Za-z²³/*^]+)*))?)\s*<!-- \{\{((?:[^{}\[\]]|\{[^{}]*\})*?)(?:\s*\[([^\]]+)\])?\}\} -->'
 
     for match in re.finditer(pattern, content):
         results.append((
             match.start(),
             match.end(),
-            match.group(2).strip()  # The original reference content
+            match.group(2).strip(),  # The original reference content
+            match.group(3).strip() if match.group(3) else None  # Optional unit hint
         ))
 
     return results
 
 
 def restore_references(content: str) -> tuple:
-    """Restore processed references back to original {{...}} syntax.
+    """Restore processed references back to original {{...}} or {{... [unit]}} syntax.
 
     This is used by clear_text to undo reference substitution.
 
@@ -184,8 +198,21 @@ def restore_references(content: str) -> tuple:
 
     # Apply replacements in reverse order to maintain offsets
     result = content
-    for start, end, ref_content in reversed(processed):
-        replacement = f"{{{{{ref_content}}}}}"
+    for start, end, ref_content, unit_hint in reversed(processed):
+        # ISS-049: Restore unit hint if present
+        if unit_hint:
+            replacement = f"{{{{{ref_content} [{unit_hint}]}}}}"
+        else:
+            replacement = f"{{{{{ref_content}}}}}"
+
+        # Preserve leading whitespace if the match started with one
+        # (the regex may capture leading space as part of the numeric value)
+        if start > 0 and content[start] in ' \t':
+            replacement = ' ' + replacement
+            # Don't double-space if there's already a space before start
+            if start > 0 and content[start - 1] in ' \t':
+                replacement = replacement[1:]  # Remove the space we just added
+
         result = result[:start] + replacement + result[end:]
 
     return result, len(processed)

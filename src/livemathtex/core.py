@@ -480,6 +480,138 @@ def clear_text(content: str) -> tuple[str, int]:
     return cleared, count + ref_count
 
 
+def _normalize_variable_name(name: str) -> list[str]:
+    """Generate variable name variations for cross-reference lookup.
+
+    ISS-050: Cross-references may use slightly different syntax than the
+    symbol table. This function generates variations to try.
+
+    Args:
+        name: The variable name from the cross-reference
+
+    Returns:
+        List of possible variations to try in symbol lookup
+    """
+    variations = [name]
+
+    # Variation 1: Add backslash before underscore (unit\_cost → unit_cost)
+    if '_' in name and '\\_' not in name:
+        variations.append(name.replace('_', '\\_'))
+
+    # Variation 2: Wrap subscript content in braces (P_in → P_{in})
+    # Only if there's a single underscore followed by letters/numbers
+    import re
+    match = re.match(r'^([^_]+)_([A-Za-z0-9]+)$', name)
+    if match:
+        variations.append(f"{match.group(1)}_{{{match.group(2)}}}")
+
+    # Variation 3: Handle Greek letters (η_sys → \eta_{sys} and eta_sys)
+    greek_to_latex = {
+        'α': r'\alpha', 'β': r'\beta', 'γ': r'\gamma', 'δ': r'\delta',
+        'ε': r'\epsilon', 'ζ': r'\zeta', 'η': r'\eta', 'θ': r'\theta',
+        'ι': r'\iota', 'κ': r'\kappa', 'λ': r'\lambda', 'μ': r'\mu',
+        'ν': r'\nu', 'ξ': r'\xi', 'π': r'\pi', 'ρ': r'\rho',
+        'σ': r'\sigma', 'τ': r'\tau', 'υ': r'\upsilon', 'φ': r'\phi',
+        'χ': r'\chi', 'ψ': r'\psi', 'ω': r'\omega',
+        'Γ': r'\Gamma', 'Δ': r'\Delta', 'Θ': r'\Theta', 'Λ': r'\Lambda',
+        'Ξ': r'\Xi', 'Π': r'\Pi', 'Σ': r'\Sigma', 'Φ': r'\Phi',
+        'Ψ': r'\Psi', 'Ω': r'\Omega'
+    }
+    # Also map Greek to plain ASCII for symbol table lookup
+    greek_to_ascii = {
+        'α': 'alpha', 'β': 'beta', 'γ': 'gamma', 'δ': 'delta',
+        'ε': 'epsilon', 'ζ': 'zeta', 'η': 'eta', 'θ': 'theta',
+        'ι': 'iota', 'κ': 'kappa', 'λ': 'lambda', 'μ': 'mu',
+        'ν': 'nu', 'ξ': 'xi', 'π': 'pi', 'ρ': 'rho',
+        'σ': 'sigma', 'τ': 'tau', 'υ': 'upsilon', 'φ': 'phi',
+        'χ': 'chi', 'ψ': 'psi', 'ω': 'omega',
+        'Γ': 'Gamma', 'Δ': 'Delta', 'Θ': 'Theta', 'Λ': 'Lambda',
+        'Ξ': 'Xi', 'Π': 'Pi', 'Σ': 'Sigma', 'Φ': 'Phi',
+        'Ψ': 'Psi', 'Ω': 'Omega'
+    }
+    for greek in greek_to_latex:
+        if greek in name:
+            # Try plain ASCII form FIRST (η → eta) - this is parseable by tokenizer
+            # and is what's stored in symbol table
+            ascii_name = name.replace(greek, greek_to_ascii[greek])
+            variations.append(ascii_name)
+
+            # Then try LaTeX forms for fallback
+            latex_name = name.replace(greek, greek_to_latex[greek])
+            variations.append(latex_name)
+            # Also try with braced subscript
+            match = re.match(r'^(.+)_([A-Za-z0-9]+)$', latex_name)
+            if match:
+                variations.append(f"{match.group(1)}_{{{match.group(2)}}}")
+
+    return variations
+
+
+def _format_unit_for_prose(unit_str: str) -> str:
+    """Format a unit string for prose text (non-LaTeX context).
+
+    ISS-051: Converts verbose Pint unit strings to readable format.
+
+    Args:
+        unit_str: The unit string from Pint (e.g., "kilogram * meter ** 2 / second ** 3")
+
+    Returns:
+        Human-readable unit string (e.g., "kW")
+    """
+    # Common unit simplifications
+    simplifications = {
+        'kilogram * meter ** 2 / second ** 3': 'W',
+        'kilogram * meter ** 2 / second ** 2': 'J',
+        'meter ** 2': 'm²',
+        'meter ** 3': 'm³',
+        'second ** 2': 's²',
+        'second ** 3': 's³',
+        'kilogram ** 3': 'kg³',
+        'kilogram ** 2': 'kg²',
+        '1 / second': '/s',
+        '1 / hour': '/h',
+    }
+
+    # Try direct simplification first
+    if unit_str in simplifications:
+        return simplifications[unit_str]
+
+    # Try to use Pint's compact representation
+    # Replace verbose forms with symbols
+    result = unit_str
+    replacements = [
+        ('kilogram', 'kg'),
+        ('meter', 'm'),
+        ('second', 's'),
+        ('hour', 'h'),
+        ('minute', 'min'),
+        ('liter', 'L'),
+        ('litre', 'L'),
+        ('gram', 'g'),
+        ('watt', 'W'),
+        ('joule', 'J'),
+        ('pascal', 'Pa'),
+        ('newton', 'N'),
+        ('mole', 'mol'),
+        ('kelvin', 'K'),
+        ('ampere', 'A'),
+        ('volt', 'V'),
+        ('ohm', 'Ω'),
+        ('hertz', 'Hz'),
+        (' ** ', '^'),
+        (' * ', '·'),
+        (' / ', '/'),
+    ]
+
+    for old, new in replacements:
+        result = result.replace(old, new)
+
+    # Handle common patterns
+    result = result.replace('^2', '²').replace('^3', '³')
+
+    return result
+
+
 def evaluate_cross_references(
     content: str,
     evaluator: Evaluator,
@@ -491,6 +623,7 @@ def evaluate_cross_references(
     Cross-references allow calculated values to appear in prose text:
     - Simple variables: {{C_{max}}} → 550 kg<!-- {{C_{max}}} -->
     - Expressions: {{A / B * 100}} → 93.8%<!-- {{A / B * 100}} -->
+    - Unit conversion: {{flow [m³/h]}} → 1.5 m³/h<!-- {{flow [m³/h]}} -->
 
     Args:
         content: Document content with cross-references
@@ -503,7 +636,7 @@ def evaluate_cross_references(
     from .parser.expression_tokenizer import ExpressionTokenizer
     from .parser.expression_parser import ExpressionParser, ParseError
     from .engine.expression_evaluator import evaluate_expression_tree, EvaluationError
-    from .engine.pint_backend import get_unit_registry, format_unit_latex
+    from .engine.pint_backend import get_unit_registry, format_unit_latex, clean_latex_unit
 
     refs = extract_references(content)
     if not refs:
@@ -513,9 +646,11 @@ def evaluate_cross_references(
     evaluated = 0
     errored = 0
 
-    # Build symbol dict from evaluator's symbol table
-    # Map latex_name → Pint Quantity
+    # ISS-050: Build symbol dict with multiple name variations
+    # Map various forms of variable name → (Pint Quantity, original_unit_str)
     symbols_dict = {}
+    symbol_units = {}  # Store original unit for ISS-051
+
     for name in evaluator.symbols.all_names():
         entry = evaluator.symbols.get(name)
         if entry and entry.si_value is not None:
@@ -526,7 +661,23 @@ def evaluate_cross_references(
                     qty = ureg.Quantity(float(entry.si_value), str(entry.si_unit))
                 else:
                     qty = float(entry.si_value)
-                symbols_dict[latex_name] = qty
+
+                # Store under multiple name variations
+                for variation in [name, latex_name]:
+                    symbols_dict[variation] = qty
+                    if entry.original_unit:
+                        symbol_units[variation] = entry.original_unit
+                    elif entry.si_unit:
+                        symbol_units[variation] = str(entry.si_unit)
+
+                # Also add common variations (ISS-050)
+                # Handle escaped underscores: store both unit_cost and unit\_cost
+                if '\\_' in latex_name:
+                    plain_name = latex_name.replace('\\_', '_')
+                    symbols_dict[plain_name] = qty
+                    if entry.original_unit:
+                        symbol_units[plain_name] = entry.original_unit
+
             except Exception:
                 continue
 
@@ -535,13 +686,37 @@ def evaluate_cross_references(
 
     for ref in refs:
         try:
+            # ISS-050: Try variable name variations for lookup
+            ref_content = ref.content
+            lookup_success = False
+
+            # Try direct lookup first with variations
+            for variation in _normalize_variable_name(ref_content):
+                if variation in symbols_dict:
+                    ref_content = variation
+                    lookup_success = True
+                    break
+
             # Parse and evaluate the expression
-            tokenizer = ExpressionTokenizer(ref.content)
+            tokenizer = ExpressionTokenizer(ref_content)
             tokens = tokenizer.tokenize()
             parser = ExpressionParser(tokens)
             tree = parser.parse()
 
             result = evaluate_expression_tree(tree, symbols_dict, ureg)
+
+            # ISS-049: Apply unit conversion if unit_hint is specified
+            if ref.unit_hint and hasattr(result, 'to'):
+                try:
+                    # Clean and parse the unit hint
+                    clean_unit = clean_latex_unit(ref.unit_hint)
+                    result = result.to(clean_unit)
+                except Exception as e:
+                    # Unit conversion failed - report as error
+                    replacement = f"{{{{ERROR: Cannot convert to {ref.unit_hint}: {e}}}}}"
+                    edits.append((ref.start, ref.end, replacement))
+                    errored += 1
+                    continue
 
             # Format the result
             if hasattr(result, 'magnitude'):
@@ -550,6 +725,10 @@ def evaluate_cross_references(
                 unit_str = str(result.units)
                 if unit_str == 'dimensionless':
                     unit_str = ''
+
+                # ISS-051: Use readable unit format instead of SI base units
+                if unit_str:
+                    unit_str = _format_unit_for_prose(unit_str)
 
                 # Format value with reasonable precision
                 if isinstance(value, float):
@@ -580,7 +759,12 @@ def evaluate_cross_references(
                 replacement_value = formatted_value
 
             # Build replacement with HTML comment for clear cycle
-            replacement = f"{replacement_value}<!-- {{{{{ref.content}}}}} -->"
+            # ISS-049: Include unit hint in the preserved reference if present
+            if ref.unit_hint:
+                original_ref = f"{ref.content} [{ref.unit_hint}]"
+            else:
+                original_ref = ref.content
+            replacement = f"{replacement_value}<!-- {{{{{original_ref}}}}} -->"
             edits.append((ref.start, ref.end, replacement))
             evaluated += 1
 

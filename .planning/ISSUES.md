@@ -4,89 +4,7 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Bugs
 
-### ISS-048: Function Call Lookup Bug with Multiple Functions
-
-**Discovered:** 2026-01-16
-**Type:** Bug
-**Severity:** High - Blocks multi-function documents
-
-**Problem:** When multiple user-defined functions are defined in a document, the function lookup fails with incorrect internal ID concatenation.
-
-**Example:**
-```latex
-$f(x) := x^2$           % becomes f0
-$PPE_{eff}(r) := r * 4.29$  % becomes f1
-$result := PPE_{eff}(0.70) ==$  % looks for f01 instead of f1
-```
-
-**Impact:** User-defined functions only work when there is exactly ONE function defined. This severely limits the usefulness of function definitions.
-
-**Root cause:** The function lookup logic concatenates function indices incorrectly.
-
----
-
-### ISS-049: Cross-Reference Unit Conversion Parsed as Array Index
-
-**Discovered:** 2026-01-16
-**Type:** Bug
-**Severity:** High - Core feature broken
-
-**Problem:** The `{{variable [unit]}}` syntax for unit conversion in cross-references is being parsed as array indexing instead of unit hint.
-
-**Example:**
-```markdown
-$flow := 1000\ \text{L/h}$
-The flow is {{flow [m³/h]}}.  <!-- Should convert to m³/h -->
-```
-
-**Actual output:**
-```
-{{ERROR: Undefined variable: m}}
-{{ERROR: Array index must be dimensionless}}
-```
-
-**Impact:** Cross-references with unit conversion are completely broken.
-
----
-
-### ISS-050: Cross-Reference Variable Lookup Fails for Subscripts and Underscores
-
-**Discovered:** 2026-01-16
-**Type:** Bug
-**Severity:** High - Core feature broken
-
-**Problem:** Cross-references fail to find variables with:
-1. LaTeX subscripts: `{{η_sys}}` → "Empty expression" or "Undefined variable: sys"
-2. Escaped underscores: Variable defined as `unit\_cost` but cross-ref looks for `unit_cost`
-
-**Examples from output:**
-```
-{{η_sys}} → ERROR: Empty expression
-{{total_cost}} → ERROR: Undefined variable: total_cost
-{{design_flow}} → ERROR: Undefined variable: design_flow
-```
-
-**Impact:** Most real-world cross-references fail because engineering documents use subscripted variable names.
-
----
-
-### ISS-051: Cross-Reference Output Uses SI Base Units Instead of Original
-
-**Discovered:** 2026-01-16
-**Type:** Bug
-**Severity:** Medium - Poor UX
-
-**Problem:** Cross-references output values in verbose SI base units instead of the original/readable units.
-
-**Example:**
-```
-$P_{motor} := 5.5\ kW$
-{{P_motor}} → "5 500 kilogram * meter ** 2 / second ** 3"
-```
-
-**Expected:** `5.5 kW` or at least `5500 W`
-
-**Impact:** Makes cross-references unusable for readable documentation.
+None.
 
 ## Open Enhancements
 
@@ -147,6 +65,41 @@ $flow := 1000\ \text{L/h}$  <!-- Works -->
 3. Improve error messages to suggest the fix
 
 ## Closed Issues
+
+### ISS-048: Function Call Lookup Bug with Multiple Functions
+
+**Resolved:** 2026-01-16 - Fixed in v4.2 Phase 40
+**Solution:**
+- Fixed `_rewrite_with_internal_ids()` regex pattern
+- Added digit check to prevent replacing letters within internal IDs
+- Pattern changed from `(?![a-zA-Z])` to `(?![a-zA-Z0-9])`
+
+### ISS-049: Cross-Reference Unit Conversion Parsed as Array Index
+
+**Resolved:** 2026-01-16 - Fixed in v4.2 Phase 39
+**Solution:**
+- Extended `Reference` dataclass with `unit_hint: Optional[str]` field
+- Updated regex in `extract_references()` to capture `[unit]` syntax BEFORE expression parsing
+- Updated `evaluate_cross_references()` to apply unit conversion when `ref.unit_hint` is set
+- Updated `find_processed_references()` and `restore_references()` to preserve unit hints
+
+### ISS-050: Cross-Reference Variable Lookup Fails for Subscripts and Underscores
+
+**Resolved:** 2026-01-16 - Fixed in v4.2 Phase 39
+**Solution:**
+- Created `_normalize_variable_name()` helper that generates lookup variations
+- Prioritizes ASCII names (parseable by tokenizer) over LaTeX forms
+- Maps Unicode Greek to ASCII: `η_sys` → `eta_sys`
+- Handles underscore variations: `P_motor` → `P_{motor}`, `P\_motor`
+
+### ISS-051: Cross-Reference Output Uses SI Base Units Instead of Original
+
+**Resolved:** 2026-01-16 - Fixed in v4.2 Phase 39
+**Solution:**
+- Created `_format_unit_for_prose()` helper function
+- Maps verbose Pint unit strings to readable symbols (kilogram → kg, etc.)
+- Handles exponents (** 2 → ², ** 3 → ³)
+- Fixed attribute bug: `entry.display_unit` → `entry.original_unit`
 
 ### ISS-045: Update USAGE.md to Document Array Operations
 

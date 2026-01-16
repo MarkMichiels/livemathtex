@@ -186,3 +186,7 @@ With smart formatting enabled:
 | In tables | Same syntax | Area = {{area}} |
 
 **Key insight:** Cross-references create living documents where changing a calculation automatically updates every place that value is used!
+
+---
+
+> *livemathtex: 2026-01-16 02:11:13 | cleared 0 evaluations | no errors | <1s* <!-- livemathtex-meta -->

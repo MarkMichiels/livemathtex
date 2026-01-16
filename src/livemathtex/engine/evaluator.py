@@ -1496,8 +1496,10 @@ class Evaluator:
             # For multi-char: simpler matching is OK
             if len(latex_form) == 1 and latex_form.isalpha():
                 # Single letter: don't match if preceded by backslash or letter
-                # or followed by letter (to avoid \frac -> \frv0c)
-                pattern = rf'(?<!\\)(?<![a-zA-Z]){escaped}(?![a-zA-Z])'
+                # or followed by letter or digit (to avoid \frac -> \frv0c AND f1 -> f01)
+                # ISS-048: The digit check prevents replacing 'f' within already-rewritten
+                # internal IDs like 'f1' from earlier substitutions
+                pattern = rf'(?<!\\)(?<![a-zA-Z]){escaped}(?![a-zA-Z0-9])'
             else:
                 # Multi-char patterns like N_{MPC}: direct replacement is safe
                 pattern = escaped

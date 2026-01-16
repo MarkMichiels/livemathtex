@@ -106,10 +106,11 @@ class TestFindProcessedReferences:
         content = "Value is 550 kg<!-- {{C_{max}}} -->"
         results = find_processed_references(content)
         assert len(results) == 1
-        start, end, ref_content = results[0]
+        start, end, ref_content, unit_hint = results[0]
         assert ref_content == "C_{max}"
-        # Only matches "550 kg<!-- {{C_{max}}} -->" not "Value is "
-        assert start == 9
+        assert unit_hint is None
+        # Matches " 550 kg<!-- {{C_{max}}} -->" including leading space
+        assert start == 8
 
     def test_multiple_processed(self):
         content = "A is 100<!-- {{A}} --> and B is 200<!-- {{B}} -->"
