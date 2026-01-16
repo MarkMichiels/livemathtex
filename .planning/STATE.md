@@ -5,26 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-01-15)
 
 **Core value:** Processing must be idempotent - stable results on repeated runs
-**Current focus:** v4.1 Bug Fixes & Enhancements milestone
+**Current focus:** v4.2 Bug Fixes & LLM Integration milestone
 
 ## Current Position
 
-Phase: 38 of 38 (Documentation Update) - COMPLETE
-Plan: Complete
-Status: ✅ v4.1 milestone COMPLETE (All phases 32-38 done)
-Last activity: 2026-01-16 — Phase 38 (ISS-045) documentation update
-Branch: build-all-20260116-002609
+Phase: 39 of 41 (Cross-Reference Fixes)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-16 — Milestone v4.2 created
 
-Progress: ███████████ 100% (7 of 7 phases complete)
+Progress: ░░░░░░░░░░ 0% (0 of 3 phases complete)
 
-**v4.1 Phases:**
-- Phase 32: ✅ Dimensionless Unit Bug (ISS-043) - VERIFIED FIXED
-- Phase 33: ✅ µmol JSON Output Bug (ISS-030) - VERIFIED FIXED
-- Phase 34: ✅ Function Evaluation (ISS-047) - FIXED
-- Phase 35: ✅ \frac in Unit Expressions (ISS-044) - FIXED
-- Phase 36: ✅ Smart Number Formatting (ISS-046) - FIXED
-- Phase 37: ✅ Array Operations (ISS-041) - FIXED
-- Phase 38: ✅ Documentation Update (ISS-045) - COMPLETE
+**v4.2 Phases:**
+- Phase 39: ⏳ Cross-Reference Fixes (ISS-049, ISS-050, ISS-051) - Not started
+- Phase 40: ⏳ Function Lookup Fix (ISS-048) - Not started
+- Phase 41: ⏳ LLM Documentation & UX (ISS-052, ISS-053) - Not started
 
 ## Performance Metrics
 
@@ -69,6 +64,7 @@ Progress: ███████████ 100% (7 of 7 phases complete)
 | v3.0 | v3.0.0 | 2026-01-14 | — |
 | v3.1 | v3.1.0 | 2026-01-15 | .planning/milestones/v3.1-ROADMAP.md |
 | v4.0 | v4.0.0 | 2026-01-15 | — |
+| v4.1 | — | 2026-01-16 | — |
 
 ## Accumulated Context
 
@@ -119,19 +115,19 @@ None.
   - Phase 29 complete: Cross-References (ISS-040)
   - Phase 30 complete: Number Formatting (ISS-039)
   - Phase 31 complete: Unit Display (ISS-042)
-  - Phase 32 deferred: Array Operations (ISS-041) → v4.1
+- **Milestone v4.1 COMPLETE: Bug Fixes & Enhancements, 7 phases (32-38)**
+  - Phases 32-33: Verified ISS-043, ISS-030 already fixed
+  - Phase 34: Function Evaluation (ISS-047)
+  - Phase 35-36: Features (ISS-044, ISS-046)
+  - Phase 37-38: Array Operations + Documentation (ISS-041, ISS-045)
+- **Milestone v4.2 CREATED: Bug Fixes & LLM Integration, 3 phases (39-41)**
+  - Phase 39: Cross-Reference Fixes (ISS-049, ISS-050, ISS-051)
+  - Phase 40: Function Lookup Fix (ISS-048)
+  - Phase 41: LLM Documentation & UX (ISS-052, ISS-053)
 
 ## Session Continuity
 
 Last session: 2026-01-16
-Stopped at: v4.1 milestone COMPLETE
+Stopped at: Milestone v4.2 initialization
 Resume file: None
-Next: Merge to master and release
-
-**v4.1 Milestone Summary:**
-- 🐛 2 bugs verified (ISS-043, ISS-030 - already fixed by v3.0)
-- 🐛 1 bug fixed (ISS-047 - Function Evaluation)
-- ✨ 3 features implemented (ISS-044, ISS-046, ISS-041)
-- 📚 1 documentation update (ISS-045 - Array Operations in USAGE.md)
-
-**All phases complete - ready for merge and release**
+Next: Plan Phase 39 (Cross-Reference Fixes)

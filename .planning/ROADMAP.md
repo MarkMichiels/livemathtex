@@ -24,7 +24,8 @@ None (regex patterns, Python, Pint library)
 - ✅ **v3.0 Pure Pint Architecture** - Phases 23-27 (complete 2026-01-14)
 - ✅ **v3.1 Complete SymPy Removal** - Phase 28 (shipped 2026-01-15)
 - ✅ **v4.0 Features** - Phases 29-31 (shipped 2026-01-15)
-- 📋 **v4.1 Bug Fixes & Enhancements** - Phases 32-38 (7 phases planned)
+- ✅ **v4.1 Bug Fixes & Enhancements** - Phases 32-38 (shipped 2026-01-16)
+- 🚧 **v4.2 Bug Fixes & LLM Integration** - Phases 39-41 (in progress)
 
 ## Phases
 
@@ -462,20 +463,20 @@ See: [v3.1 Archive](milestones/v3.1-ROADMAP.md)
 
 </details>
 
-### 📋 v4.1 Bug Fixes & Enhancements (In Progress)
+<details>
+<summary>✅ v4.1 Bug Fixes & Enhancements (Phases 32-38) - SHIPPED 2026-01-16</summary>
 
 **Milestone Goal:** Fix critical bugs discovered in production use and add remaining features.
 
-**Issues Addressed:** ISS-047, ISS-044, ISS-046, ISS-041, ISS-045
+**Issues Resolved:** ISS-043, ISS-030, ISS-047, ISS-044, ISS-046, ISS-041, ISS-045
 
-**Issues Already Fixed (verified 2026-01-16):** ISS-043, ISS-030 (fixed as side effect of v3.0 refactor)
-
-**Priority Order:**
-1. 🐛 Bugs (critical fixes)
-2. ✨ Features (user value)
-3. 📚 Documentation (cleanup)
-
----
+**Summary:**
+- Phase 32-33: Verified ISS-043, ISS-030 already fixed by v3.0 refactor
+- Phase 34: Function Evaluation (ISS-047)
+- Phase 35: \frac in Unit Expressions (ISS-044)
+- Phase 36: Smart Number Formatting (ISS-046)
+- Phase 37: Array Operations (ISS-041)
+- Phase 38: Documentation Update (ISS-045)
 
 ## 🐛 Bugs (Phases 32-34)
 
@@ -558,53 +559,122 @@ Plans:
 - [x] 36-01: Design smart formatting rules
 - [x] 36-02: Implement smart_format option
 
-#### Phase 37: Array Operations (ISS-041)
+#### Phase 37: Array Operations (ISS-041) ✅ COMPLETE
 **Goal**: Add array/vector support for repetitive calculations
 **Depends on**: Phase 36
-**Status**: Planned
-**Research**: Required (syntax design, storage format)
-**Plans**: 4
+**Status**: ✅ Complete (2026-01-16)
+**Research**: N/A
 
-**Real-world impact:** High - Documents with 40+ repetitive calculations reduced to ~8 array definitions.
+**Solution:** Full array operations support:
+- Array literal syntax: `$values := [1, 2, 3, 4, 5]$`
+- Arrays with units: `$rate := [15, 30.5, 34]\ \text{mg/L/d}$`
+- Element access: `$first := values[0] == 1$`
+- Vectorized operations: `$mass := V_L \cdot rate == [567.36, 1\,153.632, 1\,286.016]\ \text{g/d}$`
+- Scalar-array broadcasting: `$doubled := values * 2 == [2, 4, 6, 8, 10]$`
+- Array-array element-wise: `$sum_arr := [10, 20] + [5, 3] == [15, 23]$`
 
-**Example transformation:**
-```latex
-# Current (40+ lines):
-$gamma_{26} := 15\ mg/L/d$
-$gamma_{27} := 30.5\ mg/L/d$
-...
-
-# With arrays (8 lines):
-$gamma := [15, 30.5, 34, 38, 44]\ mg/L/d$
-$m := V_L \cdot gamma$
-```
-
-**Key deliverables:**
-- Array definition syntax: `$gamma := [15, 30.5, 34]\ mg/L/d$`
-- Element access: `$gamma[0]$` or named index `$gamma[2026]$`
-- Vectorized operations: `$m := V_L \cdot gamma$` (element-wise)
+**Test file:** `tests/test_arrays.md`
 
 Plans:
-- [ ] 37-01: Research syntax and storage format
-- [ ] 37-02: Parser extension for array literals
-- [ ] 37-03: Evaluator extension for element access
-- [ ] 37-04: Vectorized operations
+- [x] 37-01: Parser extension for array literals
+- [x] 37-02: Evaluator extension for element access
+- [x] 37-03: Vectorized operations
 
 ---
 
 ## 📚 Documentation (Phase 38)
 
-#### Phase 38: Documentation Update (ISS-045)
-**Goal**: Update USAGE.md with repetitive calculations guidance
+#### Phase 38: Documentation Update (ISS-045) ✅ COMPLETE
+**Goal**: Update USAGE.md with array operations documentation
 **Depends on**: Phase 37
-**Status**: Planned
+**Status**: ✅ Complete (2026-01-16)
 **Research**: None
-**Plans**: 1
 
-**Content to add:**
-- Reference to array operations (once implemented)
-- Workarounds for current limitations
-- Best practices for organizing repetitive calculations
+**Solution:** Added comprehensive "Array Operations" section to USAGE.md:
+- Array definition syntax with units
+- Element access (zero-based indexing)
+- Vectorized operations (scalar-array, array-array broadcasting)
+- Unit conversion with arrays
+- Output formatting rules
+- Best practices and example production analysis
+- Updated Quick Reference table with array operators
 
 Plans:
-- [ ] 38-01: Update USAGE.md with array operations and best practices
+- [x] 38-01: Update USAGE.md with array operations and best practices
+
+</details>
+
+---
+
+### 🚧 v4.2 Bug Fixes & LLM Integration (In Progress)
+
+**Milestone Goal:** Fix bugs discovered during v4.1 examples testing and improve LLM documentation for better AI-assisted document generation.
+
+**Issues to Resolve:**
+- ISS-048: Function lookup bug with multiple functions (High)
+- ISS-049: Cross-reference unit conversion parsed as array index (High)
+- ISS-050: Cross-reference variable lookup fails for subscripts (High)
+- ISS-051: Cross-reference output uses SI base units (Medium)
+- ISS-052: Unit syntax intuitiveness (Enhancement)
+- ISS-053: LLM-aware documentation and Cursor integration (High)
+
+---
+
+## 🐛 Bugs (Phases 39-40)
+
+#### Phase 39: Cross-Reference Fixes (ISS-049, ISS-050, ISS-051)
+**Goal**: Fix all cross-reference bugs discovered during examples testing
+**Depends on**: v4.1 complete
+**Status**: Not started
+**Research**: Unlikely (bugs with clear symptoms)
+**Plans**: TBD
+
+**Bugs to fix:**
+1. ISS-049: `{{var [unit]}}` syntax parsed as array index instead of unit hint
+2. ISS-050: Variables with subscripts (`η_sys`) and underscores not found
+3. ISS-051: Output uses verbose SI base units (`meter ** 2` instead of `m²`)
+
+Plans:
+- [ ] 39-01: TBD (run /gsd:plan-phase 39 to break down)
+
+#### Phase 40: Function Lookup Fix (ISS-048)
+**Goal**: Fix function lookup when multiple functions are defined
+**Depends on**: Phase 39
+**Status**: Not started
+**Research**: Unlikely (bug with clear root cause)
+**Plans**: TBD
+
+**Bug:** When multiple functions are defined (f0, f1), lookup concatenates indices incorrectly (f01 instead of f1).
+
+Plans:
+- [ ] 40-01: TBD (run /gsd:plan-phase 40 to break down)
+
+---
+
+## 📚 Documentation (Phase 41)
+
+#### Phase 41: LLM Documentation & UX (ISS-052, ISS-053)
+**Goal**: Create Cursor rules, commands, and USAGE.md section for LLM-friendly document generation
+**Depends on**: Phase 40
+**Status**: Not started
+**Research**: Unlikely (documentation)
+**Plans**: TBD
+
+**Deliverables:**
+1. Cursor Rules (.mdc): Syntax cheatsheet, naming conventions, best practices
+2. Cursor Command: Updated /livemathtex with features, examples, pitfalls
+3. USAGE.md: "For AI Assistants" section with machine-readable rules
+4. Examples reference: Point LLMs to examples/ directory
+
+Plans:
+- [ ] 41-01: TBD (run /gsd:plan-phase 41 to break down)
+
+---
+
+## Progress
+
+| Phase | Milestone | Plans | Status | Completed |
+|-------|-----------|-------|--------|-----------|
+| 39. Cross-Reference Fixes | v4.2 | 0/? | Not started | - |
+| 40. Function Lookup Fix | v4.2 | 0/? | Not started | - |
+| 41. LLM Documentation & UX | v4.2 | 0/? | Not started | - |
