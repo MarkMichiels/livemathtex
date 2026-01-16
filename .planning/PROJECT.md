@@ -40,6 +40,7 @@ Processing must be idempotent - running process on an already-processed file sho
 - ISS-050: Cross-reference variable lookup fails for subscripts (High)
 - ISS-051: Cross-reference output uses SI base units (Medium)
 - ISS-052: Unit syntax intuitiveness (Enhancement)
+- ISS-053: LLM-aware documentation and Cursor integration (High)
 
 ### Out of Scope
 
@@ -75,4 +76,4 @@ Processing must be idempotent - running process on an already-processed file sho
 | Custom LaTeX parser | Direct Pint evaluation, no SymPy dependency | ✓ Shipped v3.0/v3.1 |
 
 ---
-*Last updated: 2026-01-16 — 5 open issues discovered during v4.1 examples*
+*Last updated: 2026-01-16 — 6 open issues (4 bugs, 2 enhancements)*

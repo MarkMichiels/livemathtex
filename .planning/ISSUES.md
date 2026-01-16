@@ -90,6 +90,43 @@ $P_{motor} := 5.5\ kW$
 
 ## Open Enhancements
 
+### ISS-053: LLM-Aware Documentation and Cursor Integration
+
+**Discovered:** 2026-01-16
+**Type:** Enhancement
+**Severity:** High - Critical for LLM-driven workflows
+
+**Problem:** LLMs (Claude, GPT, etc.) don't know how to correctly format documents for LiveMathTeX. This results in:
+1. Wrong syntax (e.g., `L/h` instead of `\text{L/h}`)
+2. Variable names that conflict with Pint units (`a`, `m`, `h`, `g`, etc.)
+3. Inconsistent use of operators (`:=` vs `==` vs `=>`)
+4. No use of features like unit hints, cross-references, arrays
+5. Poor structuring of calculations
+
+**Solution approach:**
+
+1. **Cursor Rules (.mdc)** - Create `livemathtex.mdc` with:
+   - Syntax cheatsheet (which operator when)
+   - Variable naming conventions (avoid unit names)
+   - Unit syntax rules (`\text{}` when needed)
+   - Best practices for document structure
+
+2. **Cursor Commands** - Update `/livemathtex` command with:
+   - Explanation of all features (arrays, functions, cross-refs)
+   - Examples of correct usage
+   - Common pitfalls and how to avoid them
+
+3. **USAGE.md LLM section** - Add:
+   - "For AI Assistants" section with machine-readable syntax rules
+   - Explicit do's and don'ts
+   - Template for new documents
+
+4. **Examples as reference** - Point LLMs to `examples/` directory
+
+**Goal:** An LLM generating LiveMathTeX documents produces working output without manual corrections.
+
+---
+
 ### ISS-052: Improve Unit Syntax Intuitiveness
 
 **Discovered:** 2026-01-16
@@ -348,4 +385,4 @@ Added 5 tests in `TestCustomUnitWithDivision` class.
 **Solution:** Added dimensional compatibility checking. Pre-checks dimensions before addition/subtraction operations. Incompatible unit operations now produce clear error messages.
 
 ---
-*Last reviewed: 2026-01-16 (5 new issues from v4.1 examples testing)*
+*Last reviewed: 2026-01-16 (6 issues: 4 bugs, 2 enhancements)*
