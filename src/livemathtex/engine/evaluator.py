@@ -599,49 +599,76 @@ class Evaluator:
             # Compute the expression using Pint
             pint_result = self._compute_with_pint(rhs_raw)
 
-            # Extract magnitude and unit from Pint result
-            original_value = float(pint_result.magnitude)
-            result_unit_str = format_pint_unit(pint_result.units)
-            result_unit_latex = result_unit_str if result_unit_str != 'dimensionless' else ""
+            # Handle array results separately
+            if isinstance(pint_result, list):
+                # Array assignment: store the list directly
+                normalized_target = self._normalize_symbol_name(target)
 
-            # Convert to SI base units
-            base_result = pint_result.to_base_units()
-            si_value = float(base_result.magnitude)
-            si_unit_str = format_pint_unit(base_result.units)
-            # Store unit as string
-            si_unit = si_unit_str if si_unit_str != 'dimensionless' else None
-            valid = True  # Pint handles all conversions
+                # Extract common unit from first element (if any)
+                import pint
+                if pint_result and isinstance(pint_result[0], pint.Quantity):
+                    first_unit = pint_result[0].units
+                    unit_str = format_pint_unit(first_unit)
+                    si_unit = unit_str if unit_str != 'dimensionless' else None
+                else:
+                    si_unit = None
 
-            # v3.0: Classify and track dependencies
-            is_value = self._is_value_definition(rhs_raw)
-            is_formula_flag = not is_value
-            dependencies = []
-            formula_expression = ""
-            if is_formula_flag:
-                dependencies = self._find_dependencies(rhs_raw)
-                formula_expression = self._convert_expression_to_clean_ids(rhs_raw)
+                self.symbols.set(
+                    normalized_target,
+                    value=pint_result,  # Store the list directly
+                    unit=si_unit,
+                    raw_latex=rhs_raw,
+                    latex_name=original_target,
+                    valid=True,
+                    line=getattr(self, '_current_line', 0),
+                )
 
-            # Store with normalized name, including both original and SI values
-            normalized_target = self._normalize_symbol_name(target)
-            self.symbols.set(
-                normalized_target,
-                value=si_value,
-                unit=si_unit,
-                raw_latex=rhs_raw,
-                latex_name=original_target,
-                original_value=original_value,
-                original_unit=result_unit_latex or None,
-                valid=valid,
-                line=getattr(self, '_current_line', 0),
-                # v3.0 formula tracking (only populated in clean ID mode)
-                is_formula=is_formula_flag,
-                formula_expression=formula_expression,
-                depends_on=dependencies,
-            )
+                assignment_latex = f"{original_target} := {rhs_raw}"
+            else:
+                # Scalar assignment (existing logic)
+                # Extract magnitude and unit from Pint result
+                original_value = float(pint_result.magnitude)
+                result_unit_str = format_pint_unit(pint_result.units)
+                result_unit_latex = result_unit_str if result_unit_str != 'dimensionless' else ""
 
-            # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
-            # User explicitly requested: "Als het een definitie is, moet je gewoon laten staan"
-            assignment_latex = f"{original_target} := {rhs_raw}"
+                # Convert to SI base units
+                base_result = pint_result.to_base_units()
+                si_value = float(base_result.magnitude)
+                si_unit_str = format_pint_unit(base_result.units)
+                # Store unit as string
+                si_unit = si_unit_str if si_unit_str != 'dimensionless' else None
+                valid = True  # Pint handles all conversions
+
+                # v3.0: Classify and track dependencies
+                is_value = self._is_value_definition(rhs_raw)
+                is_formula_flag = not is_value
+                dependencies = []
+                formula_expression = ""
+                if is_formula_flag:
+                    dependencies = self._find_dependencies(rhs_raw)
+                    formula_expression = self._convert_expression_to_clean_ids(rhs_raw)
+
+                # Store with normalized name, including both original and SI values
+                normalized_target = self._normalize_symbol_name(target)
+                self.symbols.set(
+                    normalized_target,
+                    value=si_value,
+                    unit=si_unit,
+                    raw_latex=rhs_raw,
+                    latex_name=original_target,
+                    original_value=original_value,
+                    original_unit=result_unit_latex or None,
+                    valid=valid,
+                    line=getattr(self, '_current_line', 0),
+                    # v3.0 formula tracking (only populated in clean ID mode)
+                    is_formula=is_formula_flag,
+                    formula_expression=formula_expression,
+                    depends_on=dependencies,
+                )
+
+                # IMPORTANT: Keep original RHS - don't normalize/re-evaluate definitions
+                # User explicitly requested: "Als het een definitie is, moet je gewoon laten staan"
+                assignment_latex = f"{original_target} := {rhs_raw}"
 
         else:
             return content
@@ -662,12 +689,12 @@ class Evaluator:
         # The original LaTeX is preserved as-is
         return f"{lhs} == {result_latex}"
 
-    def _format_pint_result(self, pint_result: 'pint.Quantity', unit_hint: Optional[str], config: LivemathConfig) -> str:
+    def _format_pint_result(self, pint_result, unit_hint: Optional[str], config: LivemathConfig) -> str:
         """
-        Format a Pint Quantity result to LaTeX.
+        Format a Pint Quantity or array result to LaTeX.
 
         Args:
-            pint_result: The Pint Quantity to format
+            pint_result: The Pint Quantity (or list of Quantities) to format
             unit_hint: Optional unit hint from comment (e.g., "MWh")
             config: Configuration for formatting
 
@@ -678,6 +705,10 @@ class Evaluator:
         from .pint_backend import clean_latex_unit
 
         ureg = get_pint_registry()
+
+        # Handle array results
+        if isinstance(pint_result, list):
+            return self._format_array_latex(pint_result, unit_hint, config)
 
         # Apply unit conversion if specified
         if unit_hint:
@@ -695,6 +726,71 @@ class Evaluator:
                 pass  # Keep original units if conversion fails silently
 
         return self._format_pint_quantity_latex(pint_result, config)
+
+    def _format_array_latex(self, array: list, unit_hint: Optional[str], config: LivemathConfig) -> str:
+        """
+        Format an array of Pint Quantities as LaTeX.
+
+        Args:
+            array: List of Pint Quantities
+            unit_hint: Optional unit hint from comment (e.g., "g/d")
+            config: Configuration for formatting
+
+        Returns:
+            LaTeX string like "[15, 30.5, 34]\\ \\text{mg/L/d}"
+        """
+        import pint
+        from .pint_backend import clean_latex_unit
+
+        if not array:
+            return "[]"
+
+        # Apply unit conversion if specified
+        converted_array = array
+        if unit_hint:
+            target_unit = clean_latex_unit(unit_hint)
+            target_unit = target_unit.replace('€', 'EUR').replace('$', 'USD')
+            try:
+                converted_array = [elem.to(target_unit) for elem in array]
+            except Exception:
+                pass  # Keep original units if conversion fails
+
+        # Format each element's magnitude
+        formatted_elements = []
+        for elem in converted_array:
+            if isinstance(elem, pint.Quantity):
+                # Format just the magnitude using config settings
+                if config and config.smart_format:
+                    formatted_val = self._format_numeric(elem.magnitude, config=config)
+                    formatted_val = formatted_val.replace('\u2009', '\\,')
+                else:
+                    digits = config.digits if config else 4
+                    magnitude = elem.magnitude
+                    if abs(magnitude) >= 1000:
+                        formatted_val = f"{magnitude:,.{digits}f}"
+                        formatted_val = formatted_val.replace(',', '\\,')
+                    else:
+                        formatted_val = f"{magnitude:.{digits}f}"
+                    if '.' in formatted_val:
+                        formatted_val = formatted_val.rstrip('0').rstrip('.')
+                formatted_elements.append(formatted_val)
+            else:
+                formatted_elements.append(str(elem))
+
+        # Build array string
+        array_str = "[" + ", ".join(formatted_elements) + "]"
+
+        # Add common unit if all elements have the same unit
+        if converted_array and isinstance(converted_array[0], pint.Quantity):
+            first_unit = converted_array[0].units
+            unit_str = str(first_unit)
+            if unit_str != 'dimensionless':
+                # ISS-042: Pass unit_format from config
+                unit_fmt = config.unit_format.value if config and config.unit_format else None
+                unit_latex = format_unit_latex(first_unit, unit_format=unit_fmt)
+                array_str = f"{array_str}\\ \\text{{{unit_latex}}}"
+
+        return array_str
 
     def _format_pint_quantity_latex(self, qty: 'pint.Quantity', config: LivemathConfig) -> str:
         """
@@ -819,35 +915,57 @@ class Evaluator:
         rhs = rhs_part.strip()
 
         from .pint_backend import format_pint_unit
+        import pint
 
         # Use Pint for all calculations
         pint_result = self._compute_with_pint(rhs)
 
-        # Extract magnitude and unit from Pint result
-        original_value = float(pint_result.magnitude)
-        original_unit_str = format_pint_unit(pint_result.units)
-        original_unit = original_unit_str if original_unit_str != 'dimensionless' else None
-
-        # Convert to SI base units
-        base_result = pint_result.to_base_units()
-        si_value = float(base_result.magnitude)
-        si_unit_str = format_pint_unit(base_result.units)
-        si_unit = si_unit_str if si_unit_str != 'dimensionless' else None
-
         # Store with normalized name (e.g., \Delta T_h -> Delta_T_h)
         normalized_lhs = self._normalize_symbol_name(lhs)
 
-        self.symbols.set(
-            normalized_lhs,
-            value=si_value,
-            unit=si_unit,
-            raw_latex=rhs,
-            latex_name=lhs,
-            original_value=original_value,
-            original_unit=original_unit,
-            valid=True,
-            line=getattr(self, '_current_line', 0)
-        )
+        # Handle array results separately
+        if isinstance(pint_result, list):
+            # Array assignment: store the list directly
+            if pint_result and isinstance(pint_result[0], pint.Quantity):
+                first_unit = pint_result[0].units
+                unit_str = format_pint_unit(first_unit)
+                si_unit = unit_str if unit_str != 'dimensionless' else None
+            else:
+                si_unit = None
+
+            self.symbols.set(
+                normalized_lhs,
+                value=pint_result,  # Store the list directly
+                unit=si_unit,
+                raw_latex=rhs,
+                latex_name=lhs,
+                valid=True,
+                line=getattr(self, '_current_line', 0),
+            )
+        else:
+            # Scalar assignment (existing logic)
+            # Extract magnitude and unit from Pint result
+            original_value = float(pint_result.magnitude)
+            original_unit_str = format_pint_unit(pint_result.units)
+            original_unit = original_unit_str if original_unit_str != 'dimensionless' else None
+
+            # Convert to SI base units
+            base_result = pint_result.to_base_units()
+            si_value = float(base_result.magnitude)
+            si_unit_str = format_pint_unit(base_result.units)
+            si_unit = si_unit_str if si_unit_str != 'dimensionless' else None
+
+            self.symbols.set(
+                normalized_lhs,
+                value=si_value,
+                unit=si_unit,
+                raw_latex=rhs,
+                latex_name=lhs,
+                original_value=original_value,
+                original_unit=original_unit,
+                valid=True,
+                line=getattr(self, '_current_line', 0)
+            )
 
         # Format result using Pint
         result_latex = self._format_pint_result(pint_result, calc.unit_comment, cfg)
@@ -1446,16 +1564,28 @@ class Evaluator:
                         symbol_map[entry.latex_name] = func_info
                     symbol_map[name] = func_info
                 else:
-                    # Regular variable - convert to Pint Quantity
-                    pint_qty = self._symbol_to_pint_quantity(entry, ureg)
-                    if pint_qty is not None:
+                    # Check if this is an array value
+                    if hasattr(entry, 'value') and isinstance(entry.value, list):
+                        # Array - store directly (already a list of Pint Quantities)
+                        array_value = entry.value
                         # Store under internal_id for parser lookup (v0, v1, etc.)
                         if hasattr(entry, 'internal_id') and entry.internal_id:
-                            symbol_map[entry.internal_id] = pint_qty
+                            symbol_map[entry.internal_id] = array_value
                         # Also store under latex_name and original name for fallback
                         if hasattr(entry, 'latex_name') and entry.latex_name:
-                            symbol_map[entry.latex_name] = pint_qty
-                        symbol_map[name] = pint_qty
+                            symbol_map[entry.latex_name] = array_value
+                        symbol_map[name] = array_value
+                    else:
+                        # Regular variable - convert to Pint Quantity
+                        pint_qty = self._symbol_to_pint_quantity(entry, ureg)
+                        if pint_qty is not None:
+                            # Store under internal_id for parser lookup (v0, v1, etc.)
+                            if hasattr(entry, 'internal_id') and entry.internal_id:
+                                symbol_map[entry.internal_id] = pint_qty
+                            # Also store under latex_name and original name for fallback
+                            if hasattr(entry, 'latex_name') and entry.latex_name:
+                                symbol_map[entry.latex_name] = pint_qty
+                            symbol_map[name] = pint_qty
 
         # Tokenize the rewritten expression
         tokenizer = ExpressionTokenizer(modified_latex)

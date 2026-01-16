@@ -106,6 +106,21 @@ class FunctionCallNode(ExprNode):
     args: List[ExprNode]  # Arguments
 
 
+@dataclass
+class ArrayNode(ExprNode):
+    """Array literal node ([1, 2, 3])."""
+
+    elements: List[ExprNode]
+
+
+@dataclass
+class IndexNode(ExprNode):
+    """Array index access node (arr[0], arr[i+1])."""
+
+    array: ExprNode
+    index: ExprNode
+
+
 # =============================================================================
 # Expression Parser
 # =============================================================================
@@ -250,8 +265,9 @@ class ExpressionParser:
                 node = FunctionCallNode(var_name, args)
                 return self._maybe_attach_unit(node)
 
-            # Just a variable
+            # Just a variable - check for index access
             node = VariableNode(var_name)
+            node = self._maybe_index_access(node)
             return self._maybe_attach_unit(node)
 
         # Standalone unit (rare but possible)
@@ -292,6 +308,10 @@ class ExpressionParser:
                 )
             self._advance()  # consume '}'
             return self._maybe_attach_unit(expr)
+
+        # Array literal: [expr, expr, ...]
+        if self._check(TokenType.LBRACKET):
+            return self._parse_array_literal()
 
         # Unexpected token
         if self._check(TokenType.EOF):
@@ -397,6 +417,43 @@ class ExpressionParser:
 
         node = FuncNode(func_name, operand)
         return self._maybe_attach_unit(node)
+
+    def _parse_array_literal(self) -> ExprNode:
+        """Parse array literal: [expr, expr, ...]."""
+        self._advance()  # consume '['
+
+        elements = []
+        if not self._check(TokenType.RBRACKET):
+            elements.append(self._expression())
+            while self._match_operator(","):
+                elements.append(self._expression())
+
+        if not self._check(TokenType.RBRACKET):
+            raise ParseError(
+                f"Expected ']' after array elements at position {self._current().start}"
+            )
+        self._advance()  # consume ']'
+
+        node = ArrayNode(elements)
+        # Check for index access on array literal: [1,2,3][0]
+        node = self._maybe_index_access(node)
+        return self._maybe_attach_unit(node)
+
+    def _maybe_index_access(self, node: ExprNode) -> ExprNode:
+        """Check for and parse index access: node[expr].
+
+        Supports chained indexing: arr[0][1].
+        """
+        while self._check(TokenType.LBRACKET):
+            self._advance()  # consume '['
+            index = self._expression()
+            if not self._check(TokenType.RBRACKET):
+                raise ParseError(
+                    f"Expected ']' after index at position {self._current().start}"
+                )
+            self._advance()  # consume ']'
+            node = IndexNode(node, index)
+        return node
 
     def _maybe_attach_unit(self, node: ExprNode) -> ExprNode:
         r"""Check if next token is a unit and attach it to the expression.

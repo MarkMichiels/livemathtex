@@ -1,0 +1,128 @@
+{
+  "version": "3.0",
+  "source": "tests/test_arrays.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {
+    "v0": {
+      "latex_name": "values",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v1": {
+      "latex_name": "rate",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v2": {
+      "latex_name": "first_value",
+      "original": {
+        "value": 1.0,
+        "unit": null
+      },
+      "base": {
+        "value": 1.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v3": {
+      "latex_name": "rate_1",
+      "original": {
+        "value": 30.5,
+        "unit": "milligram / day / liter"
+      },
+      "base": {
+        "value": 3.530092592592592e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v4": {
+      "latex_name": "V_L",
+      "original": {
+        "value": 37824.0,
+        "unit": "liter"
+      },
+      "base": {
+        "value": 37.82400000000001,
+        "unit": "meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v5": {
+      "latex_name": "mass",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v6": {
+      "latex_name": "doubled",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v7": {
+      "latex_name": "sum_arr",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-16 00:59:02",
+    "duration": "0.07s",
+    "symbols": 8,
+    "custom_units": 0,
+    "definitions": 8,
+    "evaluations": 5,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0,
+    "warnings": 0
+  }
+}

@@ -28,6 +28,8 @@ class TokenType(Enum):
     RPAREN = "rparen"  # ), \right)
     LBRACE = "lbrace"  # {
     RBRACE = "rbrace"  # }
+    LBRACKET = "lbracket"  # [ (for arrays)
+    RBRACKET = "rbracket"  # ] (for arrays)
     EOF = "eof"  # End of input
 
 
@@ -150,6 +152,9 @@ class ExpressionTokenizer:
         # Braces
         (re.compile(r"\{"), TokenType.LBRACE, False),
         (re.compile(r"\}"), TokenType.RBRACE, False),
+        # Square brackets (for arrays: [1, 2, 3] and index access: arr[0])
+        (re.compile(r"\["), TokenType.LBRACKET, False),
+        (re.compile(r"\]"), TokenType.RBRACKET, False),
         # Plain multi-letter variables: productivity, volume, rate
         # Must come AFTER unit patterns to avoid matching "kg" as variable
         # But BEFORE single-letter fallback

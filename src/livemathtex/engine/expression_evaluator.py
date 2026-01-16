@@ -26,6 +26,8 @@ from livemathtex.parser.expression_parser import (
     SqrtNode,
     FuncNode,
     FunctionCallNode,
+    ArrayNode,
+    IndexNode,
 )
 from livemathtex.engine.pint_backend import get_unit_registry
 
@@ -123,6 +125,19 @@ def _eval_node(
             # Normalize currency symbols to Pint-compatible names
             unit_str = node.unit.replace("€", "EUR").replace("$", "USD")
             unit = ureg(unit_str)
+
+            # Handle array with unit: apply unit to all elements
+            if isinstance(expr_value, list):
+                result = []
+                for elem in expr_value:
+                    if isinstance(elem, pint.Quantity) and elem.dimensionless:
+                        result.append(elem.magnitude * unit)
+                    elif isinstance(elem, pint.Quantity):
+                        result.append(elem * unit)
+                    else:
+                        result.append(elem * unit)
+                return result
+
             # If expression already has units, multiply; if dimensionless, convert
             if expr_value.dimensionless:
                 return expr_value.magnitude * unit
@@ -144,6 +159,33 @@ def _eval_node(
     # FunctionCallNode: user-defined function call
     if isinstance(node, FunctionCallNode):
         return _eval_function_call(node, symbols, ureg)
+
+    # ArrayNode: create list of evaluated values
+    if isinstance(node, ArrayNode):
+        return [_eval_node(elem, symbols, ureg) for elem in node.elements]
+
+    # IndexNode: access array element
+    if isinstance(node, IndexNode):
+        array_val = _eval_node(node.array, symbols, ureg)
+        index_val = _eval_node(node.index, symbols, ureg)
+
+        # Index must be an integer
+        if isinstance(index_val, pint.Quantity):
+            if not index_val.dimensionless:
+                raise EvaluationError("Array index must be dimensionless")
+            idx = int(index_val.magnitude)
+        else:
+            idx = int(index_val)
+
+        if not isinstance(array_val, list):
+            raise EvaluationError(f"Cannot index non-array value: {type(array_val)}")
+
+        if idx < 0 or idx >= len(array_val):
+            raise EvaluationError(
+                f"Array index {idx} out of bounds (0-{len(array_val)-1})"
+            )
+
+        return array_val[idx]
 
     raise EvaluationError(f"Unknown node type: {type(node).__name__}")
 
@@ -206,26 +248,47 @@ def _lookup_variable(
 
 def _apply_binary_op(
     op: str,
-    left: pint.Quantity,
-    right: pint.Quantity,
+    left,
+    right,
     ureg: pint.UnitRegistry,
-) -> pint.Quantity:
+):
     """
-    Apply a binary operator to two Pint Quantities.
+    Apply a binary operator to two operands (Pint Quantities or arrays).
 
     Args:
         op: Operator string ("+", "-", "*", "/", "^")
-        left: Left operand
-        right: Right operand
+        left: Left operand (Quantity or list of Quantities)
+        right: Right operand (Quantity or list of Quantities)
         ureg: Pint UnitRegistry
 
     Returns:
-        Result as Pint Quantity
+        Result as Pint Quantity or list of Quantities
 
     Raises:
         EvaluationError: If operator is unknown or invalid
         pint.DimensionalityError: If dimensions are incompatible
     """
+    # Handle array operations (broadcasting)
+    left_is_array = isinstance(left, list)
+    right_is_array = isinstance(right, list)
+
+    if left_is_array and right_is_array:
+        # Element-wise operation
+        if len(left) != len(right):
+            raise EvaluationError(
+                f"Array size mismatch: {len(left)} vs {len(right)}"
+            )
+        return [_apply_binary_op(op, l, r, ureg) for l, r in zip(left, right)]
+
+    if left_is_array:
+        # Broadcast right to each element of left
+        return [_apply_binary_op(op, l, right, ureg) for l in left]
+
+    if right_is_array:
+        # Broadcast left to each element of right
+        return [_apply_binary_op(op, left, r, ureg) for r in right]
+
+    # Scalar operations
     if op == "+":
         return left + right
 

@@ -8,29 +8,43 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-### ISS-045: Update USAGE.md to Document Repetitive Calculations and Array Operations
+### ISS-045: Update USAGE.md to Document Array Operations
 
 - **Discovered:** 2026-01-15 (during document improvement workflow on astaxanthin_production_analysis.md)
 - **Type:** Documentation
-- **Description:** USAGE.md mentions "Matrices & Vectors" but doesn't document:
-  1. Array/vector operations for repetitive calculations (ISS-041 feature request)
-  2. Workarounds for repetitive calculations until arrays are implemented
-  3. Best practices for organizing repetitive calculations
-- **Expected:** USAGE.md includes section on repetitive calculations with:
-  - Reference to ISS-041 (array operations feature request)
-  - Workarounds for current limitations
+- **Description:** USAGE.md needs to document array operations (ISS-041 now implemented):
+  1. Array definition syntax
+  2. Element access
+  3. Vectorized operations
+  4. Best practices for organizing repetitive calculations
+- **Expected:** USAGE.md includes section on array operations with:
+  - Array definition syntax
+  - Element access examples
+  - Vectorized operations with units
   - Best practices and examples
-- **Actual:** USAGE.md only shows basic matrix/vector syntax, no guidance on repetitive calculations
-- **Root cause:** Documentation gap - feature request (ISS-041) exists but not documented in user guide.
-- **Impact:** Medium - Documentation gap makes it unclear how to handle repetitive calculations. Users resort to verbose manual definitions.
-- **Test file:** `tests/test_iss_045_update_usage_doc.md`
+- **Actual:** USAGE.md only shows basic matrix/vector syntax, array operations not documented
+- **Root cause:** Documentation gap - ISS-041 implemented but not documented in user guide.
+- **Impact:** Medium - Documentation gap makes it unclear how to use array operations
 - **Action Items:**
-  1. Add section "Repetitive Calculations" to USAGE.md
-  2. Document ISS-041 as planned feature
-  3. Show workarounds for current limitations
-  4. Provide best practices and examples
+  1. Add section "Array Operations" to USAGE.md
+  2. Document array definition syntax
+  3. Document element access
+  4. Document vectorized operations with units
+  5. Provide best practices and examples
 
 ## Closed Issues
+
+### ISS-041: Array Operations for Repetitive Calculations
+
+**Resolved:** 2026-01-16 - Fixed in v4.1 Phase 37
+**Solution:** Full array operations support:
+- Array literal syntax: `$values := [1, 2, 3, 4, 5]$`
+- Arrays with units: `$rate := [15, 30.5, 34]\ \text{mg/L/d}$`
+- Element access: `$first := values[0] == 1$`
+- Vectorized operations: `$mass := V_L \cdot rate == [567.36, 1\,153.632, 1\,286.016]\ \text{g/d}$`
+- Scalar-array broadcasting: `$doubled := values * 2 == [2, 4, 6, 8, 10]$`
+- Array-array element-wise: `$sum_arr := [10, 20] + [5, 3] == [15, 23]$`
+- Test file: `tests/test_arrays.md`
 
 ### ISS-046: Intelligent Number Formatting (Smart Rounding)
 
