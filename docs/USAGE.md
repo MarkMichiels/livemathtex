@@ -13,6 +13,8 @@
 | `:= ==` | Define + evaluate | `$y := x^2 ==$` | `$y := x^2 == 1764$` |
 | `=>` | Symbolic | `$f'(x) =>$` | `$f'(x) => 2x$` |
 | `===` | Unit definition | `$€ === €$` | (defines custom unit) |
+| `[...]` | Array literal | `$v := [1, 2, 3]$` | (defines array) |
+| `arr[i]` | Array index | `$first := v[0] ==$` | `$first := v[0] == 1$` |
 
 **Unit conversion** (two syntaxes available):
 ```
@@ -759,6 +761,123 @@ $A^T$            <!-- transpose -->
 $A^{-1}$         <!-- inverse -->
 $\det(A)$        <!-- determinant -->
 $A \cdot B$      <!-- multiplication -->
+```
+
+---
+
+## Array Operations
+
+Arrays allow you to define multiple values and perform vectorized operations on them. This is useful for repetitive calculations with the same formula applied to different inputs.
+
+### Array Definition
+
+Define arrays using square bracket notation:
+
+```latex
+$values := [1, 2, 3, 4, 5]$
+$temperatures := [20, 25, 30, 35]\\ \\text{°C}$
+$rates := [15, 30.5, 34]\\ \\text{mg/L/d}$
+```
+
+**Syntax notes:**
+- Elements separated by commas
+- Units can be attached to the entire array (applies to all elements)
+- Arrays can contain any number of elements
+
+### Element Access
+
+Access individual elements using zero-based indexing:
+
+```latex
+$values := [1, 2, 3, 4, 5]$
+$first := values[0] == 1$
+$third := values[2] == 3$
+$last := values[4] == 5$
+```
+
+Arrays with units preserve units on element access:
+
+```latex
+$rates := [15, 30.5, 34]\\ \\text{mg/L/d}$
+$rate_1 := rates[0] == 15\\ \\text{mg/d/L}$
+$rate_2 := rates[1] == 30.5\\ \\text{mg/d/L}$
+```
+
+### Vectorized Operations (Broadcasting)
+
+Apply scalar operations to all array elements at once:
+
+**Scalar × Array:**
+```latex
+$values := [1, 2, 3, 4, 5]$
+$doubled := values * 2 == [2, 4, 6, 8, 10]$
+$halved := values / 2 == [0.5, 1, 1.5, 2, 2.5]$
+```
+
+**Variable × Array (with units):**
+```latex
+$V_L := 37824\\ L$
+$rates := [15, 30.5, 34]\\ \\text{mg/L/d}$
+$mass := V_L \\cdot rates == [567.36, 1\\,153.632, 1\\,286.016]\\ \\text{g/d}$
+```
+
+**Array × Array (element-wise):**
+```latex
+$a := [10, 20, 30]$
+$b := [1, 2, 3]$
+$sum := a + b == [11, 22, 33]$
+$product := a * b == [10, 40, 90]$
+```
+
+**Note:** Array-array operations require arrays of the same length.
+
+### Unit Conversion with Arrays
+
+Use unit hints to convert array output to desired units:
+
+```latex
+$rates := [15, 30.5, 34]\\ \\text{mg/L/d}$
+$V_L := 37824\\ L$
+$mass := V_L \\cdot rates == [567.36, 1\\,153.632, 1\\,286.016]\\ \\text{g/d}$ <!-- [g/d] -->
+```
+
+### Output Formatting
+
+Array output follows the same formatting rules as scalars:
+- **digits:** Significant figures applied to each element
+- **smart_format:** Context-aware rounding for each element
+- **Thousand separators:** Applied to large values (e.g., `1\\,234`)
+- **Common unit:** Extracted and displayed once at the end
+
+### Best Practices
+
+**✅ Do:**
+- Use arrays for repetitive calculations with different inputs
+- Define arrays with clear, descriptive variable names
+- Use unit hints for consistent output formatting
+- Access elements when you need a single value from the array
+
+**❌ Don't:**
+- Mix arrays of different lengths in element-wise operations
+- Use arrays for single values (just use a scalar)
+- Forget that indexing is zero-based
+
+### Example: Production Analysis
+
+```latex
+<!-- livemathtex: output=inplace, digits=4 -->
+
+## Production Rates Analysis
+
+$rates := [15, 30.5, 34]\\ \\text{mg/L/d}$
+$V_L := 37824\\ L$
+
+Daily production:
+$daily := V_L \\cdot rates == [567.36, 1\\,153.632, 1\\,286.016]\\ \\text{g/d}$ <!-- [g/d] -->
+
+Annual production (365 days):
+$t_{year} := 365\\ d$
+$annual := daily \\cdot t_{year} == [207.0864, 421.076, 469.396]\\ \\text{kg}$ <!-- [kg] -->
 ```
 
 ---

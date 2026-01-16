@@ -8,31 +8,21 @@ Enhancements discovered during execution. Not critical - address in future phase
 
 ## Open Enhancements
 
-### ISS-045: Update USAGE.md to Document Array Operations
-
-- **Discovered:** 2026-01-15 (during document improvement workflow on astaxanthin_production_analysis.md)
-- **Type:** Documentation
-- **Description:** USAGE.md needs to document array operations (ISS-041 now implemented):
-  1. Array definition syntax
-  2. Element access
-  3. Vectorized operations
-  4. Best practices for organizing repetitive calculations
-- **Expected:** USAGE.md includes section on array operations with:
-  - Array definition syntax
-  - Element access examples
-  - Vectorized operations with units
-  - Best practices and examples
-- **Actual:** USAGE.md only shows basic matrix/vector syntax, array operations not documented
-- **Root cause:** Documentation gap - ISS-041 implemented but not documented in user guide.
-- **Impact:** Medium - Documentation gap makes it unclear how to use array operations
-- **Action Items:**
-  1. Add section "Array Operations" to USAGE.md
-  2. Document array definition syntax
-  3. Document element access
-  4. Document vectorized operations with units
-  5. Provide best practices and examples
+*None currently open*
 
 ## Closed Issues
+
+### ISS-045: Update USAGE.md to Document Array Operations
+
+**Resolved:** 2026-01-16 - Fixed in v4.1 Phase 38
+**Solution:** Added comprehensive "Array Operations" section to USAGE.md:
+- Array definition syntax with units
+- Element access (zero-based indexing)
+- Vectorized operations (scalar-array, array-array broadcasting)
+- Unit conversion with arrays
+- Output formatting rules
+- Best practices and example production analysis
+- Updated Quick Reference table with array operators
 
 ### ISS-041: Array Operations for Repetitive Calculations
 
