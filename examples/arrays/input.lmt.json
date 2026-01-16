@@ -1,0 +1,499 @@
+{
+  "version": "3.0",
+  "source": "examples/arrays/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {
+    "€": {
+      "latex": "€",
+      "type": "base",
+      "pint_definition": "€ = [€]",
+      "line": 0
+    }
+  },
+  "symbols": {
+    "v0": {
+      "latex_name": "values",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v1": {
+      "latex_name": "temperatures",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v2": {
+      "latex_name": "prices",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v3": {
+      "latex_name": "rates",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v4": {
+      "latex_name": "volumes",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v5": {
+      "latex_name": "powers",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v6": {
+      "latex_name": "first",
+      "original": {
+        "value": 10.0,
+        "unit": null
+      },
+      "base": {
+        "value": 10.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v7": {
+      "latex_name": "second",
+      "original": {
+        "value": 20.0,
+        "unit": null
+      },
+      "base": {
+        "value": 20.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v8": {
+      "latex_name": "third",
+      "original": {
+        "value": 30.0,
+        "unit": null
+      },
+      "base": {
+        "value": 30.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v9": {
+      "latex_name": "last",
+      "original": {
+        "value": 50.0,
+        "unit": null
+      },
+      "base": {
+        "value": 50.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v10": {
+      "latex_name": "rate\\_low",
+      "original": {
+        "value": 15.0,
+        "unit": "milligram / day / liter"
+      },
+      "base": {
+        "value": 1.736111111111111e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v11": {
+      "latex_name": "rate\\_mid",
+      "original": {
+        "value": 30.5,
+        "unit": "milligram / day / liter"
+      },
+      "base": {
+        "value": 3.530092592592592e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v12": {
+      "latex_name": "rate\\_high",
+      "original": {
+        "value": 34.0,
+        "unit": "milligram / day / liter"
+      },
+      "base": {
+        "value": 3.9351851851851844e-07,
+        "unit": "kilogram / meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v13": {
+      "latex_name": "base",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v14": {
+      "latex_name": "doubled",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v15": {
+      "latex_name": "halved",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v16": {
+      "latex_name": "offset",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v17": {
+      "latex_name": "V_L",
+      "original": {
+        "value": 37824.0,
+        "unit": "liter"
+      },
+      "base": {
+        "value": 37.82400000000001,
+        "unit": "meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v18": {
+      "latex_name": "daily\\_mass",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v19": {
+      "latex_name": "arr_1",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v20": {
+      "latex_name": "arr_2",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v21": {
+      "latex_name": "sum",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v22": {
+      "latex_name": "diff",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v23": {
+      "latex_name": "product",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v24": {
+      "latex_name": "ratio",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v25": {
+      "latex_name": "productivity",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v26": {
+      "latex_name": "reactor\\_volume",
+      "original": {
+        "value": 37824.0,
+        "unit": "liter"
+      },
+      "base": {
+        "value": 37.82400000000001,
+        "unit": "meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v27": {
+      "latex_name": "days\\_per\\_year",
+      "original": {
+        "value": 365.0,
+        "unit": "day"
+      },
+      "base": {
+        "value": 31536000.0,
+        "unit": "second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v28": {
+      "latex_name": "daily\\_prod",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v29": {
+      "latex_name": "annual\\_prod",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v30": {
+      "latex_name": "unit\\_costs",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v31": {
+      "latex_name": "quantities",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v32": {
+      "latex_name": "total\\_costs",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v33": {
+      "latex_name": "selling\\_prices",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v34": {
+      "latex_name": "revenues",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v35": {
+      "latex_name": "profits",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-16 01:34:37",
+    "duration": "0.08s",
+    "symbols": 36,
+    "custom_units": 1,
+    "definitions": 39,
+    "evaluations": 20,
+    "symbolic": 0,
+    "value_refs": 9,
+    "errors": 0,
+    "warnings": 0
+  }
+}

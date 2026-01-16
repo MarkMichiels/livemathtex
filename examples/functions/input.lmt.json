@@ -1,0 +1,229 @@
+{
+  "version": "3.0",
+  "source": "examples/functions/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {},
+  "symbols": {
+    "f0": {
+      "latex_name": "PPE_{eff}",
+      "original": {
+        "value": null,
+        "unit": null
+      },
+      "base": {
+        "value": null,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "(r \\cdot 4.29 + (1 - r) \\cdot 2.57) \\cdot 0.9143",
+        "depends_on": [],
+        "parameters": [
+          "r"
+        ],
+        "parameter_latex": [
+          "r"
+        ]
+      }
+    },
+    "v0": {
+      "latex_name": "PPE_{result}",
+      "original": {
+        "value": 3.7650874,
+        "unit": null
+      },
+      "base": {
+        "value": 3.7650874,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v1": {
+      "latex_name": "angle",
+      "original": {
+        "value": 0.5236,
+        "unit": null
+      },
+      "base": {
+        "value": 0.5236,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v2": {
+      "latex_name": "sin_v",
+      "original": {
+        "value": 0.5000010603626028,
+        "unit": null
+      },
+      "base": {
+        "value": 0.5000010603626028,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v3": {
+      "latex_name": "cos_v",
+      "original": {
+        "value": 0.866024791582939,
+        "unit": null
+      },
+      "base": {
+        "value": 0.866024791582939,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v4": {
+      "latex_name": "tan_v",
+      "original": {
+        "value": 0.5773519017263813,
+        "unit": null
+      },
+      "base": {
+        "value": 0.5773519017263813,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v5": {
+      "latex_name": "exp_v",
+      "original": {
+        "value": 7.38905609893065,
+        "unit": null
+      },
+      "base": {
+        "value": 7.38905609893065,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v6": {
+      "latex_name": "ln_v",
+      "original": {
+        "value": 2.302585092994046,
+        "unit": null
+      },
+      "base": {
+        "value": 2.302585092994046,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v7": {
+      "latex_name": "sqrt_v",
+      "original": {
+        "value": 12.0,
+        "unit": null
+      },
+      "base": {
+        "value": 12.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v8": {
+      "latex_name": "power_v",
+      "original": {
+        "value": 1024.0,
+        "unit": null
+      },
+      "base": {
+        "value": 1024.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v9": {
+      "latex_name": "base",
+      "original": {
+        "value": 100.0,
+        "unit": null
+      },
+      "base": {
+        "value": 100.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v10": {
+      "latex_name": "factor",
+      "original": {
+        "value": 1.5,
+        "unit": null
+      },
+      "base": {
+        "value": 1.5,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v11": {
+      "latex_name": "log_base",
+      "original": {
+        "value": 4.605170185988092,
+        "unit": null
+      },
+      "base": {
+        "value": 4.605170185988092,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v12": {
+      "latex_name": "scaled",
+      "original": {
+        "value": 150.0,
+        "unit": null
+      },
+      "base": {
+        "value": 150.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v13": {
+      "latex_name": "root_scaled",
+      "original": {
+        "value": 12.24744871391589,
+        "unit": null
+      },
+      "base": {
+        "value": 12.24744871391589,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-16 01:34:38",
+    "duration": "0.10s",
+    "symbols": 15,
+    "custom_units": 0,
+    "definitions": 15,
+    "evaluations": 11,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0,
+    "warnings": 0
+  }
+}

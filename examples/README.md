@@ -12,12 +12,28 @@ livemathtex process examples/playground.md
 
 ## Example Structure
 
+### Core Examples
+
 | Directory | Purpose |
 |-----------|---------|
 | `simple/` | Basic arithmetic with multi-letter variables |
 | `simple-units/` | Simple calculations with SI units |
 | `engineering/` | Shell-and-tube heat exchanger design |
 | `engineering-units/` | Pump sizing with unit conversions |
+
+### Feature Examples
+
+| Directory | Purpose |
+|-----------|---------|
+| `arrays/` | **Array operations** - define, index, vectorized calculations |
+| `functions/` | **User-defined functions** - reusable formulas |
+| `cross-references/` | **Cross-references** - `{{var}}` syntax for dynamic text |
+| `smart-formatting/` | **Smart formatting** - context-aware number precision |
+
+### Configuration & Reference
+
+| Directory | Purpose |
+|-----------|---------|
 | `settings/` | **Configuration settings demo** (digits, format) |
 | `custom-units/` | **Custom unit definitions** (`===` syntax) |
 | `unit-library/` | **Common industrial units** (currency, flow, concentration) |
@@ -31,12 +47,21 @@ Each directory contains a before/after demonstration:
 - **`input.md`** - Source file (don't process this directly)
 - **`output.md`** - Result after processing
 
-To regenerate outputs (each example has a `.livemathtex.toml` that sets `output = "output.md"`):
+To regenerate outputs (each example uses `output=output.md` directive):
 ```bash
+# Core examples
 livemathtex process examples/simple/input.md
 livemathtex process examples/simple-units/input.md
 livemathtex process examples/engineering/input.md
 livemathtex process examples/engineering-units/input.md
+
+# Feature examples (v4.0+)
+livemathtex process examples/arrays/input.md
+livemathtex process examples/functions/input.md
+livemathtex process examples/cross-references/input.md
+livemathtex process examples/smart-formatting/input.md
+
+# Configuration & reference
 livemathtex process examples/settings/input.md
 livemathtex process examples/custom-units/input.md
 livemathtex process examples/unit-library/input.md
@@ -51,6 +76,9 @@ livemathtex process examples/error-handling/input.md
 | `==` | Evaluation | `$x + 5 ==$` → `$x + 5 == 15$` |
 | `=>` | Symbolic | `$x + x =>$` → `$x + x => 2x$` |
 | `===` | Unit definition | `$€ === €$` (new unit) |
+| `[...]` | Array literal | `$v := [1, 2, 3]$` |
+| `arr[i]` | Array index | `$first := v[0]$` |
+| `{{var}}` | Cross-reference | `The result is {{x}}.` |
 
 ## SI Units Support
 

@@ -1,0 +1,602 @@
+{
+  "version": "3.0",
+  "source": "examples/smart-formatting/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {
+    "€": {
+      "latex": "€",
+      "type": "base",
+      "pint_definition": "€ = [€]",
+      "line": 0
+    }
+  },
+  "symbols": {
+    "v0": {
+      "latex_name": "large",
+      "original": {
+        "value": 123456.0,
+        "unit": null
+      },
+      "base": {
+        "value": 123456.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v1": {
+      "latex_name": "medium",
+      "original": {
+        "value": 42.5,
+        "unit": null
+      },
+      "base": {
+        "value": 42.5,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v2": {
+      "latex_name": "small",
+      "original": {
+        "value": 0.00123,
+        "unit": null
+      },
+      "base": {
+        "value": 0.00123,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v3": {
+      "latex_name": "big\\_1",
+      "original": {
+        "value": 12345.67,
+        "unit": null
+      },
+      "base": {
+        "value": 12345.67,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v4": {
+      "latex_name": "big\\_2",
+      "original": {
+        "value": 1234567.89,
+        "unit": null
+      },
+      "base": {
+        "value": 1234567.89,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v5": {
+      "latex_name": "big\\_3",
+      "original": {
+        "value": 99999.5,
+        "unit": null
+      },
+      "base": {
+        "value": 99999.5,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v6": {
+      "latex_name": "med\\_large\\_1",
+      "original": {
+        "value": 500.123,
+        "unit": null
+      },
+      "base": {
+        "value": 500.123,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v7": {
+      "latex_name": "med\\_large\\_2",
+      "original": {
+        "value": 123.456,
+        "unit": null
+      },
+      "base": {
+        "value": 123.456,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v8": {
+      "latex_name": "med\\_large\\_3",
+      "original": {
+        "value": 999.999,
+        "unit": null
+      },
+      "base": {
+        "value": 999.999,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v9": {
+      "latex_name": "med\\_1",
+      "original": {
+        "value": 42.567,
+        "unit": null
+      },
+      "base": {
+        "value": 42.567,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v10": {
+      "latex_name": "med\\_2",
+      "original": {
+        "value": 99.123,
+        "unit": null
+      },
+      "base": {
+        "value": 99.123,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v11": {
+      "latex_name": "med\\_3",
+      "original": {
+        "value": 10.789,
+        "unit": null
+      },
+      "base": {
+        "value": 10.789,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v12": {
+      "latex_name": "small\\_1",
+      "original": {
+        "value": 5.6789,
+        "unit": null
+      },
+      "base": {
+        "value": 5.6789,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v13": {
+      "latex_name": "small\\_2",
+      "original": {
+        "value": 1.2345,
+        "unit": null
+      },
+      "base": {
+        "value": 1.2345,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v14": {
+      "latex_name": "small\\_3",
+      "original": {
+        "value": 9.9999,
+        "unit": null
+      },
+      "base": {
+        "value": 9.9999,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v15": {
+      "latex_name": "tiny\\_1",
+      "original": {
+        "value": 0.12345,
+        "unit": null
+      },
+      "base": {
+        "value": 0.12345,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v16": {
+      "latex_name": "tiny\\_2",
+      "original": {
+        "value": 0.012345,
+        "unit": null
+      },
+      "base": {
+        "value": 0.012345,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v17": {
+      "latex_name": "tiny\\_3",
+      "original": {
+        "value": 0.00012345,
+        "unit": null
+      },
+      "base": {
+        "value": 0.00012345,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v18": {
+      "latex_name": "huge\\_1",
+      "original": {
+        "value": 1234567890.0,
+        "unit": null
+      },
+      "base": {
+        "value": 1234567890.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v19": {
+      "latex_name": "huge\\_2",
+      "original": {
+        "value": 9876543210000.0,
+        "unit": null
+      },
+      "base": {
+        "value": 9876543210000.0,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v20": {
+      "latex_name": "test\\_big",
+      "original": {
+        "value": 12345.6789,
+        "unit": null
+      },
+      "base": {
+        "value": 12345.6789,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v21": {
+      "latex_name": "test\\_med",
+      "original": {
+        "value": 42.5678,
+        "unit": null
+      },
+      "base": {
+        "value": 42.5678,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v22": {
+      "latex_name": "test\\_small",
+      "original": {
+        "value": 0.001234,
+        "unit": null
+      },
+      "base": {
+        "value": 0.001234,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v23": {
+      "latex_name": "default\\_big",
+      "original": {
+        "value": 12345.6789,
+        "unit": null
+      },
+      "base": {
+        "value": 12345.6789,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v24": {
+      "latex_name": "default\\_med",
+      "original": {
+        "value": 42.5678,
+        "unit": null
+      },
+      "base": {
+        "value": 42.5678,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v25": {
+      "latex_name": "default\\_small",
+      "original": {
+        "value": 0.001234,
+        "unit": null
+      },
+      "base": {
+        "value": 0.001234,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v26": {
+      "latex_name": "smart\\_big",
+      "original": {
+        "value": 12345.6789,
+        "unit": null
+      },
+      "base": {
+        "value": 12345.6789,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v27": {
+      "latex_name": "smart\\_med",
+      "original": {
+        "value": 42.5678,
+        "unit": null
+      },
+      "base": {
+        "value": 42.5678,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v28": {
+      "latex_name": "smart\\_small",
+      "original": {
+        "value": 0.001234,
+        "unit": null
+      },
+      "base": {
+        "value": 0.001234,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v29": {
+      "latex_name": "Q_1",
+      "original": {
+        "value": 125000.0,
+        "unit": "meter ** 3 / hour"
+      },
+      "base": {
+        "value": 34.72222222222222,
+        "unit": "meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v30": {
+      "latex_name": "head",
+      "original": {
+        "value": 25.0,
+        "unit": "meter"
+      },
+      "base": {
+        "value": 25.0,
+        "unit": "meter"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "f0": {
+      "latex_name": "\\rho",
+      "original": {
+        "value": 1000000000.0,
+        "unit": "kilogram ** 3 / meter ** 3"
+      },
+      "base": {
+        "value": 1000000000.0,
+        "unit": "kilogram ** 3 / meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "1000\\ \\text{kg/m}^3",
+        "depends_on": []
+      }
+    },
+    "f1": {
+      "latex_name": "grav",
+      "original": {
+        "value": 96.23610000000001,
+        "unit": "meter ** 2 / second ** 2"
+      },
+      "base": {
+        "value": 96.23610000000001,
+        "unit": "meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "9.81\\ \\text{m/s}^2",
+        "depends_on": []
+      }
+    },
+    "v31": {
+      "latex_name": "\\eta",
+      "original": {
+        "value": 0.75,
+        "unit": null
+      },
+      "base": {
+        "value": 0.75,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v32": {
+      "latex_name": "P_{hyd}",
+      "original": {
+        "value": 3.007378125e+17,
+        "unit": "kilogram ** 3 * meter ** 3 / hour / second ** 2"
+      },
+      "base": {
+        "value": 83538281250000.0,
+        "unit": "kilogram ** 3 * meter ** 3 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v33": {
+      "latex_name": "P_{motor}",
+      "original": {
+        "value": 4.0098375e+17,
+        "unit": "kilogram ** 3 * meter ** 3 / hour / second ** 2"
+      },
+      "base": {
+        "value": 111384375000000.0,
+        "unit": "kilogram ** 3 * meter ** 3 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "f2": {
+      "latex_name": "prod_{daily}",
+      "original": {
+        "value": 567.36,
+        "unit": "gram / day"
+      },
+      "base": {
+        "value": 6.566666666666667e-06,
+        "unit": "kilogram / second"
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "567.36\\ \\text{g/d}",
+        "depends_on": []
+      }
+    },
+    "v34": {
+      "latex_name": "num_{days}",
+      "original": {
+        "value": 365.0,
+        "unit": "day"
+      },
+      "base": {
+        "value": 31536000.0,
+        "unit": "second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v35": {
+      "latex_name": "prod_{annual}",
+      "original": {
+        "value": 207086.4,
+        "unit": "gram"
+      },
+      "base": {
+        "value": 207.0864,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v36": {
+      "latex_name": "energy\\_cost",
+      "original": {
+        "value": 0.139,
+        "unit": "EUR / kilowatt_hour"
+      },
+      "base": {
+        "value": 3.8611111111111115e-08,
+        "unit": "EUR * second ** 2 / kilogram / meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v37": {
+      "latex_name": "runtime",
+      "original": {
+        "value": 8760.0,
+        "unit": "hour"
+      },
+      "base": {
+        "value": 31536000.0,
+        "unit": "second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v38": {
+      "latex_name": "power",
+      "original": {
+        "value": 4.54,
+        "unit": "kilowatt"
+      },
+      "base": {
+        "value": 4540.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v39": {
+      "latex_name": "annual\\_cost",
+      "original": {
+        "value": 5528.0856,
+        "unit": "EUR * hour * kilowatt / kilowatt_hour"
+      },
+      "base": {
+        "value": 5528.0856,
+        "unit": "EUR"
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-16 01:34:38",
+    "duration": "0.09s",
+    "symbols": 43,
+    "custom_units": 1,
+    "definitions": 43,
+    "evaluations": 30,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0,
+    "warnings": 2
+  }
+}

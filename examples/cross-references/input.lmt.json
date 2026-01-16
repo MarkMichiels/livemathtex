@@ -1,0 +1,398 @@
+{
+  "version": "3.0",
+  "source": "examples/cross-references/input.md",
+  "unit_backend": {
+    "name": "pint",
+    "version": "0.25.2"
+  },
+  "custom_units": {
+    "€": {
+      "latex": "€",
+      "type": "base",
+      "pint_definition": "€ = [€]",
+      "line": 0
+    }
+  },
+  "symbols": {
+    "v0": {
+      "latex_name": "len",
+      "original": {
+        "value": 10.0,
+        "unit": "meter"
+      },
+      "base": {
+        "value": 10.0,
+        "unit": "meter"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v1": {
+      "latex_name": "wid",
+      "original": {
+        "value": 5.0,
+        "unit": "meter"
+      },
+      "base": {
+        "value": 5.0,
+        "unit": "meter"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v2": {
+      "latex_name": "area",
+      "original": {
+        "value": 50.0,
+        "unit": "meter ** 2"
+      },
+      "base": {
+        "value": 50.0,
+        "unit": "meter ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "f0": {
+      "latex_name": "flow",
+      "original": {
+        "value": 1000.0,
+        "unit": "liter / hour"
+      },
+      "base": {
+        "value": 0.0002777777777777779,
+        "unit": "meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "1000\\ \\text{L/h}",
+        "depends_on": []
+      }
+    },
+    "v3": {
+      "latex_name": "pressure",
+      "original": {
+        "value": 250000.0,
+        "unit": "pascal"
+      },
+      "base": {
+        "value": 250000.0,
+        "unit": "kilogram / meter / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v4": {
+      "latex_name": "Q_p",
+      "original": {
+        "value": 125000.0,
+        "unit": "meter ** 3 / hour"
+      },
+      "base": {
+        "value": 34.72222222222222,
+        "unit": "meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v5": {
+      "latex_name": "head",
+      "original": {
+        "value": 25.0,
+        "unit": "meter"
+      },
+      "base": {
+        "value": 25.0,
+        "unit": "meter"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v6": {
+      "latex_name": "P_{motor}",
+      "original": {
+        "value": 5.5,
+        "unit": "kilowatt"
+      },
+      "base": {
+        "value": 5500.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v7": {
+      "latex_name": "\\eta",
+      "original": {
+        "value": 0.78,
+        "unit": null
+      },
+      "base": {
+        "value": 0.78,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "f1": {
+      "latex_name": "density",
+      "original": {
+        "value": 1000000000.0,
+        "unit": "kilogram ** 3 / meter ** 3"
+      },
+      "base": {
+        "value": 1000000000.0,
+        "unit": "kilogram ** 3 / meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "1000\\ \\text{kg/m}^3",
+        "depends_on": []
+      }
+    },
+    "v8": {
+      "latex_name": "vol",
+      "original": {
+        "value": 15.625,
+        "unit": "meter ** 3"
+      },
+      "base": {
+        "value": 15.625,
+        "unit": "meter ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v9": {
+      "latex_name": "mass",
+      "original": {
+        "value": 15625000000.0,
+        "unit": "kilogram ** 3"
+      },
+      "base": {
+        "value": 15625000000.0,
+        "unit": "kilogram ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "f2": {
+      "latex_name": "grav",
+      "original": {
+        "value": 96.23610000000001,
+        "unit": "meter ** 2 / second ** 2"
+      },
+      "base": {
+        "value": 96.23610000000001,
+        "unit": "meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "9.81\\ \\text{m/s}^2",
+        "depends_on": []
+      }
+    },
+    "v10": {
+      "latex_name": "weight",
+      "original": {
+        "value": 1503689062500.0,
+        "unit": "kilogram ** 3 * meter ** 2 / second ** 2"
+      },
+      "base": {
+        "value": 1503689062500.0,
+        "unit": "kilogram ** 3 * meter ** 2 / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v11": {
+      "latex_name": "P_{in}",
+      "original": {
+        "value": 100.0,
+        "unit": "watt"
+      },
+      "base": {
+        "value": 100.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v12": {
+      "latex_name": "P_{out}",
+      "original": {
+        "value": 85.0,
+        "unit": "watt"
+      },
+      "base": {
+        "value": 85.0,
+        "unit": "kilogram * meter ** 2 / second ** 3"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v13": {
+      "latex_name": "\\eta_{sys}",
+      "original": {
+        "value": 0.85,
+        "unit": null
+      },
+      "base": {
+        "value": 0.85,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v14": {
+      "latex_name": "production",
+      "original": {
+        "value": 500.0,
+        "unit": "kilogram"
+      },
+      "base": {
+        "value": 500.0,
+        "unit": "kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v15": {
+      "latex_name": "unit\\_cost",
+      "original": {
+        "value": 25.0,
+        "unit": "EUR / kilogram"
+      },
+      "base": {
+        "value": 25.0,
+        "unit": "EUR / kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v16": {
+      "latex_name": "total\\_cost",
+      "original": {
+        "value": 12500.0,
+        "unit": "EUR"
+      },
+      "base": {
+        "value": 12500.0,
+        "unit": "EUR"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v17": {
+      "latex_name": "selling\\_price",
+      "original": {
+        "value": 45.0,
+        "unit": "EUR / kilogram"
+      },
+      "base": {
+        "value": 45.0,
+        "unit": "EUR / kilogram"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v18": {
+      "latex_name": "revenue",
+      "original": {
+        "value": 22500.0,
+        "unit": "EUR"
+      },
+      "base": {
+        "value": 22500.0,
+        "unit": "EUR"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v19": {
+      "latex_name": "profit",
+      "original": {
+        "value": 10000.0,
+        "unit": "EUR"
+      },
+      "base": {
+        "value": 10000.0,
+        "unit": "EUR"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "f3": {
+      "latex_name": "design\\_flow",
+      "original": {
+        "value": 100.0,
+        "unit": "liter / minute"
+      },
+      "base": {
+        "value": 0.001666666666666667,
+        "unit": "meter ** 3 / second"
+      },
+      "conversion_ok": true,
+      "line": 0,
+      "formula": {
+        "expression": "100\\ L/min",
+        "depends_on": []
+      }
+    },
+    "v20": {
+      "latex_name": "design\\_pressure",
+      "original": {
+        "value": 5.0,
+        "unit": "bar"
+      },
+      "base": {
+        "value": 500000.0,
+        "unit": "kilogram / meter / second ** 2"
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v21": {
+      "latex_name": "bignum",
+      "original": {
+        "value": 1234567.89,
+        "unit": null
+      },
+      "base": {
+        "value": 1234567.89,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    },
+    "v22": {
+      "latex_name": "smallnum",
+      "original": {
+        "value": 0.00123,
+        "unit": null
+      },
+      "base": {
+        "value": 0.00123,
+        "unit": null
+      },
+      "conversion_ok": true,
+      "line": 0
+    }
+  },
+  "errors": [],
+  "stats": {
+    "last_run": "2026-01-16 01:37:47",
+    "duration": "0.08s",
+    "symbols": 27,
+    "custom_units": 1,
+    "definitions": 27,
+    "evaluations": 7,
+    "symbolic": 0,
+    "value_refs": 0,
+    "errors": 0,
+    "warnings": 0
+  }
+}
