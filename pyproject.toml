@@ -29,17 +29,10 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     # Unit handling - Pint provides robust unit registry and conversion
-    "pint>=0.23",
-
-    # Numeric
-    "numpy>=1.24",
+    "pint>=0.24",
 
     # CLI
     "click>=8.1",
-    "rich>=13.0",
-
-    # Watch mode
-    "watchdog>=3.0",
 
     # Configuration (TOML parsing for Python < 3.11)
     "tomli>=2.0; python_version < '3.11'",
@@ -52,12 +45,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
-    "pytest-cov>=4.0",
-    "black>=23.0",
-    "ruff>=0.1.0",
-    "mypy>=1.0",
-    "isort>=5.12",
+    "pytest>=8.0",
+    "pytest-cov>=6.0",
+    "black>=24.0",
+    "ruff>=0.8.0",
+    "mypy>=1.10",
 ]
 docs = [
     "mkdocs>=1.5",

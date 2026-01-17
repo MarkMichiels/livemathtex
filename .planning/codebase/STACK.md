@@ -1,6 +1,6 @@
 # Technology Stack
 
-**Analysis Date:** 2026-01-11
+**Analysis Date:** 2026-01-17
 
 ## Languages
 
@@ -26,31 +26,30 @@
 - None (vanilla Python CLI)
 
 **Testing:**
-- pytest >=7.0 - Unit and snapshot tests
-- pytest-cov >=4.0 - Coverage reporting
+- pytest >=8.0 - Unit and snapshot tests
+- pytest-cov >=6.0 - Coverage reporting
 
 **Build/Dev:**
 - setuptools >=61.0 - Package building
-- black >=23.0 - Code formatting
-- ruff >=0.1.0 - Linting
-- mypy >=1.0 - Type checking
-- isort >=5.12 - Import sorting
+- black >=24.0 - Code formatting
+- ruff >=0.8.0 - Linting and import sorting
+- mypy >=1.10 - Type checking
 
 ## Key Dependencies
 
 **Critical:**
-- sympy >=1.12 - Core math engine, symbolic computation
-- latex2sympy2 (forked) - LaTeX to SymPy parsing (`git+https://github.com/MarkMichiels/latex2sympy.git`)
-- pint >=0.23 - Unit handling, registry, conversion (primary unit backend)
-- numpy >=1.24 - Numeric operations
+- pint >=0.24 - Unit handling, registry, conversion (sole math backend since v3.0)
 
 **CLI:**
 - click >=8.1 - Command-line interface
-- rich >=13.0 - Terminal output styling
+
+**Parsing:**
+- markdown-it-py >=3.0.0 - Markdown parsing
+- mdit-py-plugins >=0.4.0 - Math plugin for markdown-it-py
+- pylatexenc >=2.10 - LaTeX encoding/decoding
 
 **Infrastructure:**
-- watchdog >=3.0 - Watch mode file monitoring
-- tomli >=2.0 - TOML parsing (Python < 3.11)
+- tomli >=2.0 - TOML parsing (Python < 3.11 only)
 
 ## Configuration
 
@@ -79,5 +78,20 @@
 
 ---
 
-*Stack analysis: 2026-01-11*
+## Removed Dependencies (v3.0+)
+
+The following dependencies were removed to reduce bloat:
+
+| Package | Removed In | Reason |
+|---------|------------|--------|
+| sympy | v3.0 | Replaced by custom expression parser + Pint |
+| latex2sympy2 | v3.0 | Replaced by custom LaTeX tokenizer/parser |
+| numpy | v4.2 | Never used; Pint works without it |
+| rich | v4.2 | Never used; click.echo/style suffices |
+| watchdog | v4.2 | Watch mode not implemented; add back when needed |
+| isort | v4.2 | ruff handles import sorting via "I" rules |
+
+---
+
+*Stack analysis: 2026-01-17*
 *Update after major dependency changes*
