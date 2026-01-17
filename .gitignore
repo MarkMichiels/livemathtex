@@ -51,11 +51,14 @@ docs/_build/
 .DS_Store
 Thumbs.db
 
-# Symlinked directories (created by setup_symlinks.sh)
+# Symlinked directories and files (created by setup_workspace.sh)
 # These provide proviron tools during development but are not needed for standalone use
 .crossnote
 /tools
 /scripts
+.complianceignore
+compliance.config.yaml
+.editorconfig
 
 # Local history (VS Code)
 .history/
