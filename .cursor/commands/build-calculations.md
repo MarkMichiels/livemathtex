@@ -1,5 +1,6 @@
 ---
 description: Iteratively build and verify LiveMathTeX calculations until correct
+user-invocable: true
 ---
 
 # Build Calculations — Iterative Verification Workflow

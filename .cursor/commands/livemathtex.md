@@ -1,5 +1,6 @@
 ---
 description: LiveMathTeX command reference and overview
+user-invocable: true
 ---
 
 # LiveMathTeX Command Reference

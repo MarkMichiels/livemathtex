@@ -4,6 +4,7 @@ args:
   - name: document
     description: Path to the markdown document to debug (e.g., /debug-calculations path/to/document.md)
     required: true
+user-invocable: true
 ---
 
 # Debug Calculations — Issue Detection Workflow

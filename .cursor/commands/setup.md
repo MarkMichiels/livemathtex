@@ -1,5 +1,6 @@
 ---
 description: Install and setup LiveMathTeX
+user-invocable: true
 ---
 
 # LiveMathTeX — Setup (AI Command)
