@@ -14,8 +14,8 @@ ID Convention (v3.0):
 Note: IDs use simple Python format (v0, not v_{0}) for cleaner processing.
 """
 
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -46,10 +46,10 @@ class SymbolValue:
         parameters: List of clean parameter IDs for functions (e.g., ["x1", "x2"])
         parameter_latex: Original LaTeX names for parameters (e.g., ["x", "y"])
     """
-    original_value: Optional[float] = None
-    original_unit: Optional[str] = None
+    original_value: float | None = None
+    original_unit: str | None = None
     si_value: Any = None  # Float value (magnitude in SI units)
-    si_unit: Optional[Any] = None  # Pint unit string
+    si_unit: Any | None = None  # Pint unit string
     valid: bool = True
     raw_latex: str = ""
     latex_name: str = ""
@@ -59,9 +59,9 @@ class SymbolValue:
     # v3.0 formula tracking fields
     is_formula: bool = False
     formula_expression: str = ""
-    depends_on: List[str] = field(default_factory=list)
-    parameters: List[str] = field(default_factory=list)
-    parameter_latex: List[str] = field(default_factory=list)
+    depends_on: list[str] = field(default_factory=list)
+    parameters: list[str] = field(default_factory=list)
+    parameter_latex: list[str] = field(default_factory=list)
 
     @property
     def value(self) -> Any:
@@ -69,7 +69,7 @@ class SymbolValue:
         return self.si_value
 
     @property
-    def unit(self) -> Optional[Any]:
+    def unit(self) -> Any | None:
         """Get the SI unit (for calculations). Backwards compatible."""
         return self.si_unit
 
@@ -104,8 +104,8 @@ class NameGenerator:
         self._formula_counter = 0
         self._param_counter = 0
         # Bidirectional mapping
-        self._latex_to_internal: Dict[str, str] = {}
-        self._internal_to_latex: Dict[str, str] = {}
+        self._latex_to_internal: dict[str, str] = {}
+        self._internal_to_latex: dict[str, str] = {}
 
     def next_value_id(self) -> str:
         """
@@ -186,15 +186,15 @@ class NameGenerator:
         self._latex_to_internal[latex_name] = internal_id
         self._internal_to_latex[internal_id] = latex_name
 
-    def get_internal(self, latex_name: str) -> Optional[str]:
+    def get_internal(self, latex_name: str) -> str | None:
         """Get internal name for a LaTeX name, or None if not registered."""
         return self._latex_to_internal.get(latex_name)
 
-    def get_latex(self, internal_name: str) -> Optional[str]:
+    def get_latex(self, internal_name: str) -> str | None:
         """Get original LaTeX name for an internal name, or None if not registered."""
         return self._internal_to_latex.get(internal_name)
 
-    def all_mappings(self) -> Dict[str, str]:
+    def all_mappings(self) -> dict[str, str]:
         """Return all latex -> internal mappings."""
         return self._latex_to_internal.copy()
 
@@ -220,7 +220,7 @@ class SymbolTable:
 
     def __init__(self):
         """Initialize symbol table."""
-        self._symbols: Dict[str, SymbolValue] = {}
+        self._symbols: dict[str, SymbolValue] = {}
         self._names = NameGenerator()
 
     def set(
@@ -231,16 +231,16 @@ class SymbolTable:
         raw_latex: str = "",
         latex_name: str = "",
         unit_latex: str = "",
-        original_value: Optional[float] = None,
-        original_unit: Optional[str] = None,
+        original_value: float | None = None,
+        original_unit: str | None = None,
         valid: bool = True,
         line: int = 0,
         # v3.0 formula tracking fields
         is_formula: bool = False,
         formula_expression: str = "",
-        depends_on: Optional[List[str]] = None,
-        parameters: Optional[List[str]] = None,
-        parameter_latex: Optional[List[str]] = None,
+        depends_on: list[str] | None = None,
+        parameters: list[str] | None = None,
+        parameter_latex: list[str] | None = None,
     ):
         """
         Define a variable with both original and SI values.
@@ -295,19 +295,19 @@ class SymbolTable:
             parameter_latex=parameter_latex or [],
         )
 
-    def get(self, name: str) -> Optional[SymbolValue]:
+    def get(self, name: str) -> SymbolValue | None:
         """Retrieve a variable."""
         return self._symbols.get(name)
 
-    def get_internal_id(self, latex_name: str) -> Optional[str]:
+    def get_internal_id(self, latex_name: str) -> str | None:
         """Get the internal ID (v0, v1, ...) for a LaTeX variable name."""
         return self._names.get_internal(latex_name)
 
-    def get_latex_name(self, internal_id: str) -> Optional[str]:
+    def get_latex_name(self, internal_id: str) -> str | None:
         """Get the original LaTeX name for an internal ID."""
         return self._names.get_latex(internal_id)
 
-    def get_all_latex_to_internal(self) -> Dict[str, str]:
+    def get_all_latex_to_internal(self) -> dict[str, str]:
         """Get all LaTeX -> internal ID mappings for expression rewriting."""
         return self._names.all_mappings()
 

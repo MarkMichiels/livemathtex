@@ -8,12 +8,14 @@ Components:
 """
 
 from .evaluator import Evaluator
-from .symbols import SymbolTable, SymbolValue
 from .pint_backend import (
     UnitRegistry,
-    get_custom_unit_registry as get_unit_registry,
     reset_unit_registry,
 )
+from .pint_backend import (
+    get_custom_unit_registry as get_unit_registry,
+)
+from .symbols import SymbolTable, SymbolValue
 
 __all__ = [
     "Evaluator",

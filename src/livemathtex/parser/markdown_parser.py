@@ -10,7 +10,7 @@ for operators and expressions within math blocks.
 """
 
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Any
 
 from markdown_it import MarkdownIt
 from mdit_py_plugins.dollarmath import dollarmath_plugin
@@ -36,7 +36,7 @@ class ParsedMathBlock:
     doc_end_offset: int       # End offset in document
     start_line: int           # 0-indexed line number
     end_line: int             # 0-indexed (exclusive)
-    latex_nodes: List[Any]    # pylatexenc nodes with positions
+    latex_nodes: list[Any]    # pylatexenc nodes with positions
 
 
 class MarkdownParser:
@@ -50,7 +50,7 @@ class MarkdownParser:
             allow_digits=True
         )
 
-    def parse(self, text: str) -> List[Any]:
+    def parse(self, text: str) -> list[Any]:
         """Parse markdown and return token stream.
 
         Args:
@@ -64,7 +64,7 @@ class MarkdownParser:
         return self.md.parse(text)
 
 
-def build_line_offset_map(text: str) -> List[int]:
+def build_line_offset_map(text: str) -> list[int]:
     """Build cumulative character offsets for each line start.
 
     Args:
@@ -86,7 +86,7 @@ def build_line_offset_map(text: str) -> List[int]:
     return offsets
 
 
-def line_to_char_offset(line: int, line_offsets: List[int]) -> int:
+def line_to_char_offset(line: int, line_offsets: list[int]) -> int:
     """Convert 0-indexed line number to character offset.
 
     Args:
@@ -101,7 +101,7 @@ def line_to_char_offset(line: int, line_offsets: List[int]) -> int:
     return line_offsets[-1] if line_offsets else 0
 
 
-def parse_latex_content(latex: str) -> List[Any]:
+def parse_latex_content(latex: str) -> list[Any]:
     """Parse LaTeX string and return nodes with positions.
 
     Uses tolerant_parsing=True to handle incomplete/malformed LaTeX
@@ -118,7 +118,7 @@ def parse_latex_content(latex: str) -> List[Any]:
     return nodes if nodes else []
 
 
-def extract_math_blocks(text: str) -> List[ParsedMathBlock]:
+def extract_math_blocks(text: str) -> list[ParsedMathBlock]:
     """Extract all math blocks with full position information.
 
     This is the main entry point for the hybrid parser. It:
@@ -148,12 +148,12 @@ def extract_math_blocks(text: str) -> List[ParsedMathBlock]:
     line_offsets = build_line_offset_map(text)
 
     # 4. Extract math blocks
-    blocks: List[ParsedMathBlock] = []
+    blocks: list[ParsedMathBlock] = []
 
     # Track search position to handle multiple inline math on same line
     last_search_pos = 0
 
-    def process_math_token(token: Any, parent_map: Optional[List[int]] = None) -> None:
+    def process_math_token(token: Any, parent_map: list[int] | None = None) -> None:
         """Process a math token (either top-level or child)."""
         nonlocal last_search_pos
 
@@ -271,7 +271,7 @@ def extract_math_blocks(text: str) -> List[ParsedMathBlock]:
     return blocks
 
 
-def get_latex_node_positions(block: ParsedMathBlock) -> List[LaTeXPosition]:
+def get_latex_node_positions(block: ParsedMathBlock) -> list[LaTeXPosition]:
     """Extract position information from LaTeX nodes in a math block.
 
     Args:
@@ -280,7 +280,7 @@ def get_latex_node_positions(block: ParsedMathBlock) -> List[LaTeXPosition]:
     Returns:
         List of LaTeXPosition objects with absolute document positions
     """
-    positions: List[LaTeXPosition] = []
+    positions: list[LaTeXPosition] = []
 
     # Offset to add to LaTeX positions to get document positions
     # Account for opening delimiter

@@ -11,7 +11,6 @@ before single letters to avoid implicit multiplication issues.
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Tuple
 
 
 class TokenType(Enum):
@@ -63,7 +62,7 @@ class ExpressionTokenizer:
     # Ordered by priority - most specific first
     # Each tuple: (compiled_pattern, token_type, uses_group1)
     # uses_group1: True if we want to extract group(1), False for group(0)
-    PATTERNS: List[Tuple[re.Pattern, Optional[TokenType], bool]] = [
+    PATTERNS: list[tuple[re.Pattern, TokenType | None, bool]] = [
         # Units in \text{} or \mathrm{} - HIGHEST PRIORITY
         # Capture the content inside braces
         (re.compile(r"\\text\{([^}]+)\}"), TokenType.UNIT, True),
@@ -172,7 +171,7 @@ class ExpressionTokenizer:
         self.text = text
         self.pos = 0
 
-    def tokenize(self) -> List[Token]:
+    def tokenize(self) -> list[Token]:
         """
         Tokenize the input text into a list of tokens.
 
@@ -188,7 +187,7 @@ class ExpressionTokenizer:
         tokens.append(Token(TokenType.EOF, "", self.pos, self.pos))
         return tokens
 
-    def _next_token(self) -> Optional[Token]:
+    def _next_token(self) -> Token | None:
         """
         Match the next token at current position.
 

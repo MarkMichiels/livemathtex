@@ -12,14 +12,14 @@ Key features:
 - Variable name conflict detection against all known units
 """
 
-from dataclasses import dataclass
-from typing import Any, Optional
 import re
+from dataclasses import dataclass
+from typing import Any
+
 import pint
 
-
 # Global Pint UnitRegistry instance
-_ureg: Optional[pint.UnitRegistry] = None
+_ureg: pint.UnitRegistry | None = None
 
 # LaTeX wrapper pattern for extracting unit from LaTeX text commands
 _LATEX_WRAPPER_PATTERN = re.compile(
@@ -32,9 +32,9 @@ class ParsedQuantity:
     """Result of parsing a value with optional unit."""
 
     value: float
-    unit: Optional[pint.Unit]
-    unit_str: Optional[str]
-    quantity: Optional[pint.Quantity]
+    unit: pint.Unit | None
+    unit_str: str | None
+    quantity: pint.Quantity | None
 
 
 def get_unit_registry() -> pint.UnitRegistry:
@@ -215,7 +215,7 @@ def is_unit_token(token: str) -> bool:
         return False
 
 
-def get_unit(token: str) -> Optional[pint.Unit]:
+def get_unit(token: str) -> pint.Unit | None:
     """
     Get a Pint Unit object for a given token.
 
@@ -242,7 +242,7 @@ def get_unit(token: str) -> Optional[pint.Unit]:
         return None
 
 
-def get_unit_description(token: str) -> Optional[str]:
+def get_unit_description(token: str) -> str | None:
     """
     Get a human-readable description of a unit.
 
@@ -302,7 +302,7 @@ def get_all_unit_names() -> set[str]:
     return names
 
 
-def check_variable_name_conflict(name: str) -> Optional[str]:
+def check_variable_name_conflict(name: str) -> str | None:
     """
     Check if a variable name conflicts with a known unit name.
 
@@ -371,15 +371,15 @@ def is_pint_unit(token: str) -> bool:
     """
     if not token or token.strip() == "":
         return False
-    
+
     # Clean the token
     clean = _unwrap_latex(token.strip())
     if not clean:
         return False
-    
+
     # Replace common LaTeX notation
     clean = clean.replace('\\cdot', '*').replace('³', '**3').replace('²', '**2')
-    
+
     ureg = get_unit_registry()
     try:
         ureg.parse_expression(clean)
@@ -443,7 +443,7 @@ def is_known_unit(token: str) -> bool:
 # All unit handling uses Pint directly.
 
 
-def parse_value_with_unit(text: str) -> Optional[ParsedQuantity]:
+def parse_value_with_unit(text: str) -> ParsedQuantity | None:
     """
     Parse a string containing a value with optional unit.
 
@@ -513,7 +513,7 @@ def parse_value_with_unit(text: str) -> Optional[ParsedQuantity]:
         return None
 
 
-def convert_quantity(value: float, from_unit: str, to_unit: str) -> Optional[float]:
+def convert_quantity(value: float, from_unit: str, to_unit: str) -> float | None:
     """
     Convert a value from one unit to another.
 
@@ -537,7 +537,7 @@ def convert_quantity(value: float, from_unit: str, to_unit: str) -> Optional[flo
         return None
 
 
-def to_si_base(value: float, unit: str) -> tuple[float, Optional[str]]:
+def to_si_base(value: float, unit: str) -> tuple[float, str | None]:
     """
     Convert a value to SI base units.
 
@@ -653,7 +653,7 @@ def define_custom_unit_from_latex(unit_name: str, definition: str) -> bool:
         return False
 
 
-def create_quantity(value: float, unit: str) -> Optional[pint.Quantity]:
+def create_quantity(value: float, unit: str) -> pint.Quantity | None:
     """
     Create a Pint Quantity from a value and unit string.
 
@@ -688,14 +688,14 @@ class ConversionResult:
     """Result of converting a value to base units."""
 
     original_value: float
-    original_unit: Optional[str]
+    original_unit: str | None
     base_value: float
-    base_unit: Optional[str]
+    base_unit: str | None
     success: bool
-    error: Optional[str] = None
+    error: str | None = None
 
 
-def convert_to_base_units(value: float, unit: Optional[str]) -> ConversionResult:
+def convert_to_base_units(value: float, unit: str | None) -> ConversionResult:
     """
     Convert a value with unit to SI base units.
 
@@ -777,8 +777,8 @@ def format_pint_unit(unit: pint.Unit) -> str:
 
 def format_unit_latex(
     unit: Any,
-    original_latex: Optional[str] = None,
-    unit_format: Optional[str] = None
+    original_latex: str | None = None,
+    unit_format: str | None = None
 ) -> str:
     """
     Format a Pint unit as LaTeX-friendly string.
@@ -975,11 +975,11 @@ class FormulaEvalResult:
     """Result of evaluating a formula with units."""
 
     original_value: float
-    original_unit: Optional[str]
+    original_unit: str | None
     base_value: float
-    base_unit: Optional[str]
+    base_unit: str | None
     success: bool
-    error: Optional[str] = None
+    error: str | None = None
 
 
 # =============================================================================
@@ -987,7 +987,7 @@ class FormulaEvalResult:
 # =============================================================================
 
 
-def strip_unit_from_value(latex: str) -> tuple[str, Optional[str], Optional[pint.Unit]]:
+def strip_unit_from_value(latex: str) -> tuple[str, str | None, pint.Unit | None]:
     """
     Strip the unit from a value expression and parse it.
 
@@ -1090,7 +1090,7 @@ def strip_unit_from_value(latex: str) -> tuple[str, Optional[str], Optional[pint
     return latex, None, None
 
 
-def _extract_braced_content(s: str) -> tuple[Optional[str], str]:
+def _extract_braced_content(s: str) -> tuple[str | None, str]:
     """
     Extract content from balanced braces, handling nesting.
 
@@ -1158,7 +1158,7 @@ def _clean_unit_latex(unit_latex: str) -> str:
     return result
 
 
-def parse_unit_string(unit_str: str) -> Optional[pint.Unit]:
+def parse_unit_string(unit_str: str) -> pint.Unit | None:
     """
     Parse a unit string into a Pint unit.
 
@@ -1202,7 +1202,7 @@ def parse_unit_string(unit_str: str) -> Optional[pint.Unit]:
     return _parse_compound_unit_pint(unit_str)
 
 
-def _parse_compound_unit_pint(unit_str: str) -> Optional[pint.Unit]:
+def _parse_compound_unit_pint(unit_str: str) -> pint.Unit | None:
     """
     Parse compound unit expressions like "EUR/kWh" or "mg/L/dag".
 
@@ -1260,9 +1260,9 @@ def _parse_compound_unit_pint(unit_str: str) -> Optional[pint.Unit]:
 
 def convert_value_to_unit(
     value: float,
-    from_unit: Optional[str],
+    from_unit: str | None,
     to_unit: str
-) -> Optional[float]:
+) -> float | None:
     """
     Convert a value from one unit to another using Pint.
 
@@ -1310,7 +1310,7 @@ def convert_value_to_unit(
                 return value
             return None  # Can't convert dimensionless to dimensioned
 
-    except (pint.errors.DimensionalityError, pint.errors.UndefinedUnitError) as e:
+    except (pint.errors.DimensionalityError, pint.errors.UndefinedUnitError):
         # Conversion not possible
         return None
     except Exception:
@@ -1319,7 +1319,7 @@ def convert_value_to_unit(
 
 def evaluate_formula_with_units(
     expression: str,
-    symbol_values: dict[str, tuple[float, Optional[str]]]
+    symbol_values: dict[str, tuple[float, str | None]]
 ) -> FormulaEvalResult:
     """
     Evaluate a formula expression using original units.
@@ -1409,7 +1409,7 @@ class CustomUnitDefinition:
     name: str
     latex_name: str
     is_base_unit: bool = False
-    definition_expr: Optional[str] = None
+    definition_expr: str | None = None
 
 
 class CustomUnitRegistry:
@@ -1457,7 +1457,7 @@ class CustomUnitRegistry:
         name = name.strip().replace('$', '')
         return name
 
-    def define_unit(self, latex: str) -> Optional[CustomUnitDefinition]:
+    def define_unit(self, latex: str) -> CustomUnitDefinition | None:
         """
         Parse and register a unit definition from `===` syntax.
 
@@ -1514,7 +1514,7 @@ class CustomUnitRegistry:
 
 
 # Singleton instance
-_custom_unit_registry: Optional[CustomUnitRegistry] = None
+_custom_unit_registry: CustomUnitRegistry | None = None
 
 
 def get_custom_unit_registry() -> CustomUnitRegistry:
@@ -1548,7 +1548,7 @@ def reset_unit_registry():
 # =============================================================================
 
 
-def get_unit_dimensionality(unit_expr: Any) -> Optional[str]:
+def get_unit_dimensionality(unit_expr: Any) -> str | None:
     """
     Get the dimensionality string for a unit expression.
 
@@ -1625,7 +1625,7 @@ def get_unit_dimensionality(unit_expr: Any) -> Optional[str]:
     return None
 
 
-def are_dimensions_compatible(dim1: Optional[str], dim2: Optional[str]) -> bool:
+def are_dimensions_compatible(dim1: str | None, dim2: str | None) -> bool:
     """
     Check if two dimensionalities are compatible for addition/subtraction.
 

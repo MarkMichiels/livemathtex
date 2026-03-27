@@ -26,8 +26,8 @@ Example:
 """
 
 from .cli import main
-from .core import process_text, process_text_v3, process_file, clear_text, detect_error_markup
 from .config import LivemathConfig
+from .core import clear_text, detect_error_markup, process_file, process_text, process_text_v3
 from .ir import LivemathIR
 from .ir.schema import LivemathIRV3
 

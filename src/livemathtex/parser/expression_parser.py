@@ -12,10 +12,9 @@ Key design principles:
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
 
-from livemathtex.parser.expression_tokenizer import Token, TokenType
 from livemathtex.engine.pint_backend import is_pint_unit
+from livemathtex.parser.expression_tokenizer import Token, TokenType
 
 
 class ParseError(Exception):
@@ -103,14 +102,14 @@ class FunctionCallNode(ExprNode):
     """User-defined function call (f(x), PPE_{eff}(0.90), etc.)."""
 
     name: str  # Function name
-    args: List[ExprNode]  # Arguments
+    args: list[ExprNode]  # Arguments
 
 
 @dataclass
 class ArrayNode(ExprNode):
     """Array literal node ([1, 2, 3])."""
 
-    elements: List[ExprNode]
+    elements: list[ExprNode]
 
 
 @dataclass
@@ -146,7 +145,7 @@ class ExpressionParser:
         primary     -> NUMBER | VARIABLE | UNIT | '(' expression ')' | FRAC '{' expr '}' '{' expr '}'
     """
 
-    def __init__(self, tokens: List[Token]):
+    def __init__(self, tokens: list[Token]):
         """Initialize parser with token list.
 
         Args:
@@ -489,7 +488,7 @@ class ExpressionParser:
 
         return node
 
-    def _try_parse_unit_fraction(self) -> Optional[str]:
+    def _try_parse_unit_fraction(self) -> str | None:
         r"""Try to parse \frac{num}{denom} as a unit string.
 
         Returns the unit string like "g/d" or "m**3/h" if valid,

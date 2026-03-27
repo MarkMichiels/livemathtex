@@ -16,20 +16,19 @@ Version 3.0:
 - Formula dependency tracking
 """
 
-from pathlib import Path
 import re
 import time
 from datetime import datetime
-from typing import Optional
+from pathlib import Path
 
+from .config import LivemathConfig
+from .engine.evaluator import Evaluator
+from .ir import IRBuilder, LivemathIR, SymbolEntry, ValueWithUnit
+from .ir.schema import FormulaInfo, LivemathIRV3, SymbolEntryV3
 from .parser.lexer import Lexer
 from .parser.models import MathBlock
 from .parser.reference_parser import extract_references, restore_references
-from .engine.evaluator import Evaluator
 from .render.markdown import MarkdownRenderer
-from .ir import IRBuilder, LivemathIR, SymbolEntry, ValueWithUnit
-from .ir.schema import LivemathIRV3, SymbolEntryV3, FormulaInfo, CustomUnitEntry
-from .config import LivemathConfig
 
 
 def _clear_text_regex(content: str) -> tuple[str, int]:
@@ -250,8 +249,8 @@ def clear_text(content: str) -> tuple[str, int]:
     - Preserves document structure (no merged blocks)
     - Handles multiline error blocks correctly (ISS-021 fix)
     """
+    from .parser.calculation_parser import parse_math_block_calculations
     from .parser.markdown_parser import extract_math_blocks
-    from .parser.calculation_parser import parse_math_block_calculations, Span
 
     # Track edits to apply (start, end, replacement)
     edits: list[tuple[int, int, str]] = []
@@ -615,7 +614,7 @@ def _format_unit_for_prose(unit_str: str) -> str:
 def evaluate_cross_references(
     content: str,
     evaluator: Evaluator,
-    config: Optional[LivemathConfig] = None
+    config: LivemathConfig | None = None
 ) -> tuple[str, int, int]:
     """
     Evaluate {{variable}} cross-references in document content.
@@ -633,10 +632,10 @@ def evaluate_cross_references(
     Returns:
         Tuple of (processed_content, refs_evaluated, refs_errored)
     """
-    from .parser.expression_tokenizer import ExpressionTokenizer
+    from .engine.expression_evaluator import EvaluationError, evaluate_expression_tree
+    from .engine.pint_backend import clean_latex_unit, get_unit_registry
     from .parser.expression_parser import ExpressionParser, ParseError
-    from .engine.expression_evaluator import evaluate_expression_tree, EvaluationError
-    from .engine.pint_backend import get_unit_registry, format_unit_latex, clean_latex_unit
+    from .parser.expression_tokenizer import ExpressionTokenizer
 
     refs = extract_references(content)
     if not refs:
@@ -817,7 +816,7 @@ def process_file(
     input_path_obj = Path(input_path)
 
     # 1. Read document
-    with open(input_path, 'r', encoding='utf-8') as f:
+    with open(input_path, encoding='utf-8') as f:
         content = f.read()
 
     # 1a. Pre-process: If content appears to be already processed
@@ -1161,7 +1160,7 @@ def process_text(
 def process_text_v3(
     content: str,
     source: str = "<string>",
-    config: Optional[LivemathConfig] = None,
+    config: LivemathConfig | None = None,
 ) -> tuple[str, LivemathIRV3]:
     """
     Process markdown content using IR v3.0 schema.

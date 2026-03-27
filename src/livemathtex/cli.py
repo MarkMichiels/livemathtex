@@ -1,10 +1,13 @@
-import click
 import re
 from pathlib import Path
-from .core import process_file, process_text_v3, clear_text
+
+import click
+
 from .config import LivemathConfig
-from .parser.lexer import Lexer
+from .core import clear_text, process_file, process_text_v3
 from .ir.schema import LivemathIRV3
+from .parser.lexer import Lexer
+
 
 @click.group()
 def main():
@@ -35,7 +38,7 @@ def process(input_file, output, verbose, ir_output):
     try:
         # Check document directive for json
         input_path = Path(input_file)
-        with open(input_path, 'r', encoding='utf-8') as f:
+        with open(input_path, encoding='utf-8') as f:
             content = f.read()
 
         lexer = Lexer()
@@ -105,12 +108,12 @@ def inspect(ir_file):
     Shows symbols with their original and base/SI values.
     """
     import json
+
     from .ir import LivemathIR
-    from .ir.schema import LivemathIRV3
 
     try:
         # Read JSON to detect version
-        with open(ir_file, 'r', encoding='utf-8') as f:
+        with open(ir_file, encoding='utf-8') as f:
             data = json.load(f)
 
         version = data.get('version', '2.0')
@@ -264,7 +267,7 @@ def clear(input_file, output):
         from datetime import datetime
 
         input_path = Path(input_file)
-        with open(input_path, 'r', encoding='utf-8') as f:
+        with open(input_path, encoding='utf-8') as f:
             content = f.read()
 
         cleared, count = clear_text(content)
@@ -313,7 +316,7 @@ def copy(file):
         file_path = Path(file)
 
         # Read the file to check its directive
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding='utf-8') as f:
             content = f.read()
 
         # Parse document directive to understand the relationship

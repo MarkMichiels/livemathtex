@@ -1,5 +1,5 @@
-from typing import List, Dict
-from ..parser.models import Document, MathBlock, TextBlock, Calculation, Node
+from ..parser.models import Document, MathBlock, Node, TextBlock
+
 
 class MarkdownRenderer:
     """
@@ -7,7 +7,7 @@ class MarkdownRenderer:
     incorporating calculation results.
     """
 
-    def render(self, document: Document, calculations: Dict[Node, str], metadata: Dict[str, str] = None) -> str:
+    def render(self, document: Document, calculations: dict[Node, str], metadata: dict[str, str] = None) -> str:
         """
         Reconstruct document text from AST and calculated results.
         Injects/Updates metadata footer at the bottom if provided.

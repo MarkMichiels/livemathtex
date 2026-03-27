@@ -11,25 +11,24 @@ Key features:
 """
 
 import math
-from typing import Dict
 
 import pint
 
+from livemathtex.engine.pint_backend import get_unit_registry
 from livemathtex.parser.expression_parser import (
-    ExprNode,
-    NumberNode,
-    VariableNode,
+    ArrayNode,
     BinaryOpNode,
-    UnaryOpNode,
+    ExprNode,
     FracNode,
-    UnitAttachNode,
-    SqrtNode,
     FuncNode,
     FunctionCallNode,
-    ArrayNode,
     IndexNode,
+    NumberNode,
+    SqrtNode,
+    UnaryOpNode,
+    UnitAttachNode,
+    VariableNode,
 )
-from livemathtex.engine.pint_backend import get_unit_registry
 
 # Mathematical constants - mapped to their values
 # The tokenizer produces '\pi' for Greek pi, and 'e' for Euler's number
@@ -49,7 +48,7 @@ class EvaluationError(Exception):
 
 def evaluate_expression_tree(
     node: ExprNode,
-    symbols: Dict[str, pint.Quantity],
+    symbols: dict[str, pint.Quantity],
     ureg: pint.UnitRegistry = None,
 ) -> pint.Quantity:
     """
@@ -86,7 +85,7 @@ def evaluate_expression_tree(
 
 def _eval_node(
     node: ExprNode,
-    symbols: Dict[str, pint.Quantity],
+    symbols: dict[str, pint.Quantity],
     ureg: pint.UnitRegistry,
 ) -> pint.Quantity:
     """Recursively evaluate an expression node."""
@@ -192,7 +191,7 @@ def _eval_node(
 
 def _lookup_variable(
     name: str,
-    symbols: Dict[str, pint.Quantity],
+    symbols: dict[str, pint.Quantity],
     ureg: pint.UnitRegistry,
 ) -> pint.Quantity:
     """
@@ -380,7 +379,7 @@ def _apply_math_func(
 
 def _eval_function_call(
     node: FunctionCallNode,
-    symbols: Dict[str, pint.Quantity],
+    symbols: dict[str, pint.Quantity],
     ureg: pint.UnitRegistry,
 ) -> pint.Quantity:
     """
@@ -461,8 +460,8 @@ def _eval_function_call(
         local_symbols[param_name] = arg_value
 
     # Parse and evaluate the function's formula with substituted parameters
-    from livemathtex.parser.expression_tokenizer import ExpressionTokenizer
     from livemathtex.parser.expression_parser import ExpressionParser
+    from livemathtex.parser.expression_tokenizer import ExpressionTokenizer
 
     tokens = ExpressionTokenizer(formula_expr).tokenize()
     tree = ExpressionParser(tokens).parse()

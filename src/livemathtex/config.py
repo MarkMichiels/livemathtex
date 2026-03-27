@@ -17,12 +17,12 @@ the same output regardless of who processes it. Therefore, CLI options do NOT
 include formatting settings - only operational flags like -o for output path.
 """
 
+import sys
 from dataclasses import dataclass, replace
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Literal, Optional
-import sys
+from typing import Any, Literal
 
 # Python 3.11+ has tomllib built-in, older versions need tomli
 if sys.version_info >= (3, 11):
@@ -87,7 +87,7 @@ class LivemathConfig:
     unit_format: UnitFormat = UnitFormat.DEFAULT  # ISS-042: Unit display format
     smart_format: bool = False  # ISS-046: Context-aware number formatting
 
-    def with_overrides(self, overrides: Dict[str, Any]) -> "LivemathConfig":
+    def with_overrides(self, overrides: dict[str, Any]) -> "LivemathConfig":
         """
         Return a new config with the specified overrides applied.
 
@@ -121,7 +121,7 @@ class LivemathConfig:
         return replace(self, **valid)
 
     def resolve_output_path(
-        self, input_path: Path, cli_output: Optional[str] = None
+        self, input_path: Path, cli_output: str | None = None
     ) -> Path:
         """
         Resolve the actual output path based on config and CLI override.
@@ -162,7 +162,7 @@ class LivemathConfig:
             return output_path
 
     @classmethod
-    def load(cls, document_path: Optional[Path] = None) -> "LivemathConfig":
+    def load(cls, document_path: Path | None = None) -> "LivemathConfig":
         """
         Load config from all file sources (NOT expression/directive level).
 
@@ -204,7 +204,7 @@ class LivemathConfig:
         return config
 
     @staticmethod
-    def _load_toml(path: Path) -> Dict[str, Any]:
+    def _load_toml(path: Path) -> dict[str, Any]:
         """
         Load and flatten a TOML config file.
 
@@ -232,7 +232,7 @@ class LivemathConfig:
         return result
 
     @staticmethod
-    def _load_pyproject(path: Path) -> Dict[str, Any]:
+    def _load_pyproject(path: Path) -> dict[str, Any]:
         """
         Load [tool.livemathtex] section from pyproject.toml.
 
@@ -249,7 +249,7 @@ class LivemathConfig:
         )
 
     @staticmethod
-    def _load_toml_dict(data: Dict[str, Any]) -> Dict[str, Any]:
+    def _load_toml_dict(data: dict[str, Any]) -> dict[str, Any]:
         """
         Process a TOML dictionary, flattening nested sections.
 
@@ -271,7 +271,7 @@ class LivemathConfig:
         return result
 
     @staticmethod
-    def _find_pyproject(start: Path) -> Optional[Path]:
+    def _find_pyproject(start: Path) -> Path | None:
         """
         Find pyproject.toml by walking up from start directory.
 

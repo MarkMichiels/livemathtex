@@ -14,10 +14,10 @@ Version 3.0 (current):
 - Pint-based unit backend
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
-from pathlib import Path
 import json
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -29,8 +29,8 @@ class ValueWithUnit:
         value: The numeric value (None if evaluation failed)
         unit: The unit string (None for dimensionless)
     """
-    value: Optional[float] = None
-    unit: Optional[str] = None
+    value: float | None = None
+    unit: str | None = None
 
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
@@ -68,7 +68,7 @@ class SymbolEntry:
     si: ValueWithUnit = field(default_factory=ValueWithUnit)
     valid: bool = True
     line: int = 0
-    error: Optional[str] = None
+    error: str | None = None
 
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
@@ -139,12 +139,12 @@ class LivemathIR:
     """
     version: str = "2.0"
     source: str = ""
-    custom_units: Dict[str, str] = field(default_factory=dict)
-    symbols: Dict[str, SymbolEntry] = field(default_factory=dict)
-    errors: List[IRError] = field(default_factory=list)
-    stats: Dict[str, Any] = field(default_factory=dict)
+    custom_units: dict[str, str] = field(default_factory=dict)
+    symbols: dict[str, SymbolEntry] = field(default_factory=dict)
+    errors: list[IRError] = field(default_factory=list)
+    stats: dict[str, Any] = field(default_factory=dict)
 
-    def get_symbol(self, name: str) -> Optional[SymbolEntry]:
+    def get_symbol(self, name: str) -> SymbolEntry | None:
         """Get a symbol by its LaTeX name."""
         return self.symbols.get(name)
 
@@ -198,7 +198,7 @@ class LivemathIR:
     @classmethod
     def from_json(cls, path: Path) -> 'LivemathIR':
         """Load IR from JSON file."""
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding='utf-8') as f:
             data = json.load(f)
         return cls.from_dict(data)
 
@@ -220,9 +220,9 @@ class FormulaInfo:
         parameter_latex: Original LaTeX names for parameters (e.g., ["x", "y"])
     """
     expression: str = ""
-    depends_on: List[str] = field(default_factory=list)
-    parameters: Optional[List[str]] = None
-    parameter_latex: Optional[List[str]] = None
+    depends_on: list[str] = field(default_factory=list)
+    parameters: list[str] | None = None
+    parameter_latex: list[str] | None = None
 
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
@@ -304,9 +304,9 @@ class SymbolEntryV3:
     original: ValueWithUnit = field(default_factory=ValueWithUnit)
     base: ValueWithUnit = field(default_factory=ValueWithUnit)
     conversion_ok: bool = True
-    formula: Optional[FormulaInfo] = None
+    formula: FormulaInfo | None = None
     line: int = 0
-    conversion_error: Optional[str] = None
+    conversion_error: str | None = None
 
     def to_dict(self) -> dict:
         """Convert to JSON-serializable dict."""
@@ -361,27 +361,27 @@ class LivemathIRV3:
     """
     version: str = "3.0"
     source: str = ""
-    unit_backend: Dict[str, str] = field(default_factory=lambda: {"name": "pint", "version": ""})
-    custom_units: Dict[str, CustomUnitEntry] = field(default_factory=dict)
-    symbols: Dict[str, SymbolEntryV3] = field(default_factory=dict)
-    errors: List[IRError] = field(default_factory=list)
-    stats: Dict[str, Any] = field(default_factory=dict)
+    unit_backend: dict[str, str] = field(default_factory=lambda: {"name": "pint", "version": ""})
+    custom_units: dict[str, CustomUnitEntry] = field(default_factory=dict)
+    symbols: dict[str, SymbolEntryV3] = field(default_factory=dict)
+    errors: list[IRError] = field(default_factory=list)
+    stats: dict[str, Any] = field(default_factory=dict)
 
     # Internal mapping: latex_name -> clean_id (not serialized to JSON)
-    _latex_to_id: Dict[str, str] = field(default_factory=dict, repr=False)
+    _latex_to_id: dict[str, str] = field(default_factory=dict, repr=False)
 
-    def get_symbol(self, clean_id: str) -> Optional[SymbolEntryV3]:
+    def get_symbol(self, clean_id: str) -> SymbolEntryV3 | None:
         """Get a symbol by its clean ID (v1, f1, etc.)."""
         return self.symbols.get(clean_id)
 
-    def get_symbol_by_latex(self, latex_name: str) -> Optional[SymbolEntryV3]:
+    def get_symbol_by_latex(self, latex_name: str) -> SymbolEntryV3 | None:
         """Get a symbol by its LaTeX name."""
         clean_id = self._latex_to_id.get(latex_name)
         if clean_id:
             return self.symbols.get(clean_id)
         return None
 
-    def get_id_for_latex(self, latex_name: str) -> Optional[str]:
+    def get_id_for_latex(self, latex_name: str) -> str | None:
         """Get the clean ID for a LaTeX name."""
         return self._latex_to_id.get(latex_name)
 
@@ -452,6 +452,6 @@ class LivemathIRV3:
     @classmethod
     def from_json(cls, path: Path) -> 'LivemathIRV3':
         """Load IR from JSON file."""
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding='utf-8') as f:
             data = json.load(f)
         return cls.from_dict(data)

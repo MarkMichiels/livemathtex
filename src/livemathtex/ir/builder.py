@@ -11,12 +11,11 @@ v3.0:
 """
 
 import re
-from typing import Optional, Tuple
 from pathlib import Path
 
-from ..parser.models import Document, MathBlock, Calculation
 from ..parser.lexer import Lexer
-from .schema import LivemathIR, SymbolEntry, LivemathIRV3, CustomUnitEntry
+from ..parser.models import Calculation, Document, MathBlock
+from .schema import CustomUnitEntry, LivemathIR, LivemathIRV3, SymbolEntry
 
 
 class IRBuilder:
@@ -93,7 +92,7 @@ class IRBuilder:
         """
         import json
 
-        with open(library_path, 'r', encoding='utf-8') as f:
+        with open(library_path, encoding='utf-8') as f:
             data = json.load(f)
 
         for name, entry_data in data.get("symbols", {}).items():
@@ -149,7 +148,7 @@ class IRBuilder:
         document = self.lexer.parse(text)
         return self.build_v3(document, source)
 
-    def _parse_unit_definition(self, calc: Calculation) -> Optional[CustomUnitEntry]:
+    def _parse_unit_definition(self, calc: Calculation) -> CustomUnitEntry | None:
         """
         Parse a unit definition (===) into a CustomUnitEntry.
 
@@ -182,7 +181,7 @@ class IRBuilder:
             line=line
         )
 
-    def _classify_unit_definition(self, name: str, definition: str) -> Tuple[str, str]:
+    def _classify_unit_definition(self, name: str, definition: str) -> tuple[str, str]:
         """
         Classify a unit definition and generate Pint syntax.
 
@@ -232,8 +231,9 @@ class IRBuilder:
         Returns:
             True if successful, False otherwise
         """
-        from ..engine.pint_backend import get_unit_registry
         import pint
+
+        from ..engine.pint_backend import get_unit_registry
 
         ureg = get_unit_registry()
 

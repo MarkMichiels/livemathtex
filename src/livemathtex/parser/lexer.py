@@ -1,6 +1,8 @@
 import re
-from typing import Any, Dict, List, Iterator, Optional
-from .models import Document, TextBlock, MathBlock, Calculation, SourceLocation
+from typing import Any
+
+from .models import Calculation, Document, MathBlock, SourceLocation, TextBlock
+
 
 class Lexer:
     """
@@ -132,7 +134,7 @@ class Lexer:
 
         return Document(children=children)
 
-    def _get_line_number(self, pos: int, line_offsets: List[int]) -> int:
+    def _get_line_number(self, pos: int, line_offsets: list[int]) -> int:
         """Binary search or simple scan to find line number."""
         # Simple scan is fine for MVP
         for i, offset in enumerate(line_offsets):
@@ -140,7 +142,7 @@ class Lexer:
                 return i
         return len(line_offsets)
 
-    def extract_calculations(self, math_block: MathBlock) -> List[Calculation]:
+    def extract_calculations(self, math_block: MathBlock) -> list[Calculation]:
         """
         Analyze a MathBlock to find specific calculation requests.
         Handles multiline blocks by treating each line as a potential separate calculation.
@@ -341,7 +343,7 @@ class Lexer:
     # Regex for flag-style config (no value): <!-- trailing_zeros -->
     EXPRESSION_FLAG_RE = re.compile(r'\b(trailing_zeros)\b(?!:)')
 
-    def parse_document_directives(self, content: str) -> Dict[str, Any]:
+    def parse_document_directives(self, content: str) -> dict[str, Any]:
         """
         Extract livemathtex config directives from document content.
 
@@ -366,7 +368,7 @@ class Lexer:
             >>> lexer.parse_document_directives(content)
             {'digits': 6, 'format': 'engineering'}
         """
-        directives: Dict[str, Any] = {}
+        directives: dict[str, Any] = {}
 
         # Strip fenced code blocks before scanning for directives (ISSUE-004)
         # This prevents example directives in documentation from being parsed
@@ -385,7 +387,7 @@ class Lexer:
 
         return directives
 
-    def parse_expression_overrides(self, comment: str) -> Dict[str, Any]:
+    def parse_expression_overrides(self, comment: str) -> dict[str, Any]:
         """
         Parse expression-level config overrides from an inline comment.
 
@@ -413,7 +415,7 @@ class Lexer:
         if not comment:
             return {}
 
-        overrides: Dict[str, Any] = {}
+        overrides: dict[str, Any] = {}
 
         # Extract key:value pairs
         for match in self.EXPRESSION_CONFIG_RE.finditer(comment):
@@ -474,7 +476,7 @@ class Lexer:
         # String (remove quotes if present)
         return value.strip('"\'')
 
-    def extract_config_from_comment(self, math_block: MathBlock) -> Dict[str, Any]:
+    def extract_config_from_comment(self, math_block: MathBlock) -> dict[str, Any]:
         """
         Extract expression-level config overrides from a MathBlock's comments.
 

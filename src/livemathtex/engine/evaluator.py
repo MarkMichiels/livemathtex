@@ -14,24 +14,26 @@ The NameGenerator in symbols.py manages the bidirectional mapping:
 See ARCHITECTURE.md for full documentation.
 """
 
-from typing import Dict, Any, Optional, List, Tuple
 import logging
 import re
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
-from .symbols import SymbolTable
+from ..config import LivemathConfig
+from ..ir.schema import LivemathIR
+from ..parser.expression_parser import ExpressionParser
+from ..parser.expression_tokenizer import ExpressionTokenizer
+from ..parser.models import Calculation
+from ..utils.errors import EvaluationError
+from .expression_evaluator import evaluate_expression_tree
 from .pint_backend import (
-    get_unit_registry as get_pint_registry,
     format_unit_latex,
 )
-from .expression_evaluator import evaluate_expression_tree, EvaluationError as CustomEvaluationError
-from ..parser.models import Calculation
-from ..parser.expression_tokenizer import ExpressionTokenizer
-from ..parser.expression_parser import ExpressionParser, ParseError
-from ..utils.errors import EvaluationError, UndefinedVariableError, UnitConversionWarning
-from ..ir.schema import LivemathIR, SymbolEntry
-from ..config import LivemathConfig
+from .pint_backend import (
+    get_unit_registry as get_pint_registry,
+)
+from .symbols import SymbolTable
 
 # Greek letter mappings for display purposes
 GREEK_LETTERS = {
@@ -59,7 +61,7 @@ class Evaluator:
     # Unit detection now uses Pint backend: is_known_unit(), is_unit_token(),
     # and check_variable_name_conflict() from pint_backend.py.
 
-    def __init__(self, config: Optional[LivemathConfig] = None):
+    def __init__(self, config: LivemathConfig | None = None):
         """
         Initialize the evaluator with optional configuration.
 
@@ -69,7 +71,7 @@ class Evaluator:
         self.config = config or LivemathConfig()
         self.symbols = SymbolTable()
         # NOTE: TokenClassifier removed in v3.0 - no longer needed with custom parser
-        self._ir: Optional[LivemathIR] = None  # Current IR being processed
+        self._ir: LivemathIR | None = None  # Current IR being processed
         self._warning_count = 0  # ISS-017: Track warnings separately from errors
 
     def get_warning_count(self) -> int:
@@ -86,7 +88,7 @@ class Evaluator:
         escaped_msg = self._escape_latex_text(message)
         return f"\\color{{orange}}{{\\text{{{escaped_msg}}}}}"
 
-    def evaluate_ir(self, ir: LivemathIR, calculations: List[Calculation]) -> LivemathIR:
+    def evaluate_ir(self, ir: LivemathIR, calculations: list[Calculation]) -> LivemathIR:
         """
         Evaluate all calculations and update the IR.
 
@@ -185,7 +187,7 @@ class Evaluator:
     def evaluate(
         self,
         calculation: Calculation,
-        config_overrides: Optional[Dict[str, Any]] = None,
+        config_overrides: dict[str, Any] | None = None,
         line: int = 0
     ) -> str:
         """
@@ -379,7 +381,6 @@ class Evaluator:
         Returns:
             True if this is a value definition, False if it's a formula
         """
-        import re
 
         # Strip LaTeX whitespace and leading/trailing whitespace
         rhs_clean = rhs.strip()
@@ -443,7 +444,7 @@ class Evaluator:
 
         return True
 
-    def _find_dependencies(self, rhs: str, exclude_params: Optional[List[str]] = None) -> List[str]:
+    def _find_dependencies(self, rhs: str, exclude_params: list[str] | None = None) -> list[str]:
         """
         Find all symbol references in an expression.
 
@@ -457,7 +458,6 @@ class Evaluator:
         Returns:
             List of clean IDs that this expression depends on
         """
-        import re
 
         exclude = set(exclude_params or [])
         dependencies = []
@@ -493,7 +493,7 @@ class Evaluator:
 
         return dependencies
 
-    def _convert_expression_to_clean_ids(self, rhs: str, exclude_params: Optional[List[str]] = None) -> str:
+    def _convert_expression_to_clean_ids(self, rhs: str, exclude_params: list[str] | None = None) -> str:
         """
         Convert a LaTeX expression to use clean IDs.
 
@@ -507,7 +507,6 @@ class Evaluator:
         Returns:
             Expression with clean IDs
         """
-        import re
 
         exclude = set(exclude_params or [])
         result = rhs
@@ -546,11 +545,6 @@ class Evaluator:
         # NORMALIZE target name: convert LaTeX Greek letters to plain text
         # e.g., \Delta_h -> Delta_h, \theta_1 -> theta_1
         target = self._normalize_symbol_name(calc.target)
-        import re
-        from .pint_backend import (
-            strip_unit_from_value,
-            get_custom_unit_registry as get_unit_registry,
-        )
 
         # CHECK: Prevent variable names that conflict with known unit names
         # This avoids ambiguity like 'g' meaning both 'gram' and 'gravity'
@@ -675,7 +669,7 @@ class Evaluator:
 
         return assignment_latex
 
-    def _handle_evaluation(self, calc: Calculation, config: Optional[LivemathConfig] = None) -> str:
+    def _handle_evaluation(self, calc: Calculation, config: LivemathConfig | None = None) -> str:
         """Handle evaluation: $expr ==$"""
         cfg = config or self.config
         content = calc.latex
@@ -689,7 +683,7 @@ class Evaluator:
         # The original LaTeX is preserved as-is
         return f"{lhs} == {result_latex}"
 
-    def _format_pint_result(self, pint_result, unit_hint: Optional[str], config: LivemathConfig) -> str:
+    def _format_pint_result(self, pint_result, unit_hint: str | None, config: LivemathConfig) -> str:
         """
         Format a Pint Quantity or array result to LaTeX.
 
@@ -702,6 +696,7 @@ class Evaluator:
             LaTeX formatted string
         """
         import pint
+
         from .pint_backend import clean_latex_unit
 
         ureg = get_pint_registry()
@@ -716,7 +711,7 @@ class Evaluator:
             target_unit = target_unit.replace('€', 'EUR').replace('$', 'USD')
             try:
                 pint_result = pint_result.to(target_unit)
-            except pint.DimensionalityError as e:
+            except pint.DimensionalityError:
                 # Increment warning counter and show warning
                 self._warning_count += 1
                 si_value = self._format_pint_quantity_latex(pint_result.to_base_units(), config)
@@ -727,7 +722,7 @@ class Evaluator:
 
         return self._format_pint_quantity_latex(pint_result, config)
 
-    def _format_array_latex(self, array: list, unit_hint: Optional[str], config: LivemathConfig) -> str:
+    def _format_array_latex(self, array: list, unit_hint: str | None, config: LivemathConfig) -> str:
         """
         Format an array of Pint Quantities as LaTeX.
 
@@ -740,6 +735,7 @@ class Evaluator:
             LaTeX string like "[15, 30.5, 34]\\ \\text{mg/L/d}"
         """
         import pint
+
         from .pint_backend import clean_latex_unit
 
         if not array:
@@ -803,7 +799,6 @@ class Evaluator:
         Returns:
             LaTeX string like "1\\,234.5\\ \\text{MWh}"
         """
-        import pint
 
         # Get magnitude and unit
         magnitude = qty.magnitude
@@ -905,7 +900,7 @@ class Evaluator:
         latex = unit_map.get(unit_str, unit_str)
         return f"\\text{{{latex}}}"
 
-    def _handle_assignment_evaluation(self, calc: Calculation, config: Optional[LivemathConfig] = None) -> str:
+    def _handle_assignment_evaluation(self, calc: Calculation, config: LivemathConfig | None = None) -> str:
         """Handle combined assignment and evaluation: $var := expr ==$"""
         cfg = config or self.config
         content = calc.latex
@@ -914,8 +909,9 @@ class Evaluator:
         rhs_part, result_part = part2.split("==", 1)
         rhs = rhs_part.strip()
 
-        from .pint_backend import format_pint_unit
         import pint
+
+        from .pint_backend import format_pint_unit
 
         # Use Pint for all calculations
         pint_result = self._compute_with_pint(rhs)
@@ -1027,7 +1023,7 @@ class Evaluator:
             f"Expression: {lhs}"
         )
 
-    def _handle_value_display(self, calc: Calculation, config: Optional[LivemathConfig] = None) -> str:
+    def _handle_value_display(self, calc: Calculation, config: LivemathConfig | None = None) -> str:
         """
         Handle value display: $ $ <!-- value:VAR [unit] :precision -->
 
@@ -1098,6 +1094,8 @@ class Evaluator:
         from .pint_backend import (
             define_custom_unit_from_latex,
             is_pint_unit,
+        )
+        from .pint_backend import (
             get_custom_unit_registry as get_unit_registry,
         )
 
@@ -1136,8 +1134,8 @@ class Evaluator:
         self,
         value: Any,
         unit_latex: str,
-        from_unit: Optional[str] = None,
-        original_value: Optional[float] = None
+        from_unit: str | None = None,
+        original_value: float | None = None
     ) -> float:
         """
         Convert a dimensioned value to a target unit (in LaTeX notation) and return the numeric part.
@@ -1179,8 +1177,8 @@ class Evaluator:
     def _format_numeric(
         self,
         value: float,
-        precision: Optional[int] = None,
-        config: Optional[LivemathConfig] = None
+        precision: int | None = None,
+        config: LivemathConfig | None = None
     ) -> str:
         """
         Format a numeric value with the specified precision.
@@ -1228,7 +1226,7 @@ class Evaluator:
         if value == 0:
             return "0"
 
-        from math import log10, floor
+        from math import floor, log10
 
         # Get exponent as multiple of 3
         exp = floor(log10(abs(value)))
@@ -1256,7 +1254,7 @@ class Evaluator:
         if value == 0:
             return "0"
 
-        from math import log10, floor
+        from math import floor, log10
 
         magnitude = floor(log10(abs(value)))
 
@@ -1289,7 +1287,7 @@ class Evaluator:
         if value == 0:
             return "0"
 
-        from math import log10, floor
+        from math import floor, log10
 
         abs_value = abs(value)
         magnitude = floor(log10(abs_value)) if abs_value > 0 else 0
@@ -1346,7 +1344,7 @@ class Evaluator:
         if value == 0:
             return "0"
 
-        from math import log10, floor
+        from math import floor, log10
 
         # Calculate order of magnitude
         magnitude = floor(log10(abs(value)))
@@ -1433,7 +1431,6 @@ class Evaluator:
             "N_{headers/MPC}" → "N_headers_per_MPC"
             "LED_{R2}" → "LED_R2"
         """
-        import re
 
         result = latex_var
 
@@ -1476,7 +1473,6 @@ class Evaluator:
         IMPORTANT: Only replace whole variable names, not parts of LaTeX commands!
         E.g., don't replace 'a' inside '\frac{a}{b}' for the 'a' in 'frac'.
         """
-        import re
 
         result = expression_latex
 
@@ -1537,7 +1533,6 @@ class Evaluator:
             ParseError: If tokenization or parsing fails
             CustomEvaluationError: If evaluation fails
         """
-        import pint
         ureg = get_pint_registry()
 
         # Step 1: Rewrite expression with internal IDs (v0, v1, ... format)
@@ -1619,7 +1614,7 @@ class Evaluator:
         """
         return self._evaluate_with_custom_parser(expression_latex)
 
-    def _symbol_to_pint_quantity(self, entry: Any, ureg: 'pint.UnitRegistry') -> 'Optional[pint.Quantity]':
+    def _symbol_to_pint_quantity(self, entry: Any, ureg: 'pint.UnitRegistry') -> 'pint.Quantity | None':
         """
         Convert a SymbolValue entry to a Pint Quantity.
 

@@ -14,13 +14,13 @@ Symbol normalization uses the v0/f0/x0 architecture:
 See symbols.py NameGenerator for the implementation.
 """
 
+from .builder import IRBuilder
 from .schema import (
-    ValueWithUnit,
-    SymbolEntry,
     IRError,
     LivemathIR,
+    SymbolEntry,
+    ValueWithUnit,
 )
-from .builder import IRBuilder
 
 __all__ = [
     "ValueWithUnit",

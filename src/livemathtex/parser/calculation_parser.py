@@ -5,9 +5,9 @@ Builds on Phase 8's hybrid parser to add operator detection with
 precise document positions for all semantic parts (lhs, operator, rhs, result).
 """
 
-from dataclasses import dataclass
-from typing import List, Optional, TYPE_CHECKING
 import re
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .markdown_parser import ParsedMathBlock
@@ -31,34 +31,34 @@ class ParsedCalculation:
     operator_span: Span     # Position of operator in document
 
     # LHS (left-hand side) - variable name for assignments
-    lhs: Optional[str] = None
-    lhs_span: Optional[Span] = None
+    lhs: str | None = None
+    lhs_span: Span | None = None
 
     # RHS (right-hand side) - expression
-    rhs: Optional[str] = None
-    rhs_span: Optional[Span] = None
+    rhs: str | None = None
+    rhs_span: Span | None = None
 
     # Result (after == for evaluations)
-    result: Optional[str] = None
-    result_span: Optional[Span] = None
+    result: str | None = None
+    result_span: Span | None = None
 
     # Unit hint (from [unit] or HTML comment)
-    unit_hint: Optional[str] = None
-    unit_hint_span: Optional[Span] = None
+    unit_hint: str | None = None
+    unit_hint_span: Span | None = None
 
     # Original line for reference
     line: str = ""
-    line_span: Optional[Span] = None
+    line_span: Span | None = None
 
     # Error info
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
 
 def parse_calculation_line(
     line: str,
     line_start_offset: int,
-    unit_comment: Optional[str] = None
-) -> Optional[ParsedCalculation]:
+    unit_comment: str | None = None
+) -> ParsedCalculation | None:
     """Parse a single line of LaTeX into a ParsedCalculation.
 
     Args:
@@ -241,9 +241,9 @@ def parse_calculation_line(
 
 def parse_math_block_calculations(
     block: "ParsedMathBlock",
-    unit_comment: Optional[str] = None,
-    value_comment: Optional[str] = None
-) -> List[ParsedCalculation]:
+    unit_comment: str | None = None,
+    value_comment: str | None = None
+) -> list[ParsedCalculation]:
     """Parse calculations from a math block.
 
     Args:
@@ -254,7 +254,7 @@ def parse_math_block_calculations(
     Returns:
         List of ParsedCalculation objects
     """
-    calculations: List[ParsedCalculation] = []
+    calculations: list[ParsedCalculation] = []
 
     # Handle value_comment case (special value lookup)
     if value_comment:

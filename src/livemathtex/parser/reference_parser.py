@@ -10,9 +10,8 @@ Example:
 The HTML comment preserves the original reference for clear/reprocess cycles.
 """
 
-from dataclasses import dataclass
-from typing import List, Optional
 import re
+from dataclasses import dataclass
 
 
 @dataclass
@@ -28,7 +27,7 @@ class Reference:
     content: str
     start: int
     end: int
-    unit_hint: Optional[str] = None
+    unit_hint: str | None = None
 
 
 @dataclass
@@ -42,9 +41,9 @@ class ProcessedReference:
         error: Error message if evaluation failed
     """
     original: Reference
-    value: Optional[str] = None
-    unit: Optional[str] = None
-    error: Optional[str] = None
+    value: str | None = None
+    unit: str | None = None
+    error: str | None = None
 
     @property
     def formatted(self) -> str:
@@ -60,7 +59,7 @@ class ProcessedReference:
         return f"{result}<!-- {{{{{self.original.content}}}}} -->"
 
 
-def find_math_block_ranges(content: str) -> List[tuple]:
+def find_math_block_ranges(content: str) -> list[tuple]:
     """Find all ranges of math blocks to exclude from reference search.
 
     Returns:
@@ -98,7 +97,7 @@ def find_math_block_ranges(content: str) -> List[tuple]:
     return sorted(ranges)
 
 
-def is_in_excluded_range(pos: int, ranges: List[tuple]) -> bool:
+def is_in_excluded_range(pos: int, ranges: list[tuple]) -> bool:
     """Check if a position is within any excluded range."""
     for start, end in ranges:
         if start <= pos < end:
@@ -106,7 +105,7 @@ def is_in_excluded_range(pos: int, ranges: List[tuple]) -> bool:
     return False
 
 
-def extract_references(content: str) -> List[Reference]:
+def extract_references(content: str) -> list[Reference]:
     r"""Extract all {{...}} references from content.
 
     Args:
@@ -154,7 +153,7 @@ def extract_references(content: str) -> List[Reference]:
     return references
 
 
-def find_processed_references(content: str) -> List[tuple]:
+def find_processed_references(content: str) -> list[tuple]:
     """Find previously processed references (value<!-- {{ref}} --> or value<!-- {{ref [unit]}} -->).
 
     Returns:
