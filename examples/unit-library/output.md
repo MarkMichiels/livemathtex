@@ -48,7 +48,7 @@ $$electricity\_price := 0.139\\ €/kWh$$
 
 $$consumption := 24000\\ kWh$$
 
-$$cost := electricity\_price \\cdot consumption == 3,336\\ \\text{€}$$
+$$cost := electricity\_price \\cdot consumption == 3\,336\ \text{€}$$
 
 ### Biomass Production (All Pint units)
 
@@ -56,7 +56,7 @@ $$productivity := 5\\ g/L$$
 
 $$reactor\_volume := 100\\ L$$
 
-$$total := productivity \\cdot reactor\_volume == 500\\ \\text{g}$$
+$$total := productivity \\cdot reactor\_volume == 500\ \text{g}$$
 
 ### Working Hours (Pure numbers)
 
@@ -66,7 +66,7 @@ $$days\_per\_week := 5$$
 
 $$weeks\_per\_year := 48$$
 
-$$total\_hours := hours\_per\_day \\cdot days\_per\_week \\cdot weeks\_per\_year == 1,920$$
+$$total\_hours := hours\_per\_day \\cdot days\_per\_week \\cdot weeks\_per\_year == 1\,920$$
 
 ---
 
@@ -95,4 +95,4 @@ This will allow sharing unit libraries across documents.
 
 ---
 
-> _livemathtex: 2026-01-15 11:30:38 | 10 definitions, 3 evaluations | no errors | 0.07s_
+> *livemathtex: 2026-03-27 04:58:06 | 10 definitions, 3 evaluations | no errors | 0.07s* <!-- livemathtex-meta -->
