@@ -4,7 +4,12 @@ This directory contains Cursor commands specific to LiveMathTeX development.
 
 ## Available Commands
 
-(Add commands here as needed)
+| Command | Description |
+|---------|-------------|
+| `/livemathtex` | LiveMathTeX command reference and overview |
+| `/setup` | Install and setup LiveMathTeX |
+| `/build-calculations` | Iteratively build and verify LiveMathTeX calculations until correct |
+| `/debug-calculations` | Debug LiveMathTeX calculations and create issues for bugs and feature requests |
 
 ## Usage
 
