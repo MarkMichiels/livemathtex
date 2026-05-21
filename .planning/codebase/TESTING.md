@@ -1,235 +1,412 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-01-11
+**Analysis Date:** 2026-05-21
 
 ## Test Framework
 
 **Runner:**
-- pytest >=7.0
-- Config: `pyproject.toml` [tool.pytest.ini_options]
+- Framework: pytest 7.0+
+- Config: `pyproject.toml` under `[tool.pytest.ini_options]`
+- Config details:
+  ```toml
+  [tool.pytest.ini_options]
+  testpaths = ["tests"]
+  addopts = "-v --cov=livemathtex"
+  ```
 
 **Assertion Library:**
 - pytest built-in assertions
-- Standard Python `assert` statements
+- `pytest.approx()` for floating-point comparison
 
 **Run Commands:**
 ```bash
-pytest                           # Run all tests
-pytest -v                        # Verbose output
-pytest tests/test_examples.py    # Single file
-pytest --cov=livemathtex         # Coverage report
-pytest -k "test_name"            # Run specific test
+# Run all tests with coverage
+python3 -m pytest tests/ -v --cov=livemathtex
+
+# Run specific test file
+python3 -m pytest tests/test_expression_evaluator.py -v
+
+# Run specific test class
+python3 -m pytest tests/test_expression_evaluator.py::TestNumberEvaluation -v
+
+# Run specific test
+python3 -m pytest tests/test_expression_evaluator.py::TestNumberEvaluation::test_integer
+
+# Watch mode (requires pytest-watch or manual re-run)
+python3 -m pytest tests/ -v --cov=livemathtex --tb=short
+
+# Coverage report
+python3 -m pytest tests/ --cov=livemathtex --cov-report=html
 ```
 
 ## Test File Organization
 
 **Location:**
-- `tests/` directory (separate from source)
+- Co-located in separate `tests/` directory (not inline with source)
+- Path: `/home/mark/Repositories/livemathtex/tests/`
 
 **Naming:**
-- `test_*.py` for test files
-- `test_*` for test functions
+- Test files: `test_<module>.py` pattern
+- Test classes: `Test<Feature>` pattern
+- Test methods: `test_<behavior>()` pattern
 
 **Structure:**
 ```
 tests/
 ├── __init__.py
-├── conftest.py                    # Shared fixtures
-├── test_examples.py               # Snapshot tests (14,748 bytes)
-├── test_pint_backend.py           # Unit backend tests (10,211 bytes)
-├── test_unit_recognition.py       # Unit recognition tests (9,500 bytes)
-└── test_process_clear_cycle.py    # Process/clear cycle stability tests
+├── conftest.py                          # Shared fixtures
+├── test_expression_evaluator.py          # Unit tests for evaluator
+├── test_expression_parser.py             # Unit tests for parser
+├── test_markdown_parser.py               # Unit tests for markdown parsing
+├── test_examples.py                      # Snapshot/integration tests
+├── test_calculation_parser.py
+├── test_pint_backend.py
+├── test_pint_evaluator.py
+├── test_expression_tokenizer.py
+├── test_clear_v2.py
+└── [25+ more test files]
 ```
+
+Total: 25 test files, ~6,761 lines of test code.
 
 ## Test Structure
 
 **Suite Organization:**
+
+Example from `tests/test_expression_evaluator.py`:
 ```python
-"""Docstring explaining test module purpose."""
+"""Tests for the expression evaluator.
+
+This module tests evaluate_expression_tree() which evaluates ExprNode trees
+using Pint for unit-aware calculations.
+
+TDD: RED phase - all tests should fail until evaluator is implemented.
+"""
 
 import pytest
-from pathlib import Path
+import pint
 
-from livemathtex.core import process_text, process_text_v3
+from livemathtex.parser.expression_tokenizer import ExpressionTokenizer
+from livemathtex.parser.expression_parser import ExpressionParser
+from livemathtex.engine.expression_evaluator import (
+    evaluate_expression_tree,
+    EvaluationError,
+)
+from livemathtex.engine.pint_backend import get_unit_registry
 
-@pytest.mark.parametrize("example_name", EXAMPLE_IDS)
-def test_example_snapshot(example_name: str, examples_dir: Path) -> None:
-    """
-    Test docstring explaining what this test verifies.
-    """
-    # arrange
-    example_dir = examples_dir / example_name
-    input_file = example_dir / "input.md"
 
-    # act
-    output, ir = process_text(input_content)
+@pytest.fixture
+def ureg():
+    """Get unit registry for tests."""
+    return get_unit_registry()
 
-    # assert
-    assert normalize_output(output) == normalize_output(expected)
+
+def evaluate(latex: str, symbols: dict = None, ureg: pint.UnitRegistry = None):
+    """Helper to tokenize, parse, and evaluate a LaTeX expression."""
+    if ureg is None:
+        ureg = get_unit_registry()
+    if symbols is None:
+        symbols = {}
+    tokens = ExpressionTokenizer(latex).tokenize()
+    tree = ExpressionParser(tokens).parse()
+    return evaluate_expression_tree(tree, symbols, ureg)
+
+
+# =============================================================================
+# Number Evaluation
+# =============================================================================
+
+
+class TestNumberEvaluation:
+    """Test evaluation of numeric literals."""
+
+    def test_integer(self, ureg):
+        """Evaluate integer literal."""
+        result = evaluate("5", ureg=ureg)
+        assert isinstance(result, pint.Quantity)
+        assert result.magnitude == 5.0
+        assert result.dimensionless
+
+    def test_decimal(self, ureg):
+        """Evaluate decimal literal."""
+        result = evaluate("3.14", ureg=ureg)
+        assert result.magnitude == pytest.approx(3.14)
+        assert result.dimensionless
 ```
 
 **Patterns:**
-- Descriptive test function names
-- Module docstrings explaining test purpose
-- Arrange/Act/Assert structure (implicit)
-- Parametrized tests for multiple examples
+- Test classes group related tests: `TestNumberEvaluation`, `TestVariableLookup`, `TestBinaryOperations`
+- Section headers with equal signs: `# =============================================================================`
+- Docstring on every test method explaining what is being tested
+- Helper functions (like `evaluate()`) provided at module level for test utilities
 
-## Fixtures
+**Fixtures:**
 
-**Shared Fixtures:**
-- `conftest.py` for pytest fixtures
-- `examples_dir` fixture for example paths
-
-**Example:**
+From `tests/conftest.py`:
 ```python
-# conftest.py
+import pytest
+from pathlib import Path
+
+
+# Project paths
 @pytest.fixture
-def examples_dir() -> Path:
-    return Path(__file__).parent.parent / "examples"
+def project_root() -> Path:
+    """Return the project root directory."""
+    return Path(__file__).parent.parent
+
+
+@pytest.fixture
+def examples_dir(project_root: Path) -> Path:
+    """Return the examples directory."""
+    return project_root / "examples"
+
+
+@pytest.fixture
+def example_dirs(examples_dir: Path) -> list[Path]:
+    """Return all example directories that contain input.md files."""
+    dirs = []
+    for subdir in sorted(examples_dir.iterdir()):
+        if subdir.is_dir() and (subdir / "input.md").exists():
+            dirs.append(subdir)
+    return dirs
+
+
+# Example data
+def get_example_ids() -> list[str]:
+    """Get list of example directory names for parametrization."""
+    examples_path = Path(__file__).parent.parent / "examples"
+    return [
+        d.name
+        for d in sorted(examples_path.iterdir())
+        if d.is_dir() and (d / "input.md").exists()
+    ]
+
+
+EXAMPLE_IDS = get_example_ids()
 ```
 
-## Test Types
+- Function-scoped fixtures (default)
+- Fixtures injected as parameters: `def test_integer(self, ureg)`
+- Parametrization helpers: `EXAMPLE_IDS` list for parametrized tests
 
-**Snapshot Tests (`test_examples.py`):**
-- Process input.md, compare against output.md
-- Each example directory is a test case
-- Normalization handles timestamps and whitespace
-- Critical regression safety net
+## Mocking
 
-**Unit Tests (`test_pint_backend.py`, `test_unit_recognition.py`):**
-- Test individual functions in isolation
-- Test unit parsing, conversion, recognition
-- Test edge cases and error handling
+**Framework:** None detected. Tests use real objects or helper functions.
 
-**Integration Tests (`test_process_clear_cycle.py`):**
-- Test process/clear cycle stability
-- Verify that processing same file multiple times produces stable results
-- Test that clear → process cycle produces same result as original
-- Test that copy → process cycle produces same result as original
-- Verify error markup is fully cleaned
-- Documents known bugs in process/clear workflow
+**Patterns:**
+- No mock framework (unittest.mock) imported
+- Real unit registry: Tests use `get_unit_registry()` to get actual Pint UnitRegistry
+- Helper functions create test data: `evaluate()` helper wraps tokenization and parsing
+- Fixture factories for complex data
 
-**Pattern:**
+**What to Mock:**
+- File I/O: Not mocked in test suite; uses real `examples/` directory
+- External APIs: Not tested (no external integrations)
+- Unit registry: Created fresh per test via fixture
+
+**What NOT to Mock:**
+- Pint UnitRegistry: Always real
+- Parser/Tokenizer: Always real (unit testing the full pipeline)
+- Math operations: Always real
+
+## Fixtures and Factories
+
+**Test Data:**
+
+From `tests/test_expression_evaluator.py`:
 ```python
-@pytest.mark.parametrize("example_name", EXAMPLE_IDS)
-def test_example_snapshot(example_name: str, examples_dir: Path) -> None:
-    """Snapshot test for example directory."""
-    # Reset unit registry to ensure clean state
-    reset_unit_registry()
-
-    # Load and process
-    input_content = (example_dir / "input.md").read_text()
-    output, ir = process_text(input_content)
-
-    # Compare with expected
-    expected = (example_dir / "output.md").read_text()
-    assert normalize_output(output) == normalize_output(expected)
+def evaluate(latex: str, symbols: dict = None, ureg: pint.UnitRegistry = None):
+    """Helper to tokenize, parse, and evaluate a LaTeX expression."""
+    if ureg is None:
+        ureg = get_unit_registry()
+    if symbols is None:
+        symbols = {}
+    tokens = ExpressionTokenizer(latex).tokenize()
+    tree = ExpressionParser(tokens).parse()
+    return evaluate_expression_tree(tree, symbols, ureg)
 ```
+
+Usage pattern:
+```python
+def test_simple_variable(self, ureg):
+    """Look up simple variable."""
+    symbols = {"x": 5.0 * ureg.dimensionless}
+    result = evaluate("x", symbols, ureg)
+    assert result.magnitude == 5.0
+```
+
+**Location:**
+- Fixtures in `tests/conftest.py` (global fixtures)
+- Test-specific helpers in test file itself (e.g., `evaluate()` helper in test_expression_evaluator.py)
+- No external fixture factory files
 
 ## Coverage
 
-**Requirements:**
-- Coverage tracked via pytest-cov
-- No enforced coverage target
-- Focus on critical paths (evaluator, pint_backend)
-
-**Configuration:**
-```toml
-# pyproject.toml
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "-v --cov=livemathtex"
-```
+**Requirements:** Not enforced by CI. Coverage data generated but no minimum threshold.
 
 **View Coverage:**
 ```bash
-pytest --cov=livemathtex --cov-report=html
+# Generate HTML coverage report
+python3 -m pytest tests/ --cov=livemathtex --cov-report=html
+
+# View report
 open htmlcov/index.html
+
+# Terminal coverage report
+python3 -m pytest tests/ --cov=livemathtex --cov-report=term-missing
 ```
+
+**Current State:** `.coverage` file present, pytest-cov plugin installed in dev dependencies.
+
+## Test Types
+
+**Unit Tests (Primary):**
+- Scope: Individual functions and classes in isolation
+- Approach: Fast, focused assertions on single behaviors
+- Example: `test_integer()` tests only integer literal evaluation
+- 95% of test suite
+- Path: `tests/test_<module>.py` files
+- Examples:
+  - `tests/test_expression_evaluator.py`: Tests `evaluate_expression_tree()` with various inputs
+  - `tests/test_expression_parser.py`: Tests parsing of LaTeX expressions to AST
+  - `tests/test_expression_tokenizer.py`: Tests tokenization of LaTeX math
+
+**Integration Tests:**
+- Scope: Multi-module workflows
+- Approach: Exercise full pipelines (tokenize → parse → evaluate)
+- Example: `evaluate()` helper in test_expression_evaluator.py chains multiple modules
+- In: Specific test files or marked with classes
+- Examples:
+  - `tests/test_markdown_parser.py`: Tests markdown detection + LaTeX parsing
+  - `tests/test_calculation_parser.py`: Tests full calculation parsing
+
+**Snapshot Tests:**
+- Framework: Manual (no pytest-snapshot plugin)
+- Approach: Compare full output against expected file
+- Test: `test_example_snapshot()` in `tests/test_examples.py`
+- Triggers: Parametrized over example directories
+- Mechanism:
+  ```python
+  @pytest.mark.parametrize("example_name", EXAMPLE_IDS)
+  def test_example_snapshot(example_name: str, examples_dir: Path) -> None:
+      """
+      Test that processing input.md produces the expected output.md.
+
+      This is a snapshot test: the output must match exactly (after normalization).
+      If the behavior should change, update output.md to reflect the new expected output.
+      """
+      example_dir = examples_dir / example_name
+      input_file = example_dir / "input.md"
+      expected_output_file = example_dir / "output.md"
+
+      if not expected_output_file.exists():
+          pytest.skip(f"No output.md found for {example_name}")
+
+      reset_unit_registry()
+      # ... process and compare
+  ```
+- Normalization applied to handle timestamps:
+  ```python
+  def normalize_output(text: str) -> str:
+      """
+      Normalize output for comparison.
+
+      Handles:
+      - Trailing whitespace
+      - Timestamp lines (they change on each run)
+      - Line ending normalization
+      """
+      lines = []
+      for line in text.split('\n'):
+          # Skip timestamp meta line (changes on each run)
+          if '<!-- livemathtex-meta -->' in line:
+              continue
+          # Strip trailing whitespace
+          lines.append(line.rstrip())
+
+      # Remove trailing empty lines
+      while lines and not lines[-1]:
+          lines.pop()
+
+      return '\n'.join(lines)
+  ```
+
+**E2E Tests:**
+- Not explicitly present
+- Closest: `test_example_snapshot()` tests full document processing pipeline
+- Parametrized over 40+ example directories in `examples/`
 
 ## Common Patterns
 
-**Unit Registry Reset:**
-```python
-from livemathtex.engine import reset_unit_registry
+**Async Testing:**
+- Not used (no async code in project)
 
-def test_something():
-    reset_unit_registry()  # Clean state between tests
-    # test code
+**Error Testing:**
+
+Pattern with `pytest.raises()`:
+```python
+def test_undefined_variable(self, ureg):
+    """Look up undefined variable raises EvaluationError."""
+    with pytest.raises(EvaluationError):
+        evaluate("undefined_var", ureg=ureg)
 ```
 
-**Output Normalization:**
+From `tests/test_expression_parser.py`:
 ```python
-def normalize_output(text: str) -> str:
-    """Normalize output for comparison."""
-    lines = []
-    for line in text.split('\n'):
-        if '<!-- livemathtex-meta -->' in line:
-            continue  # Skip timestamps
-        lines.append(line.rstrip())
-    return '\n'.join(lines)
+def test_missing_closing_paren(self):
+    """Missing closing paren raises ParseError."""
+    with pytest.raises(ParseError):
+        parse("(1 + 2")
 ```
 
-**Diff Generation:**
+**Floating-Point Testing:**
 ```python
-def diff_strings(expected: str, actual: str) -> str:
-    """Generate unified diff for debugging."""
-    return '\n'.join(difflib.unified_diff(
-        expected.split('\n'),
-        actual.split('\n'),
-        fromfile='expected',
-        tofile='actual'
-    ))
+def test_decimal(self, ureg):
+    """Evaluate decimal literal."""
+    result = evaluate("3.14", ureg=ureg)
+    assert result.magnitude == pytest.approx(3.14)  # Fuzzy comparison
+    assert result.dimensionless
 ```
 
 **Parametrized Tests:**
+
+From `tests/test_examples.py`:
 ```python
-@pytest.mark.parametrize("unit,expected", [
-    ("kg", True),
-    ("m/s", True),
-    ("invalid", False),
-])
-def test_is_pint_unit(unit: str, expected: bool) -> None:
-    assert is_pint_unit(unit) == expected
+EXAMPLE_IDS = get_example_ids()  # List of example directory names
+
+@pytest.mark.parametrize("example_name", EXAMPLE_IDS)
+def test_example_snapshot(example_name: str, examples_dir: Path) -> None:
+    """Test each example directory."""
+    # One test per example
 ```
 
-**Process/Clear Cycle Tests:**
+**Cleanup/Setup:**
+
+From `tests/test_examples.py`:
 ```python
-def test_scenario_4_process_output_second_time(temp_example_dir: Path):
-    """
-    Scenario 4: F9 on output.md (second time) → should be stable.
-
-    Expected: File should NOT change (only timestamp should update).
-    This test documents the current bug where content changes.
-    """
-    # Process output.md first time
-    process_file(str(output_file), None, verbose=False)
-    first_content = normalize_for_comparison(output_file.read_text())
-
-    # Process output.md second time
-    process_file(str(output_file), None, verbose=False)
-    second_content = normalize_for_comparison(output_file.read_text())
-
-    # BUG: Currently fails - content should be stable
-    assert first_content == second_content, \
-        "Content should be stable on second processing"
+def test_example_snapshot(example_name: str, examples_dir: Path) -> None:
+    # ... setup
+    reset_unit_registry()  # Clean state before test
+    # ... test
 ```
 
-**Test Scenarios Covered:**
-1. **Scenario 1:** F9 on input.md → output.md generated
-2. **Scenario 2:** Shift+F9 on input.md → output.md cleaned (copy)
-3. **Scenario 3:** F9 on output.md (first time) → recalculated
-4. **Scenario 4:** F9 on output.md (second time) → should be stable (currently fails)
-5. **Scenario 5:** Shift+F9 on output.md → cleared
-6. **Scenario 6:** F9 on output.md after clear → should match Scenario 1 (currently fails)
+**Class-Based vs Function-Based:**
+- Preferred: Class-based for logical grouping
+- Used for: Feature grouping (TestNumberEvaluation, TestBinaryOperations)
+- Benefits: Organize related tests, share fixtures via method parameters
 
-**Running Process/Clear Cycle Tests:**
-```bash
-pytest tests/test_process_clear_cycle.py -v
-pytest tests/test_process_clear_cycle.py::test_scenario_4_process_output_second_time
-```
+## Test Coverage Gaps
+
+Based on exploration, areas with substantial test coverage:
+- Expression parsing and evaluation: 95% of tests focus here
+- Markdown/LaTeX parsing: Well covered
+- Pint backend integration: Well covered
+
+Areas with less emphasis:
+- CLI functionality: Tests via integration tests, less isolated CLI testing
+- Error paths: Basic coverage, edge cases may lack tests
+- Configuration system: Likely tested but not examined in detail
 
 ---
 
-*Testing analysis: 2026-01-12*
-*Update when test patterns change*
+*Testing analysis: 2026-05-21*
